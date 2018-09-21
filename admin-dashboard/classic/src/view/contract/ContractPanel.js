@@ -19,6 +19,73 @@ Ext.define('Admin.view.contract.ContractPanel', {
             title: '合同列表'
         },
         {
+        	margin: '10 0 0 0',
+        	height:80,
+        	tbar: [{
+                xtype: 'combobox',
+                reference:'searchFieldName',
+                hideLabel: true,
+                store:Ext.create("Ext.data.Store", {
+                    fields: ["name", "value"],
+                    data: [
+                        { name: '用户名', value: 'userName' },
+                        { name: '创建时间', value: 'createTime' }
+                    ]
+                }),
+                displayField: 'name',
+                valueField:'value',
+                value:'userName',
+                editable: false,
+                queryMode: 'local',
+                triggerAction: 'all',
+                //emptyText: 'Select a state...',
+                width: 135,
+                listeners:{
+                    select: 'searchComboboxSelectChange'
+                }
+            }, '-',{
+                xtype:'textfield',
+                reference:'searchFieldValue',
+                name:'userPanelSearchField'
+            }, '-',{
+                xtype: 'datefield',
+                hideLabel: true,
+                hidden:true,
+                format: 'Y/m/d H:i:s',
+                reference:'searchDataFieldValue',
+                fieldLabel: 'From',
+                name: 'from_date'
+            },{
+                xtype: 'datefield',
+                hideLabel: true,
+                hidden:true,
+                format: 'Y/m/d H:i:s',
+                reference:'searchDataFieldValue2',
+                fieldLabel: 'To',
+                name: 'to_date'
+            },'-',{
+                text: 'Search',
+                iconCls: 'fa fa-search',
+                handler: 'quickSearch'
+            }, '-',{
+                text: 'Search More',
+                iconCls: 'fa fa-search-plus',
+                handler: 'openSearchWindow' 
+            }, '->',{
+                text: 'Add',
+                tooltip: 'Add a new row',
+                iconCls: 'fa fa-plus',
+                handler: 'openAddWindow'    
+            },'-',{
+                text: 'Removes',
+                itemId: 'userPanelRemove',
+                tooltip: 'Remove the selected item',
+                iconCls:'fa fa-trash',
+                disabled: true,
+                handler: 'deleteMoreRows'   
+            }]
+        },
+        {
             html:'<br><hr>'
         },
         {
