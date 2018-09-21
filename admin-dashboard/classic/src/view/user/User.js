@@ -1,4 +1,4 @@
-﻿Ext.define('Admin.view.user.User', {
+Ext.define('Admin.view.user.User', {
     extend: 'Ext.container.Container',
     xtype: 'user',
     //requires: [],
