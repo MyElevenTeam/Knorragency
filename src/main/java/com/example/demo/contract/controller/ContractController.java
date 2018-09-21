@@ -110,5 +110,5 @@ public class ContractController {
 		return contractService.findAll(ContractQueryDTO.getWhereClause(contractQueryDTO), pageRequest.getPageable());
 		
 	}
-
+	
 }

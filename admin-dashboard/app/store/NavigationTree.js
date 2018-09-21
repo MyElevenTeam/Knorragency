@@ -22,6 +22,25 @@
                 //rowCls: 'nav-tree-badge nav-tree-badge-new',
                 viewType: 'user',
                 leaf: true
+            },{
+                text: '业务管理模块',
+                iconCls: 'x-fa fa-briefcase',
+                expanded: false,
+                selectable: false,
+                children: [
+                    {
+                        text: '合同管理',
+                        iconCls: 'x-fa fa-clipboard',
+                        viewType: 'contract',
+                        leaf: true
+                    },
+                    {
+                        text: '业务审核',
+                        iconCls: 'x-fa fa-pencil-square-o',
+                        viewType: 'page404',
+                        leaf: true
+                    }
+                ]
             }
         ]
     }
