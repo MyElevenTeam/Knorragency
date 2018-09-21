@@ -18,7 +18,7 @@ Ext.define('Admin.view.contract.ContractPanel', {
         {
             title: '合同列表'
         },
-        {
+        /*{
         	margin: '10 0 0 0',
         	height:80,
         	tbar: [{
@@ -87,10 +87,10 @@ Ext.define('Admin.view.contract.ContractPanel', {
         },
         {
             html:'<br><hr>'
-        },
+        },*/
         {
             xtype: 'gridpanel',
-            cls: 'user-grid',
+            cls: 'has-border',
             //title: '合同列表',
             bind: '{contractLists}',
             scrollable: false,
