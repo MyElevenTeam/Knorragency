@@ -1,4 +1,4 @@
-﻿Ext.define('Admin.view.main.Main', {
+Ext.define('Admin.view.main.Main', {
     extend: 'Ext.container.Viewport',
 
     requires: [

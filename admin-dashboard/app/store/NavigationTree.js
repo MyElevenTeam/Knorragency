@@ -1,4 +1,4 @@
-﻿Ext.define('Admin.store.NavigationTree', {
+Ext.define('Admin.store.NavigationTree', {
     extend: 'Ext.data.TreeStore',
 
     storeId: 'NavigationTree',
