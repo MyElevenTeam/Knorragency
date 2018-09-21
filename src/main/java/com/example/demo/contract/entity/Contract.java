@@ -32,7 +32,7 @@ public class Contract {
 	
 	private double total;           //金额
 	
-	private String area;
+	private String area;           //地方
 	
 	@Id
 	@GeneratedValue(strategy=GenerationType.IDENTITY)
