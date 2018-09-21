@@ -103,7 +103,7 @@ public class ContractController {
 	@GetMapping 
 	public Page<Contract> getPage(HttpSession session,ContractQueryDTO contractQueryDTO,ExtjsPageRequest pageRequest) {
 		
-		/*String userId = SessionUtil.getUserName(session);
+		/*String userId = SessionUtil.getUserName(session);  //通过session查找userId
 		if(userId!=null) {
 			contractQueryDTO.setEmployeeName(userId);
 		}*/
