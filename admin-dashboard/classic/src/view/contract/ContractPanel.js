@@ -18,8 +18,10 @@ Ext.define('Admin.view.contract.ContractPanel', {
         {
             title: '合同列表'
         },
-        /*{
-        	margin: '10 0 0 0',
+        {
+        	//margin: '10 0 0 0',
+            bodypadding:15,
+            cls: 'has-border',
         	height:80,
         	tbar: [{
                 xtype: 'combobox',
@@ -86,12 +88,9 @@ Ext.define('Admin.view.contract.ContractPanel', {
             }]
         },
         {
-            html:'<br><hr>'
-        },*/
-        {
             xtype: 'gridpanel',
             cls: 'has-border',
-            //title: '合同列表',
+            height:650,
             bind: '{contractLists}',
             scrollable: false,
             selModel: {type: 'checkboxmodel',checkOnly: true},     //多选框checkbox
@@ -99,7 +98,8 @@ Ext.define('Admin.view.contract.ContractPanel', {
             listeners: {                            
                     selectionchange: function(selModel, selections){
                         this.down('#userPanelRemove').setDisabled(selections.length === 0);
-                    }
+                    },
+                    cellclick: 'onGridCellItemClick'
             },
             columns: [
                 {xtype: 'gridcolumn',width: 40,dataIndex: 'id',text: 'id',hidden:true},
@@ -118,7 +118,7 @@ Ext.define('Admin.view.contract.ContractPanel', {
                 {xtype: 'gridcolumn', cls: 'content-column',width:100,dataIndex: 'area',text: '公司区域'},
                 {xtype: 'actioncolumn',cls: 'content-column', width: 150,dataIndex: 'bool',text: '操作',tooltip: 'edit ',
                     items: [
-                        {xtype: 'button', iconCls: 'x-fa fa-clipboard' , tooltip: '查看详情',handler: 'onLookButton'},
+                        {xtype: 'button', iconCls: 'x-fa fa-arrow-circle-o-down' , tooltip: '合同下载',handler: 'ondownloadButton'},
                         {xtype: 'button',iconCls: 'x-fa fa-close'   , tooltip: '删除合同',handler: 'onDeleteButton'},
                         {xtype: 'button',iconCls: 'x-fa fa-ban'     ,handler: 'onDisableButton'}
                     ]
@@ -134,3 +134,5 @@ Ext.define('Admin.view.contract.ContractPanel', {
         }
     ]
 });
+
+
