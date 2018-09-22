@@ -96649,9 +96649,10 @@ Ext.define('Admin.Application', {extend:Ext.app.Application, name:'Admin', store
 }});
 Ext.define('Admin.view.contract.Contract', {extend:Ext.container.Container, xtype:'contract', controller:'contractViewController', viewModel:{type:'contractViewModel'}, layout:'fit', items:[{xtype:'contractPanel'}]});
 Ext.define('Admin.view.contract.ContractEditWindow', {extend:Ext.window.Window, alias:'widget.contractEditWindow', height:200, minHeight:200, minWidth:300, width:500, scrollable:true, title:'合同修改窗口', closable:true, modal:true, layout:'fit'});
-Ext.define('Admin.view.contract.ContractPanel', {extend:Ext.panel.Panel, xtype:'contractPanel', layout:{type:'vbox', pack:'start', align:'stretch'}, items:[{title:'合同列表'}, {bodypadding:15, cls:'has-border', height:80, tbar:['-\x3e', {text:'导入合同', tooltip:'导入合同信息', iconCls:'fa fa-cloud-upload', handler:'uploadContract'}, '-', {text:'模板下载', tooltip:'合同模板下载', iconCls:'fa fa-cloud-download'}, '-', {text:'批量删除', itemId:'userPanelRemove', tooltip:'批量删除', iconCls:'fa fa-trash', disabled:true}]}, {xtype:'gridpanel', 
-cls:'has-border', height:650, bind:'{contractLists}', scrollable:false, selModel:{type:'checkboxmodel', checkOnly:true}, listeners:{selectionchange:function(selModel, selections) {
-  this.down('#userPanelRemove').setDisabled(selections.length === 0);
+Ext.define('Admin.view.contract.ContractPanel', {extend:Ext.panel.Panel, xtype:'contractPanel', layout:{type:'vbox', pack:'start', align:'stretch'}, items:[{title:'合同列表'}, {bodypadding:15, cls:'has-border', height:80, tbar:['-\x3e', {text:'导入合同', tooltip:'导入合同信息', iconCls:'fa fa-cloud-upload', handler:'uploadContract'}, '-', {text:'模板下载', tooltip:'合同模板下载', iconCls:'fa fa-cloud-download', listeners:{ss:function() {
+  return "\x3ca href\x3d'https://www.baidu.com'\x3e";
+}}}, '-', {text:'批量删除', itemId:'contractPanelRemove', tooltip:'批量删除', iconCls:'fa fa-trash', disabled:true, handler:'deleteMoreRows'}]}, {xtype:'gridpanel', cls:'has-border', height:650, bind:'{contractLists}', scrollable:false, selModel:{type:'checkboxmodel', checkOnly:true}, listeners:{selectionchange:function(selModel, selections) {
+  this.up('panel').down('#contractPanelRemove').setDisabled(selections.length === 0);
 }, cellclick:'onGridCellItemClick'}, columns:[{xtype:'gridcolumn', width:40, dataIndex:'id', text:'id', hidden:true}, {xtype:'gridcolumn', cls:'content-column', width:100, dataIndex:'contractNumber', text:'合同编号'}, {xtype:'gridcolumn', cls:'content-column', width:100, dataIndex:'customerName', text:'客户姓名'}, {xtype:'gridcolumn', cls:'content-column', width:100, dataIndex:'hoseName', text:'房源名称'}, {xtype:'gridcolumn', cls:'content-column', width:120, dataIndex:'employeeName', text:'房产经纪人姓名'}, {xtype:'datecolumn', 
 cls:'content-column', width:150, dataIndex:'startTime', text:'签约时间', flex:1, formatter:'date("Y/m/d H:i:s")'}, {xtype:'datecolumn', cls:'content-column', width:150, dataIndex:'endTime', text:'失效时间', flex:1, formatter:'date("Y/m/d H:i:s")'}, {xtype:'gridcolumn', cls:'content-column', width:90, dataIndex:'contractType', text:'合同类型'}, {xtype:'gridcolumn', cls:'content-column', width:100, dataIndex:'total', text:'金额', renderer:function(val) {
   return '\x3cspan\x3e' + Ext.util.Format.number(val, '0,000.00') + '万\x3c/span\x3e';
@@ -96677,6 +96678,8 @@ Ext.define('Admin.view.contract.ContractViewController', {extend:Ext.app.ViewCon
   var win = new Ext.window.Window({title:'合同细节', width:780, height:470, layout:'fit', html:"\x3ch1 style\x3d'text-align:center;'\x3e家乐房产中介合同\x3c/h1\x3e" + '\x3cbr\x3e' + "\x3ch5 style\x3d'text-align:right;'\x3e合同编号:" + record.get('contractNumber') + '\x3c/h5\x3e' + '\x3cbr\x3e\x3chr\x3e' + '\x3cp\x3e甲方于' + record.get('startTime') + '正式购入' + record.get('hoseName') + '一套,总价为' + record.get('total') + ',失效时间为' + record.get('endTime') + '\x3cp\x3e' + '\x3cbr\x3e' + '\x3ch3\x3e甲方:' + record.get('customerName') + 
   '\x26nbsp;\x26nbsp;乙方:' + record.get('employeeName') + '\x3cbr\x3e' + "\x3ch5 style\x3d'text-align:right;'\x3e签约时间:" + record.get('startTime') + '\x3c/h5\x3e'});
   win.show();
+}, ondownloadButton:function(btn) {
+  Ext.Ajax.request({url:'/contract/download', method:'post'});
 }, onDeleteButton:function(grid, rowIndex, colIndex) {
   Ext.MessageBox.confirm('提示', '确定删除该合同吗？', function(btn, text) {
     if (btn == 'yes') {
@@ -96685,6 +96688,32 @@ Ext.define('Admin.view.contract.ContractViewController', {extend:Ext.app.ViewCon
       store.remove(record);
     }
   }, this);
+}, deleteMoreRows:function(btn, rowIndex, colIndex) {
+  var grid = btn.up('gridpanel');
+  var selModel = grid.getSelectionModel();
+  if (selModel.hasSelection()) {
+    Ext.Msg.confirm('警告', '确定要删除吗？', function(button) {
+      if (button == 'yes') {
+        var rows = selModel.getSelection();
+        var selectIds = [];
+        Ext.each(rows, function(row) {
+          selectIds.push(row.data.id);
+        });
+        Ext.Ajax.request({url:'/contract/deletes', method:'post', params:{ids:selectIds}, success:function(response, options) {
+          var json = Ext.util.JSON.decode(response.responseText);
+          if (json.success) {
+            Ext.Msg.alert('操作成功', json.msg, function() {
+              grid.getStore().reload();
+            });
+          } else {
+            Ext.Msg.alert('操作失败', json.msg);
+          }
+        }});
+      }
+    });
+  } else {
+    Ext.Msg.alert('错误', '没有任何行被选中，无法进行删除操作！');
+  }
 }});
 Ext.define('Admin.view.contract.ContractViewModel', {extend:Ext.app.ViewModel, alias:'viewmodel.contractViewModel', stores:{contractLists:{type:'contractGridStroe'}}});
 Ext.define('Admin.view.dashboard.Dashboard', {extend:Ext.container.Container, xtype:'admindashboard', layout:'responsivecolumn', items:[{xtype:'network', userCls:'big-100 small-100'}, {xtype:'todo', userCls:'big-60 small-100'}, {xtype:'services', userCls:'big-40 small-100'}]});

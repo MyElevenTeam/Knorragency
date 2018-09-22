@@ -1734,6 +1734,15 @@
 .has-border .x-fa.x-action-col-icon {
     font-size: 13px !important;
 }
+/* C:/Users/Administrator/git/Knorragency/admin-dashboard/classic/src/view/contract/ContractPanel.scss:50 */
+.has-border .x-column-header {
+    line-height: 30px;
+    font-family: Microsoft Yahei;
+    font-size: 15px;
+    font-weight: bold;
+    color: #32a3a7;
+    background-color: #f5f5f5;
+}
 /* C:/Users/Administrator/git/Knorragency/admin-dashboard/classic/src/view/dashboard/Dashboard.scss:2 */
 .dashboard-main-chart .x-panel-body-default {
     color: #404040;

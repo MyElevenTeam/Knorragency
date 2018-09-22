@@ -41,6 +41,29 @@ Ext.define('Admin.view.contract.ContractViewController', {
 		win.show();
     },
 
+    ondownloadButton:function(btn){
+    	/*var mask = new Ext.LoadMask(Ext.getBody(), {
+			region : 'center',
+			msg : "下载文件中..."  
+        });
+        mask.show();*/
+
+
+    	 Ext.Ajax.request({
+	          url : '/contract/download', 
+	          method:'post'
+	          /*success: function(response, options) {
+	              var json = Ext.util.JSON.decode(response.responseText);
+	              if(json.success){
+	                Ext.Msg.alert('操作成功', json.msg);
+	              }else{
+	                 Ext.Msg.alert('操作失败', json.msg);
+	              }
+	          }*/
+	      });
+    	 //alert("sss");
+    },
+
     /*删除合同信息*/
 	onDeleteButton:function(grid, rowIndex, colIndex){
 
@@ -54,7 +77,44 @@ Ext.define('Admin.view.contract.ContractViewController', {
 
 			}
 		,this);
-	}
+	},
+
+	/*删除多条*/	
+	deleteMoreRows:function(btn, rowIndex, colIndex){
+      var grid = btn.up('gridpanel');
+      var selModel = grid.getSelectionModel();
+      if (selModel.hasSelection()){
+          Ext.Msg.confirm("警告", "确定要删除吗？", function (button) {
+              if (button == "yes") {
+                  var rows = selModel.getSelection();
+                  var selectIds = []; //要删除的id
+                  Ext.each(rows, function (row) {
+                      selectIds.push(row.data.id);
+                  });
+                  Ext.Ajax.request({
+                      url : '/contract/deletes', 
+                      method : 'post', 
+                      params : { 
+                        ids :selectIds
+                      }, 
+                      success: function(response, options) {
+                          var json = Ext.util.JSON.decode(response.responseText);
+                          if(json.success){
+                            Ext.Msg.alert('操作成功', json.msg, function() {
+                                  grid.getStore().reload();
+                              });
+                          }else{
+                             Ext.Msg.alert('操作失败', json.msg);
+                          }
+                      }
+                  });
+              }
+          });
+      }else {
+            Ext.Msg.alert("错误", "没有任何行被选中，无法进行删除操作！");
+      }
+		
+   }
 
     
 	

@@ -83,14 +83,19 @@ Ext.define('Admin.view.contract.ContractPanel', {
             	text: '模板下载',
                 tooltip: '合同模板下载',
                 iconCls: 'fa fa-cloud-download',
-                //handler: 'openAddWindow' 
+               // handler: 'ondownloadButton' 
+               listeners:{
+	               	ss:function(){
+	               		return "<a href='https://www.baidu.com'>";
+	               	}
+               }
             },'-',{
                 text: '批量删除',
-                itemId: 'userPanelRemove',
+                itemId: 'contractPanelRemove',
                 tooltip: '批量删除',
                 iconCls:'fa fa-trash',
                 disabled: true,
-                //handler: 'deleteMoreRows'   
+                handler: 'deleteMoreRows'   
             }]
         },
         {
@@ -103,7 +108,7 @@ Ext.define('Admin.view.contract.ContractPanel', {
             //选中时才激活删除多条按钮
             listeners: {                            
                     selectionchange: function(selModel, selections){
-                        this.down('#userPanelRemove').setDisabled(selections.length === 0);
+                        this.up('panel').down('#contractPanelRemove').setDisabled(selections.length === 0);
                     },
                     cellclick: 'onGridCellItemClick'
             },
