@@ -23,7 +23,7 @@ Ext.define('Admin.view.contract.ContractPanel', {
             bodypadding:15,
             cls: 'has-border',
         	height:80,
-        	tbar: [{
+        	tbar: [/*{
                 xtype: 'combobox',
                 reference:'searchFieldName',
                 hideLabel: true,
@@ -73,18 +73,24 @@ Ext.define('Admin.view.contract.ContractPanel', {
                 text: 'Search More',
                 iconCls: 'fa fa-search-plus',
                 handler: 'openSearchWindow' 
-            }, '->',{
-                text: 'Add',
-                tooltip: 'Add a new row',
-                iconCls: 'fa fa-plus',
-                handler: 'openAddWindow'    
+            }, */'->',{
+                text: '导入合同',
+                tooltip: '导入合同信息',
+                iconCls: 'fa fa-cloud-upload',
+                handler: 'uploadContract' 
+                   
             },'-',{
-                text: 'Removes',
+            	text: '模板下载',
+                tooltip: '合同模板下载',
+                iconCls: 'fa fa-cloud-download',
+                //handler: 'openAddWindow' 
+            },'-',{
+                text: '批量删除',
                 itemId: 'userPanelRemove',
-                tooltip: 'Remove the selected item',
+                tooltip: '批量删除',
                 iconCls:'fa fa-trash',
                 disabled: true,
-                handler: 'deleteMoreRows'   
+                //handler: 'deleteMoreRows'   
             }]
         },
         {

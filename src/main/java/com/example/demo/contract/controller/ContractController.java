@@ -1,9 +1,17 @@
 package com.example.demo.contract.controller;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
 import java.util.Optional;
 
 import javax.servlet.http.HttpSession;
 
+import org.apache.poi.POIXMLDocument;
+import org.apache.poi.POIXMLTextExtractor;
+import org.apache.poi.hwpf.extractor.WordExtractor;
+import org.apache.poi.openxml4j.opc.OPCPackage;
+import org.apache.poi.xwpf.extractor.XWPFWordExtractor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.MediaType;
@@ -15,7 +23,9 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.example.demo.common.beans.BeanUtils;
 import com.example.demo.common.controller.ExtAjaxResponse;
@@ -108,6 +118,42 @@ public class ContractController {
 			contractQueryDTO.setEmployeeName(userId);
 		}*/
 		return contractService.findAll(ContractQueryDTO.getWhereClause(contractQueryDTO), pageRequest.getPageable());
+		
+	}
+	
+	@PostMapping
+    public @ResponseBody ExtAjaxResponse uploadWord(@RequestParam(value = "file", required = true) MultipartFile file) {
+		// 获取上传的文件名
+        String fileName = file.getOriginalFilename();
+        System.out.println("fileName:"+fileName);
+        String buffer="";
+        try {
+        	
+        	if (fileName.endsWith(".doc")) {
+    			InputStream is = new FileInputStream(new File(fileName));
+    			WordExtractor ex = new WordExtractor(is);
+    			buffer = ex.getText();
+    			ex.close();
+    			Contract c=contractService.readWord(buffer);
+    			if(c!=null) {
+    				contractService.save(c);
+    			}
+    		} else if (fileName.endsWith("docx")) {
+    			OPCPackage opcPackage = POIXMLDocument.openPackage(fileName);
+    			POIXMLTextExtractor extractor = new XWPFWordExtractor(opcPackage);
+    			buffer = extractor.getText();
+    			extractor.close();
+    			Contract c=contractService.readWord(buffer);
+    			if(c!=null) {
+    				contractService.save(c);
+    			}
+    		} else {
+    			System.out.println("此文件不是word文件！");
+    		}
+        	 return new ExtAjaxResponse(true,"上传成功!");
+		} catch (Exception e) {
+			 return new ExtAjaxResponse(false,"上传失败!");
+		}
 		
 	}
 	

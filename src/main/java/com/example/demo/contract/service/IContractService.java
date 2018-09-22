@@ -19,5 +19,8 @@ public interface IContractService {
 	public void deleteAll(Long[] ids);
 	
 	public Page<Contract> findAll(Specification<Contract> spec, Pageable pageable);
+	
+	/*上传word文档*/
+	public Contract readWord(String buffer);
 
 }
