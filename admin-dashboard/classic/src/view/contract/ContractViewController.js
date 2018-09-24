@@ -7,6 +7,7 @@ Ext.define('Admin.view.contract.ContractViewController', {
     	btn.up('panel').up('container').add(Ext.widget('contractUploadWindow')).show();
     },
     onClickUploadFormSumbitButton: function (btn) {
+
 		var form = btn.up('window').down('form');;
 		form.getForm().submit({       
 			url:'/contract',
@@ -27,41 +28,32 @@ Ext.define('Admin.view.contract.ContractViewController', {
 
     /*查看合同信息*/
     onGridCellItemClick:function(view, td, cellIndex, record){
-    	var win = new Ext.window.Window({
-			title:'合同细节',
-			width:780,
-			height:470,
-			layout:'fit',
-			html:"<h1 style='text-align:center;'>家乐房产中介合同</h1>"+"<br>"+
-				 "<h5 style='text-align:right;'>合同编号:"+record.get('contractNumber')+"</h5>"+"<br><hr>"+
-				 "<p>甲方于"+record.get('startTime')+"正式购入"+record.get('hoseName')+"一套,总价为"+record.get('total')+",失效时间为"+record.get('endTime')+"<p>"+"<br>"+
-				 "<h3>甲方:"+record.get('customerName')+"&nbsp;&nbsp;乙方:"+record.get('employeeName')+"<br>"+
-				 "<h5 style='text-align:right;'>签约时间:"+record.get('startTime')+"</h5>"
-		});
-		win.show();
+    	if (cellIndex === 1){
+	    		var win = new Ext.window.Window({
+					title:'合同细节',
+					width:780,
+					height:470,
+					layout:'fit',
+					html:"<h1 style='text-align:center;'>家乐房产中介合同</h1>"+"<br>"+
+						 "<h5 style='text-align:right;'>合同编号:"+record.get('contractNumber')+"</h5>"+"<br><hr>"+
+						 "<p>甲方于"+record.get('startTime')+"正式购入"+record.get('hoseName')+"一套,总价为"+record.get('total')+",失效时间为"+record.get('endTime')+"<p>"+"<br>"+
+						 "<h3>甲方:"+record.get('customerName')+"&nbsp;&nbsp;乙方:"+record.get('employeeName')+"<br>"+
+						 "<h5 style='text-align:right;'>签约时间:"+record.get('startTime')+"</h5>"
+				});
+			    win.show();
+    	}
+
+
+    	
     },
 
     ondownloadButton:function(btn){
-    	/*var mask = new Ext.LoadMask(Ext.getBody(), {
-			region : 'center',
-			msg : "下载文件中..."  
-        });
-        mask.show();*/
+    	/*var ds = new Ext.data.Store( {
+	        proxy : new Ext.data.HttpProxy( {
+	            url : '/contract/download'
+	        })
+	    });*/
 
-
-    	 Ext.Ajax.request({
-	          url : '/contract/download', 
-	          method:'post'
-	          /*success: function(response, options) {
-	              var json = Ext.util.JSON.decode(response.responseText);
-	              if(json.success){
-	                Ext.Msg.alert('操作成功', json.msg);
-	              }else{
-	                 Ext.Msg.alert('操作失败', json.msg);
-	              }
-	          }*/
-	      });
-    	 //alert("sss");
     },
 
     /*删除合同信息*/

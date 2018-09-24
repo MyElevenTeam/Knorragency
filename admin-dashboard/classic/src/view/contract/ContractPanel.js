@@ -23,9 +23,10 @@ Ext.define('Admin.view.contract.ContractPanel', {
             bodypadding:15,
             cls: 'has-border',
         	height:80,
-        	tbar: [/*{
+        	tbar: [{
                 xtype: 'combobox',
                 reference:'searchFieldName',
+                hidden:true,
                 hideLabel: true,
                 store:Ext.create("Ext.data.Store", {
                     fields: ["name", "value"],
@@ -45,7 +46,7 @@ Ext.define('Admin.view.contract.ContractPanel', {
                 listeners:{
                     select: 'searchComboboxSelectChange'
                 }
-            }, '-',{
+            }, '-',/*{
                 xtype:'textfield',
                 reference:'searchFieldValue',
                 name:'userPanelSearchField'
@@ -69,11 +70,13 @@ Ext.define('Admin.view.contract.ContractPanel', {
                 text: 'Search',
                 iconCls: 'fa fa-search',
                 handler: 'quickSearch'
-            }, '-',{
-                text: 'Search More',
+            }, '-',*/{
+                //text: 'Search More',
+                cls:'has',
                 iconCls: 'fa fa-search-plus',
-                handler: 'openSearchWindow' 
-            }, */'->',{
+               
+                //handler: 'openSearchWindow' 
+            }, '->',{
                 text: '导入合同',
                 tooltip: '导入合同信息',
                 iconCls: 'fa fa-cloud-upload',
@@ -83,12 +86,10 @@ Ext.define('Admin.view.contract.ContractPanel', {
             	text: '模板下载',
                 tooltip: '合同模板下载',
                 iconCls: 'fa fa-cloud-download',
-               // handler: 'ondownloadButton' 
-               listeners:{
-	               	ss:function(){
-	               		return "<a href='https://www.baidu.com'>";
-	               	}
-               }
+                href:'/contract/downloadWord',
+                hrefTarget: '_self'
+
+                    
             },'-',{
                 text: '批量删除',
                 itemId: 'contractPanelRemove',
@@ -97,6 +98,7 @@ Ext.define('Admin.view.contract.ContractPanel', {
                 disabled: true,
                 handler: 'deleteMoreRows'   
             }]
+                
         },
         {
             xtype: 'gridpanel',
@@ -129,7 +131,7 @@ Ext.define('Admin.view.contract.ContractPanel', {
                 {xtype: 'gridcolumn', cls: 'content-column',width:100,dataIndex: 'area',text: '公司区域'},
                 {xtype: 'actioncolumn',cls: 'content-column', width: 150,dataIndex: 'bool',text: '操作',tooltip: 'edit ',
                     items: [
-                        {xtype: 'button', iconCls: 'x-fa fa-arrow-circle-o-down' , tooltip: '合同下载',handler: 'ondownloadButton'},
+                        {xtype: 'button', iconCls: 'x-fa fa-arrow-circle-o-down' , tooltip: '合同下载'},
                         {xtype: 'button',iconCls: 'x-fa fa-close'   , tooltip: '删除合同',handler: 'onDeleteButton'},
                         {xtype: 'button',iconCls: 'x-fa fa-ban'     ,handler: 'onDisableButton'}
                     ]

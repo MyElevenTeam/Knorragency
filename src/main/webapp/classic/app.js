@@ -96649,15 +96649,15 @@ Ext.define('Admin.Application', {extend:Ext.app.Application, name:'Admin', store
 }});
 Ext.define('Admin.view.contract.Contract', {extend:Ext.container.Container, xtype:'contract', controller:'contractViewController', viewModel:{type:'contractViewModel'}, layout:'fit', items:[{xtype:'contractPanel'}]});
 Ext.define('Admin.view.contract.ContractEditWindow', {extend:Ext.window.Window, alias:'widget.contractEditWindow', height:200, minHeight:200, minWidth:300, width:500, scrollable:true, title:'合同修改窗口', closable:true, modal:true, layout:'fit'});
-Ext.define('Admin.view.contract.ContractPanel', {extend:Ext.panel.Panel, xtype:'contractPanel', layout:{type:'vbox', pack:'start', align:'stretch'}, items:[{title:'合同列表'}, {bodypadding:15, cls:'has-border', height:80, tbar:['-\x3e', {text:'导入合同', tooltip:'导入合同信息', iconCls:'fa fa-cloud-upload', handler:'uploadContract'}, '-', {text:'模板下载', tooltip:'合同模板下载', iconCls:'fa fa-cloud-download', listeners:{ss:function() {
-  return "\x3ca href\x3d'https://www.baidu.com'\x3e";
-}}}, '-', {text:'批量删除', itemId:'contractPanelRemove', tooltip:'批量删除', iconCls:'fa fa-trash', disabled:true, handler:'deleteMoreRows'}]}, {xtype:'gridpanel', cls:'has-border', height:650, bind:'{contractLists}', scrollable:false, selModel:{type:'checkboxmodel', checkOnly:true}, listeners:{selectionchange:function(selModel, selections) {
+Ext.define('Admin.view.contract.ContractPanel', {extend:Ext.panel.Panel, xtype:'contractPanel', layout:{type:'vbox', pack:'start', align:'stretch'}, items:[{title:'合同列表'}, {bodypadding:15, cls:'has-border', height:80, tbar:[{xtype:'combobox', reference:'searchFieldName', hidden:true, hideLabel:true, store:Ext.create('Ext.data.Store', {fields:['name', 'value'], data:[{name:'用户名', value:'userName'}, {name:'创建时间', value:'createTime'}]}), displayField:'name', valueField:'value', value:'userName', editable:false, 
+queryMode:'local', triggerAction:'all', width:135, listeners:{select:'searchComboboxSelectChange'}}, '-', {cls:'has', iconCls:'fa fa-search-plus'}, '-\x3e', {text:'导入合同', tooltip:'导入合同信息', iconCls:'fa fa-cloud-upload', handler:'uploadContract'}, '-', {text:'模板下载', tooltip:'合同模板下载', iconCls:'fa fa-cloud-download', href:'/contract/downloadWord', hrefTarget:'_self'}, '-', {text:'批量删除', itemId:'contractPanelRemove', tooltip:'批量删除', iconCls:'fa fa-trash', disabled:true, handler:'deleteMoreRows'}]}, {xtype:'gridpanel', 
+cls:'has-border', height:650, bind:'{contractLists}', scrollable:false, selModel:{type:'checkboxmodel', checkOnly:true}, listeners:{selectionchange:function(selModel, selections) {
   this.up('panel').down('#contractPanelRemove').setDisabled(selections.length === 0);
 }, cellclick:'onGridCellItemClick'}, columns:[{xtype:'gridcolumn', width:40, dataIndex:'id', text:'id', hidden:true}, {xtype:'gridcolumn', cls:'content-column', width:100, dataIndex:'contractNumber', text:'合同编号'}, {xtype:'gridcolumn', cls:'content-column', width:100, dataIndex:'customerName', text:'客户姓名'}, {xtype:'gridcolumn', cls:'content-column', width:100, dataIndex:'hoseName', text:'房源名称'}, {xtype:'gridcolumn', cls:'content-column', width:120, dataIndex:'employeeName', text:'房产经纪人姓名'}, {xtype:'datecolumn', 
 cls:'content-column', width:150, dataIndex:'startTime', text:'签约时间', flex:1, formatter:'date("Y/m/d H:i:s")'}, {xtype:'datecolumn', cls:'content-column', width:150, dataIndex:'endTime', text:'失效时间', flex:1, formatter:'date("Y/m/d H:i:s")'}, {xtype:'gridcolumn', cls:'content-column', width:90, dataIndex:'contractType', text:'合同类型'}, {xtype:'gridcolumn', cls:'content-column', width:100, dataIndex:'total', text:'金额', renderer:function(val) {
   return '\x3cspan\x3e' + Ext.util.Format.number(val, '0,000.00') + '万\x3c/span\x3e';
-}}, {xtype:'gridcolumn', cls:'content-column', width:100, dataIndex:'area', text:'公司区域'}, {xtype:'actioncolumn', cls:'content-column', width:150, dataIndex:'bool', text:'操作', tooltip:'edit ', items:[{xtype:'button', iconCls:'x-fa fa-arrow-circle-o-down', tooltip:'合同下载', handler:'ondownloadButton'}, {xtype:'button', iconCls:'x-fa fa-close', tooltip:'删除合同', handler:'onDeleteButton'}, {xtype:'button', iconCls:'x-fa fa-ban', handler:'onDisableButton'}]}], dockedItems:[{xtype:'pagingtoolbar', dock:'bottom', 
-itemId:'userPaginationToolbar', displayInfo:true, bind:'{contractLists}'}]}]});
+}}, {xtype:'gridcolumn', cls:'content-column', width:100, dataIndex:'area', text:'公司区域'}, {xtype:'actioncolumn', cls:'content-column', width:150, dataIndex:'bool', text:'操作', tooltip:'edit ', items:[{xtype:'button', iconCls:'x-fa fa-arrow-circle-o-down', tooltip:'合同下载'}, {xtype:'button', iconCls:'x-fa fa-close', tooltip:'删除合同', handler:'onDeleteButton'}, {xtype:'button', iconCls:'x-fa fa-ban', handler:'onDisableButton'}]}], dockedItems:[{xtype:'pagingtoolbar', dock:'bottom', itemId:'userPaginationToolbar', 
+displayInfo:true, bind:'{contractLists}'}]}]});
 Ext.define('Admin.view.contract.ContractUploadWindow', {extend:Ext.window.Window, alias:'widget.contractUploadWindow', height:180, minHeight:100, minWidth:300, width:500, scrollable:true, title:'Contract Upload Window', closable:true, constrain:true, defaultFocus:'textfield', modal:true, layout:'fit', items:[{xtype:'form', layout:'form', padding:'10px', items:[{xtype:'filefield', width:400, labelWidth:80, name:'file', emptyText:'请选择.doc/.docx文件', fieldLabel:'上传文件:', labelSeparator:'', buttonConfig:{xtype:'filebutton', 
 glyph:'', iconCls:'x-fa fa-cloud-upload', text:'上传'}}]}], buttons:['-\x3e', {xtype:'button', text:'上传', handler:'onClickUploadFormSumbitButton'}, {xtype:'button', text:'取消', handler:function(btn) {
   btn.up('window').close();
@@ -96675,11 +96675,12 @@ Ext.define('Admin.view.contract.ContractViewController', {extend:Ext.app.ViewCon
     Ext.Msg.alert('Error', action.result.msg);
   }});
 }, onGridCellItemClick:function(view, td, cellIndex, record) {
-  var win = new Ext.window.Window({title:'合同细节', width:780, height:470, layout:'fit', html:"\x3ch1 style\x3d'text-align:center;'\x3e家乐房产中介合同\x3c/h1\x3e" + '\x3cbr\x3e' + "\x3ch5 style\x3d'text-align:right;'\x3e合同编号:" + record.get('contractNumber') + '\x3c/h5\x3e' + '\x3cbr\x3e\x3chr\x3e' + '\x3cp\x3e甲方于' + record.get('startTime') + '正式购入' + record.get('hoseName') + '一套,总价为' + record.get('total') + ',失效时间为' + record.get('endTime') + '\x3cp\x3e' + '\x3cbr\x3e' + '\x3ch3\x3e甲方:' + record.get('customerName') + 
-  '\x26nbsp;\x26nbsp;乙方:' + record.get('employeeName') + '\x3cbr\x3e' + "\x3ch5 style\x3d'text-align:right;'\x3e签约时间:" + record.get('startTime') + '\x3c/h5\x3e'});
-  win.show();
+  if (cellIndex === 1) {
+    var win = new Ext.window.Window({title:'合同细节', width:780, height:470, layout:'fit', html:"\x3ch1 style\x3d'text-align:center;'\x3e家乐房产中介合同\x3c/h1\x3e" + '\x3cbr\x3e' + "\x3ch5 style\x3d'text-align:right;'\x3e合同编号:" + record.get('contractNumber') + '\x3c/h5\x3e' + '\x3cbr\x3e\x3chr\x3e' + '\x3cp\x3e甲方于' + record.get('startTime') + '正式购入' + record.get('hoseName') + '一套,总价为' + record.get('total') + ',失效时间为' + record.get('endTime') + '\x3cp\x3e' + '\x3cbr\x3e' + '\x3ch3\x3e甲方:' + record.get('customerName') + 
+    '\x26nbsp;\x26nbsp;乙方:' + record.get('employeeName') + '\x3cbr\x3e' + "\x3ch5 style\x3d'text-align:right;'\x3e签约时间:" + record.get('startTime') + '\x3c/h5\x3e'});
+    win.show();
+  }
 }, ondownloadButton:function(btn) {
-  Ext.Ajax.request({url:'/contract/download', method:'post'});
 }, onDeleteButton:function(grid, rowIndex, colIndex) {
   Ext.MessageBox.confirm('提示', '确定删除该合同吗？', function(btn, text) {
     if (btn == 'yes') {

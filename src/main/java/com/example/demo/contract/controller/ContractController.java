@@ -1,6 +1,7 @@
 package com.example.demo.contract.controller;
 
 import java.io.BufferedInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -9,6 +10,9 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import javax.servlet.http.HttpServletRequest;
@@ -16,7 +20,20 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.apache.poi.POIXMLTextExtractor;
+import org.apache.poi.hssf.usermodel.HSSFCell;
+import org.apache.poi.hssf.usermodel.HSSFRichTextString;
+import org.apache.poi.hssf.usermodel.HSSFRow;
+import org.apache.poi.hssf.usermodel.HSSFSheet;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.hwpf.HWPFDocument;
 import org.apache.poi.hwpf.extractor.WordExtractor;
+import org.apache.poi.hwpf.usermodel.Range;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.util.CellRangeAddress;
+import org.apache.poi.xssf.usermodel.XSSFCellStyle;
+import org.apache.poi.xssf.usermodel.XSSFRow;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.apache.poi.xwpf.extractor.XWPFWordExtractor;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -169,40 +186,86 @@ public class ContractController {
 	}
 	
 	
+	@RequestMapping("/downloadWord")
+    public void downloadWord(HttpServletRequest request, HttpServletResponse response)throws IOException{
+		String tmpFile = "classpath:template.doc";
+		FileInputStream tempFileInputStream = new FileInputStream(ResourceUtils.getFile(tmpFile));
+		
+		Map<String, String> datas = new HashMap<String, String>();
+	    datas.put("title", "标题部份");
+	    datas.put("content", "这里是内容，测试使用POI导出到Word的内容！");
+	    datas.put("author", "知识林");
+	    datas.put("url", "http://www.zslin.com");
+		
+		HWPFDocument document = new HWPFDocument(tempFileInputStream);
+	    // 读取文本内容
+	    Range bodyRange = document.getRange();
+	    // 替换内容
+	    for (Map.Entry<String, String> entry : datas.entrySet()) {
+	        bodyRange.replaceText("${" + entry.getKey() + "}", entry.getValue());
+	    }
+	    
+	    //导出到文件
+	    /*ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+	    document.write(byteArrayOutputStream);*/
+	    
+	    response.setHeader("Content-disposition", "attachment;filename=createList.doc");//默认Excel名称
+        response.flushBuffer();
+        document.write(response.getOutputStream());
+	}
 	
 	
 	
-	@PostMapping("/download")
-	  public ExtAjaxResponse testDownload(HttpServletRequest request,HttpServletResponse response) throws IOException {
-		//得到要下载的文件名
-        String fileName = request.getParameter("1.doc");  //23239283-92489-阿凡达.avi
-        //fileName = new String(fileName.getBytes("iso8859-1"),"UTF-8");
-        //得到要下载的文件
-        File file = new File("C:\\Users\\Administrator\\Desktop\\ww\\" + fileName);
+	/*下载excel文档*/
+	@RequestMapping("/downloadExcel")
+    public void downloadExcel(HttpServletRequest request, HttpServletResponse response)throws IOException
+    {  
+	   System.out.println("download");
+	    //创建工作簿
+		@SuppressWarnings("resource")
+		XSSFWorkbook wb = new XSSFWorkbook();
+		//创建一个sheet
+		XSSFSheet sheet = wb.createSheet();
+		
+		// 创建单元格样式
+		XSSFCellStyle style =  wb.createCellStyle();	
+		
+		//为单元格添加背景样式
+		for (int i = 0; i < 6; i++) { //需要6行表格
+		    Row  row =	sheet.createRow(i); //创建行
+			for (int j = 0; j < 6; j++) {//需要6列
+				row.createCell(j).setCellStyle(style);
+			}
+		}
+		
+		//合并单元格
+		sheet.addMergedRegion(new CellRangeAddress(0, 1, 0, 0));//合并单元格，cellRangAddress四个参数，第一个起始行，第二终止行，第三个起始列，第四个终止列
+		sheet.addMergedRegion(new CellRangeAddress(0, 0, 1, 5));
+		
+		//tian入数据
+		XSSFRow row = sheet.getRow(0); //获取第一行
+		row.getCell(1).setCellValue("2018期末考试"); //在第一行中创建一个单元格并赋值
+		XSSFRow row1 = sheet.getRow(1); //获取第二行，为每一列添加字段
+		row1.getCell(1).setCellValue("语文");
+		row1.getCell(2).setCellValue("数学");
+		row1.getCell(3).setCellValue("英语");
+		row1.getCell(4).setCellValue("物理");
+		row1.getCell(5).setCellValue("化学");
+		XSSFRow row2 = sheet.getRow(2); //获取第三行
+		row2.getCell(0).setCellValue("张三");
+		XSSFRow row3 = sheet.getRow(3); //获取第四行
+		row3.getCell(0).setCellValue("张三");
+		XSSFRow row4 = sheet.getRow(4); //获取第五行
+		row4.getCell(0).setCellValue("张三");
+		XSSFRow row5 = sheet.getRow(5); //获取第五行
+		row5.getCell(0).setCellValue("张三");
         
-      //处理文件名
-        //String realname = fileName.substring(fileName.indexOf("_")+1);
-        //设置响应头，控制浏览器下载该文件
-        response.setHeader("content-disposition", "attachment;filename=" + URLEncoder.encode("1.doc", "UTF-8"));
-        //读取要下载的文件，保存到文件输入流
-        FileInputStream in = new FileInputStream("C:\\Users\\Administrator\\Desktop\\ww\\1.doc");
-        //创建输出流
-        OutputStream out = response.getOutputStream();
-        //创建缓冲区
-        byte buffer[] = new byte[1024];
-        int len = 0;
-        //循环将输入流中的内容读取到缓冲区当中
-        while((len=in.read(buffer))>0){
-            //输出缓冲区的内容到浏览器，实现文件下载
-            out.write(buffer, 0, len);
-        }
-        //关闭文件输入流
-        in.close();
-        //关闭输出流
-        out.close();
-        System.out.println("success");
-	        return new ExtAjaxResponse(true,"上传成功!");
-	  }
+        //response.setContentType("application/octet-stream");
+        response.setHeader("Content-disposition", "attachment;filename=createList.xls");//默认Excel名称
+        response.flushBuffer();
+        wb.write(response.getOutputStream());
+    }
+
 	
 	
 }
