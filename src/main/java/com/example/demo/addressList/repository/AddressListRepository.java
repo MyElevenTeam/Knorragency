@@ -5,6 +5,6 @@ import org.springframework.data.repository.PagingAndSortingRepository;
 
 import com.example.demo.addressList.entity.Employee;
 
-public interface AddressListRepository extends PagingAndSortingRepository<Employee,Long>,JpaSpecificationExecutor<Employee> {
+public interface AddressListRepository extends JpaSpecificationExecutor<Employee>,PagingAndSortingRepository<Employee , Long>{
 
 }
