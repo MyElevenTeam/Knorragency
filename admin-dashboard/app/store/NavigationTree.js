@@ -41,6 +41,12 @@ Ext.define('Admin.store.NavigationTree', {
                         leaf: true
                     }
                 ]
+            },{
+                text: '通讯录',
+                iconCls: 'x-fa fa-address-card',
+                //rowCls: 'nav-tree-badge nav-tree-badge-new',
+                viewType: 'user',
+                leaf: true
             }
         ]
     }

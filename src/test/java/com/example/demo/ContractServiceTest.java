@@ -35,11 +35,11 @@ import com.example.demo.contract.service.IContractService;
 @RunWith(SpringRunner.class)
 @SpringBootTest
 public class ContractServiceTest {
-	
+	/*
 	@Autowired
-	private IContractService contractService;
-
-	@Test
+	private IContractService contractService;*/
+	
+	/*@Test
 	public void readWord() throws IOException, ParseException, XmlException, OpenXML4JException {
 		String buffer="";
 		String path="C:\\Users\\Administrator\\Desktop\\2.docx";
@@ -99,7 +99,7 @@ public class ContractServiceTest {
 
 	    build(ResourceUtils.getFile(tmpFile), datas, expFile);
 	}
-
+*/
 
 
 	
