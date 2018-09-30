@@ -138,7 +138,7 @@ Ext.define('Ext.calendar.panel.Panel', {
     config: {
         /**
          * @cfg {Object} calendarList
-         * The config for creating the {@link Ext.calendar.List calendar list}.
+         * The config for creating the {@link Ext.calendar.List calendar list).
          */
         calendarList: {
             xtype: 'calendar-list',

@@ -1237,7 +1237,6 @@ Ext.define('Ext.calendar.view.Days', {
         handleEventTap: function(e) {
             var event = this.getEvent(e);
             if (event) {
-                e.preventDefault();
                 this.onEventTap(event);
             }
         },
@@ -1749,7 +1748,7 @@ Ext.define('Ext.calendar.view.Days', {
         updateTimeLabels: function() {
             var times = this.generateTimeLabels(),
                 nodes = this.timeContainer.dom.childNodes,
-                len, i;
+                i;
 
             //<debug>
             //Should never get here

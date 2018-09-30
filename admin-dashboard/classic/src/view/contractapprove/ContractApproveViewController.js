@@ -49,7 +49,7 @@
             layout: 'fit',
             items:[new Ext.Panel({         
 	           resizeTabs :true,
-	           autoScroll : true,
+	           autoScroll : false,
 	           html:'<iframe scrolling="auto" frameborder="0" width="100%" height="100%" src='+diagramResourceUrl+'></iframe>'
 	       })]
         });
@@ -124,6 +124,14 @@
         	//经理审批
         	var win = this.setCurrentView(view,taskDefinitionKey,'经理审批');
         	win.down('form').getForm().loadRecord(record);
+        }else if (taskDefinitionKey == 'modifyApply') {
+        	//申请人调整申请：可以编写到工具类中
+        	var win = this.setCurrentView(view,taskDefinitionKey,'调整申请表单');
+        	win.down('form').getForm().loadRecord(record);
+        }else if (taskDefinitionKey == 'confirm') {
+        	//申请人销假
+        	var win = this.setCurrentView(view,taskDefinitionKey,'确认表单');
+        	win.down('form').getForm().loadRecord(record);
         }
         
     },
@@ -157,7 +165,7 @@
                     Ext.Msg.alert('操作成功', json.msg, function() {
                     	form.up('window').close();
                         //grid.getStore().reload();
-                        Ext.data.StoreManager.lookup('leaveApproveStore').load();
+                        Ext.data.StoreManager.lookup('contractApproveStore').load();
                     });
                 } else {
                     Ext.Msg.alert('操作失败', json.msg);
@@ -182,19 +190,69 @@
         this.complete(url,variables,form);
     },
     //经理审批
-    onClickHrAuditFormSubmitButton: function(btn) {
+    onClickManagerAuditFormSubmitButton: function(btn) {
         var form = btn.up('form');
     	var values = form.getValues();
     	var url = 'contract/complete/' + values.taskId;
     	var variables = [{
-			key: 'hrPass',
-			value: values.hrPass,//获取表单选择的value
+			key: 'manLeaderPass',
+			value: values.manLeaderPass,//获取表单选择的value
 			type: 'B'
 		},{
-			key: 'hrBackReason',
-			value: values.hrBackReason,//获取表单选择的value
+			key: 'managerBackReason',
+			value: values.managerBackReason,//获取表单选择的value
 			type: 'S'
 		}];
         this.complete(url,variables,form);
+    },
+    //调整申请
+    onClickModifyApplyFormSubmitButton: function(btn) {
+        var form = btn.up('form');
+    	var values = form.getValues();
+    	var url = 'contract/complete/' + values.taskId;
+    	var variables = [{
+			key: 'reApply',
+			value: values.reApply,//获取表单选择的value
+			type: 'B'
+		}/*,{
+			key: 'leaveType',
+			value: values.leaveType,//获取表单选择的value
+			type: 'S'
+		},{
+			key: 'startTime',
+			value: values.startTime,//获取表单选择的value
+			type: 'D'
+		},{
+			key: 'endTime',
+			value: values.endTime,//获取表单选择的value
+			type: 'D'
+		},{
+			key: 'reason',
+			value: values.reason,//获取表单选择的value
+			type: 'S'
+		}*/];
+        this.complete(url,variables,form);
+    },
+    //确认
+    onClickConfirmFormSubmitButton: function(btn) {
+        
+    	var form = btn.up('form');
+        if(form.isValid()){
+            var values = form.getValues();
+            var url = 'contract/complete/' + values.taskId;
+            var variables = [{
+                key: 'realityStartTime',
+                value: values.realityStartTime,//获取表单选择的value
+                type: 'D'
+            },{
+                key: 'realityEndTime',
+                value: values.realityEndTime,//获取表单选择的value
+                type: 'D'
+            }];
+            this.complete(url,variables,form);
+        }else{
+            Ext.Msg.alert('提示','不允许为空');
+        }
+     	
     }
 });

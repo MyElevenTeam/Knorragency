@@ -144,15 +144,15 @@ Ext.define('Ext.calendar.store.Events', {
             R = Ext.calendar.date.Range,
             current = me.range,
             prefetchSettings = me.getPrefetchSetting(),
-            fetchCount = 0,
-            isLeading = false,
-            fetchStart, fetchEnd,
             fullStart = D.subtract(range.start, prefetchSettings.unit, prefetchSettings.amount, true),
             fullEnd = D.add(range.end, prefetchSettings.unit, prefetchSettings.amount, true),
             newRange = {
                 actual: range.clone(),
                 full: new R(fullStart, fullEnd)
-            };
+            },
+            fetchCount = 0,
+            isLeading = false,
+            fetchStart, fetchEnd;
 
         if (me.compareRange(current, newRange)) {
             return;
@@ -226,16 +226,11 @@ Ext.define('Ext.calendar.store.Events', {
 
         abortAll: function() {
             var requests = this.requests,
-                request, id;
+                id;
 
             for (id in requests) {
-                request = requests[id];
-                
-                if (request && !request.destroyed) {
-                    request.abort();
-                }
+                requests[id].abort();
             }
-            
             this.requests = {};
         },
 

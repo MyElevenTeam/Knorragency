@@ -148,21 +148,8 @@ Ext.define('Ext.calendar.model.EventBase', {
      * over 24 hours or more.
      */
     isSpan: function() {
-        var me = this,
-            DATE = Ext.Date,
-            startTime = me.data.startTime,
-            nextDayStart;
-
-        if (me.getAllDay()) {
-            return true;
-        } else if (!startTime) {
-            return me.getDuration() > 1440;
-        }
-
-        nextDayStart = DATE.add(DATE.clearTime(DATE.clone(startTime)), DATE.DAY, 1);
-
-        return DATE.diff(startTime, nextDayStart, 'mi') < me.getDuration();
-        
+        // Either an all day event, or duration >= 1 day
+        return this.getAllDay() || this.getDuration() >= 1440;
     },
 
     /**
@@ -186,7 +173,7 @@ Ext.define('Ext.calendar.model.EventBase', {
 
     /**
      * Sets the calendar of this event. Also sets the underlying
-     * {@link #setCalendarId calendar id}.
+     * {@link setCalendarId calendar id}.
      * @param {Ext.calendar.model.Calendar} calendar The calendar.
      * @param {Boolean} [dirty=true] `false` to not mark this record as dirty. Useful
      * for inferring a calendar id when doing nested loading.

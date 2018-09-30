@@ -11,6 +11,8 @@ public class ContractDTO {
 	//业务数据字段
 	private Long id;
 	
+	private String userId;
+	
 	private String contractNumber;     //合同号
 	
 	private String customerName;       //客户姓名
@@ -55,6 +57,10 @@ public class ContractDTO {
 
 	public Long getId() {
 		return id;
+	}
+	
+	public String getUserId() {
+		return userId;
 	}
 
 	public String getContractNumber() {
@@ -138,6 +144,10 @@ public class ContractDTO {
 
 	public void setId(Long id) {
 		this.id = id;
+	}
+	
+	public void setUserId(String userId) {
+		this.userId = userId;
 	}
 
 	public void setContractNumber(String contractNumber) {

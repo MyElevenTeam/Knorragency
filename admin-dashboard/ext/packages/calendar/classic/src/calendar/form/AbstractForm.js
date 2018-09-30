@@ -27,9 +27,16 @@ Ext.define('Ext.calendar.form.AbstractForm', {
          * @cfg {Object} calendarField
          * The config for the calendar field.
          */
+        idField:{
+            xtype: 'textfield',
+            fieldLabel: '序号',
+            name: 'id',
+            hidden: true
+          //  allowBlank: false
+        },
         calendarField: {
             xtype: 'calendar-calendar-picker',
-            fieldLabel: 'Calendar',
+            fieldLabel: '类型',
             name: 'calendarId',
             forceSelection: true,
             editable: false,
@@ -44,7 +51,7 @@ Ext.define('Ext.calendar.form.AbstractForm', {
          */
         titleField: {
             xtype: 'textfield',
-            fieldLabel: 'Title',
+            fieldLabel: '标题',
             name: 'title',
             allowBlank: false
         },
@@ -55,7 +62,7 @@ Ext.define('Ext.calendar.form.AbstractForm', {
          */
         fromContainer: {
             xtype: 'fieldcontainer',
-            fieldLabel: 'From',
+            fieldLabel: '开始',
             layout: 'hbox'
         },
 
@@ -67,6 +74,7 @@ Ext.define('Ext.calendar.form.AbstractForm', {
             xtype: 'datefield',
             itemId: 'startDate',
             name: 'startDate',
+          //  format: 'Y/m/d H:i:s',
             allowBlank: false
         },
 
@@ -87,7 +95,7 @@ Ext.define('Ext.calendar.form.AbstractForm', {
          */
         toContainer: {
             xtype: 'fieldcontainer',
-            fieldLabel: 'To',
+            fieldLabel: '结束',
             layout: 'hbox'
         },
 
@@ -99,6 +107,7 @@ Ext.define('Ext.calendar.form.AbstractForm', {
             xtype: 'datefield',
             itemId: 'endDate',
             name: 'endDate',
+          //  format: 'Y/m/d H:i:s',
             allowBlank: false
         },
 
@@ -121,7 +130,7 @@ Ext.define('Ext.calendar.form.AbstractForm', {
             xtype: 'checkbox',
             itemId: 'allDay',
             name: 'allDay',
-            boxLabel: 'All Day',
+            boxLabel: '全天',
             hideEmptyLabel: false,
             handler: 'onAllDayChange'
         },
@@ -132,7 +141,7 @@ Ext.define('Ext.calendar.form.AbstractForm', {
          */
         descriptionField: {
             xtype: 'textarea',
-            fieldLabel: 'Description',
+            fieldLabel: '详细内容',
             name: 'description',
             flex: 1
         },
@@ -142,7 +151,7 @@ Ext.define('Ext.calendar.form.AbstractForm', {
          * The config for the drop button. `null` to not show this button.
          */
         dropButton: {
-            text: 'Delete',
+            text: '删除',
             handler: 'onDropTap'
         },
 
@@ -151,7 +160,7 @@ Ext.define('Ext.calendar.form.AbstractForm', {
          * The config for the save button.
          */
         saveButton: {
-            text: 'Save',
+            text: '保存',
             handler: 'onSaveTap'
         },
 
@@ -160,7 +169,7 @@ Ext.define('Ext.calendar.form.AbstractForm', {
          * The config for the cancel button.
          */
         cancelButton: {
-            text: 'Cancel',
+            text: '取消',
             handler: 'onCancelTap'
         }
     },
@@ -226,6 +235,7 @@ Ext.define('Ext.calendar.form.AbstractForm', {
             bodyPadding: 10,
             items: [
                 calField,
+                me.getIdField(),
                 me.getTitleField(),
                 fromCt,
                 toCt,
@@ -247,23 +257,84 @@ Ext.define('Ext.calendar.form.AbstractForm', {
         },
 
         onCancelTap: function() {
+            // var form = this.form;
+            // form.getForm().findField('description').setValue(1);
             this.fireCancel();
         },
 
         onDropTap: function() {
+            var form = this.form,
+            values = form.getForm().getFieldValues();
+                if (!form.isValid()) {
+                    return;
+                }
+            Ext.Ajax.request({ 
+                url : '/calendar/delete', 
+                method : 'post', 
+                //headers: {'Content-Type':'application/json'},
+                params : {
+                        id:values.id
+                }, 
+                success: function(response, options) {
+                }
+            });
             this.fireDrop();
         },
 
         onSaveTap: function() {
             var form = this.form,
                 values = form.getForm().getFieldValues();
+            var id = values.id;
+                if (!form.isValid()) {
+                    return;
+                }
+                values.allDay = this.down('#allDay').checked;
+ 
+            if(values.allDay == true){
+                 var stime = Ext.util.Format.date(values.startDate,'Y-m-d') + 'T00:00:00.000Z';
+                 var etime = Ext.util.Format.date(values.endDate,'Y-m-d') + 'T24:00:00.000Z';
+            }else{
+                 var stime = Ext.util.Format.date(values.startDate,'Y-m-d') + 'T' + Ext.util.Format.date(values.startTime,'H:i:s')+'.000Z';
+                 var etime = Ext.util.Format.date(values.endDate,'Y-m-d') + 'T' + Ext.util.Format.date(values.endTime,'H:i:s')+'.000Z';
+            }
+          //  form.lookupReference('title').setValue("465346");
+            var me = this;
+            
 
-            if (!form.isValid()) {
-                return;
+            if(id.search("Ext") != -1){
+             var data =  JSON.stringify({
+                                    startDate : stime,
+                                    endDate :   etime,
+                                    calendarId : values.calendarId,
+                                    title : values.title,
+                                    description : values.description,
+                                    allDay : values.allDay
+                            });
+
+               
+            }else{
+                var data = JSON.stringify({
+                                    id : id,
+                                    startDate : stime,
+                                    endDate :   etime,
+                                    calendarId : values.calendarId,
+                                    title : values.title,
+                                    description : values.description,
+                                    allDay : values.allDay
+                            });
             }
 
-            values.allDay = this.down('#allDay').checked;
-            this.fireSave(this.produceEventData(values));
+             Ext.Ajax.request({ 
+                            url : '/calendar', 
+                            method : 'post', 
+                            headers: {'Content-Type':'application/json'},
+                            params : data,
+                            success: function(response, options) {
+                                    values.id=response.responseText; 
+                                    me.fireSave(me.produceEventData(values));
+                                   // window.location.reload();
+                            }
+                        });
         }
     }
 });

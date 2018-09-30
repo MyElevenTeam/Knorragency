@@ -48,6 +48,12 @@ Ext.define('Admin.store.NavigationTree', {
                 viewType: 'addressList',
                 leaf: true
             },{
+                text: '日程管理',
+                iconCls: 'x-fa fa-calendar',
+                //rowCls: 'nav-tree-badge nav-tree-badge-new',
+                viewType: 'calendar',
+                leaf: true
+            },{
                 text: 'Login',
                 iconCls: 'x-fa fa-check',
                 viewType: 'login',

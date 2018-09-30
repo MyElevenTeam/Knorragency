@@ -434,6 +434,21 @@
 .x-touch-action-pan-x {
     overflow-y: hidden !important;
 }
+/* C:/Users/Administrator/git/Knorragency/admin-dashboard/ext/packages/core/sass/src/drag/Source.scss:4 */
+.x-drag-body {
+    cursor: default;
+}
+/* C:/Users/Administrator/git/Knorragency/admin-dashboard/ext/packages/core/sass/src/drag/Source.scss:6 */
+.x-drag-body * {
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    user-select: none;
+}
+/* C:/Users/Administrator/git/Knorragency/admin-dashboard/ext/packages/core/sass/src/drag/Source.scss:11 */
+.x-drag-dragging {
+    z-index: 1000000!important;
+    pointer-events: none;
+}
 /* C:/Users/Administrator/git/Knorragency/admin-dashboard/ext/packages/core/sass/src/list/TreeItem.scss:576 */
 .x-treelist {
     background-color: #fff;
@@ -2784,6 +2799,22 @@ the height of a multi-line element */
 .x-grid-inner-locked.x-border-region-slide-in > .x-panel-bodyWrap > .x-grid-body > .x-grid-view,
 .x-grid-inner-locked.x-border-region-slide-in > .x-panel-bodyWrap > .x-grid-body > .x-tree-view {
     overflow-y: hidden !important;
+}
+/* C:/Users/Administrator/git/Knorragency/admin-dashboard/ext/classic/theme-base/sass/src/layout/container/Border.scss:1 */
+.x-border-layout-ct {
+    overflow: hidden;
+}
+/* C:/Users/Administrator/git/Knorragency/admin-dashboard/ext/classic/theme-base/sass/src/layout/container/Border.scss:5 */
+.x-border-layout-ct {
+    position: relative;
+}
+/* C:/Users/Administrator/git/Knorragency/admin-dashboard/ext/classic/theme-base/sass/src/layout/container/Border.scss:9 */
+.x-border-region-slide-in {
+    z-index: 6;
+}
+/* C:/Users/Administrator/git/Knorragency/admin-dashboard/ext/classic/theme-base/sass/src/layout/container/Border.scss:13 */
+.x-region-collapsed-placeholder {
+    z-index: 4;
 }
 /* C:/Users/Administrator/git/Knorragency/admin-dashboard/ext/classic/theme-base/sass/src/layout/container/Form.scss:1 */
 .x-form-layout-wrap {
@@ -12518,6 +12549,11 @@ a.x-color-picker-item:hover {
 .x-grid-scroll-container {
     background-color: #fff;
 }
+/* C:/Users/Administrator/git/Knorragency/admin-dashboard/ext/classic/theme-neutral/sass/src/layout/container/Border.scss:5 */
+body.x-border-layout-ct,
+div.x-border-layout-ct {
+    background-color: #ececec;
+}
 /* C:/Users/Administrator/git/Knorragency/admin-dashboard/ext/classic/theme-neutral/sass/src/layout/container/Form.scss:1 */
 .x-form-layout-wrap {
     border-spacing: 10px;
@@ -15477,25 +15513,4 @@ a.x-color-picker-item:hover {
     border-color: #d2d2d2;
     background-image: none;
     background-color: #e2e2e2;
-}
-/* C:/Users/Administrator/git/Knorragency/admin-dashboard/ext/classic/theme-neutral/sass/var/button/Button.scss:2904 */
-.x-keyboard-mode .x-btn-focus.x-btn-menu-active.x-btn-plain-toolbar-large,
-.x-keyboard-mode .x-btn-focus.x-btn-pressed.x-btn-plain-toolbar-large {
-    -webkit-box-shadow: #32a3a7 0 1px 0px 0 inset, #32a3a7 0 -1px 0px 0 inset, #32a3a7 -1px 0 0px 0 inset, #32a3a7 1px 0 0px 0 inset;
-    -moz-box-shadow: #32a3a7 0 1px 0px 0 inset, #32a3a7 0 -1px 0px 0 inset, #32a3a7 -1px 0 0px 0 inset, #32a3a7 1px 0 0px 0 inset;
-    box-shadow: #32a3a7 0 1px 0px 0 inset, #32a3a7 0 -1px 0px 0 inset, #32a3a7 -1px 0 0px 0 inset, #32a3a7 1px 0 0px 0 inset;
-}
-/* C:/Users/Administrator/git/Knorragency/admin-dashboard/ext/classic/theme-neutral/sass/var/button/Button.scss:2933 */
-.x-btn.x-btn-disabled.x-btn-plain-toolbar-large {
-    background-image: none;
-    background-color: transparent;
-}
-/* C:/Users/Administrator/git/Knorragency/admin-dashboard/ext/classic/theme-neutral/sass/var/button/Button.scss:2966 */
-.x-keyboard-mode .x-btn-focus .x-btn-plain-toolbar-large-tl,
-.x-keyboard-mode .x-btn-focus .x-btn-plain-toolbar-large-bl,
-.x-keyboard-mode .x-btn-focus .x-btn-plain-toolbar-large-tr,
-.x-keyboard-mode .x-btn-focus .x-btn-plain-toolbar-large-br,
-.x-keyboard-mode .x-btn-focus .x-btn-plain-toolbar-large-tc,
-.x-keyboard-mode .x-btn-focus .x-btn-plain-toolbar-large-bc {
-    background-image: url(images/btn/btn-plain-toolbar-large-focus-corners.gif);
 }
