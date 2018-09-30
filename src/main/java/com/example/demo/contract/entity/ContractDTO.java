@@ -1,23 +1,13 @@
 package com.example.demo.contract.entity;
 
-import java.io.Serializable;
 import java.util.Date;
-
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Table;
 
 import com.example.demo.activiti.entity.ProcessStatus;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
-@Entity
-@Table(name="t_contract")
-public class Contract implements Serializable{
+public class ContractDTO {
 	
-	private static final long serialVersionUID = 1L;
-	
+	/**------------业务数据--------------**/
 	//业务数据字段
 	private Long id;
 	
@@ -41,13 +31,28 @@ public class Contract implements Serializable{
 	
 	private ProcessStatus processStatus;//流程状态
 	
-	//工作流程数据字段
-    private String userId;//启动流程的用户ID
-    //流程实例Id：用于关联流程引擎相关数据没有启动流程之前为""
+	/**------------流程数据--------------**/
+    /*任务*/
+    private String taskId;
+    
+    private String taskName;
+    
+    private Date   taskCreateTime;
+    
+    private String assignee;
+    
+    private String taskDefinitionKey;
+    
+    /*流程实例*/
     private String processInstanceId;
-	
-	@Id
-	@GeneratedValue(strategy=GenerationType.IDENTITY)
+    
+    /*流程图定义*/
+    private String processDefinitionId;
+    
+    private boolean suspended;
+    
+    private int version;
+
 	public Long getId() {
 		return id;
 	}
@@ -85,21 +90,50 @@ public class Contract implements Serializable{
 	public double getTotal() {
 		return total;
 	}
-	
+
 	public String getArea() {
 		return area;
 	}
-	
+
 	public ProcessStatus getProcessStatus() {
 		return processStatus;
 	}
 
-	public String getUserId() {
-		return userId;
+	public String getTaskId() {
+		return taskId;
+	}
+
+	public String getTaskName() {
+		return taskName;
+	}
+	
+	@JsonFormat(pattern="yyyy/MM/dd HH:mm:ss",timezone="GMT+8")
+	public Date getTaskCreateTime() {
+		return taskCreateTime;
+	}
+
+	public String getAssignee() {
+		return assignee;
+	}
+
+	public String getTaskDefinitionKey() {
+		return taskDefinitionKey;
 	}
 
 	public String getProcessInstanceId() {
 		return processInstanceId;
+	}
+
+	public String getProcessDefinitionId() {
+		return processDefinitionId;
+	}
+
+	public boolean isSuspended() {
+		return suspended;
+	}
+
+	public int getVersion() {
+		return version;
 	}
 
 	public void setId(Long id) {
@@ -141,25 +175,45 @@ public class Contract implements Serializable{
 	public void setArea(String area) {
 		this.area = area;
 	}
-	
+
 	public void setProcessStatus(ProcessStatus processStatus) {
 		this.processStatus = processStatus;
 	}
 
-	public void setUserId(String userId) {
-		this.userId = userId;
+	public void setTaskId(String taskId) {
+		this.taskId = taskId;
+	}
+
+	public void setTaskName(String taskName) {
+		this.taskName = taskName;
+	}
+
+	public void setTaskCreateTime(Date taskCreateTime) {
+		this.taskCreateTime = taskCreateTime;
+	}
+
+	public void setAssignee(String assignee) {
+		this.assignee = assignee;
+	}
+
+	public void setTaskDefinitionKey(String taskDefinitionKey) {
+		this.taskDefinitionKey = taskDefinitionKey;
 	}
 
 	public void setProcessInstanceId(String processInstanceId) {
 		this.processInstanceId = processInstanceId;
 	}
 
-	@Override
-	public String toString() {
-		return "Contract [id=" + id + ", contractNumber=" + contractNumber + ", customerName=" + customerName
-				+ ", hoseName=" + hoseName + ", employeeName=" + employeeName + ", startTime=" + startTime
-				+ ", endTime=" + endTime + ", contractType=" + contractType + ", total=" + total + ", area=" + area
-				+ "]";
+	public void setProcessDefinitionId(String processDefinitionId) {
+		this.processDefinitionId = processDefinitionId;
 	}
-	
+
+	public void setSuspended(boolean suspended) {
+		this.suspended = suspended;
+	}
+
+	public void setVersion(int version) {
+		this.version = version;
+	}
+    
 }
