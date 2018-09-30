@@ -17,7 +17,7 @@ public class AddreeListServiceTest {
     private	IAddressListService addressListService;
 	@Test
 	public void insertDate() {
-		for(int i=0;i<10;i++) {
+		for(int i=0;i<100;i++) {
 			Employee tmp=new Employee();
 			tmp.setEmployeeName("小明"+i);
 			addressListService.save(tmp);
