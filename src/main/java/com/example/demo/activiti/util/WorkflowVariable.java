@@ -1,5 +1,8 @@
 package com.example.demo.activiti.util;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -38,7 +41,7 @@ public class WorkflowVariable
 	        this.types = types;
 	    }
 
-	    public Map<String, Object> getVariableMap() {
+	    public Map<String, Object> getVariableMap() throws ParseException {
 	        Map<String, Object> vars = new HashMap<String, Object>();
 
 	        ConvertUtils.register(new DateConverter(), java.util.Date.class);
@@ -59,11 +62,15 @@ public class WorkflowVariable
 	            String type = arrayType[i];
 	            
 	            Class<?> targetType = Enum.valueOf(PropertyType.class, type).getValue();
-	            Object objectValue = ConvertUtils.convert(value, targetType);
+	            Object objectValue=null;
+	            if(targetType.equals(Date.class)) {
+	            	 SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+	            	 objectValue = sdf.parse(value);
+	            }else {
+	            	 objectValue = ConvertUtils.convert(value, targetType);
+	            }
 	            vars.put(key, objectValue);
 	        }
 	        return vars;
 	    }
 }
-
-

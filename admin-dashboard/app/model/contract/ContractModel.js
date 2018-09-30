@@ -13,7 +13,9 @@ requires: [
 		{type: 'date', name: 'endTime', dateFormat:'Y/m/d H:i:s'},
 		{type: 'string',name: 'contractType'},
 		{type: 'float',name: 'total'},
-		{type: 'string',name: 'area'}
+		{type: 'string',name: 'area'},
+		{type:'string',name:'processInstanceId'},
+		{type:'string',name:'processStatus'}
 	],
 	proxy: {
 		type: 'rest',

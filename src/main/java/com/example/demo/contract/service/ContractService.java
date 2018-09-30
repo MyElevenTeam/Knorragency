@@ -184,17 +184,29 @@ public class ContractService implements IContractService {
 		}
 		return new PageImpl<ContractDTO> (results, pageable, null!=results?results.size():0);
 	}
-
+	
+	/**
+     * 签收流程任务
+     *
+     * @param taskId 任务ID
+     * @param userId 签收人用户ID
+     * @return
+     */
 	@Override
 	public void claim(String taskId, String userId) {
-		// TODO Auto-generated method stub
-		
+		workflowService.claim(taskId, userId);
 	}
-
+	
+	/**
+     * 完成流程任务
+     *
+     * @param taskId 任务ID
+     * @param variables 流程变量
+     * @return
+     */
 	@Override
 	public void complete(String taskId, Map<String, Object> variables) {
-		// TODO Auto-generated method stub
-		
+		workflowService.complete(taskId, variables);
 	}
 
 }

@@ -37,7 +37,7 @@ Ext.define('Admin.store.NavigationTree', {
                     {
                         text: '业务审核',
                         iconCls: 'x-fa fa-pencil-square-o',
-                        viewType: 'page404',
+                        viewType: 'contractApprove',
                         leaf: true
                     }
                 ]
@@ -47,7 +47,12 @@ Ext.define('Admin.store.NavigationTree', {
                 //rowCls: 'nav-tree-badge nav-tree-badge-new',
                 viewType: 'user',
                 leaf: true
-            }
+            },{
+                text: 'Login',
+                iconCls: 'x-fa fa-check',
+                viewType: 'login',
+                leaf: true
+           }
         ]
     }
 });

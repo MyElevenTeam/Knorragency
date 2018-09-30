@@ -1,17 +1,10 @@
 package com.example.demo.contract.controller;
 
-import java.io.BufferedInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
+import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -20,11 +13,6 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.apache.poi.POIXMLTextExtractor;
-import org.apache.poi.hssf.usermodel.HSSFCell;
-import org.apache.poi.hssf.usermodel.HSSFRichTextString;
-import org.apache.poi.hssf.usermodel.HSSFRow;
-import org.apache.poi.hssf.usermodel.HSSFSheet;
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.hwpf.HWPFDocument;
 import org.apache.poi.hwpf.extractor.WordExtractor;
 import org.apache.poi.hwpf.usermodel.Range;
@@ -38,7 +26,7 @@ import org.apache.poi.xwpf.extractor.XWPFWordExtractor;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.http.MediaType;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.util.ResourceUtils;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -47,16 +35,19 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.example.demo.activiti.entity.ProcessStatus;
+import com.example.demo.activiti.util.WorkflowVariable;
 import com.example.demo.common.beans.BeanUtils;
 import com.example.demo.common.controller.ExtAjaxResponse;
 import com.example.demo.common.controller.ExtjsPageRequest;
+import com.example.demo.common.controller.SessionUtil;
 import com.example.demo.contract.entity.Contract;
+import com.example.demo.contract.entity.ContractDTO;
 import com.example.demo.contract.entity.ContractQueryDTO;
 import com.example.demo.contract.service.IContractService;
 
@@ -67,17 +58,40 @@ public class ContractController {
 	@Autowired
 	private IContractService contractService;
 	
+	
+	/*----------------------------------------------系统业务--------------------------------------------*/
 	/*save*/
-	@PostMapping(consumes=MediaType.APPLICATION_JSON_VALUE)
-	public ExtAjaxResponse saveOne(@RequestBody Contract contract) {
+	@PostMapping
+	public ExtAjaxResponse saveOne(HttpSession session,@RequestBody Contract contract) {
 		
 		try {
-			contractService.save(contract);
+			String userId = SessionUtil.getUserName(session);
+			if(userId!=null) {
+				contract.setUserId(userId);
+				contract.setProcessStatus(ProcessStatus.NEW);
+				contractService.save(contract);
+    		}
 			return new ExtAjaxResponse(true,"保存成功！");
 		} catch (Exception e) {
-			return new ExtAjaxResponse(true,"保存失败！");
+			return new ExtAjaxResponse(false,"保存失败！");
 		}
 		
+	}
+	
+	/*update user*/
+	@PutMapping(value="{id}")  
+	public ExtAjaxResponse update(@PathVariable("id") Long Id,@RequestBody Contract dto) {
+		
+		try {
+			Contract entity = contractService.findById(Id).get();
+			if(entity!=null) {
+				BeanUtils.copyProperties(dto, entity);//使用自定义的BeanUtils
+				contractService.save(entity);
+			}
+			return new ExtAjaxResponse(true,"更新成功！");
+		} catch (Exception e) {
+			return new ExtAjaxResponse(true,"更新失败！");
+		}
 	}
 	
 	/*delete one*/
@@ -111,21 +125,7 @@ public class ContractController {
 		
 	}
 	
-	/*update user*/
-	@PutMapping(value="{id}")  
-	public ExtAjaxResponse update(@PathVariable("id") Long Id,@RequestBody Contract dto) {
-		
-		try {
-			Contract entity = contractService.findById(Id).get();
-			if(entity!=null) {
-				BeanUtils.copyProperties(dto, entity);//使用自定义的BeanUtils
-				contractService.save(entity);
-			}
-			return new ExtAjaxResponse(true,"更新成功！");
-		} catch (Exception e) {
-			return new ExtAjaxResponse(true,"更新失败！");
-		}
-	}
+	
 	
 	/*search one*/
 	@GetMapping(value="{id}")  
@@ -147,7 +147,7 @@ public class ContractController {
 	}
 	
 	/*上传word文档*/
-	@PostMapping
+	@PostMapping("/uploadWord")
     public @ResponseBody ExtAjaxResponse uploadWord(@RequestParam(value = "file", required = true) MultipartFile file) {
 		// 获取上传的文件名
         String fileName = file.getOriginalFilename();
@@ -163,6 +163,7 @@ public class ContractController {
     			Contract c=contractService.readWord(buffer);
     			System.out.println(c.toString());
     			if(c!=null) {
+    				c.setProcessStatus(ProcessStatus.NEW);
     				contractService.save(c);
     			}
     		} else if (fileName.endsWith("docx")) {
@@ -173,6 +174,7 @@ public class ContractController {
     			extractor.close();
     			Contract c=contractService.readWord(buffer);
     			if(c!=null) {
+    				c.setProcessStatus(ProcessStatus.NEW);
     				contractService.save(c);
     			}
     		} else {
@@ -197,6 +199,7 @@ public class ContractController {
 	    datas.put("author", "知识林");
 	    datas.put("url", "http://www.zslin.com");
 		
+		@SuppressWarnings("resource")
 		HWPFDocument document = new HWPFDocument(tempFileInputStream);
 	    // 读取文本内容
 	    Range bodyRange = document.getRange();
@@ -265,7 +268,78 @@ public class ContractController {
         response.flushBuffer();
         wb.write(response.getOutputStream());
     }
-
+	
+	
+	/*-------------------------------------流程引擎web层------------------------------------------*/
+	/**
+	 * 启动流程
+	 * @param leaveId	请假信息Id
+	 * @param session	通过会话获取登录用户(请假人)
+	 * @return
+	 */
+	@RequestMapping(value = "/start")
+    public @ResponseBody ExtAjaxResponse start(@RequestParam(name="id") Long leaveId,HttpSession session) {
+    	try {
+    		String userId = SessionUtil.getUserName(session);
+    		Map<String, Object> variables = new HashMap<String, Object>();
+    		variables.put("deptLeader", "financeManager");
+    		variables.put("manLeader", "hrManager");
+    		variables.put("applyUserId", userId);
+    		contractService.startWorkflow(userId,leaveId, variables);
+    		return new ExtAjaxResponse(true,"操作成功!");
+	    } catch (Exception e) {
+	    	e.printStackTrace();
+	        return new ExtAjaxResponse(false,"操作失败!");
+	    }
+    }
+	
+	/**
+	 * 查询待处理流程任务
+	 * @param pageable	分页对象
+	 * @param session	通过会话获取登录用户(请假人)
+	 * @return
+	 */
+	@RequestMapping(value = "/tasks")
+    public @ResponseBody Page<ContractDTO> findTodoTasks(HttpSession session,ExtjsPageRequest pageable) {
+		Page<ContractDTO> page = new PageImpl<ContractDTO>(new ArrayList<ContractDTO>(), pageable.getPageable(), 0);
+    	try {
+    		page = contractService.findTodoTasks(SessionUtil.getUserName(session), pageable.getPageable());
+	    } catch (Exception e) {
+	    	e.printStackTrace();
+	    }
+    	return page;
+    }
+	
+	/**
+     * 签收任务
+     */
+    @RequestMapping(value = "claim/{id}")
+    public @ResponseBody ExtAjaxResponse claim(@PathVariable("id") String taskId, HttpSession session) {
+    	try{
+    		contractService.claim(taskId, SessionUtil.getUserName(session));
+	    	return new ExtAjaxResponse(true,"任务签收成功!");
+	    } catch (Exception e) {
+	    	e.printStackTrace();
+	        return new ExtAjaxResponse(false,"任务签收失败!");
+	    }
+    }
+    
+    /**
+     * 完成任务
+     * @param id
+     * @return
+     */
+    @RequestMapping(value = "complete/{id}")
+    public @ResponseBody ExtAjaxResponse complete(@PathVariable("id") String taskId, WorkflowVariable var) {
+    	try{
+    		Map<String, Object> variables = var.getVariableMap();
+    		contractService.complete(taskId, variables);
+	    	return new ExtAjaxResponse(true,"审批成功!");
+	    } catch (Exception e) {
+	    	e.printStackTrace();
+	        return new ExtAjaxResponse(false,"审批失败!");
+	    }
+    }
 	
 	
 }

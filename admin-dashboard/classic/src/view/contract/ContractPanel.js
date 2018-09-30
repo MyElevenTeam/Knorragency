@@ -116,6 +116,20 @@ Ext.define('Admin.view.contract.ContractPanel', {
             },
             columns: [
                 {xtype: 'gridcolumn',width: 40,dataIndex: 'id',text: 'id',hidden:true},
+                {header: 'processStatus',dataIndex: 'processStatus',width: 60,sortable: true,
+                    renderer: function(val) {
+                        if (val =='NEW') {
+                            return '<span style="color:green;">新建</span>';
+                        } else if (val =='APPROVAL') {
+                            return '<span style="color:blue;">审批中...</span>';
+                        } else if (val =='COMPLETE') {
+                            return '<span style="color:orange;">完成审批</span>';
+                        }else{
+                            return '<span style="color:red;">取消申请</span>';
+                        }
+                        return val;
+                    }
+                },
                 {xtype: 'gridcolumn', cls: 'content-column',width:100,dataIndex: 'contractNumber',text: '合同编号'},
                 {xtype: 'gridcolumn', cls: 'content-column',width:100,dataIndex: 'customerName',text: '客户姓名'},
                 {xtype: 'gridcolumn', cls: 'content-column',width:100,dataIndex: 'hoseName',text: '房源名称'},
@@ -133,7 +147,26 @@ Ext.define('Admin.view.contract.ContractPanel', {
                     items: [
                         {xtype: 'button', iconCls: 'x-fa fa-arrow-circle-o-down' , tooltip: '合同下载'},
                         {xtype: 'button',iconCls: 'x-fa fa-close'   , tooltip: '删除合同',handler: 'onDeleteButton'},
-                        {xtype: 'button',iconCls: 'x-fa fa-ban'     ,handler: 'onDisableButton'}
+                        {
+                            xtype: 'button',iconCls: 'x-fa fa-star',tooltip: '发起请假',
+                            getClass: function(v, meta, rec) {
+                                if (rec.get('processInstanceId')!="") {
+                                    return 'x-hidden';
+                                }
+                                return 'x-fa fa-star';
+                            },
+                            handler: 'starLeaveProcess'
+                        },
+                        {
+                            xtype: 'button',iconCls: 'x-fa fa-ban',tooltip: '取消请假',
+                            getClass: function(v, meta, rec) {
+                                if (rec.get('processInstanceId')=="") {
+                                    return 'x-hidden';
+                                }
+                                return 'x-fa fa-ban';
+                            },
+                            handler: 'cancelLeaveProcess'
+                        }
                     ]
                 }
             ],

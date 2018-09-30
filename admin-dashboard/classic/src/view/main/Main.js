@@ -66,10 +66,17 @@ Ext.define('Admin.view.main.Main', {
                 {
                     xtype: 'image',
                     cls: 'header-right-profile-image',
+                    id:'loginUserImage',
                     height: 35,
                     width: 35,
                     alt:'current user image',
                     src: 'resources/images/user-profile/2.png'
+                },
+                {
+                    iconCls:'x-fa fa-sign-out',
+                    ui: 'header',
+                    tooltip: 'Logout',
+                    handler: 'logoutButton'
                 }
             ]
         },

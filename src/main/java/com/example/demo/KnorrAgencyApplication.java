@@ -9,9 +9,8 @@ public class KnorrAgencyApplication {
 
 	public static void main(String[] args) {
 		SpringApplication.run(KnorrAgencyApplication.class, args);
-		pritNoBug();
 	}
-	public static void pritNoBug(){
+	/*public static void pritNoBug(){
 	       System.out.println(" ......................我佛慈悲......................");
 	       System.out.println("                       _oo0oo_                      ");
 	       System.out.println("                      o8888888o                     ");
@@ -33,5 +32,5 @@ public class KnorrAgencyApplication {
 	       System.out.println("                       ‘=---=’                      ");
 	       System.out.println("                                                    ");
 	       System.out.println("....................佛祖开光 ,永无BUG...................");
-	   }
+	   }*/
 }

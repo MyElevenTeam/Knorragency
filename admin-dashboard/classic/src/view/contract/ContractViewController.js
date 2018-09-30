@@ -10,7 +10,7 @@ Ext.define('Admin.view.contract.ContractViewController', {
 
 		var form = btn.up('window').down('form');;
 		form.getForm().submit({       
-			url:'/contract',
+			url:'/contract/uploadWord',
 			method : 'POST',
 			waitMsg: '正在上传，请耐心等待....',
 			success: function(form, action){    
@@ -21,7 +21,7 @@ Ext.define('Admin.view.contract.ContractViewController', {
 				});       
 			}, 
 			failure: function(form, action){
-				Ext.Msg.alert('Error', action.result.msg);
+				Ext.Msg.alert('Error', '上传失败');
 			}
 		});
     },
@@ -47,28 +47,21 @@ Ext.define('Admin.view.contract.ContractViewController', {
     	
     },
 
-    ondownloadButton:function(btn){
-    	/*var ds = new Ext.data.Store( {
-	        proxy : new Ext.data.HttpProxy( {
-	            url : '/contract/download'
-	        })
-	    });*/
-
-    },
-
     /*删除合同信息*/
 	onDeleteButton:function(grid, rowIndex, colIndex){
 
-		Ext.MessageBox.confirm('提示','确定删除该合同吗？',
-			function(btn,text){
-				if(btn=='yes'){
-					var store = grid.getStore();
-					var record = store.getAt(rowIndex);
-					store.remove(record);
-				}
+    var store = grid.getStore();
+    var record = store.getAt(rowIndex);
+    if(record.data.processStatus=="NEW"){
+      Ext.MessageBox.confirm('提示', '确定要进行删除操作吗？数据将无法还原！',function(btn, text){
+        if(btn=='yes'){
+          store.remove(record);
+        }
+      }, this);
+    }else{
+      Ext.Msg.alert('提示', "只可以删除'新建'状态的信息！");
+    }
 
-			}
-		,this);
 	},
 
 	/*删除多条*/	
@@ -81,7 +74,9 @@ Ext.define('Admin.view.contract.ContractViewController', {
                   var rows = selModel.getSelection();
                   var selectIds = []; //要删除的id
                   Ext.each(rows, function (row) {
+                    if(row.data.processStatus=="NEW"){
                       selectIds.push(row.data.id);
+                    }
                   });
                   Ext.Ajax.request({
                       url : '/contract/deletes', 
@@ -106,7 +101,34 @@ Ext.define('Admin.view.contract.ContractViewController', {
             Ext.Msg.alert("错误", "没有任何行被选中，无法进行删除操作！");
       }
 		
-   }
+   },
+
+   /*Star Leave Process*/ 
+  starLeaveProcess:function(grid, rowIndex, colIndex){
+    var record = grid.getStore().getAt(rowIndex);
+    Ext.Ajax.request({ 
+      url : '/contract/start', 
+      method : 'post', 
+      params : {
+        id :record.get("id")
+      }, 
+      success: function(response, options) {
+        var json = Ext.util.JSON.decode(response.responseText);
+        if(json.success){
+          Ext.Msg.alert('操作成功', json.msg, function() {
+          grid.getStore().reload();
+        });
+        }else{
+          Ext.Msg.alert('操作失败', json.msg);
+        }
+      }
+    });
+  },  
+
+  /*Cancel Leave Process*/  
+  cancelLeaveProcess:function(grid, rowIndex, colIndex){
+    Ext.Msg.alert("Title","Cancel Leave Process");
+  }
 
     
 	
