@@ -1,7 +1,6 @@
-Ext.define('Admin.store.addressLisr.AddressListGridStroe', {
+Ext.define('Admin.store.addressList.AddressListPanelStroe', {
     extend: 'Ext.data.Store',
-    storeId:'addressListGridStroe',
-    alias: 'store.addressListGridStroe',
+    alias: 'store.addressListPanelStroe',
 	model:'Admin.model.addressList.AddListModel',
 
     //连接后台数据

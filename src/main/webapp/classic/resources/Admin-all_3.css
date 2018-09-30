@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /* C:/Users/Administrator/git/Knorragency/admin-dashboard/ext/classic/theme-neutral/sass/var/button/Button.scss:3043 */
 .x-btn.x-btn-menu-active .x-btn-gray-large-tl,
 .x-btn.x-btn-menu-active .x-btn-gray-large-bl,
@@ -1633,6 +1634,8 @@
 .x-btn.x-btn-disabled .x-btn-green-toolbar-small-bc {
     background-image: url(images/btn/btn-green-toolbar-small-disabled-corners.gif);
 }
+=======
+>>>>>>> branch 'master' of https://github.com/MyElevenTeam/Knorragency.git
 /* C:/Users/Administrator/git/Knorragency/admin-dashboard/ext/classic/theme-neutral/sass/var/button/Button.scss:3103 */
 .x-btn.x-btn-disabled .x-btn-green-toolbar-small-ml,
 .x-btn.x-btn-disabled .x-btn-green-toolbar-small-mr {
@@ -3322,6 +3325,7 @@
 .boldFont {
     font-weight: bold;
 }
+<<<<<<< HEAD
 /* C:/Users/Administrator/git/Knorragency/admin-dashboard/classic/src/view/authentication/Dialog.scss:5 */
 .auth-dialog .auth-profile-wrap {
     background: #32a3a7;
@@ -3494,6 +3498,8 @@
     border-radius: 0;
     padding: 0;
 }
+=======
+>>>>>>> branch 'master' of https://github.com/MyElevenTeam/Knorragency.git
 /* C:/Users/Administrator/git/Knorragency/admin-dashboard/classic/src/view/contract/ContractPanel.scss:1 */
 .has-border {
     border: solid 8px #dfdfdf;
@@ -3550,6 +3556,7 @@
     color: #32a3a7;
     background-color: #f5f5f5;
 }
+<<<<<<< HEAD
 /* C:/Users/Administrator/git/Knorragency/admin-dashboard/classic/src/view/contractapprove/ContractApprovePanel.scss:1 */
 .process-definition-grid {
     border: solid 8px #dfdfdf;
@@ -3602,6 +3609,8 @@
 .dep .x-form-trigger-wrap {
     border: none;
 }
+=======
+>>>>>>> branch 'master' of https://github.com/MyElevenTeam/Knorragency.git
 /* C:/Users/Administrator/git/Knorragency/admin-dashboard/classic/src/view/dashboard/Dashboard.scss:2 */
 .dashboard-main-chart .x-panel-body-default {
     color: #404040;
