@@ -173,5 +173,41 @@ Ext.define('Admin.view.main.MainController', {
                 }
             }
         });
+    },
+    attence:function(){
+
+        Ext.Ajax.request({
+            url: '/attence/workin',
+            method: 'post',
+            success: function(response, options) {
+                var json = Ext.util.JSON.decode(response.responseText);
+                if(json.success){
+                    Ext.Msg.alert('提示', json.msg);
+                    Ext.getCmp('work').hide();
+                    Ext.getCmp('out').show();
+                }else{
+                    Ext.Msg.alert('提示', json.msg);
+                }
+            }
+            
+        });
+        
+    },
+    signback:function(){
+
+        Ext.Ajax.request({
+            url: '/attence/workout',
+            success: function(response, options) {
+                var json = Ext.util.JSON.decode(response.responseText);
+                if(json.success){
+                    Ext.Msg.alert('提示', json.msg);
+                    Ext.getCmp('work').show();
+                    Ext.getCmp('out').hide();
+                }else{
+                    Ext.Msg.alert('提示', json.msg);
+                }
+            }
+            
+        });
     }
 });

@@ -51,11 +51,11 @@ Ext.define('Admin.view.contractapprove.ContractApprovePanel', {
                 cls: 'content-column',
                 width: 120,
                 dataIndex: 'bool',
-                text: 'Actions',
+                text: '操作',
                 tooltip: 'edit '
             }
             ,{header: 'id'          ,dataIndex: 'id',width: 60,sortable: true   ,hidden:true}
-            ,{header: 'processStatus',dataIndex: 'processStatus',width: 60,sortable: true,
+            ,{header: '审核状态',dataIndex: 'processStatus',width: 100,sortable: true,
                 renderer: function(val) {
                     if (val =='NEW') {
                         return '<span style="color:green;">新建</span>';
@@ -69,16 +69,31 @@ Ext.define('Admin.view.contractapprove.ContractApprovePanel', {
                     return val;
                 }
             }
-            ,{header: 'userId'          ,dataIndex: 'userId',width: 60,sortable: true}
-            ,{header: 'processInstanceId' ,dataIndex: 'processInstanceId',width: 80,sortable: true}
-            ,{header: 'taskId'          ,dataIndex: 'taskId',width: 80,sortable: true}
-            ,{header: 'taskName'        ,dataIndex: 'taskName',width: 80,sortable: true}
-            ,{header: 'taskCreateTime'  ,dataIndex: 'taskCreateTime',width: 150,sortable: true,renderer: Ext.util.Format.dateRenderer('Y/m/d H:i:s')}
-            ,{header: 'assignee'        ,dataIndex: 'assignee',width: 80,sortable: true}
-            ,{header: 'taskDefinitionKey',dataIndex: 'taskDefinitionKey',width: 80,sortable: true}
-            ,{header: 'processDefinitionId' ,dataIndex: 'processDefinitionId',width: 80,sortable: true}
-            ,{header: 'suspended'       ,dataIndex: 'suspended',width: 80,sortable: true}
-            ,{header: 'version'         ,dataIndex: 'version',width: 60,sortable: true}
+            ,{header: '申请人'          ,dataIndex: 'userId',width: 100,sortable: true}
+            ,{xtype: 'gridcolumn', cls: 'content-column',width:100,dataIndex: 'contractNumber',text: '合同编号'}
+            ,{xtype: 'gridcolumn', cls: 'content-column',width:100,dataIndex: 'customerName',text: '客户姓名'}
+            ,{xtype: 'gridcolumn', cls: 'content-column',width:100,dataIndex: 'hoseName',text: '房源名称'}
+            ,{xtype: 'gridcolumn', cls: 'content-column',width:120,dataIndex: 'employeeName',text: '房产经纪人姓名'}
+            ,{xtype: 'datecolumn',cls: 'content-column',width: 150,dataIndex: 'startTime',text: '签约时间',flex:1,formatter: 'date("Y/m/d H:i:s")'}
+            ,{xtype: 'datecolumn',cls: 'content-column',width: 150,dataIndex: 'endTime',text: '失效时间',flex:1,formatter: 'date("Y/m/d H:i:s")'}
+            ,{xtype: 'gridcolumn', cls: 'content-column',width:90,dataIndex: 'contractType',text: '合同类型'}
+            ,{xtype: 'gridcolumn', cls: 'content-column',width:100,dataIndex: 'total',text: '金额',
+                renderer: function(val) {
+                    return '<span>'+Ext.util.Format.number(val, '0,000.00')+'万</span>';
+                }
+            }
+            ,{xtype: 'gridcolumn', cls: 'content-column',width:100,dataIndex: 'area',text: '公司区域'}
+            ,{header: 'processInstanceId' ,dataIndex: 'processInstanceId',width: 80,sortable: true,hidden:true}
+            ,{header: 'taskId'          ,dataIndex: 'taskId',width: 80,sortable: true,hidden:true}
+            ,{header: '审核名称'        ,dataIndex: 'taskName',width: 100,sortable: true}
+            ,{header: '提交审核时间'  ,dataIndex: 'taskCreateTime',width: 100,sortable: true,renderer: Ext.util.Format.dateRenderer('Y/m/d H:i:s')}
+            ,{header: 'assignee'        ,dataIndex: 'assignee',width: 80,sortable: true,hidden:true}
+            ,{header: 'taskDefinitionKey',dataIndex: 'taskDefinitionKey',width: 80,sortable: true,hidden:true}
+            ,{header: 'processDefinitionId' ,dataIndex: 'processDefinitionId',width: 80,sortable: true,hidden:true}
+            ,{header: 'suspended'       ,dataIndex: 'suspended',width: 80,sortable: true,hidden:true}
+            ,{header: 'version'         ,dataIndex: 'version',width: 60,sortable: true,hidden:true}
+            ,{header: 'depreason' ,dataIndex: 'depreason',width: 60,sortable: true,hidden:true}
+            ,{header: 'manreason' ,dataIndex: 'manreason',width: 60,sortable: true,hidden:true}
         ],
         dockedItems: [{
             xtype: 'pagingtoolbar',

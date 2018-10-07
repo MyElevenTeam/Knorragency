@@ -58,6 +58,21 @@ Ext.define('Admin.view.main.Main', {
                     hrefTarget: '_self',
                     tooltip: '个人空间'
                 },
+                {
+                    iconCls:'fa fa-fax fa-5x',
+                    id:'work',
+                    ui: 'header',
+                    tooltip: '上班打卡',
+                    handler:'attence'
+                },
+                {
+                    iconCls:'fa fa-share-square fa-5x',
+                    id:'out',
+                    ui: 'header',
+                    tooltip: '下班签退',
+                    handler:'signback',
+                    hidden:true
+                },
                 /*{
                     xtype: 'tbtext',
                     text: '用户名:Admin',

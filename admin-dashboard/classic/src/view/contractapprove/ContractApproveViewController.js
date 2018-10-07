@@ -214,23 +214,7 @@
 			key: 'reApply',
 			value: values.reApply,//获取表单选择的value
 			type: 'B'
-		}/*,{
-			key: 'leaveType',
-			value: values.leaveType,//获取表单选择的value
-			type: 'S'
-		},{
-			key: 'startTime',
-			value: values.startTime,//获取表单选择的value
-			type: 'D'
-		},{
-			key: 'endTime',
-			value: values.endTime,//获取表单选择的value
-			type: 'D'
-		},{
-			key: 'reason',
-			value: values.reason,//获取表单选择的value
-			type: 'S'
-		}*/];
+		}];
         this.complete(url,variables,form);
     },
     //确认
@@ -241,13 +225,9 @@
             var values = form.getValues();
             var url = 'contract/complete/' + values.taskId;
             var variables = [{
-                key: 'realityStartTime',
-                value: values.realityStartTime,//获取表单选择的value
-                type: 'D'
-            },{
-                key: 'realityEndTime',
-                value: values.realityEndTime,//获取表单选择的value
-                type: 'D'
+                key: 'confirmName',
+                value: values.confirmName,//获取表单选择的value
+                type: 'S'
             }];
             this.complete(url,variables,form);
         }else{

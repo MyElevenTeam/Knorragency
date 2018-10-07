@@ -94,7 +94,7 @@ public class ContractQueryDTO {
 			public Predicate toPredicate(Root<Contract> root, CriteriaQuery<?> query, CriteriaBuilder criteriaBuilder) {
 			
 				List<Predicate> predicate = new ArrayList<>();
-				
+			
 				if(StringUtils.isNoneBlank(contractQueryDTO.getContractNumber())) {
 					predicate.add(criteriaBuilder.like(root.get("contractNumber").as(String.class),
 							"%" + contractQueryDTO.getContractNumber() + "%"));

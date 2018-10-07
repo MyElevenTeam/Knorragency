@@ -100946,7 +100946,7 @@ name:'allDay', boxLabel:'全天', hideEmptyLabel:false, handler:'onAllDayChange'
   } else {
     var data = JSON.stringify({id:id, startDate:stime, endDate:etime, calendarId:values.calendarId, title:values.title, description:values.description, allDay:values.allDay});
   }
-  Ext.Ajax.request({url:'/calendar', method:'post', headers:{'Content-Type':'application/json'}, params:data, success:function(response, options) {
+  Ext.Ajax.request({url:'/calendar/save', method:'post', headers:{'Content-Type':'application/json'}, params:data, success:function(response, options) {
     values.id = response.responseText;
     me.fireSave(me.produceEventData(values));
   }});
@@ -104067,7 +104067,7 @@ Ext.define('Admin.model.addressList.AddListModel', {extend:Admin.model.Base, fie
 Ext.define('Admin.model.contract.ContractModel', {extend:Admin.model.Base, fields:[{type:'int', name:'id'}, {type:'string', name:'contractNumber'}, {type:'string', name:'customerName'}, {type:'string', name:'hoseName'}, {type:'string', name:'employeeName'}, {type:'date', name:'startTime', dateFormat:'Y/m/d H:i:s'}, {type:'date', name:'endTime', dateFormat:'Y/m/d H:i:s'}, {type:'string', name:'contractType'}, {type:'float', name:'total'}, {type:'string', name:'area'}, {type:'string', name:'processInstanceId'}, 
 {type:'string', name:'processStatus'}], proxy:{type:'rest', url:'/contract'}});
 Ext.define('Admin.model.contractapprove.ContractApproveModel', {extend:Admin.model.Base, fields:[{type:'int', name:'id'}, {type:'string', name:'userId'}, {type:'string', name:'contractNumber'}, {type:'string', name:'customerName'}, {type:'string', name:'hoseName'}, {type:'string', name:'employeeName'}, {type:'date', name:'startTime'}, {type:'date', name:'endTime'}, {type:'string', name:'contractType'}, {type:'float', name:'total'}, {type:'string', name:'area'}, {type:'string', name:'processStatus'}, 
-{type:'string', name:'processInstanceId'}, {type:'string', name:'taskId'}, {type:'string', name:'taskName'}, {type:'date', name:'taskCreateTime'}, {type:'string', name:'assignee'}, {type:'string', name:'taskDefinitionKey'}, {type:'string', name:'processDefinitionId'}, {type:'boolean', name:'suspended'}, {type:'int', name:'version'}]});
+{type:'string', name:'processInstanceId'}, {type:'string', name:'taskId'}, {type:'string', name:'taskName'}, {type:'date', name:'taskCreateTime'}, {type:'string', name:'assignee'}, {type:'string', name:'taskDefinitionKey'}, {type:'string', name:'processDefinitionId'}, {type:'boolean', name:'suspended'}, {type:'int', name:'version'}, {type:'string', name:'depreason'}, {type:'string', name:'manreason'}]});
 Ext.define('Admin.model.contractapprove.ProcessDefinitionModel', {extend:Admin.model.Base, fields:[{type:'string', name:'id'}, {type:'string', name:'category'}, {type:'string', name:'name'}, {type:'string', name:'key'}, {type:'string', name:'description'}, {type:'int', name:'version'}, {type:'string', name:'resourceName'}, {type:'string', name:'deploymentId'}, {type:'string', name:'diagramResourceName'}, {type:'string', name:'tenantId'}, {type:'boolean', name:'startFormKey'}, {type:'boolean', name:'graphicalNotation'}, 
 {type:'boolean', name:'suspended'}]});
 Ext.define('Admin.model.user.UserModel', {extend:Admin.model.Base, fields:[{type:'int', name:'id'}, {type:'string', name:'userName'}, {type:'date', name:'createTime', dateFormat:'Y/m/d H:i:s'}], proxy:{type:'rest', url:'/user'}});
@@ -104107,9 +104107,9 @@ Ext.define('Admin.view.dashboard.DashboardController', {extend:Ext.app.ViewContr
 }});
 Ext.define('Admin.view.dashboard.DashboardModel', {extend:Ext.app.ViewModel, alias:'viewmodel.dashboard', stores:{}});
 Ext.define('Admin.view.main.Main', {extend:Ext.container.Viewport, controller:'main', viewModel:'main', cls:'sencha-dash-viewport', itemId:'mainView', layout:{type:'vbox', align:'stretch'}, listeners:{render:'onMainViewRender'}, items:[{xtype:'toolbar', cls:'sencha-dash-dash-headerbar shadow', height:64, itemId:'headerBar', items:[{xtype:'component', reference:'senchaLogo', cls:'sencha-logo', html:'\x3cdiv class\x3d"main-logo"\x3e\x3cimg src\x3d"resources/images/company-logo.png"\x3eKnorr Agency\x3c/div\x3e', 
-width:250}, {margin:'0 0 0 8', ui:'header', iconCls:'x-fa fa-navicon', id:'main-navigation-btn', handler:'onToggleNavigationSize'}, '-\x3e', {iconCls:'fa fa-envelope fa-5x', ui:'header', href:'#email', hrefTarget:'_self', tooltip:'查看 email'}, {iconCls:'fa fa-th-large fa-5x', ui:'header', href:'#profile', hrefTarget:'_self', tooltip:'个人空间'}, {xtype:'image', cls:'header-right-profile-image', id:'loginUserImage', height:35, width:35, alt:'current user image', src:'resources/images/user-profile/2.png'}, 
-{iconCls:'x-fa fa-sign-out', ui:'header', tooltip:'Logout', handler:'logoutButton'}]}, {xtype:'maincontainerwrap', id:'main-view-detail-wrap', reference:'mainContainerWrap', flex:1, items:[{xtype:'treelist', reference:'navigationTreeList', itemId:'navigationTreeList', ui:'nav', store:'NavigationTree', width:250, expanderFirst:false, expanderOnly:false, listeners:{selectionchange:'onNavigationTreeSelectionChange'}}, {xtype:'container', flex:1, reference:'mainCardPanel', cls:'sencha-dash-right-main-container', 
-itemId:'contentPanel', layout:{type:'card', anchor:'100%'}}]}]});
+width:250}, {margin:'0 0 0 8', ui:'header', iconCls:'x-fa fa-navicon', id:'main-navigation-btn', handler:'onToggleNavigationSize'}, '-\x3e', {iconCls:'fa fa-envelope fa-5x', ui:'header', href:'#email', hrefTarget:'_self', tooltip:'查看 email'}, {iconCls:'fa fa-th-large fa-5x', ui:'header', href:'#profile', hrefTarget:'_self', tooltip:'个人空间'}, {iconCls:'fa fa-fax fa-5x', id:'work', ui:'header', tooltip:'上班打卡', handler:'attence'}, {iconCls:'fa fa-share-square fa-5x', id:'out', ui:'header', tooltip:'下班签退', 
+handler:'signback', hidden:true}, {xtype:'image', cls:'header-right-profile-image', id:'loginUserImage', height:35, width:35, alt:'current user image', src:'resources/images/user-profile/2.png'}, {iconCls:'x-fa fa-sign-out', ui:'header', tooltip:'Logout', handler:'logoutButton'}]}, {xtype:'maincontainerwrap', id:'main-view-detail-wrap', reference:'mainContainerWrap', flex:1, items:[{xtype:'treelist', reference:'navigationTreeList', itemId:'navigationTreeList', ui:'nav', store:'NavigationTree', width:250, 
+expanderFirst:false, expanderOnly:false, listeners:{selectionchange:'onNavigationTreeSelectionChange'}}, {xtype:'container', flex:1, reference:'mainCardPanel', cls:'sencha-dash-right-main-container', itemId:'contentPanel', layout:{type:'card', anchor:'100%'}}]}]});
 Ext.define('Admin.Application', {extend:Ext.app.Application, name:'Admin', stores:['NavigationTree'], defaultToken:'login', mainView:'Admin.view.main.Main', onAppUpdate:function() {
   Ext.Msg.confirm('Application Update', 'This application has an update, reload?', function(choice) {
     if (choice === 'yes') {
@@ -104316,7 +104316,7 @@ Ext.define('Admin.view.contractapprove.ContractApprovePanel', {extend:Ext.tab.Pa
     return 'x-hidden';
   }
   return 'x-fa fa-edit';
-}, handler:'onClickLeaveApproveCompleteWindowButton'}, {xtype:'button', iconCls:'x-fa fa-object-group', tooltip:'任务跟踪', handler:'onClickGraphTraceButton'}], cls:'content-column', width:120, dataIndex:'bool', text:'Actions', tooltip:'edit '}, {header:'id', dataIndex:'id', width:60, sortable:true, hidden:true}, {header:'processStatus', dataIndex:'processStatus', width:60, sortable:true, renderer:function(val) {
+}, handler:'onClickLeaveApproveCompleteWindowButton'}, {xtype:'button', iconCls:'x-fa fa-object-group', tooltip:'任务跟踪', handler:'onClickGraphTraceButton'}], cls:'content-column', width:120, dataIndex:'bool', text:'操作', tooltip:'edit '}, {header:'id', dataIndex:'id', width:60, sortable:true, hidden:true}, {header:'审核状态', dataIndex:'processStatus', width:100, sortable:true, renderer:function(val) {
   if (val == 'NEW') {
     return '\x3cspan style\x3d"color:green;"\x3e新建\x3c/span\x3e';
   } else {
@@ -104331,10 +104331,13 @@ Ext.define('Admin.view.contractapprove.ContractApprovePanel', {extend:Ext.tab.Pa
     }
   }
   return val;
-}}, {header:'userId', dataIndex:'userId', width:60, sortable:true}, {header:'processInstanceId', dataIndex:'processInstanceId', width:80, sortable:true}, {header:'taskId', dataIndex:'taskId', width:80, sortable:true}, {header:'taskName', dataIndex:'taskName', width:80, sortable:true}, {header:'taskCreateTime', dataIndex:'taskCreateTime', width:150, sortable:true, renderer:Ext.util.Format.dateRenderer('Y/m/d H:i:s')}, {header:'assignee', dataIndex:'assignee', width:80, sortable:true}, {header:'taskDefinitionKey', 
-dataIndex:'taskDefinitionKey', width:80, sortable:true}, {header:'processDefinitionId', dataIndex:'processDefinitionId', width:80, sortable:true}, {header:'suspended', dataIndex:'suspended', width:80, sortable:true}, {header:'version', dataIndex:'version', width:60, sortable:true}], dockedItems:[{xtype:'pagingtoolbar', dock:'bottom', displayInfo:true, bind:'{contractApproveLists}'}]}, {title:'流程定义', layout:'fit', items:[{xtype:'gridpanel', cls:'process-definition-grid', bind:'{processDefinitionLists}', 
-scrollable:false, columns:[{header:'流程定义实体Id', dataIndex:'id', width:120, sortable:true}, {header:'类别', dataIndex:'category', width:200, sortable:true}, {header:'名称', dataIndex:'name', width:100, sortable:true}, {header:'流程key', dataIndex:'key', width:80, sortable:true}, {header:'版本号', dataIndex:'version', width:60, sortable:true}, {header:'部署Id', dataIndex:'deploymentId', width:60, sortable:true, hidden:true}, {header:'bpmn XML', dataIndex:'resourceName', width:120, sortable:true, hidden:true, renderer:function(value, 
-metaData, record, rowIdx, colIdx, store, view) {
+}}, {header:'申请人', dataIndex:'userId', width:100, sortable:true}, {xtype:'gridcolumn', cls:'content-column', width:100, dataIndex:'contractNumber', text:'合同编号'}, {xtype:'gridcolumn', cls:'content-column', width:100, dataIndex:'customerName', text:'客户姓名'}, {xtype:'gridcolumn', cls:'content-column', width:100, dataIndex:'hoseName', text:'房源名称'}, {xtype:'gridcolumn', cls:'content-column', width:120, dataIndex:'employeeName', text:'房产经纪人姓名'}, {xtype:'datecolumn', cls:'content-column', width:150, dataIndex:'startTime', 
+text:'签约时间', flex:1, formatter:'date("Y/m/d H:i:s")'}, {xtype:'datecolumn', cls:'content-column', width:150, dataIndex:'endTime', text:'失效时间', flex:1, formatter:'date("Y/m/d H:i:s")'}, {xtype:'gridcolumn', cls:'content-column', width:90, dataIndex:'contractType', text:'合同类型'}, {xtype:'gridcolumn', cls:'content-column', width:100, dataIndex:'total', text:'金额', renderer:function(val) {
+  return '\x3cspan\x3e' + Ext.util.Format.number(val, '0,000.00') + '万\x3c/span\x3e';
+}}, {xtype:'gridcolumn', cls:'content-column', width:100, dataIndex:'area', text:'公司区域'}, {header:'processInstanceId', dataIndex:'processInstanceId', width:80, sortable:true, hidden:true}, {header:'taskId', dataIndex:'taskId', width:80, sortable:true, hidden:true}, {header:'审核名称', dataIndex:'taskName', width:100, sortable:true}, {header:'提交审核时间', dataIndex:'taskCreateTime', width:100, sortable:true, renderer:Ext.util.Format.dateRenderer('Y/m/d H:i:s')}, {header:'assignee', dataIndex:'assignee', width:80, 
+sortable:true, hidden:true}, {header:'taskDefinitionKey', dataIndex:'taskDefinitionKey', width:80, sortable:true, hidden:true}, {header:'processDefinitionId', dataIndex:'processDefinitionId', width:80, sortable:true, hidden:true}, {header:'suspended', dataIndex:'suspended', width:80, sortable:true, hidden:true}, {header:'version', dataIndex:'version', width:60, sortable:true, hidden:true}, {header:'depreason', dataIndex:'depreason', width:60, sortable:true, hidden:true}, {header:'manreason', dataIndex:'manreason', 
+width:60, sortable:true, hidden:true}], dockedItems:[{xtype:'pagingtoolbar', dock:'bottom', displayInfo:true, bind:'{contractApproveLists}'}]}, {title:'流程定义', layout:'fit', items:[{xtype:'gridpanel', cls:'process-definition-grid', bind:'{processDefinitionLists}', scrollable:false, columns:[{header:'流程定义实体Id', dataIndex:'id', width:120, sortable:true}, {header:'类别', dataIndex:'category', width:200, sortable:true}, {header:'名称', dataIndex:'name', width:100, sortable:true}, {header:'流程key', dataIndex:'key', 
+width:80, sortable:true}, {header:'版本号', dataIndex:'version', width:60, sortable:true}, {header:'部署Id', dataIndex:'deploymentId', width:60, sortable:true, hidden:true}, {header:'bpmn XML', dataIndex:'resourceName', width:120, sortable:true, hidden:true, renderer:function(value, metaData, record, rowIdx, colIdx, store, view) {
   return '\x3ca target\x3d"_blank" href\x3d"' + 'process-definition/resource?pdid\x3d' + record.get('id') + '\x26resourceName\x3d' + record.get('resourceName') + '"\x3e' + record.get('resourceName') + '\x3c/a\x3e';
 }}, {header:'流程图', dataIndex:'diagramResourceName', width:120, sortable:true, hidden:true, renderer:function(value, metaData, record, rowIdx, colIdx, store, view) {
   return '\x3ca target\x3d"_blank" href\x3d"' + 'process-definition/resource?pdid\x3d' + record.get('id') + '\x26resourceName\x3d' + record.get('diagramResourceName') + '"\x3e' + record.get('diagramResourceName') + '\x3c/a\x3e';
@@ -104464,14 +104467,14 @@ Ext.define('Admin.view.contractapprove.ContractApproveViewController', {extend:E
   if (form.isValid()) {
     var values = form.getValues();
     var url = 'contract/complete/' + values.taskId;
-    var variables = [{key:'realityStartTime', value:values.realityStartTime, type:'D'}, {key:'realityEndTime', value:values.realityEndTime, type:'D'}];
+    var variables = [{key:'confirmName', value:values.confirmName, type:'S'}];
     this.complete(url, variables, form);
   } else {
     Ext.Msg.alert('提示', '不允许为空');
   }
 }});
 Ext.define('Admin.view.contractapprove.ContractApproveViewModel', {extend:Ext.app.ViewModel, alias:'viewmodel.contractApproveViewModel', stores:{processDefinitionLists:{type:'processDefinitionStroe'}, contractApproveLists:{type:'contractApproveStore'}}});
-Ext.define('Admin.view.contractapprove.ContractApproveWindow', {extend:Ext.window.Window, alias:'widget.contractApproveWindow', autoShow:true, modal:true, layout:'fit', width:520, height:600, afterRender:function() {
+Ext.define('Admin.view.contractapprove.ContractApproveWindow', {extend:Ext.window.Window, alias:'widget.contractApproveWindow', autoShow:true, modal:true, layout:'fit', width:520, height:680, afterRender:function() {
   var me = this;
   me.callParent(arguments);
   me.syncSize();
@@ -104489,29 +104492,36 @@ Ext.define('Admin.view.contractapprove.ProcessDefinitionUploadWindow', {extend:E
 fieldLabel:'上传文件:', labelSeparator:'', buttonConfig:{xtype:'filebutton', glyph:'', iconCls:'x-fa fa-cloud-upload', text:'Browse'}}]}], buttons:['-\x3e', {xtype:'button', text:'Upload', handler:'onClickUploadFormSumbitButton'}, {xtype:'button', text:'Close', handler:function(btn) {
   btn.up('window').close();
 }}, '-\x3e']});
-Ext.define('Admin.view.contractapprove.task.Confirm', {extend:Ext.form.Panel, alias:'widget.confirm', bodyPadding:10, bodyBorder:true, defaults:{anchor:'100%'}, fieldDefaults:{labelAlign:'left', msgTarget:'none', invalidCls:''}, items:[{xtype:'textfield', name:'taskId', fieldLabel:'任务ID', hidden:true, readOnly:true}, {xtype:'datefield', fieldLabel:'实际开始时间', format:'Y/m/d H:i:s', name:'realityStartTime', emptyText:'--------请选择---------', allowBlank:false, blankText:'请选择实际开始时间'}, {xtype:'datefield', 
-fieldLabel:'实际结束时间', format:'Y/m/d H:i:s', name:'realityEndTime', value:new Date, emptyText:'--------请选择---------', allowBlank:false, blankText:'请选择实际结束时间'}], bbar:[{xtype:'button', ui:'soft-green', text:'提交', handler:'onClickConfirmFormSubmitButton'}, {xtype:'button', ui:'gray', text:'取消', handler:function(btn) {
+Ext.define('Admin.view.contractapprove.task.Confirm', {extend:Ext.form.Panel, alias:'widget.confirm', bodyPadding:10, bodyBorder:true, defaults:{anchor:'100%'}, fieldDefaults:{labelAlign:'left', msgTarget:'none', invalidCls:''}, items:[{xtype:'textfield', name:'taskId', fieldLabel:'任务ID', hidden:true, readOnly:true}, {xtype:'textfield', cls:'dep', name:'contractNumber', fieldLabel:'合同编号', readOnly:true}, {xtype:'textfield', cls:'dep', name:'customerName', fieldLabel:'客户姓名', readOnly:true}, {xtype:'textfield', 
+cls:'dep', name:'hoseName', fieldLabel:'房源名称', readOnly:true}, {xtype:'textfield', cls:'dep', name:'employeeName', fieldLabel:'房产经纪人姓名', readOnly:true}, {xtype:'datefield', cls:'dep', name:'startTime', fieldLabel:'签约时间', format:'Y/m/d H:i:s', readOnly:true}, {xtype:'datefield', cls:'dep', name:'endTime', fieldLabel:'失效时间', format:'Y/m/d H:i:s', readOnly:true}, {xtype:'textfield', cls:'dep', name:'contractType', fieldLabel:'合同类型', readOnly:true}, {xtype:'textfield', cls:'dep', name:'total', fieldLabel:'金额', 
+readOnly:true}, {xtype:'textareafield', name:'depreason', fieldLabel:'店长审批意见', readOnly:true}, {xtype:'textareafield', name:'manreason', fieldLabel:'经理审批意见', readOnly:true}, {xtype:'textfield', name:'confirmName', fieldLabel:'请签名确认'}], bbar:[{xtype:'button', ui:'soft-green', text:'提交', handler:'onClickConfirmFormSubmitButton'}, {xtype:'button', ui:'gray', text:'取消', handler:function(btn) {
   var win = btn.up('window');
   if (win) {
     win.close();
   }
 }}]});
-Ext.define('Admin.view.leaveapprove.task.DeptLeaderAudit', {extend:Ext.form.Panel, alias:'widget.deptLeaderAudit', bodyPadding:10, bodyBorder:true, defaults:{anchor:'100%'}, fieldDefaults:{labelAlign:'left', msgTarget:'none', invalidCls:''}, items:[{xtype:'textfield', name:'taskId', fieldLabel:'任务ID', hidden:true, readOnly:true}, {xtype:'radiogroup', fieldLabel:'店长审批', defaults:{flex:1}, items:[{name:'deptLeaderPass', inputValue:true, boxLabel:'同意', checked:true}, {name:'deptLeaderPass', inputValue:false, 
-boxLabel:'不同意'}]}, {xtype:'textareafield', grow:true, name:'deptLeaderBackReason', emptyText:'此处可填写意见', fieldLabel:'意见', anchor:'100%'}], bbar:[{xtype:'button', ui:'soft-green', text:'提交', handler:'onClickDeptleaderAuditFormSubmitButton'}, {xtype:'button', ui:'gray', text:'取消', handler:function(btn) {
+Ext.define('Admin.view.leaveapprove.task.DeptLeaderAudit', {extend:Ext.form.Panel, alias:'widget.deptLeaderAudit', bodyPadding:10, bodyBorder:true, defaults:{anchor:'100%'}, fieldDefaults:{labelAlign:'left', msgTarget:'none', invalidCls:''}, items:[{xtype:'textfield', name:'taskId', fieldLabel:'任务ID', hidden:true, readOnly:true}, {xtype:'textfield', cls:'dep', name:'contractNumber', fieldLabel:'合同编号', readOnly:true}, {xtype:'textfield', cls:'dep', name:'customerName', fieldLabel:'客户姓名', readOnly:true}, 
+{xtype:'textfield', cls:'dep', name:'hoseName', fieldLabel:'房源名称', readOnly:true}, {xtype:'textfield', cls:'dep', name:'employeeName', fieldLabel:'房产经纪人姓名', readOnly:true}, {xtype:'datefield', cls:'dep', name:'startTime', fieldLabel:'签约时间', format:'Y/m/d H:i:s', readOnly:true}, {xtype:'datefield', cls:'dep', name:'endTime', fieldLabel:'失效时间', format:'Y/m/d H:i:s', readOnly:true}, {xtype:'textfield', cls:'dep', name:'contractType', fieldLabel:'合同类型', readOnly:true}, {xtype:'textfield', cls:'dep', 
+name:'total', fieldLabel:'金额', readOnly:true}, {xtype:'radiogroup', fieldLabel:'店长审批', defaults:{flex:1}, items:[{name:'deptLeaderPass', inputValue:true, boxLabel:'同意', checked:true}, {name:'deptLeaderPass', inputValue:false, boxLabel:'不同意'}]}, {xtype:'textareafield', grow:true, name:'deptLeaderBackReason', emptyText:'此处可填写意见', fieldLabel:'意见', anchor:'100%'}], bbar:[{xtype:'button', ui:'soft-green', text:'提交', handler:'onClickDeptleaderAuditFormSubmitButton'}, {xtype:'button', ui:'gray', text:'取消', 
+handler:function(btn) {
   var win = btn.up('window');
   if (win) {
     win.close();
   }
 }}]});
-Ext.define('Admin.view.contractapprove.task.ManagerAudit', {extend:Ext.form.Panel, alias:'widget.managerAudit', bodyPadding:10, bodyBorder:true, defaults:{anchor:'100%'}, fieldDefaults:{labelAlign:'left', msgTarget:'none', invalidCls:''}, items:[{xtype:'textfield', name:'taskId', fieldLabel:'任务ID', hidden:true, readOnly:true}, {xtype:'radiogroup', fieldLabel:'经理审批', defaults:{flex:1}, items:[{name:'manLeaderPass', inputValue:true, boxLabel:'同意', checked:true}, {name:'manLeaderPass', inputValue:false, 
-boxLabel:'不同意'}]}, {xtype:'textareafield', grow:true, name:'managerBackReason', fieldLabel:'人事文员审批意见', emptyText:'此处可填写意见', anchor:'100%'}], bbar:[{xtype:'button', ui:'soft-green', text:'提交', handler:'onClickManagerAuditFormSubmitButton'}, {xtype:'button', ui:'gray', text:'取消', handler:function(btn) {
+Ext.define('Admin.view.contractapprove.task.ManagerAudit', {extend:Ext.form.Panel, alias:'widget.managerAudit', bodyPadding:10, bodyBorder:true, defaults:{anchor:'100%'}, fieldDefaults:{labelAlign:'left', msgTarget:'none', invalidCls:''}, items:[{xtype:'textfield', name:'taskId', fieldLabel:'任务ID', hidden:true, readOnly:true}, {xtype:'textfield', cls:'dep', name:'contractNumber', fieldLabel:'合同编号', readOnly:true}, {xtype:'textfield', cls:'dep', name:'customerName', fieldLabel:'客户姓名', readOnly:true}, 
+{xtype:'textfield', cls:'dep', name:'hoseName', fieldLabel:'房源名称', readOnly:true}, {xtype:'textfield', cls:'dep', name:'employeeName', fieldLabel:'房产经纪人姓名', readOnly:true}, {xtype:'datefield', cls:'dep', name:'startTime', fieldLabel:'签约时间', format:'Y/m/d H:i:s', readOnly:true}, {xtype:'datefield', cls:'dep', name:'endTime', fieldLabel:'失效时间', format:'Y/m/d H:i:s', readOnly:true}, {xtype:'textfield', cls:'dep', name:'contractType', fieldLabel:'合同类型', readOnly:true}, {xtype:'textfield', cls:'dep', 
+name:'total', fieldLabel:'金额', readOnly:true}, {xtype:'textareafield', name:'depreason', fieldLabel:'店长审批意见', readOnly:true}, {xtype:'radiogroup', fieldLabel:'经理审批', defaults:{flex:1}, items:[{name:'manLeaderPass', inputValue:true, boxLabel:'同意', checked:true}, {name:'manLeaderPass', inputValue:false, boxLabel:'不同意'}]}, {xtype:'textareafield', grow:true, name:'managerBackReason', fieldLabel:'意见', emptyText:'此处可填写意见', anchor:'100%'}], bbar:[{xtype:'button', ui:'soft-green', text:'提交', handler:'onClickManagerAuditFormSubmitButton'}, 
+{xtype:'button', ui:'gray', text:'取消', handler:function(btn) {
   var win = btn.up('window');
   if (win) {
     win.close();
   }
 }}]});
-Ext.define('Admin.view.contractapprove.task.ModifyApply', {extend:Ext.form.Panel, alias:'widget.modifyApply', bodyPadding:5, bodyBorder:true, defaults:{anchor:'100%'}, fieldDefaults:{labelAlign:'left', msgTarget:'none', invalidCls:''}, items:[{xtype:'radiogroup', fieldLabel:'重新申请', items:[{name:'reApply', inputValue:true, boxLabel:'是', checked:true}, {name:'reApply', inputValue:false, boxLabel:'否'}]}, {xtype:'textfield', name:'taskId', fieldLabel:'任务ID', hidden:true, readOnly:true}], bbar:[{xtype:'button', 
-ui:'soft-green', text:'提交', handler:'onClickModifyApplyFormSubmitButton'}, {xtype:'button', ui:'gray', text:'取消', handler:function(btn) {
+Ext.define('Admin.view.contractapprove.task.ModifyApply', {extend:Ext.form.Panel, alias:'widget.modifyApply', bodyPadding:5, bodyBorder:true, defaults:{anchor:'100%'}, fieldDefaults:{labelAlign:'left', msgTarget:'none', invalidCls:''}, items:[{xtype:'radiogroup', fieldLabel:'重新申请', items:[{name:'reApply', inputValue:true, boxLabel:'是', checked:true}, {name:'reApply', inputValue:false, boxLabel:'否'}]}, {xtype:'textfield', name:'taskId', fieldLabel:'任务ID', hidden:true, readOnly:true}, {xtype:'textfield', 
+cls:'dep', name:'contractNumber', fieldLabel:'合同编号', readOnly:true}, {xtype:'textfield', cls:'dep', name:'customerName', fieldLabel:'客户姓名', readOnly:true}, {xtype:'textfield', cls:'dep', name:'hoseName', fieldLabel:'房源名称', readOnly:true}, {xtype:'textfield', cls:'dep', name:'employeeName', fieldLabel:'房产经纪人姓名', readOnly:true}, {xtype:'datefield', cls:'dep', name:'startTime', fieldLabel:'签约时间', format:'Y/m/d H:i:s', readOnly:true}, {xtype:'datefield', cls:'dep', name:'endTime', fieldLabel:'失效时间', 
+format:'Y/m/d H:i:s', readOnly:true}, {xtype:'textfield', cls:'dep', name:'contractType', fieldLabel:'合同类型', readOnly:true}, {xtype:'textfield', cls:'dep', name:'total', fieldLabel:'金额', readOnly:true}, {xtype:'textareafield', name:'depreason', fieldLabel:'店长审批意见', emptyText:'店长还未审批', readOnly:true}, {xtype:'textareafield', name:'hrreason', fieldLabel:'经理审批意见', emptyText:'经理还未审批', readOnly:true}], bbar:[{xtype:'button', ui:'soft-green', text:'提交', handler:'onClickModifyApplyFormSubmitButton'}, {xtype:'button', 
+ui:'gray', text:'取消', handler:function(btn) {
   var win = btn.up('window');
   if (win) {
     win.close();
@@ -104607,6 +104617,28 @@ Ext.define('Admin.view.main.MainController', {extend:Ext.app.ViewController, ali
       window.location.reload();
     } else {
       Ext.Msg.alert('登出失败', json.msg);
+    }
+  }});
+}, attence:function() {
+  Ext.Ajax.request({url:'/attence/workin', method:'post', success:function(response, options) {
+    var json = Ext.util.JSON.decode(response.responseText);
+    if (json.success) {
+      Ext.Msg.alert('提示', json.msg);
+      Ext.getCmp('work').hide();
+      Ext.getCmp('out').show();
+    } else {
+      Ext.Msg.alert('提示', json.msg);
+    }
+  }});
+}, signback:function() {
+  Ext.Ajax.request({url:'/attence/workout', success:function(response, options) {
+    var json = Ext.util.JSON.decode(response.responseText);
+    if (json.success) {
+      Ext.Msg.alert('提示', json.msg);
+      Ext.getCmp('work').show();
+      Ext.getCmp('out').hide();
+    } else {
+      Ext.Msg.alert('提示', json.msg);
     }
   }});
 }});

@@ -99,10 +99,26 @@ public class ContractServiceTest {
 
 	    build(ResourceUtils.getFile(tmpFile), datas, expFile);
 	}
-
-
-
 	
-	
-	
+	@Test
+	public void tt() throws ParseException {
+		
+		SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
+		
+		String time="10:00:00";
+		
+		Date date=new Date();
+		String work=sdf.format(date);
+		
+		//System.out.println(sdf.format(date));
+		
+		String[]array1 = time.split(":");				
+		int total1 = Integer.valueOf(array1[0])*3600+Integer.valueOf(array1[1])*60+Integer.valueOf(array1[2]);				
+		String[]array2 = work.split(":");				
+		int total2 = Integer.valueOf(array2[0])*3600+Integer.valueOf(array2[1])*60+Integer.valueOf(array2[2]);
+
+		System.out.println("time:"+total1);
+		System.out.println("work:"+total2);
+	}
+
 }

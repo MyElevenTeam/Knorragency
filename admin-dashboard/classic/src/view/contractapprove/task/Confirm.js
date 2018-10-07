@@ -17,29 +17,85 @@ Ext.define('Admin.view.contractapprove.task.Confirm', {
         invalidCls: '' 
     },
     items: [{
-    	xtype: 'textfield',
-		name: 'taskId',
-		fieldLabel: '任务ID',
-		hidden: true,
+        xtype: 'textfield',
+        name: 'taskId',
+        fieldLabel: '任务ID',
+        hidden: true,
         readOnly: true
-	},{
-		xtype: 'datefield',
-		fieldLabel: '实际开始时间',
-		format: 'Y/m/d H:i:s', 
-		name: 'realityStartTime',
-		emptyText:'--------请选择---------',
-		allowBlank: false,
-		blankText:'请选择实际开始时间'
-	},{
-		xtype: 'datefield',
-		fieldLabel: '实际结束时间',
-		format: 'Y/m/d H:i:s', 
-		name: 'realityEndTime',
-		value:new Date(),
-		emptyText:'--------请选择---------',
-		allowBlank: false,
-		blankText:'请选择实际结束时间'
-	}],
+    },/*{
+        xtype: 'textfield',
+        fieldLabel: '家乐房产中介合同',
+        style:{'text-align':'center',
+               'position': 'absolute',
+               'top': '10%',
+               'left':'50%',
+        },
+        readOnly: true
+    },*/{
+        xtype: 'textfield',
+        cls:'dep',
+        name: 'contractNumber',
+        fieldLabel: '合同编号',
+        readOnly: true
+    },{
+        xtype: 'textfield',
+        cls:'dep',
+        name: 'customerName',
+        fieldLabel: '客户姓名',
+        readOnly: true
+    },{
+        xtype: 'textfield',
+        cls:'dep',
+        name: 'hoseName',
+        fieldLabel: '房源名称',
+        readOnly: true
+    },{
+        xtype: 'textfield',
+        cls:'dep',
+        name: 'employeeName',
+        fieldLabel: '房产经纪人姓名',
+        readOnly: true
+    },{
+        xtype: 'datefield',
+        cls:'dep',
+        name: 'startTime',
+        fieldLabel: '签约时间',
+        format: 'Y/m/d H:i:s',
+        readOnly: true
+    },{
+        xtype: 'datefield',
+        cls:'dep',
+        name: 'endTime',
+        fieldLabel: '失效时间',
+        format: 'Y/m/d H:i:s',
+        readOnly: true
+    },{
+        xtype: 'textfield',
+        cls:'dep',
+        name: 'contractType',
+        fieldLabel: '合同类型',
+        readOnly: true
+    },{
+        xtype: 'textfield',
+        cls:'dep',
+        name: 'total',
+        fieldLabel: '金额',
+        readOnly: true
+    },{
+        xtype: 'textareafield',
+        name: 'depreason',
+        fieldLabel: '店长审批意见',
+        readOnly: true
+    },{
+        xtype: 'textareafield',
+        name: 'manreason',
+        fieldLabel: '经理审批意见',
+        readOnly: true
+    },{
+        xtype: 'textfield',
+        name:'confirmName',
+        fieldLabel: '请签名确认'
+    }],
    	bbar: [{
 		xtype: 'button',
 		ui: 'soft-green',
