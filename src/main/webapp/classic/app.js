@@ -104064,6 +104064,7 @@ text:'Today', margin:'0 10 0 0'}, value:undefined, views:{day:{xtype:'calendar-d
 }}});
 Ext.define('Admin.model.Base', {extend:Ext.data.Model, schema:{namespace:'Admin.model'}});
 Ext.define('Admin.model.addressList.AddListModel', {extend:Admin.model.Base, fields:[{type:'int', name:'id'}, {type:'string', name:'employeeName'}, {type:'string', name:'employeeNumber'}, {type:'string', name:'employeeArea'}, {type:'string', name:'post'}, {type:'string', name:'email'}], proxy:{type:'rest', url:'/addressList'}});
+Ext.define('Admin.model.attence.AttenceModel', {extend:Admin.model.Base, fields:[{type:'int', name:'id'}, {type:'string', name:'employeeName'}, {type:'string', name:'location'}, {type:'date', name:'workinTime', dateFormat:'Y/m/d H:i:s'}, {type:'date', name:'workoutTime', dateFormat:'Y/m/d H:i:s'}, {type:'string', name:'attenceStatus'}], proxy:{type:'rest', url:'/attence'}});
 Ext.define('Admin.model.contract.ContractModel', {extend:Admin.model.Base, fields:[{type:'int', name:'id'}, {type:'string', name:'contractNumber'}, {type:'string', name:'customerName'}, {type:'string', name:'hoseName'}, {type:'string', name:'employeeName'}, {type:'date', name:'startTime', dateFormat:'Y/m/d H:i:s'}, {type:'date', name:'endTime', dateFormat:'Y/m/d H:i:s'}, {type:'string', name:'contractType'}, {type:'float', name:'total'}, {type:'string', name:'area'}, {type:'string', name:'processInstanceId'}, 
 {type:'string', name:'processStatus'}], proxy:{type:'rest', url:'/contract'}});
 Ext.define('Admin.model.contractapprove.ContractApproveModel', {extend:Admin.model.Base, fields:[{type:'int', name:'id'}, {type:'string', name:'userId'}, {type:'string', name:'contractNumber'}, {type:'string', name:'customerName'}, {type:'string', name:'hoseName'}, {type:'string', name:'employeeName'}, {type:'date', name:'startTime'}, {type:'date', name:'endTime'}, {type:'string', name:'contractType'}, {type:'float', name:'total'}, {type:'string', name:'area'}, {type:'string', name:'processStatus'}, 
@@ -104072,8 +104073,9 @@ Ext.define('Admin.model.contractapprove.ProcessDefinitionModel', {extend:Admin.m
 {type:'boolean', name:'suspended'}]});
 Ext.define('Admin.model.user.UserModel', {extend:Admin.model.Base, fields:[{type:'int', name:'id'}, {type:'string', name:'userName'}, {type:'date', name:'createTime', dateFormat:'Y/m/d H:i:s'}], proxy:{type:'rest', url:'/user'}});
 Ext.define('Admin.store.NavigationTree', {extend:Ext.data.TreeStore, storeId:'NavigationTree', fields:[{name:'text'}], root:{expanded:true, children:[{text:'Dashboard', iconCls:'x-fa fa-desktop', viewType:'admindashboard', routeId:'dashboard', leaf:true}, {text:'模板', iconCls:'x-fa fa-address-card', viewType:'user', leaf:true}, {text:'业务管理模块', iconCls:'x-fa fa-briefcase', expanded:false, selectable:false, children:[{text:'合同管理', iconCls:'x-fa fa-clipboard', viewType:'contract', leaf:true}, {text:'业务审核', 
-iconCls:'x-fa fa-pencil-square-o', viewType:'contractApprove', leaf:true}]}, {text:'通讯录', iconCls:'x-fa fa-address-card', viewType:'addressList', leaf:true}, {text:'日程管理', iconCls:'x-fa fa-calendar', viewType:'calendar', leaf:true}, {text:'Login', iconCls:'x-fa fa-check', viewType:'login', leaf:true}]}});
+iconCls:'x-fa fa-pencil-square-o', viewType:'contractApprove', leaf:true}]}, {text:'通讯录', iconCls:'x-fa fa-address-card', viewType:'addressList', leaf:true}, {text:'日程管理', iconCls:'x-fa fa-calendar', viewType:'calendar', leaf:true}, {text:'个人考勤', iconCls:'x-fa fa-fax', viewType:'attence', leaf:true}, {text:'Login', iconCls:'x-fa fa-check', viewType:'login', leaf:true}]}});
 Ext.define('Admin.store.addressList.AddressListPanelStroe', {extend:Ext.data.Store, alias:'store.addressListPanelStroe', model:'Admin.model.addressList.AddListModel', proxy:{type:'rest', url:'/addressList', reader:{type:'json', rootProperty:'content', totalProperty:'totalElements'}, writer:{type:'json'}, simpleSortMode:true}, autoLoad:'true', autoSync:true, remoteSort:true, pageSize:20, sorters:{direction:'ASC', property:'id'}});
+Ext.define('Admin.store.attence.AttenceGridStroe', {extend:Ext.data.Store, storeId:'attenceGridStroe', alias:'store.attenceGridStroe', model:'Admin.model.attence.AttenceModel', proxy:{type:'rest', url:'/attence', reader:{type:'json', rootProperty:'content', totalProperty:'totalElements'}, writer:{type:'json'}, simpleSortMode:true}, autoLoad:'true', autoSync:true, remoteSort:true, pageSize:20, sorters:{direction:'ASC', property:'id'}});
 Ext.define('Admin.store.contract.ContractGridStroe', {extend:Ext.data.Store, storeId:'contractGridStroe', alias:'store.contractGridStroe', model:'Admin.model.contract.ContractModel', proxy:{type:'rest', url:'/contract', reader:{type:'json', rootProperty:'content', totalProperty:'totalElements'}, writer:{type:'json'}, simpleSortMode:true}, autoLoad:'true', autoSync:true, remoteSort:true, pageSize:20, sorters:{direction:'ASC', property:'id'}});
 Ext.define('Admin.store.contractapprove.ContractApproveStore', {extend:Ext.data.Store, storeId:'contractApproveStore', alias:'store.contractApproveStore', model:'Admin.model.contractapprove.ContractApproveModel', proxy:{type:'ajax', url:'contract/tasks', reader:new Ext.data.JsonReader({type:'json', rootProperty:'content', totalProperty:'totalElements'}), simpleSortMode:true}, remoteSort:true, sorters:[{property:'id', direction:'desc'}], autoLoad:true});
 Ext.define('Admin.store.contractapprove.ProcessDefinitionStroe', {extend:Ext.data.Store, storeId:'processDefinitionStroe', alias:'store.processDefinitionStroe', model:'Admin.model.contractapprove.ProcessDefinitionModel', pageSize:15, proxy:{type:'ajax', url:'/process-definition', reader:{type:'json', rootProperty:'content', totalProperty:'totalElements'}, simpleSortMode:true}, remoteSort:true, sorters:[{property:'id', direction:'desc'}], autoLoad:true, listeners:{}});
@@ -104122,6 +104124,25 @@ Ext.define('Admin.view.addressList.AddressListPanel', {extend:Ext.panel.Panel, x
 cls:'content-column', dataIndex:'employeeArea', text:'Area', flex:1}, {xtype:'gridcolumn', cls:'content-column', dataIndex:'post', text:'post', flex:1}, {xtype:'gridcolumn', cls:'content-column', dataIndex:'email', text:'email', flex:1}, {xtype:'actioncolumn', cls:'content-column', width:120, dataIndex:'bool', text:'Actions', tooltip:'edit ', items:[{xtype:'button', iconCls:'x-fa fa-pencil', handler:'onEditButton'}, {xtype:'button', iconCls:'x-fa fa-close', handler:'onDeleteButton'}, {xtype:'button', 
 iconCls:'x-fa fa-ban', handler:'onDisableButton'}]}], dockedItems:[{xtype:'pagingtoolbar', dock:'bottom', itemId:'userPaginationToolbar', displayInfo:true, bind:'{addressListLists}'}]}]});
 Ext.define('Admin.view.addressList.AddressListViewModel', {extend:Ext.app.ViewModel, alias:'viewmodel.addressListViewModel', stores:{addressListLists:{type:'addressListPanelStroe'}}});
+Ext.define('Admin.view.attence.Attence', {extend:Ext.container.Container, xtype:'attence', viewModel:{type:'attenceViewModel'}, layout:'fit', items:[{xtype:'attencePanel'}]});
+Ext.define('Admin.view.attence.AttencePanel', {extend:Ext.panel.Panel, xtype:'attencePanel', layout:{type:'vbox', pack:'start', align:'stretch'}, items:[{title:'个人考勤列表'}, {bodypadding:15, cls:'has-border', height:80, tbar:[]}, {xtype:'gridpanel', cls:'has-border', height:650, bind:'{attenceLists}', scrollable:false, selModel:{type:'checkboxmodel', checkOnly:true}, listeners:{selectionchange:function(selModel, selections) {
+  this.up('panel').down('#contractPanelRemove').setDisabled(selections.length === 0);
+}, cellclick:'onGridCellItemClick'}, columns:[{xtype:'gridcolumn', width:40, dataIndex:'id', text:'id', hidden:true}, {header:'上班状态', dataIndex:'attenceStatus', width:120, sortable:true, renderer:function(val) {
+  if (val == 'NORMAL') {
+    return '\x3cspan style\x3d"color:green;"\x3e正常\x3c/span\x3e';
+  } else {
+    if (val == 'LEAVE') {
+      return '\x3cspan style\x3d"color:blue;"\x3e请假\x3c/span\x3e';
+    } else {
+      if (val == 'LATER') {
+        return '\x3cspan style\x3d"color:red;"\x3e迟到\x3c/span\x3e';
+      }
+    }
+  }
+  return val;
+}}, {xtype:'gridcolumn', cls:'content-column', width:150, dataIndex:'employeeName', text:'员工姓名'}, {xtype:'gridcolumn', cls:'content-column', width:150, dataIndex:'location', text:'打卡地点'}, {xtype:'datecolumn', cls:'content-column', width:150, dataIndex:'workinTime', text:'上班时间', flex:1, formatter:'date("Y/m/d H:i:s")'}, {xtype:'datecolumn', cls:'content-column', width:150, dataIndex:'workoutTime', text:'下班时间', flex:1, formatter:'date("Y/m/d H:i:s")'}, {xtype:'actioncolumn', cls:'content-column', width:150, 
+dataIndex:'bool', text:'操作', tooltip:'edit '}], dockedItems:[{xtype:'pagingtoolbar', dock:'bottom', itemId:'userPaginationToolbar', displayInfo:true, bind:'{attenceLists}'}]}]});
+Ext.define('Admin.view.attence.AttenceViewModel', {extend:Ext.app.ViewModel, alias:'viewmodel.attenceViewModel', stores:{attenceLists:{type:'attenceGridStroe'}}});
 Ext.define('Admin.view.authentication.AuthenticationController', {extend:Ext.app.ViewController, alias:'controller.authentication', onFaceBookLogin:function() {
   this.redirectTo('dashboard', true);
 }, onLoginButton:function(btn) {
@@ -104531,12 +104552,20 @@ Ext.define('Admin.view.dashboard.Dashboard', {extend:Ext.container.Container, xt
 Ext.define('Admin.view.dashboard.DashboardController', {extend:Ext.app.ViewController, alias:'controller.dashboard', init:function() {
   Ext.Ajax.request({url:'/attence/isAttence', success:function(response, options) {
     var json = Ext.util.JSON.decode(response.responseText);
+    var msg = json.msg;
     if (json.success) {
+      if (msg == 'work' || msg == 'out') {
+        Ext.getCmp('work').show();
+        Ext.getCmp('out').hide();
+      } else {
+        if (msg == 'working') {
+          Ext.getCmp('work').hide();
+          Ext.getCmp('out').show();
+        }
+      }
+    } else {
       Ext.getCmp('work').show();
       Ext.getCmp('out').hide();
-    } else {
-      Ext.getCmp('work').hide();
-      Ext.getCmp('out').show();
     }
   }});
 }});

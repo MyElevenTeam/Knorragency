@@ -54,6 +54,12 @@ Ext.define('Admin.store.NavigationTree', {
                 viewType: 'calendar',
                 leaf: true
             },{
+                text: '个人考勤',
+                iconCls: 'x-fa fa-fax',
+                //rowCls: 'nav-tree-badge nav-tree-badge-new',
+                viewType: 'attence',
+                leaf: true
+            },{
                 text: 'Login',
                 iconCls: 'x-fa fa-check',
                 viewType: 'login',

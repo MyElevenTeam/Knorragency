@@ -7,26 +7,18 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.net.URL;
 import java.nio.charset.Charset;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.springframework.beans.factory.annotation.Autowired;
-
-import com.example.demo.attence.entity.Attence;
-import com.example.demo.attence.entity.AttenceQueryDTO;
-import com.example.demo.attence.service.AttenceService;
 
 public class AttenceUtil {
 	
-	@Autowired
-	private static AttenceService attenceService;
-	
 	private static String url="http://api.map.baidu.com/location/ip?ak=sBlNFyaEHsReLGZcO4dluyc9VbwBXffV&coor=bd09ll";
-	
+
 	public static JSONObject readJsonFromUrl() throws IOException, JSONException {
 		InputStream is = new URL(url).openStream();
 		BufferedReader rd = new BufferedReader(new InputStreamReader(is, Charset.forName("UTF-8")));
@@ -44,31 +36,26 @@ public class AttenceUtil {
 		return sb.toString();
 	}
 	
-	public static boolean isAttence(String employeeName) {
-		boolean flag=false;
-		try {
-		    Date date=new Date();
-			
-			AttenceQueryDTO dto=new AttenceQueryDTO();
-			SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd");
-			String time=sdf.format(date);
-			dto.setEmployeeName(employeeName);
-			
-			List<Attence> attenceList=new ArrayList<Attence>();
-			attenceList=attenceService.findAttence(AttenceQueryDTO.getWhereClause(dto));
-			for(Attence attence:attenceList) {
-				System.out.println(attence);
-				if(time.equals(sdf.format(attence.getWorkinTime()))) {
-					flag=false;
-					break;
-				}else {
-					flag=true;
-					break;
-				}
-			}
-			return flag;
-		} catch (Exception e) {
-			return flag;
-		}
+	public static List<Date> findDates(Date dBegin, Date dEnd){
+		  List<Date> lDate = new ArrayList<Date>();
+		  //SimpleDateFormat sd = new SimpleDateFormat("yyyy-MM-dd");
+		  //lDate.add(sd.format(dBegin));
+		  lDate.add(dBegin);
+		  Calendar calBegin = Calendar.getInstance();
+		  // 使用给定的 Date 设置此 Calendar 的时间
+		  calBegin.setTime(dBegin);
+		  Calendar calEnd = Calendar.getInstance();
+		  // 使用给定的 Date 设置此 Calendar 的时间
+		  calEnd.setTime(dEnd);
+		  // 测试此日期是否在指定日期之后
+		  while (dEnd.after(calBegin.getTime()))
+		  {
+			   // 根据日历的规则，为给定的日历字段添加或减去指定的时间量
+			   calBegin.add(Calendar.DAY_OF_MONTH, 1);
+			   //lDate.add(sd.format(calBegin.getTime()));
+			   lDate.add(calBegin.getTime());
+		  }
+		  return lDate;
 	}
+	
 }
