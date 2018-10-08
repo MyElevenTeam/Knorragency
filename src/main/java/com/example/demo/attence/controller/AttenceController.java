@@ -111,7 +111,7 @@ public class AttenceController {
 	@GetMapping("/isAttence")
 	public ExtAjaxResponse isAttence(HttpSession session) {
 		ExtAjaxResponse response=new ExtAjaxResponse();
-		try {
+		/*try {
 			//获取打卡人姓名
 			String employeeName = SessionUtil.getUserName(session);
 			System.out.println("isAttence:"+employeeName);
@@ -139,7 +139,18 @@ public class AttenceController {
 			return response;
 		} catch (Exception e) {
 			return new ExtAjaxResponse(false,"失败");
+		}*/
+		String employeeName = SessionUtil.getUserName(session);
+		System.out.println("isAttence:"+employeeName);
+		boolean flag=AttenceUtil.isAttence(employeeName);
+		if(flag) {
+			response.setMsg("已经打了打卡");
+			response.setSuccess(false);
+		}else {
+			response.setMsg("没有打卡");
+			response.setSuccess(true);
 		}
+		return response;
 		
 	}
 	
