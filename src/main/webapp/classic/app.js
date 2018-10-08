@@ -104527,7 +104527,19 @@ ui:'gray', text:'取消', handler:function(btn) {
     win.close();
   }
 }}]});
-Ext.define('Admin.view.dashboard.Dashboard', {extend:Ext.container.Container, xtype:'admindashboard', layout:'responsivecolumn', items:[{xtype:'network', userCls:'big-100 small-100'}, {xtype:'todo', userCls:'big-60 small-100'}, {xtype:'services', userCls:'big-40 small-100'}]});
+Ext.define('Admin.view.dashboard.Dashboard', {extend:Ext.container.Container, xtype:'admindashboard', controller:'dashboard', layout:'responsivecolumn', items:[{xtype:'network', userCls:'big-100 small-100'}, {xtype:'todo', userCls:'big-60 small-100'}, {xtype:'services', userCls:'big-40 small-100'}]});
+Ext.define('Admin.view.dashboard.DashboardController', {extend:Ext.app.ViewController, alias:'controller.dashboard', init:function() {
+  Ext.Ajax.request({url:'/attence/isAttence', success:function(response, options) {
+    var json = Ext.util.JSON.decode(response.responseText);
+    if (json.success) {
+      Ext.getCmp('work').show();
+      Ext.getCmp('out').hide();
+    } else {
+      Ext.getCmp('work').hide();
+      Ext.getCmp('out').show();
+    }
+  }});
+}});
 Ext.define('Admin.view.dashboard.Earnings', {extend:Ext.Panel, xtype:'earnings', title:'Earnings', ui:'light', iconCls:'x-fa fa-dollar', headerPosition:'bottom', cls:'quick-graph-panel shadow', height:130, layout:'fit', html:'Earnings', tools:[{xtype:'tool', cls:'quick-graph-panel-tool x-fa fa-ellipsis-v'}]});
 Ext.define('Admin.view.dashboard.HDDUsage', {extend:Ext.panel.Panel, xtype:'hddusage', title:'HDD Usage', ui:'light', iconCls:'x-fa fa-database', headerPosition:'bottom', cls:'quick-graph-panel shadow', height:130, layout:'fit', html:'hddusage'});
 Ext.define('Admin.view.dashboard.Network', {extend:Ext.panel.Panel, xtype:'network', cls:'dashboard-main-chart shadow', height:380, bodyPadding:15, title:'Network', layout:{type:'vbox', align:'stretch'}, html:'netWork'});
@@ -104620,7 +104632,7 @@ Ext.define('Admin.view.main.MainController', {extend:Ext.app.ViewController, ali
     }
   }});
 }, attence:function() {
-  Ext.Ajax.request({url:'/attence/workin', method:'post', success:function(response, options) {
+  Ext.Ajax.request({url:'/attence/workIn', method:'post', success:function(response, options) {
     var json = Ext.util.JSON.decode(response.responseText);
     if (json.success) {
       Ext.Msg.alert('提示', json.msg);
@@ -104631,7 +104643,7 @@ Ext.define('Admin.view.main.MainController', {extend:Ext.app.ViewController, ali
     }
   }});
 }, signback:function() {
-  Ext.Ajax.request({url:'/attence/workout', success:function(response, options) {
+  Ext.Ajax.request({url:'/attence/workOut', method:'post', success:function(response, options) {
     var json = Ext.util.JSON.decode(response.responseText);
     if (json.success) {
       Ext.Msg.alert('提示', json.msg);

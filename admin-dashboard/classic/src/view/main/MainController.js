@@ -177,7 +177,7 @@ Ext.define('Admin.view.main.MainController', {
     attence:function(){
 
         Ext.Ajax.request({
-            url: '/attence/workin',
+            url: '/attence/workIn',
             method: 'post',
             success: function(response, options) {
                 var json = Ext.util.JSON.decode(response.responseText);
@@ -196,7 +196,8 @@ Ext.define('Admin.view.main.MainController', {
     signback:function(){
 
         Ext.Ajax.request({
-            url: '/attence/workout',
+            url: '/attence/workOut',
+            method: 'post',
             success: function(response, options) {
                 var json = Ext.util.JSON.decode(response.responseText);
                 if(json.success){
