@@ -31,8 +31,9 @@ public class AttenceController {
 	@Autowired
 	private AttenceService attenceService;
 	
+	//查看个人的考勤记录
 	@GetMapping 
-	public Page<Attence> getPage(HttpSession session,AttenceQueryDTO attenceQueryDTO,ExtjsPageRequest pageRequest) {
+	public Page<Attence> getPersonAttence(HttpSession session,AttenceQueryDTO attenceQueryDTO,ExtjsPageRequest pageRequest) {
 		
 		String userId = SessionUtil.getUserName(session);  //通过session查找userId
 		if(userId!=null) {
@@ -42,6 +43,7 @@ public class AttenceController {
 		
 	}
 	
+	//上班打卡
 	@PostMapping("/workIn")
 	public ExtAjaxResponse workIn(HttpSession session){
 		int flag;
@@ -49,39 +51,33 @@ public class AttenceController {
 		//获取打卡人姓名
 		String employeeName = SessionUtil.getUserName(session);
 		flag=attenceService.findAttence(employeeName);
-		System.out.println("flag"+flag);
 		try {
-			if(flag==0) {   //未打卡才允许打卡
-				//设置上班时间
-				String workTime="10:00:00";
-				String[]array1 = workTime.split(":");				
-				int total1 = Integer.valueOf(array1[0])*3600+Integer.valueOf(array1[1])*60+Integer.valueOf(array1[2]);
-				
-				//获取打卡时间
-				SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
-				Date date=new Date();
-				String attenceTime=sdf.format(date);
-				String[]array2 = attenceTime.split(":");				
-				int total2 = Integer.valueOf(array2[0])*3600+Integer.valueOf(array2[1])*60+Integer.valueOf(array2[2]);
-				
+			if(flag==0) {   //当天未打卡才允许打卡
+				Attence attence=new Attence();
 				//获取打卡地点
 				JSONObject json=new JSONObject();
 				json=AttenceUtil.readJsonFromUrl();
 				String location=((JSONObject) json.get("content")).getString("address");
+				//获取打卡时间
+				Date date=new Date();
 				
-				Attence attence=new Attence();
-				if(total2>total1) {
+				int work=AttenceUtil.isTimeAndLocation(date, location, true);
+				if(work==-1) {
+					//打卡地错误
+					attence.setAttenceStatus(AttenceStatus.TRIP);
+					response.setMsg("打卡成功,您今天不在公司上班哦");
+					response.setSuccess(true);
+				}else if(work==-2) {
 					//迟到
 					attence.setAttenceStatus(AttenceStatus.LATER);
-					response.setMsg("打卡成功,您今天上班迟到");
+					response.setMsg("打卡成功,您今天上班迟到哦");
 					response.setSuccess(true);
-				}else {
+				}else if(work==0) {
 					//正常上班
 					attence.setAttenceStatus(AttenceStatus.NORMAL);
-					response.setMsg("打卡成功");
+					response.setMsg("打卡成功,今天要加油哦");
 					response.setSuccess(true);
 				}
-				
 				attence.setEmployeeName(employeeName);
 				attence.setLocation(location);
 				attence.setWorkinTime(date);
@@ -104,12 +100,21 @@ public class AttenceController {
 		}
 	}
 	
+	//下班签退
 	@PostMapping("/workOut")
 	public ExtAjaxResponse workOut(HttpSession session) {
+		ExtAjaxResponse response=new ExtAjaxResponse();
 		try {
 			//获取打卡人姓名
 			String employeeName = SessionUtil.getUserName(session);
+			//获取打卡地点
+			JSONObject json=new JSONObject();
+			json=AttenceUtil.readJsonFromUrl();
+			String location=((JSONObject) json.get("content")).getString("address");
+			//获取打卡时间
 			Date date=new Date();
+			
+			int work=AttenceUtil.isTimeAndLocation(date, location, false);
 			
 			AttenceQueryDTO dto=new AttenceQueryDTO();
 			SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd");
@@ -120,18 +125,36 @@ public class AttenceController {
 			attenceList=attenceService.findByEmployeeName(AttenceQueryDTO.getWhereClause(dto));
 			for(Attence attence:attenceList) {
 				if(time.equals(sdf.format(attence.getWorkinTime()))) {
-					attence.setWorkoutTime(date);
-					attenceService.save(attence);
+					if(work==-1) {
+						//打卡地错误
+						attence.setAttenceStatus(AttenceStatus.TRIP);
+						attence.setWorkoutTime(date);
+						attenceService.save(attence);
+						response.setMsg("签退成功,您今天不在公司上班哦");
+						response.setSuccess(true);
+					}else if(work==-3) {
+						//早退
+						attence.setAttenceStatus(AttenceStatus.EARLY);
+						attence.setWorkoutTime(date);
+						attenceService.save(attence);
+						response.setMsg("签退成功,您今天提早下班了哦");
+						response.setSuccess(true);
+					}else if(work==0) {
+						attence.setWorkoutTime(date);
+						attenceService.save(attence);
+						response.setMsg("下班了，好好休息吧");
+						response.setSuccess(true);
+					}
 				}
 			}
-			return new ExtAjaxResponse(true,"下班了，好好休息吧");
+			return response;
 		} catch (Exception e) {
 			return new ExtAjaxResponse(false,"签退失败");
 		}
 		
 	}
 	
-	
+	//判断是否已打卡
 	@GetMapping("/isAttence")
 	public ExtAjaxResponse isAttence(HttpSession session) {
 		String employeeName = SessionUtil.getUserName(session);

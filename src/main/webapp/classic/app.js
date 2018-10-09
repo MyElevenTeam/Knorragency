@@ -104124,8 +104124,9 @@ Ext.define('Admin.view.addressList.AddressListPanel', {extend:Ext.panel.Panel, x
 cls:'content-column', dataIndex:'employeeArea', text:'Area', flex:1}, {xtype:'gridcolumn', cls:'content-column', dataIndex:'post', text:'post', flex:1}, {xtype:'gridcolumn', cls:'content-column', dataIndex:'email', text:'email', flex:1}, {xtype:'actioncolumn', cls:'content-column', width:120, dataIndex:'bool', text:'Actions', tooltip:'edit ', items:[{xtype:'button', iconCls:'x-fa fa-pencil', handler:'onEditButton'}, {xtype:'button', iconCls:'x-fa fa-close', handler:'onDeleteButton'}, {xtype:'button', 
 iconCls:'x-fa fa-ban', handler:'onDisableButton'}]}], dockedItems:[{xtype:'pagingtoolbar', dock:'bottom', itemId:'userPaginationToolbar', displayInfo:true, bind:'{addressListLists}'}]}]});
 Ext.define('Admin.view.addressList.AddressListViewModel', {extend:Ext.app.ViewModel, alias:'viewmodel.addressListViewModel', stores:{addressListLists:{type:'addressListPanelStroe'}}});
-Ext.define('Admin.view.attence.Attence', {extend:Ext.container.Container, xtype:'attence', viewModel:{type:'attenceViewModel'}, layout:'fit', items:[{xtype:'attencePanel'}]});
-Ext.define('Admin.view.attence.AttencePanel', {extend:Ext.panel.Panel, xtype:'attencePanel', layout:{type:'vbox', pack:'start', align:'stretch'}, items:[{title:'个人考勤列表'}, {bodypadding:15, cls:'has-border', height:80, tbar:[]}, {xtype:'gridpanel', cls:'has-border', height:650, bind:'{attenceLists}', scrollable:false, selModel:{type:'checkboxmodel', checkOnly:true}, listeners:{selectionchange:function(selModel, selections) {
+Ext.define('Admin.view.attence.Attence', {extend:Ext.container.Container, xtype:'attence', controller:'attenceViewController', viewModel:{type:'attenceViewModel'}, layout:'fit', items:[{xtype:'attencePanel'}]});
+Ext.define('Admin.view.attence.AttencePanel', {extend:Ext.panel.Panel, xtype:'attencePanel', layout:{type:'vbox', pack:'start', align:'stretch'}, items:[{title:'个人考勤列表'}, {bodypadding:15, cls:'has-border', height:60, tbar:[{iconCls:'fa fa-folder-o fa-5x', ui:'header', tooltip:'我的请假单', handler:'openLeaveWindow'}, '-', {iconCls:'fa fa-edit fa-5x', ui:'header', tooltip:'填写请假单', handler:'openAddWindow'}, '-\x3e', {xtype:'textfield', id:'attence_searchFieldValue', name:'userPanelSearchField', hidden:true}, 
+'-', {iconCls:'fa fa-search fa-5x', id:'attence_search', ui:'header', tooltip:'查找', handler:'search'}, '-', {iconCls:'fa fa-download fa-5x', ui:'header', tooltip:'导出个人考勤表'}]}, {xtype:'gridpanel', cls:'has-border', height:650, bind:'{attenceLists}', scrollable:false, selModel:{type:'checkboxmodel', checkOnly:true}, listeners:{selectionchange:function(selModel, selections) {
   this.up('panel').down('#contractPanelRemove').setDisabled(selections.length === 0);
 }, cellclick:'onGridCellItemClick'}, columns:[{xtype:'gridcolumn', width:40, dataIndex:'id', text:'id', hidden:true}, {header:'上班状态', dataIndex:'attenceStatus', width:120, sortable:true, renderer:function(val) {
   if (val == 'NORMAL') {
@@ -104136,13 +104137,76 @@ Ext.define('Admin.view.attence.AttencePanel', {extend:Ext.panel.Panel, xtype:'at
     } else {
       if (val == 'LATER') {
         return '\x3cspan style\x3d"color:red;"\x3e迟到\x3c/span\x3e';
+      } else {
+        if (val == 'EARLY') {
+          return '\x3cspan style\x3d"color:red;"\x3e早退\x3c/span\x3e';
+        }
       }
     }
   }
   return val;
-}}, {xtype:'gridcolumn', cls:'content-column', width:150, dataIndex:'employeeName', text:'员工姓名'}, {xtype:'gridcolumn', cls:'content-column', width:150, dataIndex:'location', text:'打卡地点'}, {xtype:'datecolumn', cls:'content-column', width:150, dataIndex:'workinTime', text:'上班时间', flex:1, formatter:'date("Y/m/d H:i:s")'}, {xtype:'datecolumn', cls:'content-column', width:150, dataIndex:'workoutTime', text:'下班时间', flex:1, formatter:'date("Y/m/d H:i:s")'}, {xtype:'actioncolumn', cls:'content-column', width:150, 
-dataIndex:'bool', text:'操作', tooltip:'edit '}], dockedItems:[{xtype:'pagingtoolbar', dock:'bottom', itemId:'userPaginationToolbar', displayInfo:true, bind:'{attenceLists}'}]}]});
+}}, {xtype:'gridcolumn', cls:'content-column', width:150, dataIndex:'employeeName', text:'员工姓名'}, {xtype:'gridcolumn', cls:'content-column', width:150, dataIndex:'location', text:'打卡地点'}, {xtype:'datecolumn', cls:'content-column', width:150, dataIndex:'workinTime', text:'上班时间', flex:1, formatter:'date("Y/m/d H:i:s")'}, {xtype:'datecolumn', cls:'content-column', width:150, dataIndex:'workoutTime', text:'下班时间', flex:1, formatter:'date("Y/m/d H:i:s")'}, {xtype:'gridcolumn', cls:'content-column', width:150, 
+dataIndex:'processInstanceId', text:'地点', hidden:true, id:'attencePanel_processInstanceId'}, {xtype:'actioncolumn', cls:'content-column', width:150, dataIndex:'bool', text:'操作', tooltip:'edit ', items:[{xtype:'button', iconCls:'x-fa  fa-hand-paper-o', tooltip:'发起请假', handler:'starLeaveProcess'}]}], dockedItems:[{xtype:'pagingtoolbar', dock:'bottom', itemId:'userPaginationToolbar', displayInfo:true, bind:'{attenceLists}'}]}]});
+Ext.define('Admin.view.attence.AttenceViewController', {extend:Ext.app.ViewController, alias:'controller.attenceViewController', openLeaveWindow:function(toolbar, rowIndex, colIndex) {
+  toolbar.up('panel').up('container').add(Ext.widget('leaveGridWindow')).show();
+}, openAddWindow:function(toolbar, rowIndex, colIndex) {
+  toolbar.up('panel').up('container').add(Ext.widget('leaveAddWindow')).show();
+}, search:function(btn) {
+  Ext.getCmp('attence_searchFieldValue').show();
+  Ext.getCmp('attence_search').hide();
+}, hhh:function(btn) {
+  alert('sss');
+}, starLeaveProcess:function(grid) {
+  Ext.getCmp('attencePanel_processInstanceId').show();
+}});
 Ext.define('Admin.view.attence.AttenceViewModel', {extend:Ext.app.ViewModel, alias:'viewmodel.attenceViewModel', stores:{attenceLists:{type:'attenceGridStroe'}}});
+Ext.define('Admin.view.attence.LeaveAddWindow', {extend:Ext.window.Window, alias:'widget.leaveAddWindow', height:350, minHeight:350, minWidth:300, width:500, scrollable:true, title:'请假单', closable:true, constrain:true, defaultFocus:'textfield', modal:true, layout:'fit', items:[{xtype:'form', layout:'form', padding:'10px', ariaLabel:'Enter your name', items:[{xtype:'textfield', fieldLabel:'id', name:'id', hidden:true, readOnly:true}, {xtype:'textfield', fieldLabel:'processStatus', name:'processStatus', 
+value:'NEW', hidden:true, readOnly:true}, {xtype:'textfield', name:'userId', fieldLabel:'请假人', allowBlank:false, emptyText:'请填写请假人姓名', blankText:'请填写请假人'}, {xtype:'combobox', name:'leaveType', fieldLabel:'请假类型', store:Ext.create('Ext.data.Store', {fields:['value', 'name'], data:[{'value':'A', 'name':'带薪假期'}, {'value':'B', 'name':'无薪假期'}, {'value':'C', 'name':'病假'}]}), queryMode:'local', displayField:'name', valueField:'value', emptyText:'--------请选择---------', allowBlank:false, blankText:'请选择类型'}, 
+{xtype:'datefield', fieldLabel:'请假开始时间', value:new Date, minValue:new Date, minText:'请选择当前日期后的时间', format:'Y/m/d H:i:s', altFormats:'Y/m/d|Ymd', name:'startTime', emptyText:'--------请选择---------', allowBlank:false, blankText:'请选择开始时间'}, {xtype:'datefield', fieldLabel:'请假结束时间', value:new Date, minValue:new Date, minText:'请选择当前日期后的时间', format:'Y/m/d H:i:s', altFormats:'Y/m/d|Ymd', name:'endTime', emptyText:'--------请选择---------', allowBlank:false, blankText:'请选择结束时间'}, {xtype:'textareafield', grow:true, 
+name:'reason', fieldLabel:'请假原因', anchor:'100%', emptyText:'请填写请假原因', allowBlank:false, blankText:'请填写请假原因'}]}], buttons:[{xtype:'button', text:'保存', handler:'submitAddForm'}, '-\x3e', {xtype:'button', text:'取消', handler:function(btn) {
+  btn.up('window').close();
+}}]});
+Ext.define('Admin.view.attence.LeaveGridWindow', {extend:Ext.window.Window, alias:'widget.leaveGridWindow', height:550, minHeight:500, width:1200, scrollable:true, title:'我的请假单', closable:true, constrain:false, autoScroll:true, header:{items:[{iconCls:'fa fa-search', ui:'header', tooltip:'查找', handler:'hhh'}]}, modal:true, layout:'fit', items:[{xtype:'gridpanel', bind:'{leaveLists}', autoScroll:true, selModel:{type:'checkboxmodel'}, columns:[{header:'id', dataIndex:'id', width:60, sortable:true, 
+hidden:true}, {header:'请假状态', dataIndex:'processStatus', width:60, sortable:true, renderer:function(val) {
+  if (val == 'NEW') {
+    return '\x3cspan style\x3d"color:green;"\x3e新建\x3c/span\x3e';
+  } else {
+    if (val == 'APPROVAL') {
+      return '\x3cspan style\x3d"color:blue;"\x3e审批中...\x3c/span\x3e';
+    } else {
+      if (val == 'COMPLETE') {
+        return '\x3cspan style\x3d"color:orange;"\x3e完成审批\x3c/span\x3e';
+      } else {
+        return '\x3cspan style\x3d"color:red;"\x3e取消申请\x3c/span\x3e';
+      }
+    }
+  }
+  return val;
+}}, {header:'申请人', dataIndex:'userId', width:60, sortable:true}, {header:'开始时间', dataIndex:'startTime', width:180, sortable:true, renderer:Ext.util.Format.dateRenderer('Y/m/d H:i:s')}, {header:'结束时间', dataIndex:'endTime', width:180, sortable:true, renderer:Ext.util.Format.dateRenderer('Y/m/d H:i:s')}, {header:'请假类型', dataIndex:'leaveType', width:120, sortable:true, renderer:function(val) {
+  if (val == 'A') {
+    return '\x3cspan style\x3d"color:green;"\x3e带薪假期\x3c/span\x3e';
+  } else {
+    if (val == 'B') {
+      return '\x3cspan style\x3d"color:red;"\x3e无薪假期\x3c/span\x3e';
+    } else {
+      if (val == 'C') {
+        return '\x3cspan style\x3d"color:blue;"\x3e病假\x3c/span\x3e';
+      }
+    }
+  }
+  return val;
+}}, {header:'请假原因', dataIndex:'reason', width:220, sortable:true}, {header:'经理意见', dataIndex:'depReason', width:120, sortable:true}, {header:'人事经理意见', dataIndex:'hrReason', width:120, sortable:true}, {xtype:'actioncolumn', cls:'content-column', width:120, text:'操作', tooltip:'edit ', items:[{xtype:'button', iconCls:'x-fa fa-pencil', handler:'openEditWindow'}, {xtype:'button', iconCls:'x-fa fa-close', handler:'deleteOneRow'}, {xtype:'button', iconCls:'x-fa fa-star', tooltip:'发起请假', getClass:function(v, 
+meta, rec) {
+  if (rec.get('processInstanceId') != '') {
+    return 'x-hidden';
+  }
+  return 'x-fa fa-star';
+}, handler:'starLeaveProcess'}, {xtype:'button', iconCls:'x-fa fa-ban', tooltip:'取消请假', getClass:function(v, meta, rec) {
+  if (rec.get('processInstanceId') == '') {
+    return 'x-hidden';
+  }
+  return 'x-fa fa-ban';
+}, handler:'cancelLeaveProcess'}]}], dockedItems:[{xtype:'pagingtoolbar', dock:'bottom', displayInfo:true, bind:'{leaveLists}'}]}]});
 Ext.define('Admin.view.authentication.AuthenticationController', {extend:Ext.app.ViewController, alias:'controller.authentication', onFaceBookLogin:function() {
   this.redirectTo('dashboard', true);
 }, onLoginButton:function(btn) {
@@ -104667,8 +104731,10 @@ Ext.define('Admin.view.main.MainController', {extend:Ext.app.ViewController, ali
       Ext.Msg.alert('提示', json.msg);
       Ext.getCmp('work').hide();
       Ext.getCmp('out').show();
+      Ext.data.StoreManager.lookup('attenceGridStroe').load();
     } else {
       Ext.Msg.alert('提示', json.msg);
+      Ext.data.StoreManager.lookup('attenceGridStroe').load();
     }
   }});
 }, signback:function() {
@@ -104678,8 +104744,10 @@ Ext.define('Admin.view.main.MainController', {extend:Ext.app.ViewController, ali
       Ext.Msg.alert('提示', json.msg);
       Ext.getCmp('work').show();
       Ext.getCmp('out').hide();
+      Ext.data.StoreManager.lookup('attenceGridStroe').load();
     } else {
       Ext.Msg.alert('提示', json.msg);
+      Ext.data.StoreManager.lookup('attenceGridStroe').load();
     }
   }});
 }});

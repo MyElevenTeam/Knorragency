@@ -7,6 +7,7 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.net.URL;
 import java.nio.charset.Charset;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -56,6 +57,49 @@ public class AttenceUtil {
 			   lDate.add(calBegin.getTime());
 		  }
 		  return lDate;
+	}
+	
+	
+	//判断打卡时间和地点
+	public static int isTimeAndLocation(Date date,String location,boolean work) throws JSONException, IOException {
+		int flag=0;//正常状态
+		//设置上班时间
+		String workinTime="08:00:00";
+		String[]array1 = workinTime.split(":");				
+		int total1 = Integer.valueOf(array1[0])*3600+Integer.valueOf(array1[1])*60+Integer.valueOf(array1[2]);
+		
+		//设置下班时间
+		String workoutTime="17:00:00";
+		String[]array2 = workoutTime.split(":");				
+		int total2 = Integer.valueOf(array2[0])*3600+Integer.valueOf(array2[1])*60+Integer.valueOf(array2[2]);
+		
+		//设置上班地点
+		String workLocation="广东省东莞市";
+		
+		//获取打卡时间
+		SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
+		String attenceTime=sdf.format(date);
+		String[]array3 = attenceTime.split(":");				
+		int total3 = Integer.valueOf(array3[0])*3600+Integer.valueOf(array3[1])*60+Integer.valueOf(array3[2]);
+		
+		if(location.equals(workLocation)) {
+			if(work) {
+				//上班
+				if(total3>total1) {
+					//迟到
+					flag=-2;
+				}
+			}else {
+				//下班
+				if(total3<total2) {
+					//早退
+					flag=-3;
+				}
+			}
+		}else {
+			flag=-1; //打卡地错误
+		}
+		return flag;
 	}
 	
 }
