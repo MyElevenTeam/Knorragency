@@ -105374,7 +105374,7 @@ Ext.define('Admin.view.attence.AttenceViewController', {extend:Ext.app.ViewContr
     record.set(values);
     record.save();
     var store = Ext.data.StoreManager.lookup('leaveStroe');
-    store.load();
+    setTimeout(store.load(), '1000');
     win.close();
   } else {
     Ext.Msg.alert('提示', '不允许为空');
@@ -105619,15 +105619,15 @@ Ext.define('Admin.view.attenceapprove.AttenceApproveViewController', {extend:Ext
     win.down('form').getForm().loadRecord(record);
   } else {
     if (taskDefinitionKey == 'hrAudit') {
-      var win = this.setCurrentView(view, taskDefinitionKey, '人事审批表单');
+      var win = this.setCurrentView(view, 'leavehrAudit', '人事审批表单');
       win.down('form').getForm().loadRecord(record);
     } else {
       if (taskDefinitionKey == 'reportBack') {
-        var win = this.setCurrentView(view, taskDefinitionKey, '销假表单');
+        var win = this.setCurrentView(view, 'leavereportBack', '销假表单');
         win.down('form').getForm().loadRecord(record);
       } else {
         if (taskDefinitionKey == 'modifyApply') {
-          var win = this.setCurrentView(view, taskDefinitionKey, '调整申请表单');
+          var win = this.setCurrentView(view, 'leavemodifyApply', '调整申请表单');
           win.down('form').getForm().loadRecord(record);
         }
       }
@@ -105691,7 +105691,7 @@ grow:true, name:'deptLeaderBackReason', emptyText:'此处可填写意见', field
     win.close();
   }
 }}]});
-Ext.define('Admin.view.attenceapprove.task.HrAudit', {extend:Ext.form.Panel, alias:'widget.hrAudit', bodyPadding:10, bodyBorder:true, defaults:{anchor:'100%'}, fieldDefaults:{labelAlign:'left', msgTarget:'none', invalidCls:''}, items:[{xtype:'textfield', name:'taskId', fieldLabel:'任务ID', hidden:true, readOnly:true}, {xtype:'textfield', cls:'dep', name:'userId', fieldLabel:'申请人', readOnly:true}, {xtype:'textfield', cls:'dep', name:'leaveType', fieldLabel:'请假类型', readOnly:true}, {xtype:'datefield', 
+Ext.define('Admin.view.attenceapprove.task.HrAudit', {extend:Ext.form.Panel, alias:'widget.leavehrAudit', bodyPadding:10, bodyBorder:true, defaults:{anchor:'100%'}, fieldDefaults:{labelAlign:'left', msgTarget:'none', invalidCls:''}, items:[{xtype:'textfield', name:'taskId', fieldLabel:'任务ID', hidden:true, readOnly:true}, {xtype:'textfield', cls:'dep', name:'userId', fieldLabel:'申请人', readOnly:true}, {xtype:'textfield', cls:'dep', name:'leaveType', fieldLabel:'请假类型', readOnly:true}, {xtype:'datefield', 
 cls:'dep', name:'startTime', fieldLabel:'开始时间', format:'Y/m/d H:i:s', readOnly:true}, {xtype:'datefield', cls:'dep', name:'endTime', fieldLabel:'结束时间', format:'Y/m/d H:i:s', readOnly:true}, {xtype:'textareafield', name:'reason', fieldLabel:'请假原因', readOnly:true}, {xtype:'textareafield', name:'depreason', fieldLabel:'部门经理审批意见', readOnly:true}, {xtype:'radiogroup', fieldLabel:'人事文员审批', defaults:{flex:1}, items:[{name:'hrPass', inputValue:true, boxLabel:'同意', checked:true}, {name:'hrPass', inputValue:false, 
 boxLabel:'不同意'}]}, {xtype:'textareafield', grow:true, name:'hrBackReason', fieldLabel:'人事文员审批意见', emptyText:'此处可填写意见', anchor:'100%'}], bbar:[{xtype:'button', ui:'soft-green', text:'提交', handler:'onClickHrAuditFormSubmitButton'}, {xtype:'button', ui:'gray', text:'取消', handler:function(btn) {
   var win = btn.up('window');
@@ -105699,7 +105699,7 @@ boxLabel:'不同意'}]}, {xtype:'textareafield', grow:true, name:'hrBackReason',
     win.close();
   }
 }}]});
-Ext.define('Admin.view.attenceapprove.task.ModifyApply', {extend:Ext.form.Panel, alias:'widget.modifyApply', bodyPadding:5, bodyBorder:true, defaults:{anchor:'100%'}, fieldDefaults:{labelAlign:'left', msgTarget:'none', invalidCls:''}, items:[{xtype:'radiogroup', fieldLabel:'重新申请', items:[{name:'reApply', inputValue:true, boxLabel:'是', checked:true}, {name:'reApply', inputValue:false, boxLabel:'否'}]}, {xtype:'textfield', name:'taskId', fieldLabel:'任务ID', hidden:true, readOnly:true}, {xtype:'combobox', 
+Ext.define('Admin.view.attenceapprove.task.ModifyApply', {extend:Ext.form.Panel, alias:'widget.leavemodifyApply', bodyPadding:5, bodyBorder:true, defaults:{anchor:'100%'}, fieldDefaults:{labelAlign:'left', msgTarget:'none', invalidCls:''}, items:[{xtype:'radiogroup', fieldLabel:'重新申请', items:[{name:'reApply', inputValue:true, boxLabel:'是', checked:true}, {name:'reApply', inputValue:false, boxLabel:'否'}]}, {xtype:'textfield', name:'taskId', fieldLabel:'任务ID', hidden:true, readOnly:true}, {xtype:'combobox', 
 name:'leaveType', fieldLabel:'请假类型', store:Ext.create('Ext.data.Store', {fields:['value', 'name'], data:[{'value':'A', 'name':'带薪假期'}, {'value':'B', 'name':'无薪假期'}, {'value':'C', 'name':'病假'}]}), queryMode:'local', displayField:'name', valueField:'value', allowBlank:false}, {xtype:'datefield', fieldLabel:'请假开始时间', format:'Y/m/d H:i:s', name:'startTime'}, {xtype:'datefield', fieldLabel:'请假结束时间', format:'Y/m/d H:i:s', name:'endTime'}, {xtype:'textareafield', grow:true, name:'reason', fieldLabel:'请假原因', 
 anchor:'100%'}, {xtype:'textareafield', name:'depreason', fieldLabel:'部门经理审批意见', emptyText:'部门经理还未审批', readOnly:true}, {xtype:'textareafield', name:'hrreason', fieldLabel:'人事文员审批意见', emptyText:'人事文员还未审批', readOnly:true}], bbar:[{xtype:'button', ui:'soft-green', text:'提交', handler:'onClickModifyApplyFormSubmitButton'}, {xtype:'button', ui:'gray', text:'取消', handler:function(btn) {
   var win = btn.up('window');
@@ -105707,7 +105707,7 @@ anchor:'100%'}, {xtype:'textareafield', name:'depreason', fieldLabel:'部门经�
     win.close();
   }
 }}]});
-Ext.define('Admin.view.attenceapprove.task.ReportBack', {extend:Ext.form.Panel, alias:'widget.reportBack', bodyPadding:10, bodyBorder:true, defaults:{anchor:'100%'}, fieldDefaults:{labelAlign:'left', msgTarget:'none', invalidCls:''}, items:[{xtype:'textfield', name:'taskId', fieldLabel:'任务ID', hidden:true, readOnly:true}, {xtype:'datefield', fieldLabel:'实际开始时间', format:'Y/m/d H:i:s', name:'realityStartTime', emptyText:'--------请选择---------', allowBlank:false, blankText:'请选择实际开始时间'}, {xtype:'datefield', 
+Ext.define('Admin.view.attenceapprove.task.ReportBack', {extend:Ext.form.Panel, alias:'widget.leavereportBack', bodyPadding:10, bodyBorder:true, defaults:{anchor:'100%'}, fieldDefaults:{labelAlign:'left', msgTarget:'none', invalidCls:''}, items:[{xtype:'textfield', name:'taskId', fieldLabel:'任务ID', hidden:true, readOnly:true}, {xtype:'datefield', fieldLabel:'实际开始时间', format:'Y/m/d H:i:s', name:'realityStartTime', emptyText:'--------请选择---------', allowBlank:false, blankText:'请选择实际开始时间'}, {xtype:'datefield', 
 fieldLabel:'实际结束时间', format:'Y/m/d H:i:s', name:'realityEndTime', emptyText:'--------请选择---------', allowBlank:false, blankText:'请选择实际结束时间'}], bbar:[{xtype:'button', ui:'soft-green', text:'提交', handler:'onClickReportBackFormSubmitButton'}, {xtype:'button', ui:'gray', text:'取消', handler:function(btn) {
   var win = btn.up('window');
   if (win) {

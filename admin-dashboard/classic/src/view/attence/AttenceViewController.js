@@ -20,7 +20,7 @@ Ext.define('Admin.view.attence.AttenceViewController', {
         record.set(values);
         record.save();
         var store=Ext.data.StoreManager.lookup('leaveStroe');
-        store.load();
+        setTimeout(store.load(),'1000');
         /*store.addListener('load', function() {
               Ext.Msg.alert('提示','添加成功');
         });*/

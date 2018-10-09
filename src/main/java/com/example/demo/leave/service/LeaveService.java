@@ -126,8 +126,8 @@ public class LeaveService implements ILeaveService {
 	            	
 	            	leaveDTO.setDepreason(depreason);
 	            	leaveDTO.setHrreason(hrreason);
-	            	leave.setDepReason(depreason);
-	            	leave.setHrReason(hrreason);
+	            	/*leave.setDepReason(depreason);
+	            	leave.setHrReason(hrreason);*/
 	            	
 	            	BeanUtils.copyProperties(leave, leaveDTO);
 	            	BeanUtils.copyProperties(workflow, leaveDTO);
