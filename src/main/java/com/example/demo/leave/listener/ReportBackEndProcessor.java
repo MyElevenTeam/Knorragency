@@ -9,10 +9,15 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.example.demo.activiti.entity.ProcessStatus;
+import com.example.demo.attence.entity.Attence;
+import com.example.demo.attence.entity.AttenceStatus;
+import com.example.demo.attence.service.IAttenceService;
+import com.example.demo.attence.utils.AttenceUtil;
 import com.example.demo.leave.entity.Leave;
 import com.example.demo.leave.service.ILeaveService;
 
 import java.util.Date;
+import java.util.List;
 
 /**
  * 销假后处理器
@@ -28,6 +33,9 @@ public class ReportBackEndProcessor implements TaskListener
 
 	@Autowired
     private ILeaveService leaveService;
+	
+	@Autowired
+    private IAttenceService attenceService;
 
     @Autowired
     private RuntimeService runtimeService;
@@ -42,8 +50,22 @@ public class ReportBackEndProcessor implements TaskListener
         leave.setRealityStartTime((Date) realityStartTime);
         Object realityEndTime = delegateTask.getVariable("realityEndTime");
         leave.setRealityEndTime((Date) realityEndTime);
-        
         leave.setProcessStatus(ProcessStatus.COMPLETE);
+        
+        
+        
+        String userId=leave.getUserId();
+        Date dBegin=(Date) realityStartTime;
+        Date dEnd=(Date) realityEndTime;
+        List<Date> dList=AttenceUtil.findDates(dBegin, dEnd);
+        for(Date date:dList) {
+        	Attence attence=new Attence();
+			attence.setEmployeeName(userId);
+			attence.setLocation("广东省东莞市");
+			attence.setWorkinTime(date);
+			attence.setWorkoutTime(date);
+			attence.setAttenceStatus(AttenceStatus.LEAVE);
+		}
         //leaveService.save(leave);
     }
 }

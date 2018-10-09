@@ -270,6 +270,7 @@ Ext.define('Ext.grid.plugin.RowEditing', {
     },
 
     completeEdit: function() {
+        alert("sss");
         var me = this,
             context = me.context;
 
