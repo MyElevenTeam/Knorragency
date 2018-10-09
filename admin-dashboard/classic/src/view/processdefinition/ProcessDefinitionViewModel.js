@@ -1,7 +1,6 @@
-Ext.define('Admin.view.attence.AttenceViewModel', {
+﻿Ext.define('Admin.view.processdefinition.ProcessDefinitionViewModel', {
     extend: 'Ext.app.ViewModel',
-    alias: 'viewmodel.attenceViewModel',
-
+    alias: 'viewmodel.processDefinitionViewModel',
     requires: [
         'Ext.data.Store',
         'Ext.data.proxy.Memory',
@@ -11,9 +10,7 @@ Ext.define('Admin.view.attence.AttenceViewModel', {
         'Ext.data.field.Boolean',
         'Ext.data.reader.Json'
     ],
-
     stores: {
-		attenceLists: {type: 'attenceGridStroe'},
-        leaveLists:{type:'leaveStroe'}
+        processDefinitionLists: {type: 'processDefinitionStroe'}
     }
 });

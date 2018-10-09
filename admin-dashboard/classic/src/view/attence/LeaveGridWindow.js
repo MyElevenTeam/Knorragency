@@ -13,6 +13,7 @@
     
     requires: [
         'Ext.form.field.*',
+        'Ext.grid.plugin.RowEditing'
     ],
     header: {
         items:[
@@ -21,9 +22,15 @@
                 ui: 'header',
                 tooltip: '查找',
                 handler:'hhh'  
+            },'-',
+            {
+                iconCls:'fa fa-trash',
+                ui: 'header',
+                tooltip: '删除多条',
+                disabled: true
             }
         ]
-    },     
+    },   
     modal:true,
     layout: 'fit',
     items: [
@@ -33,6 +40,11 @@
             //scrollable: false,
             autoScroll:true,
             selModel: {type: 'checkboxmodel'},
+            plugins: {
+                rowediting: {
+                    clicksToEdit: 2
+                }
+            },
             columns: [
                  {header: 'id',dataIndex:'id',width: 60,sortable: true,hidden:true}
                 ,{header: '审核状态',dataIndex: 'processStatus',width: 60,sortable: true,
@@ -50,8 +62,24 @@
                     }
                 }
                 ,{header: '申请人',dataIndex: 'userId',width: 60,sortable: true}
-                ,{header: '开始时间',dataIndex: 'startTime',width: 180,sortable: true,renderer:Ext.util.Format.dateRenderer('Y/m/d H:i:s')}
-                ,{header: '结束时间',dataIndex: 'endTime',width: 180,sortable: true,renderer: Ext.util.Format.dateRenderer('Y/m/d H:i:s')}
+                ,{header: '开始时间',dataIndex: 'startTime',width: 180,sortable: true,renderer:Ext.util.Format.dateRenderer('Y/m/d H:i:s'),
+                    editor: {
+                        xtype:'datefield',
+                        value:new Date(),
+                        minValue: new Date(),
+                        format: 'Y/m/d H:i:s', 
+                        altFormats : "Y/m/d|Ymd"
+                    }
+                 }
+                ,{header: '结束时间',dataIndex: 'endTime',width: 180,sortable: true,renderer: Ext.util.Format.dateRenderer('Y/m/d H:i:s'),
+                    editor: {
+                        xtype:'datefield',
+                        value:new Date(),
+                        minValue: new Date(),
+                        format: 'Y/m/d H:i:s', 
+                        altFormats : "Y/m/d|Ymd"
+                    }
+                 }
                 ,{header: '请假类型',dataIndex: 'leaveType',width: 120,sortable: true,
                     renderer: function(val) {
                         if (val =='A') {
@@ -62,16 +90,30 @@
                             return '<span style="color:blue;">病假</span>';
                         }
                         return val;
+                    },
+                    editor: {
+                        xtype: 'combobox',
+                        store: Ext.create('Ext.data.Store', {
+                            fields: ['value', 'name'],
+                            data : [
+                                {"value":"A", "name":"带薪假期"},
+                                {"value":"B", "name":"无薪假期"},
+                                {"value":"C", "name":"病假"}
+                            ]
+                        }),
+                        queryMode: 'local',
+                        displayField: 'name',
+                        valueField: 'value'
                     }
                 }
-                ,{header: '请假原因',dataIndex: 'reason',width: 220,sortable: true}
+                ,{header: '请假原因',dataIndex: 'reason',width: 220,sortable: true,editor: 'textfield'}
                 //,{header: 'realityStartTime',dataIndex: 'realityStartTime',width: 60,sortable: true,renderer: Ext.util.Format.dateRenderer('Y/m/d H:i:s')}
                 //,{header: 'realityEndTime',dataIndex: 'realityEndTime',width: 60,sortable: true,renderer: Ext.util.Format.dateRenderer('Y/m/d H:i:s')}
                 ,{header: '经理意见',dataIndex: 'depReason',width: 120,sortable: true}
                 ,{header: '人事经理意见' ,dataIndex: 'hrReason',width: 120,sortable: true}
                 ,{xtype: 'actioncolumn',cls: 'content-column', width: 120,text: '操作',tooltip: 'edit ',
                     items: [
-                        {xtype: 'button', iconCls: 'x-fa fa-pencil',handler: 'openEditWindow'},
+                        //{xtype: 'button', iconCls: 'x-fa fa-pencil',handler: 'openEditWindow'},
                         {xtype: 'button',iconCls: 'x-fa fa-close',handler: 'deleteOneRow'},
                         {
                             xtype: 'button',iconCls: 'x-fa fa-star',tooltip: '发起请假',

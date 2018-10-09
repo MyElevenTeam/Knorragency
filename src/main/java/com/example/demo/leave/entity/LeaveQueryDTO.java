@@ -1,4 +1,4 @@
-package com.example.demo.attence.entity;
+package com.example.demo.leave.entity;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -75,4 +75,5 @@ public class LeaveQueryDTO
 		};
 	}
 }
+
 

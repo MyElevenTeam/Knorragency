@@ -105,7 +105,7 @@ Ext.define('Admin.view.attence.AttencePanel', {
                                     return 'x-hidden';
                                 }
                                 return 'x-fa fa-hand-paper-o';
-                            }
+                            },
                             handler: 'starLeaveProcess'
                         },
                         {

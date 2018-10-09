@@ -128,7 +128,7 @@ Ext.define('Ext.grid.plugin.RowEditing', {
 
         me.autoCancel = !!me.autoCancel;
         me.autoUpdate = !!me.autoUpdate;
-        
+    
         if (me.autoUpdate) {
             me.autoCancel = false;
         }
@@ -329,7 +329,7 @@ Ext.define('Ext.grid.plugin.RowEditing', {
             grid     = me.grid,
             view     = me.view,
             headerCt = grid.headerCt,
-            btns     = ['saveBtnText', 'cancelBtnText', 'errorsText', 'dirtyText'],
+            btns     = ['保存', 'cancelBtnText', 'errorsText', 'dirtyText'],
             b,
             bLen     = btns.length,
             cfg      = {
@@ -533,4 +533,5 @@ Ext.define('Ext.grid.plugin.RowEditing', {
         
         return field;
     }
+    
 });

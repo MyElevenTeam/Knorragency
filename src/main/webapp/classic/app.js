@@ -78471,6 +78471,763 @@ Ext.define('Ext.grid.RowContext', {constructor:function(config) {
   }
   return ret;
 }}});
+Ext.define('Ext.grid.RowEditorButtons', {extend:Ext.container.Container, alias:'widget.roweditorbuttons', frame:true, shrinkWrap:true, position:'bottom', ariaRole:'toolbar', constructor:function(config) {
+  var me = this, rowEditor = config.rowEditor, cssPrefix = Ext.baseCSSPrefix, plugin = rowEditor.editingPlugin;
+  config = Ext.apply({baseCls:cssPrefix + 'grid-row-editor-buttons', defaults:{xtype:'button', ui:rowEditor.buttonUI, scope:plugin, flex:1, minWidth:Ext.panel.Panel.prototype.minButtonWidth}, items:[{cls:cssPrefix + 'row-editor-update-button', itemId:'update', handler:plugin.completeEdit, text:rowEditor.saveBtnText, disabled:rowEditor.updateButtonDisabled, listeners:{element:'el', keydown:me.onUpdateKeyDown, scope:me}}, {cls:cssPrefix + 'row-editor-cancel-button', itemId:'cancel', handler:plugin.cancelEdit, 
+  text:rowEditor.cancelBtnText, listeners:{element:'el', keydown:me.onCancelKeyDown, scope:me}}]}, config);
+  me.callParent([config]);
+  me.addClsWithUI(me.position);
+}, onUpdateKeyDown:function(e) {
+  if (e.shiftKey && e.getKey() === e.TAB) {
+    e.stopEvent();
+    this.rowEditor.child(':focusable:not([isButton]):last').focus(false, true);
+  }
+}, onCancelKeyDown:function(e) {
+  if (!e.shiftKey && e.getKey() === e.TAB) {
+    e.stopEvent();
+    this.rowEditor.child(':focusable').focus(false, true);
+  }
+}, setButtonPosition:function(position) {
+  var me = this, rowEditor = this.rowEditor, rowEditorHeight = rowEditor.getHeight(), rowEditorBody = rowEditor.body, bottom = '', top = '';
+  me.removeClsWithUI(me.position);
+  me.position = position;
+  me.addClsWithUI(position);
+  if (position === 'top') {
+    bottom = rowEditorHeight - rowEditorBody.getBorderWidth('t') + 'px';
+  } else {
+    top = rowEditorHeight - rowEditorBody.getBorderWidth('b') + 'px';
+  }
+  me.el.setStyle({top:top, bottom:bottom});
+}, privates:{getFramingInfoCls:function() {
+  return this.baseCls + '-' + this.ui + '-' + this.position;
+}, getFrameInfo:function() {
+  var frameInfo = this.callParent();
+  frameInfo.top = true;
+  return frameInfo;
+}}});
+Ext.define('Ext.grid.RowEditor', {extend:Ext.form.Panel, alias:'widget.roweditor', saveBtnText:'Update', cancelBtnText:'Cancel', errorsText:'Errors', dirtyText:'You need to commit or cancel your changes', lastScrollLeft:0, lastScrollTop:0, border:false, tabGuard:true, _wrapCls:Ext.baseCSSPrefix + 'grid-row-editor-wrap', errorCls:Ext.baseCSSPrefix + 'grid-row-editor-errors-item', buttonUI:'default', hideMode:'offsets', defaultFocus:'field:canfocus', layout:{type:'hbox', align:'middle'}, _cachedNode:false, 
+initComponent:function() {
+  var me = this, grid = me.editingPlugin.grid, Container = Ext.container.Container, form, normalCt, lockedCt;
+  me.cls = Ext.baseCSSPrefix + 'grid-editor ' + Ext.baseCSSPrefix + 'grid-row-editor';
+  me.lockable = grid.lockable;
+  if (me.lockable) {
+    me.items = [lockedCt = me.lockedColumnContainer = new Container({$initParent:me, id:grid.id + '-locked-editor-cells', scrollable:{x:false, y:false}, layout:{type:'hbox', align:'middle'}, margin:'0 1 0 0'}), normalCt = me.normalColumnContainer = new Container({$initParent:me, id:grid.id + '-normal-editor-cells', scrollable:{x:false, y:false}, layout:{type:'hbox', align:'middle'}, flex:1})];
+    delete lockedCt.$initParent;
+    delete normalCt.$initParent;
+    lockedCt.getScrollable().addPartner(grid.lockedGrid.view.getScrollable(), 'x');
+    normalCt.getScrollable().addPartner(grid.normalGrid.view.getScrollable(), 'x');
+    grid.lockedGrid.on({collapse:me.onGridResize, expand:me.onGridResize, beginfloat:me.onBeginFloat, scope:me});
+  } else {
+    me.setScrollable({x:false, y:false});
+    me.getScrollable().addPartner(grid.view.getScrollable(), 'x');
+    me.lockedColumnContainer = me.normalColumnContainer = me;
+  }
+  me.callParent();
+  if (me.fields) {
+    me.addFieldsForColumn(me.fields, true);
+    me.insertColumnEditor(me.fields);
+    delete me.fields;
+  }
+  me.mon(Ext.GlobalEvents, {scope:me, show:me.repositionIfVisible});
+  form = me.getForm();
+  form.trackResetOnLoad = true;
+  form.on('validitychange', me.onValidityChange, me);
+  form.on('errorchange', me.onErrorChange, me);
+}, onGridResize:function() {
+  if (this.rendered) {
+    var me = this, clientWidth = me.getClientWidth(), grid = me.editingPlugin.grid, gridBody = grid.body, btns = me.getFloatingButtons();
+    me.wrapEl.setLocalX(gridBody.getOffsetsTo(grid)[0] + gridBody.getBorderWidth('l') - grid.el.getBorderWidth('l'));
+    me.setWidth(clientWidth);
+    btns.setLocalX((clientWidth - btns.getWidth()) / 2);
+    if (me.lockable) {
+      me.lockedColumnContainer.setWidth(grid.normalGrid.el.getLeft(true));
+    }
+  }
+}, onBeginFloat:function(lockedGrid) {
+  if (lockedGrid.isSliding && this.isVisible()) {
+    return false;
+  }
+}, syncAllFieldWidths:function() {
+  var me = this, editors = me.query('[isEditorComponent]'), len = editors.length, column, i;
+  me.preventReposition = true;
+  for (i = 0; i < len; ++i) {
+    column = editors[i].column;
+    if (column.isVisible()) {
+      me.onColumnShow(column);
+    }
+  }
+  me.preventReposition = false;
+}, syncFieldWidth:function(column) {
+  var field = column.getEditor(), width;
+  field._marginWidth = field._marginWidth || field.el.getMargin('lr');
+  width = Math.max(column.getWidth() - field._marginWidth, 0);
+  field.setWidth(width);
+  if (field.xtype === 'displayfield') {
+    field.inputWidth = width;
+  }
+}, onValidityChange:function(form, valid) {
+  this.updateButton(valid);
+}, onErrorChange:function() {
+  var me = this, valid;
+  if (me.errorSummary && me.isVisible()) {
+    valid = me.getForm().isValid();
+    me[valid ? 'hideToolTip' : 'showToolTip']();
+  }
+}, updateButton:function(valid) {
+  var buttons = this.floatingButtons;
+  if (buttons) {
+    buttons.child('#update').setDisabled(!valid);
+  } else {
+    this.updateButtonDisabled = !valid;
+  }
+}, afterRender:function() {
+  var me = this, plugin = me.editingPlugin, grid = plugin.grid;
+  me.scroller = grid.getScrollable();
+  me.callParent(arguments);
+  me.scrollingView = grid.lockable ? grid.normalGrid.view : grid.view;
+  me.scrollingViewEl = me.scrollingView.el;
+  me.scroller.on('scroll', me.onViewScroll, me);
+  me.mon(me.el, {click:Ext.emptyFn, stopPropagation:true});
+  me.mon(grid, 'resize', me.onGridResize, me);
+  if (me.lockable) {
+    grid.lockedGrid.view.on('resize', 'onGridResize', me);
+  }
+  me.el.swallowEvent(['keypress', 'keydown']);
+  me.initKeyNav();
+  me.mon(plugin.view, {beforerefresh:me.onBeforeViewRefresh, refresh:me.onViewRefresh, itemremove:me.onViewItemRemove, scope:me});
+  me.syncAllFieldWidths();
+  if (me.floatingButtons) {
+    me.body.dom.setAttribute('aria-owns', me.floatingButtons.id);
+  }
+}, initKeyNav:function() {
+  var me = this, plugin = me.editingPlugin;
+  me.keyNav = new Ext.util.KeyNav({target:me.el, tab:{fn:me.onFieldTab, scope:me}, enter:plugin.onEnterKey, esc:plugin.onEscKey, scope:plugin});
+}, onBeforeViewRefresh:function(view) {
+  var me = this, viewDom = view.el.dom;
+  if (me.el.dom.parentNode === viewDom) {
+    viewDom.removeChild(me.el.dom);
+  }
+}, onViewRefresh:function(view) {
+  var me = this, context = me.context, row;
+  if (!me.completing) {
+    if (context && !context.column.destroyed && (row = view.getRow(context.record))) {
+      if (view === context.column.getView()) {
+        context.row = row;
+        context.view = view;
+        me.reposition();
+        if (me.tooltip && me.tooltip.isVisible()) {
+          me.tooltip.setTarget(context.row);
+        }
+      }
+    } else {
+      me.editingPlugin.cancelEdit();
+    }
+  }
+}, onViewItemRemove:function(records, index, items, view) {
+  var me = this, context = me.context, grid, store, gridView, plugin;
+  if (!view.refreshing && context) {
+    plugin = me.editingPlugin;
+    grid = plugin.grid;
+    store = grid.getStore();
+    gridView = me.editingPlugin.view;
+    if (store.getById(me.getRecord().getId()) && !me._cachedNode) {
+      if (plugin.editing) {
+        me._cachedNode = true;
+        me.mon(gridView, {itemadd:me.onViewItemAdd, scope:me});
+      }
+    } else {
+      if (!me._cachedNode) {
+        me.activeField = null;
+        me.editingPlugin.cancelEdit();
+      }
+    }
+  }
+}, onViewItemAdd:function(records, index, items, view) {
+  var me = this, plugin = me.editingPlugin, gridView, idx, record;
+  if (me._cachedNode && me.context) {
+    gridView = plugin.view;
+    if ((idx = Ext.Array.indexOf(records, me.context.record)) !== -1) {
+      record = records[idx];
+      me.context.node = record;
+      me.context.row = gridView.getRow(record);
+      me.context.cell = gridView.getCellByPosition(me.context, true);
+      me.clearCache();
+    }
+  }
+}, onViewScroll:function() {
+  var me = this, viewEl = me.editingPlugin.view.el, scrollingView = me.scrollingView, scrollTop = me.scroller.getPosition().y, scrollLeft = scrollingView.getScrollX(), scrollTopChanged = scrollTop !== me.lastScrollTop, row;
+  me.lastScrollTop = scrollTop;
+  me.lastScrollLeft = scrollLeft;
+  if (me.isVisible()) {
+    row = Ext.getDom(me.context.row);
+    if (row && viewEl.contains(row)) {
+      if (me.getLocalY()) {
+        me.setLocalY(0);
+      }
+      if (scrollTopChanged) {
+        me.context.row = row;
+        me.reposition(null, true);
+        if (me.tooltip && me.tooltip.isVisible()) {
+          me.repositionTip();
+        }
+      }
+    } else {
+      me.setLocalY(-400);
+      me.floatingButtons.hide();
+    }
+  }
+}, onColumnResize:function(column, width) {
+  var me = this;
+  if (me.rendered && !me.editingPlugin.reconfiguring) {
+    me.onGridResize();
+    me.onViewScroll();
+    if (me.lockable) {
+      me.lockedColumnContainer.getScrollable().syncWithPartners();
+      me.normalColumnContainer.getScrollable().syncWithPartners();
+    } else {
+      me.getScrollable().syncWithPartners();
+    }
+    if (!column.isGroupHeader) {
+      me.syncFieldWidth(column);
+      me.repositionIfVisible();
+    }
+  }
+}, onColumnHide:function(column) {
+  if (!this.editingPlugin.reconfiguring && !column.isGroupHeader) {
+    column.getEditor().hide();
+    this.repositionIfVisible();
+  }
+}, onColumnShow:function(column) {
+  var me = this;
+  if (me.rendered && !me.editingPlugin.reconfiguring && !column.isGroupHeader && column.getEditor) {
+    column.getEditor().show();
+    me.syncFieldWidth(column);
+    if (!me.preventReposition) {
+      me.repositionIfVisible();
+    }
+  }
+}, onColumnMove:function(column, fromIdx, toIdx) {
+  var me = this, locked = column.isLocked(), fieldContainer = locked ? me.lockedColumnContainer : me.normalColumnContainer, columns, i, len, after, offset;
+  if (column.isGroupHeader) {
+    Ext.suspendLayouts();
+    after = toIdx > fromIdx;
+    offset = after ? 1 : 0;
+    columns = column.getGridColumns();
+    for (i = 0, len = columns.length; i < len; ++i) {
+      column = columns[i];
+      toIdx = column.getIndex();
+      if (after) {
+        ++offset;
+      }
+      me.setColumnEditor(column, toIdx + offset, fieldContainer);
+    }
+    Ext.resumeLayouts(true);
+  } else {
+    me.setColumnEditor(column, column.getIndex(), fieldContainer);
+  }
+}, setColumnEditor:function(column, idx, fieldContainer) {
+  this.addFieldsForColumn(column);
+  fieldContainer.insert(idx, column.getEditor());
+}, onColumnAdd:function(column, pos) {
+  if (column.isGroupHeader) {
+    column = column.getGridColumns();
+  }
+  this.preventReposition = true;
+  this.addFieldsForColumn(column);
+  this.insertColumnEditor(column, pos);
+  this.preventReposition = false;
+}, insertColumnEditor:function(column, pos) {
+  var me = this, field, fieldContainer, len, i;
+  if (Ext.isArray(column)) {
+    for (i = 0, len = column.length; i < len; i++) {
+      me.insertColumnEditor(column[i]);
+    }
+    return;
+  }
+  if (!column.getEditor) {
+    return;
+  }
+  if (pos == null) {
+    pos = column.getIndex();
+  }
+  fieldContainer = column.isLocked() ? me.lockedColumnContainer : me.normalColumnContainer;
+  fieldContainer.insert(pos, field = column.getEditor());
+  field.on('focus', me.onFieldFocus, me);
+  me.needsSyncFieldWidths = true;
+}, onFieldFocus:function(field) {
+  if (field.selectText) {
+    field.selectText(field.inputEl.dom.value.length);
+  }
+  this.activeField = field;
+  this.context.setColumn(field.column);
+  if (!this.skipFocusScroll) {
+    field.column.getView().getScrollable().ensureVisible(field.el);
+  } else {
+    this.skipFocusScroll = null;
+  }
+}, onFieldTab:function(e) {
+  var me = this, activeField = me.activeField, rowIdx = me.context.rowIdx, forwards = !e.shiftKey, target = activeField[forwards ? 'nextNode' : 'previousNode'](':focusable'), count;
+  e.stopEvent();
+  if (!target || !target.isDescendant(me)) {
+    if (me.isDirty() && !me.autoUpdate) {
+      me.floatingButtons.child('#update').focus();
+    } else {
+      count = me.view.dataSource.getCount();
+      rowIdx = rowIdx + (forwards ? 1 : -1);
+      if (rowIdx < 0) {
+        rowIdx = count - 1;
+      } else {
+        if (rowIdx >= count) {
+          rowIdx = 0;
+        }
+      }
+      if (forwards) {
+        target = me.down(':focusable:not([isButton]):first');
+        activeField.column.getView().getScrollable().ensureVisible(activeField.ownerCt.child(':focusable').el);
+      } else {
+        target = me.down(':focusable:not([isButton]):last');
+      }
+      me.tabGuardBeforeEl.focus();
+      me.editingPlugin.startEdit(rowIdx, target.column);
+    }
+  } else {
+    target.focus();
+  }
+}, destroyColumnEditor:function(column) {
+  var field;
+  if (column.hasEditor() && (field = column.getEditor())) {
+    field.destroy();
+  }
+}, getFloatingButtons:function() {
+  var me = this, btns = me.floatingButtons;
+  if (!btns && !me.destroying && !me.destroyed) {
+    me.floatingButtons = btns = new Ext.grid.RowEditorButtons({ownerCmp:me, rowEditor:me, hidden:me.hidden});
+  }
+  return btns;
+}, repositionIfVisible:function(c) {
+  var me = this, view = me.view;
+  if (c && (c === me || !c.el.isAncestor(view.el))) {
+    return;
+  }
+  if (me.isVisible() && view.isVisible(true)) {
+    me.reposition();
+  }
+}, isLayoutChild:function(ownerCandidate) {
+  return false;
+}, getRefOwner:function() {
+  return this.editingPlugin.grid;
+}, getRefItems:function(deep) {
+  var me = this, result, buttons;
+  if (me.lockable) {
+    result = [me.lockedColumnContainer];
+    result.push.apply(result, me.lockedColumnContainer.getRefItems(deep));
+    result.push(me.normalColumnContainer);
+    result.push.apply(result, me.normalColumnContainer.getRefItems(deep));
+  } else {
+    result = me.callParent(arguments);
+  }
+  buttons = me.getFloatingButtons();
+  if (buttons) {
+    result.push.apply(result, buttons.getRefItems(deep));
+  }
+  return result;
+}, reposition:function(animateConfig, fromScrollHandler) {
+  var me = this, context = me.context, row = context && context.row, wrapEl = me.wrapEl, rowTop, localY, deltaY, afterPosition;
+  if (row && Ext.isElement(row)) {
+    deltaY = me.syncButtonPosition(context);
+    rowTop = me.calculateLocalRowTop(row);
+    localY = me.calculateEditorTop(rowTop);
+    afterPosition = function() {
+      me.syncEditorClip();
+      me.wrapAnim = null;
+      if (!fromScrollHandler) {
+        if (deltaY) {
+          me.scroller.scrollBy(0, deltaY, true);
+        }
+        me.focusColumnField(context.column);
+      }
+    };
+    if (animateConfig) {
+      me.wrapAnim = wrapEl.addAnimation(Ext.applyIf({to:{top:localY}, duration:animateConfig.duration || 125, callback:afterPosition}, animateConfig));
+    } else {
+      wrapEl.setLocalY(localY);
+      afterPosition();
+    }
+  }
+}, getScrollDelta:function() {
+  var me = this, scrollingViewDom = me.scroller.getElement().dom, context = me.context, body = me.body, deltaY = 0, clientHeight, scrollHeight, editorHeight;
+  if (context) {
+    deltaY = Ext.fly(context.row).getOffsetsTo(scrollingViewDom)[1];
+    if (deltaY < 0) {
+      deltaY -= body.getBorderPadding().beforeY;
+    } else {
+      if (deltaY > 0) {
+        clientHeight = scrollingViewDom.clientHeight;
+        scrollHeight = scrollingViewDom.scrollHeight;
+        editorHeight = me.getHeight() + me.floatingButtons.getHeight();
+        if (clientHeight === scrollHeight && editorHeight > clientHeight) {
+          return 0;
+        }
+        deltaY = Math.max(deltaY + editorHeight - clientHeight - body.getBorderWidth('b'), 0);
+        if (deltaY > 0) {
+          deltaY -= body.getBorderPadding().afterY;
+        }
+      }
+    }
+  }
+  return deltaY;
+}, calculateLocalRowTop:function(row) {
+  var grid = this.editingPlugin.grid;
+  return Ext.fly(row).getOffsetsTo(grid)[1] - grid.el.getBorderWidth('t') + this.lastScrollTop;
+}, calculateEditorTop:function(rowTop) {
+  var result = rowTop - this.lastScrollTop;
+  if (this._buttonsOnTop) {
+    result -= this.body.dom.offsetHeight - this.context.row.offsetHeight - this.body.getBorderPadding().afterY;
+  } else {
+    result -= this.body.getBorderPadding().beforeY;
+  }
+  return result;
+}, getClientWidth:function() {
+  var me = this, grid = me.editingPlugin.grid, lockedCmp, result;
+  if (me.lockable) {
+    lockedCmp = grid.lockedGrid.collapsed && grid.lockedGrid.placeholder || grid.lockedGrid;
+    result = lockedCmp.getRegion().union(grid.scrollBody.el.getClientRegion()).width;
+  } else {
+    result = grid.view.el.dom.clientWidth;
+  }
+  return result;
+}, getEditor:function(fieldInfo) {
+  var me = this;
+  if (Ext.isNumber(fieldInfo)) {
+    return me.query('[isEditorComponent]')[fieldInfo];
+  } else {
+    if (fieldInfo.isHeader && !fieldInfo.isGroupHeader) {
+      return fieldInfo.getEditor();
+    }
+  }
+}, addFieldsForColumn:function(column, initial) {
+  var me = this, i, len, field, style;
+  if (Ext.isArray(column)) {
+    for (i = 0, len = column.length; i < len; i++) {
+      me.addFieldsForColumn(column[i], initial);
+    }
+    return;
+  }
+  if (column.getEditor) {
+    field = column.getEditor(null, me.getDefaultFieldCfg());
+    field.preventRefocus = true;
+    if (column.align === 'right') {
+      style = field.fieldStyle;
+      if (style) {
+        if (Ext.isObject(style)) {
+          style = Ext.apply({}, style);
+        } else {
+          style = Ext.dom.Element.parseStyles(style);
+        }
+        if (!style.textAlign && !style['text-align']) {
+          style.textAlign = 'right';
+        }
+      } else {
+        style = 'text-align:right';
+      }
+      field.fieldStyle = style;
+    }
+    if (column.xtype === 'actioncolumn') {
+      field.fieldCls += ' ' + Ext.baseCSSPrefix + 'form-action-col-field';
+    }
+    if (me.isVisible() && me.context) {
+      if (field.is('displayfield')) {
+        me.renderColumnData(field, me.context.record, column);
+      } else {
+        field.suspendEvents();
+        field.setValue(me.context.record.get(column.dataIndex));
+        field.resumeEvents();
+      }
+    }
+    if (column.hidden) {
+      me.onColumnHide(column);
+    } else {
+      if (column.rendered && !initial) {
+        me.onColumnShow(column);
+      }
+    }
+  }
+}, getDefaultFieldCfg:function() {
+  return {xtype:'displayfield', skipLabelForAttribute:true, getModelData:function() {
+    return null;
+  }};
+}, loadRecord:function(record) {
+  var me = this, form = me.getForm(), fields = form.getFields(), items = fields.items, length = items.length, i, displayFields, isValid, item;
+  for (i = 0; i < length; i++) {
+    item = items[i];
+    item.suspendEvents();
+    item.resetToInitialValue();
+  }
+  form.loadRecord(record);
+  for (i = 0; i < length; i++) {
+    items[i].resumeEvents();
+  }
+  if (form.hasInvalidField() === form.wasValid) {
+    delete form.wasValid;
+  }
+  isValid = form.isValid();
+  if (me.errorSummary) {
+    if (isValid) {
+      me.hideToolTip();
+    } else {
+      me.showToolTip();
+    }
+  }
+  me.updateButton(isValid);
+  displayFields = me.query('\x3edisplayfield');
+  length = displayFields.length;
+  for (i = 0; i < length; i++) {
+    me.renderColumnData(displayFields[i], record);
+  }
+}, renderColumnData:function(field, record, activeColumn) {
+  var me = this, grid = me.editingPlugin.grid, headerCt = grid.headerCt, view = me.scrollingView, store = view.dataSource, column = activeColumn || field.column, value = record.get(column.dataIndex), renderer = column.editRenderer || column.renderer, metaData, rowIdx, colIdx, scope = column.usingDefaultRenderer && !column.scope ? column : column.scope;
+  if (renderer) {
+    metaData = {tdCls:'', style:''};
+    rowIdx = store.indexOf(record);
+    colIdx = headerCt.getHeaderIndex(column);
+    value = renderer.call(scope || headerCt.ownerCt, value, metaData, record, rowIdx, colIdx, store, view);
+  }
+  field.setRawValue(value);
+}, beforeEdit:function() {
+  var me = this, scrollDelta;
+  if (me.lockable && me.editingPlugin.grid.lockedGrid.floatedFromCollapse) {
+    return false;
+  }
+  if (me.isVisible() && (me.isDirty() || me.context.record.phantom)) {
+    if (me.autoUpdate) {
+      me.editingPlugin.completeEdit();
+    } else {
+      if (me.autoCancel) {
+        me.editingPlugin.cancelEdit();
+      } else {
+        if (me.errorSummary) {
+          scrollDelta = me.getScrollDelta();
+          if (scrollDelta) {
+            me.scrollingViewEl.scrollBy(0, scrollDelta, true);
+          }
+          me.showToolTip();
+          return false;
+        }
+      }
+    }
+  }
+}, startEdit:function(record, columnHeader) {
+  var me = this, editingPlugin = me.editingPlugin, grid = editingPlugin.grid, context = me.context = editingPlugin.context, alreadyVisible = me.isVisible(), wrapEl = me.wrapEl, wasRendered = me.rendered, label;
+  if (me._cachedNode) {
+    me.clearCache();
+  }
+  Ext.suspendLayouts();
+  if (!wasRendered) {
+    me.width = me.getClientWidth();
+    me.render(grid.el, grid.el.dom.firstChild);
+    wrapEl = me.wrapEl = me.el.wrap();
+    wrapEl.setVisibilityMode(3);
+    wrapEl.addCls(me._wrapCls);
+    me.getFloatingButtons().render(wrapEl);
+    me.onViewScroll();
+  }
+  me.setLocalY(0);
+  context.grid.getSelectionModel().selectByPosition({row:record, column:columnHeader});
+  if (me.rendered && me.formAriaLabel) {
+    label = Ext.String.formatEncode(me.formAriaLabel, me.formAriaLabelRowBase + context.rowIdx);
+    me.body.dom.setAttribute('aria-label', label);
+  }
+  me.onGridResize();
+  Ext.resumeLayouts(alreadyVisible);
+  if (alreadyVisible) {
+    me.reposition(true);
+  } else {
+    me.skipFocusScroll = true;
+    me.show();
+  }
+  me.loadRecord(record);
+  if (!wasRendered) {
+    if (me.lockable) {
+      me.lockedColumnContainer.getScrollable().syncWithPartners();
+      me.normalColumnContainer.getScrollable().syncWithPartners();
+    } else {
+      me.getScrollable().syncWithPartners();
+    }
+  }
+}, syncButtonPosition:function(context) {
+  var me = this, scrollDelta = me.getScrollDelta(), floatingButtons = me.getFloatingButtons(), scrollingView = me.scrollingView, scrollHeight = Math.max(0, me.scroller.getSize().y - me.scroller.getClientSize().y), overflow = scrollDelta - (scrollHeight - me.scroller.getPosition().y);
+  floatingButtons.show();
+  if (overflow > 0 || context.rowIdx > 0 && context.isLastRenderedRow()) {
+    if (!me._buttonsOnTop) {
+      floatingButtons.setButtonPosition('top');
+      me._buttonsOnTop = true;
+      me.layout.setAlign('bottom');
+      me.updateLayout();
+    }
+    scrollDelta = 0;
+  } else {
+    if (me._buttonsOnTop !== false) {
+      floatingButtons.setButtonPosition('bottom');
+      me._buttonsOnTop = false;
+      me.layout.setAlign('top');
+      me.updateLayout();
+    } else {
+      floatingButtons.setButtonPosition(floatingButtons.position);
+    }
+  }
+  return scrollDelta;
+}, syncEditorClip:function() {
+  var me = this, tip = me.tooltip, clipRegion = me.scroller.getElement().getConstrainRegion();
+  me.clipTo(clipRegion);
+  me.floatingButtons.clipTo(clipRegion);
+  if (tip && tip.isVisible()) {
+    tip.clipTo(clipRegion, 5);
+  }
+}, focusColumnField:function(column) {
+  var field, didFocus;
+  if (column && !column.destroyed) {
+    if (column.isVisible()) {
+      field = this.getEditor(column);
+      if (field && field.isFocusable(true)) {
+        didFocus = true;
+        field.focus();
+      }
+    }
+    if (!didFocus) {
+      this.focusColumnField(column.next());
+    }
+  }
+}, cancelEdit:function() {
+  var me = this, form = me.getForm(), fields = form.getFields(), items = fields.items, length = items.length, i, record = me.context.record;
+  if (me._cachedNode) {
+    me.clearCache();
+  }
+  me.hide();
+  if (record && record.phantom && !record.modified && me.removeUnmodified) {
+    me.editingPlugin.grid.store.remove(record);
+  }
+  form.clearInvalid();
+  for (i = 0; i < length; i++) {
+    items[i].suspendEvents();
+  }
+  form.reset();
+  for (i = 0; i < length; i++) {
+    items[i].resumeEvents();
+  }
+}, clearCache:function() {
+  var me = this;
+  me.mun(me.editingPlugin.view, {itemadd:me.onViewItemAdd, scope:me});
+  me._cachedNode = false;
+}, completeEdit:function() {
+  var me = this, form = me.getForm();
+  if (!form.isValid()) {
+    return false;
+  }
+  me.completing = true;
+  form.updateRecord(me.context.record);
+  me.hide();
+  me.completing = false;
+  return true;
+}, onShow:function() {
+  var me = this;
+  me.wrapEl.show();
+  me.callParent(arguments);
+  if (me.needsSyncFieldWidths) {
+    me.suspendLayouts();
+    me.preventReposition = true;
+    me.syncAllFieldWidths();
+    me.preventReposition = false;
+    me.resumeLayouts(true);
+  }
+  delete me.needsSyncFieldWidths;
+  if (me.rendered) {
+    me.initTabGuards(true);
+  }
+  me.reposition();
+}, onHide:function() {
+  var me = this, context = me.context, column, focusContext, activeEl = Ext.Element.getActiveElement();
+  me.context = null;
+  if (me.el.contains(activeEl) && me.activeField) {
+    column = me.activeField.column;
+  } else {
+    column = context.column;
+  }
+  if (column && !column.destroyed) {
+    focusContext = (new Ext.grid.CellContext(column.getView())).setPosition(context.record, column);
+    focusContext.view.getNavigationModel().setPosition(focusContext);
+  }
+  me.activeField = null;
+  me.wrapEl.hide();
+  me.callParent(arguments);
+  if (me.rendered) {
+    me.initTabGuards(false);
+  }
+  if (me.tooltip) {
+    me.hideToolTip();
+  }
+}, onResize:function(width, height) {
+  this.wrapEl.setSize(width, height);
+}, isDirty:function() {
+  return this.getForm().isDirty();
+}, getToolTip:function() {
+  var me = this, tip = me.tooltip, grid = me.editingPlugin.grid;
+  if (!tip) {
+    me.tooltip = tip = new Ext.tip.ToolTip({cls:Ext.baseCSSPrefix + 'grid-row-editor-errors', title:me.errorsText, autoHide:false, closable:true, closeAction:'disable', anchor:'left', anchorToTarget:true, targetOffset:[Ext.getScrollbarSize().width, 0], constrainPosition:true, constrainTo:document.body});
+    grid.add(tip);
+    me.mon(grid, {afterlayout:me.onGridLayout, scope:me});
+  }
+  return tip;
+}, hideToolTip:function() {
+  var me = this, tip = me.getToolTip();
+  if (tip.rendered) {
+    tip.disable();
+  }
+}, showToolTip:function(wrapAnim) {
+  var me = this, tip = me.getToolTip();
+  if (!wrapAnim && me.wrapAnim) {
+    return me.wrapAnim.on({afteranimate:me.showToolTip, scope:me, single:true});
+  }
+  tip.update(me.getErrors());
+  me.repositionTip();
+  tip.enable();
+}, onGridLayout:function() {
+  if (this.tooltip && this.tooltip.isVisible()) {
+    this.repositionTip();
+  }
+}, repositionTip:function() {
+  var me = this, tip = me.getToolTip();
+  if (tip.isVisible()) {
+    tip.realignToTarget();
+  } else {
+    tip.showBy(me.el);
+  }
+  me.syncEditorClip();
+}, getErrors:function() {
+  var me = this, errors = [], fields = me.query('\x3e[isFormField]'), length = fields.length, i, fieldErrors, field;
+  for (i = 0; i < length; i++) {
+    field = fields[i];
+    fieldErrors = field.getErrors();
+    if (fieldErrors.length) {
+      errors.push(me.createErrorListItem(fieldErrors[0], field.column.text));
+    }
+  }
+  if (!errors.length && !me.autoCancel && me.isDirty()) {
+    errors[0] = me.createErrorListItem(me.dirtyText);
+  }
+  return '\x3cul class\x3d"' + Ext.baseCSSPrefix + 'list-plain"\x3e' + errors.join('') + '\x3c/ul\x3e';
+}, createErrorListItem:function(e, name) {
+  e = name ? name + ': ' + e : e;
+  return '\x3cli class\x3d"' + this.errorCls + '"\x3e' + e + '\x3c/li\x3e';
+}, doDestroy:function() {
+  var me = this;
+  if (me.wrapAnim) {
+    Ext.fx.Manager.removeAnim(me.wrapAnim);
+    me.wrapAnim = null;
+  }
+  me.keyNav = me.floatingButtons = me.tooltip = Ext.destroy(me.keyNav, me.floatingButtons, me.tooltip, me.wrapEl);
+  me.callParent();
+}});
+Ext.define('Ext.theme.neptune.grid.RowEditor', {override:'Ext.grid.RowEditor', buttonUI:'default-toolbar'});
 Ext.define('Ext.grid.plugin.HeaderResizer', {extend:Ext.plugin.Abstract, alias:'plugin.gridheaderresizer', disabled:false, config:{dynamic:false}, colHeaderCls:Ext.baseCSSPrefix + 'column-header', minColWidth:40, maxColWidth:1000, eResizeCursor:'col-resize', init:function(headerCt) {
   var me = this;
   me.headerCt = headerCt;
@@ -83557,6 +84314,446 @@ Ext.define('Ext.grid.plugin.BufferedRenderer', {extend:Ext.plugin.Abstract, alia
   Ext.destroy(me.viewListeners, me.stretcher, me.gridListeners, me.scrollListeners);
   me.callParent();
 }});
+Ext.define('Ext.grid.plugin.Editing', {extend:Ext.plugin.Abstract, alias:'editing.editing', mixins:[Ext.mixin.Observable], clicksToEdit:2, triggerEvent:undefined, relayedEvents:['beforeedit', 'edit', 'validateedit', 'canceledit'], defaultFieldUI:'default', defaultFieldXType:'textfield', editStyle:'', constructor:function(config) {
+  var me = this;
+  me.callParent([config]);
+  me.mixins.observable.constructor.call(me);
+  me.on('edit', function(editor, e) {
+    me.fireEvent('afteredit', editor, e);
+  });
+}, init:function(grid) {
+  var me = this, ownerLockable = grid.ownerLockable;
+  me.grid = grid;
+  me.view = grid.view;
+  me.initEvents();
+  if (grid.rendered) {
+    me.setup();
+  } else {
+    me.mon(grid, {beforereconfigure:me.onBeforeReconfigure, reconfigure:me.onReconfigure, scope:me, beforerender:{fn:me.onBeforeRender, single:true, scope:me}});
+  }
+  grid.editorEventRelayers = grid.relayEvents(me, me.relayedEvents);
+  if (ownerLockable) {
+    ownerLockable.editorEventRelayers = ownerLockable.relayEvents(me, me.relayedEvents);
+  }
+  grid.isEditable = true;
+  grid.editingPlugin = grid.view.editingPlugin = me;
+}, onBeforeReconfigure:function() {
+  this.reconfiguring = true;
+}, onReconfigure:function() {
+  this.setup();
+  delete this.reconfiguring;
+}, onBeforeRender:function() {
+  this.setup();
+}, setup:function() {
+  this.initFieldAccessors(this.grid.getTopLevelColumnManager().getColumns());
+}, destroy:function() {
+  var me = this, grid = me.grid;
+  Ext.destroy(me.keyNav);
+  me.clearListeners();
+  if (grid) {
+    if (grid.ownerLockable) {
+      Ext.destroy(grid.ownerLockable.editorEventRelayers);
+      grid.ownerLockable.editorEventRelayers = null;
+    }
+    Ext.destroy(grid.editorEventRelayers);
+    grid.editorEventRelayers = null;
+    grid.editingPlugin = grid.view.editingPlugin = null;
+  }
+  me.callParent();
+}, getEditStyle:function() {
+  return this.editStyle;
+}, initFieldAccessors:function(columns) {
+  if (columns.isGroupHeader) {
+    columns = columns.getGridColumns();
+  } else {
+    if (!Ext.isArray(columns)) {
+      columns = [columns];
+    }
+  }
+  var me = this, c, cLen = columns.length, getEditor = function(record, defaultField) {
+    return me.getColumnField(this, defaultField);
+  }, hasEditor = function() {
+    return me.hasColumnField(this);
+  }, setEditor = function(field) {
+    me.setColumnField(this, field);
+  }, column;
+  for (c = 0; c < cLen; c++) {
+    column = columns[c];
+    if (!column.getEditor) {
+      column.getEditor = getEditor;
+    }
+    if (!column.hasEditor) {
+      column.hasEditor = hasEditor;
+    }
+    if (!column.setEditor) {
+      column.setEditor = setEditor;
+    }
+  }
+}, removeFieldAccessors:function(columns) {
+  if (columns.isGroupHeader) {
+    columns = columns.getGridColumns();
+  } else {
+    if (!Ext.isArray(columns)) {
+      columns = [columns];
+    }
+  }
+  var c, cLen = columns.length, column;
+  for (c = 0; c < cLen; c++) {
+    column = columns[c];
+    column.getEditor = column.hasEditor = column.setEditor = column.field = column.editor = null;
+  }
+}, getColumnField:function(columnHeader, defaultField) {
+  var me = this, field = columnHeader.field;
+  if (!(field && field.isFormField)) {
+    field = columnHeader.field = me.createColumnField(columnHeader, defaultField);
+  }
+  if (field && field.ui === 'default' && !field.hasOwnProperty('ui')) {
+    field.ui = me.defaultFieldUI;
+  }
+  return field;
+}, hasColumnField:function(columnHeader) {
+  return !!(columnHeader.field && columnHeader.field.isComponent);
+}, setColumnField:function(columnHeader, field) {
+  columnHeader.field = field;
+  columnHeader.field = this.createColumnField(columnHeader);
+}, createColumnField:function(column, defaultField) {
+  var field = column.field, dataIndex;
+  if (!field && column.editor) {
+    field = column.editor = Ext.clone(column.editor);
+    if (field.field) {
+      field = field.field;
+      field.editorCfg = column.editor;
+      delete field.editorCfg.field;
+    }
+    column.editor = null;
+  }
+  if (!field && defaultField) {
+    field = defaultField;
+  }
+  if (field) {
+    dataIndex = column.dataIndex;
+    if (field.isComponent) {
+      field.column = column;
+    } else {
+      if (Ext.isString(field)) {
+        field = {name:dataIndex, xtype:field, column:column};
+      } else {
+        field = Ext.apply({name:dataIndex, column:column}, field);
+      }
+      field = Ext.ComponentManager.create(field, this.defaultFieldXType);
+    }
+    field.dataIndex = dataIndex;
+    field.isEditorComponent = true;
+    column.field = field;
+  }
+  return field;
+}, initEvents:function() {
+  var me = this;
+  me.initEditTriggers();
+  me.initCancelTriggers();
+}, initCancelTriggers:Ext.emptyFn, initEditTriggers:function() {
+  var me = this, view = me.view;
+  if (me.triggerEvent === 'cellfocus') {
+    me.mon(view, 'cellfocus', me.onCellFocus, me);
+  } else {
+    if (me.triggerEvent === 'rowfocus') {
+      me.mon(view, 'rowfocus', me.onRowFocus, me);
+    } else {
+      if (view.getSelectionModel().isCellModel) {
+        view.onCellFocus = me.beforeViewCellFocus.bind(me);
+      }
+      me.mon(view, me.triggerEvent || 'cell' + (me.clicksToEdit === 1 ? 'click' : 'dblclick'), me.onCellClick, me);
+    }
+  }
+  me.initAddRemoveHeaderEvents();
+  me.view.getNavigationModel().addKeyBindings({esc:me.onEscKey, scope:me});
+}, beforeViewCellFocus:function(position) {
+  if (this.view.selModel.keyNavigation || !this.editing || !this.isCellEditable || !this.isCellEditable(position.row, position.columnHeader)) {
+    this.view.focusCell.apply(this.view, arguments);
+  }
+}, onRowFocus:function(record, row, rowIdx) {
+  this.startEdit(row, 0);
+}, onCellFocus:function(record, cell, position) {
+  this.startEdit(position.row, position.column);
+}, onCellClick:function(view, cell, colIdx, record, row, rowIdx, e) {
+  var ownerGrid = view.ownerGrid, expanderSelector = view.expanderSelector, columnHeader = view.ownerCt.getColumnManager().getHeaderAtIndex(colIdx), editor = columnHeader.getEditor(record), targetCmp;
+  if (this.shouldStartEdit(editor) && (!expanderSelector || !e.getTarget(expanderSelector))) {
+    ownerGrid.setActionableMode(true, e.position);
+  } else {
+    if (ownerGrid.actionableMode && view.owns(e.target) && (targetCmp = Ext.Component.from(e, cell)) && targetCmp.focusable) {
+      return;
+    } else {
+      if (ownerGrid.actionableMode) {
+        ownerGrid.setActionableMode(false);
+      }
+    }
+  }
+}, initAddRemoveHeaderEvents:function() {
+  var me = this, headerCt = me.grid.headerCt;
+  me.mon(headerCt, {scope:me, add:me.onColumnAdd, columnmove:me.onColumnMove, beforedestroy:me.beforeGridHeaderDestroy});
+}, onColumnAdd:function(ct, column) {
+  this.initFieldAccessors(column);
+}, onColumnMove:Ext.emptyFn, onEscKey:function(e) {
+  if (this.editing) {
+    var targetComponent = Ext.getCmp(e.getTarget().getAttribute('componentId'));
+    if (!(targetComponent && targetComponent.isPickerField && targetComponent.isExpanded)) {
+      return this.cancelEdit();
+    }
+  }
+}, beforeEdit:Ext.emptyFn, shouldStartEdit:function(editor) {
+  return !!editor;
+}, getEditingContext:function(record, columnHeader, horizontalScroll, view) {
+  var me = this, grid = me.grid, colMgr = (view && view.grid || grid).visibleColumnManager, layoutView = me.grid.lockable ? me.grid : me.view, gridRow, rowIdx, colIdx, result;
+  if (!layoutView.componentLayoutCounter) {
+    layoutView.on({boxready:Ext.Function.bind(me.startEdit, me, [record, columnHeader]), single:true});
+    return;
+  }
+  if (me.disabled || me.grid.collapsed || !me.grid.view.isVisible(true)) {
+    return;
+  }
+  if (Ext.isNumber(columnHeader)) {
+    columnHeader = colMgr.getHeaderAtIndex(Math.min(columnHeader, colMgr.getColumns().length));
+  }
+  if (!columnHeader) {
+    return;
+  }
+  if (columnHeader.hidden) {
+    columnHeader = columnHeader.next(':not([hidden])') || columnHeader.prev(':not([hidden])');
+  }
+  if (!view) {
+    view = columnHeader.getView();
+  }
+  grid = view.ownerCt;
+  if (Ext.isNumber(record)) {
+    rowIdx = Math.min(record, view.dataSource.getCount() - 1);
+    record = view.dataSource.getAt(rowIdx);
+  } else {
+    rowIdx = view.dataSource.indexOf(record);
+  }
+  grid.ensureVisible(record, {column:horizontalScroll ? columnHeader : null});
+  gridRow = view.getRow(record);
+  if (!gridRow) {
+    return;
+  }
+  colIdx = view.getVisibleColumnManager().indexOf(columnHeader);
+  if (!record) {
+    return;
+  }
+  result = (new Ext.grid.CellContext(view)).setAll(view, rowIdx, colIdx, record, columnHeader);
+  result.grid = grid;
+  result.store = view.dataSource;
+  result.field = columnHeader.dataIndex;
+  result.value = result.originalValue = record.get(columnHeader.dataIndex);
+  result.row = gridRow;
+  result.node = view.getNode(record);
+  result.cell = result.getCell(true);
+  return result;
+}, cancelEdit:function() {
+  var me = this;
+  me.editing = false;
+  me.fireEvent('canceledit', me, me.context);
+}, completeEdit:function() {
+  var me = this;
+  if (me.editing && me.validateEdit()) {
+    me.fireEvent('edit', me, me.context);
+  }
+  me.context = null;
+  me.editing = false;
+}, validateEdit:function(context) {
+  var me = this;
+  return me.fireEvent('validateedit', me, context) !== false && !context.cancel;
+}});
+Ext.define('Ext.grid.plugin.RowEditing', {extend:Ext.grid.plugin.Editing, alias:'plugin.rowediting', lockableScope:'top', editStyle:'row', autoCancel:true, autoUpdate:false, errorSummary:true, formAriaLabel:'Editing row {0}', formAriaLabelRowBase:2, constructor:function() {
+  var me = this;
+  me.callParent(arguments);
+  if (!me.clicksToMoveEditor) {
+    me.clicksToMoveEditor = me.clicksToEdit;
+  }
+  me.autoCancel = !!me.autoCancel;
+  me.autoUpdate = !!me.autoUpdate;
+  if (me.autoUpdate) {
+    me.autoCancel = false;
+  }
+}, init:function(grid) {
+  this.callParent([grid]);
+  if (grid.lockedGrid) {
+    grid.lockedGrid.registerActionable(this);
+    grid.normalGrid.registerActionable(this);
+  } else {
+    grid.registerActionable(this);
+  }
+}, destroy:function() {
+  Ext.destroy(this.editor);
+  this.callParent();
+}, onBeforeReconfigure:function() {
+  this.callParent(arguments);
+  this.cancelEdit();
+}, onReconfigure:function(grid, store, columns) {
+  var ed = this.editor;
+  this.callParent(arguments);
+  if (columns && ed && ed.rendered) {
+    ed.needsSyncFieldWidths = true;
+  }
+}, shouldStartEdit:function(editor) {
+  return true;
+}, startEdit:function(record, columnHeader) {
+  var me = this, editor = me.getEditor(), context;
+  if (Ext.isEmpty(columnHeader)) {
+    columnHeader = me.grid.getTopLevelVisibleColumnManager().getHeaderAtIndex(0);
+  }
+  if (editor.beforeEdit() !== false) {
+    context = me.getEditingContext(record, columnHeader, true);
+    if (context && me.beforeEdit(context) !== false && me.fireEvent('beforeedit', me, context) !== false && !context.cancel) {
+      me.context = context;
+      if (me.lockingPartner) {
+        me.lockingPartner.cancelEdit();
+      }
+      editor.startEdit(context.record, context.column, context);
+      me.editing = true;
+      return true;
+    }
+  }
+  return false;
+}, activateCell:function(pos) {
+  if (!pos.getCell(true).querySelector('[tabIndex\x3d"-1"]')) {
+    this.startEdit(pos.record, pos.column);
+    return true;
+  }
+}, suspend:Ext.emptyFn, resume:Ext.emptyFn, onEnterKey:function(e) {
+  var me = this, targetComponent;
+  if (!me.grid.ownerGrid.actionableMode && me.editing) {
+    targetComponent = Ext.getCmp(e.getTarget().getAttribute('componentId'));
+    if (!(targetComponent && targetComponent.isPickerField && targetComponent.isExpanded)) {
+      me.completeEdit();
+    }
+  }
+}, cancelEdit:function() {
+  var me = this;
+  if (me.editing) {
+    me.getContextFieldValues();
+    me.getEditor().cancelEdit();
+    me.callParent(arguments);
+    return;
+  }
+  return true;
+}, completeEdit:function() {
+  var me = this, context = me.context;
+  if (me.editing && me.validateEdit(context)) {
+    me.editing = false;
+    me.fireEvent('edit', me, context);
+  }
+}, validateEdit:function() {
+  this.getContextFieldValues();
+  return this.callParent(arguments) && this.getEditor().completeEdit();
+}, getEditor:function() {
+  var me = this;
+  if (!me.editor) {
+    me.editor = me.initEditor();
+  }
+  return me.editor;
+}, getContextFieldValues:function() {
+  var editor = this.editor, context = this.context, record = context.record, newValues = {}, originalValues = {}, editors = editor.query('\x3e[isFormField]'), len = editors.length, i, name, item;
+  for (i = 0; i < len; i++) {
+    item = editors[i];
+    name = item.dataIndex;
+    newValues[name] = item.getValue();
+    originalValues[name] = record.get(name);
+  }
+  Ext.apply(context, {newValues:newValues, originalValues:originalValues});
+}, initEditor:function() {
+  return new Ext.grid.RowEditor(this.initEditorConfig());
+}, initEditorConfig:function() {
+  var me = this, grid = me.grid, view = me.view, headerCt = grid.headerCt, btns = ['保存', 'cancelBtnText', 'errorsText', 'dirtyText'], b, bLen = btns.length, cfg = {autoCancel:me.autoCancel, autoUpdate:me.autoUpdate, removeUnmodified:me.removeUnmodified, errorSummary:me.errorSummary, formAriaLabel:me.formAriaLabel, formAriaLabelRowBase:me.formAriaLabelRowBase + (grid.hideHeaders ? -1 : 0), fields:headerCt.getGridColumns(), hidden:true, view:view, editingPlugin:me}, item;
+  for (b = 0; b < bLen; b++) {
+    item = btns[b];
+    if (Ext.isDefined(me[item])) {
+      cfg[item] = me[item];
+    }
+  }
+  return cfg;
+}, initEditTriggers:function() {
+  var me = this, view = me.view, moveEditorEvent = me.clicksToMoveEditor === 1 ? 'click' : 'dblclick';
+  me.callParent(arguments);
+  if (me.clicksToMoveEditor !== me.clicksToEdit) {
+    me.mon(view, 'cell' + moveEditorEvent, me.moveEditorByClick, me);
+  }
+  view.on({render:function() {
+    me.mon(me.grid.headerCt, {scope:me, columnresize:me.onColumnResize, columnhide:me.onColumnHide, columnshow:me.onColumnShow});
+  }, single:true});
+}, moveEditorByClick:function() {
+  var me = this;
+  if (me.editing) {
+    me.superclass.onCellClick.apply(me, arguments);
+  }
+}, onColumnAdd:function(ct, column, pos) {
+  if (column.isHeader) {
+    var me = this, editor;
+    me.initFieldAccessors(column);
+    editor = me.editor;
+    if (editor) {
+      editor.onColumnAdd(column, pos);
+    }
+  }
+}, beforeGridHeaderDestroy:function(headerCt) {
+  var columns = this.grid.getColumnManager().getColumns(), len = columns.length, i, column, field;
+  for (i = 0; i < len; i++) {
+    column = columns[i];
+    if (column.hasEditor) {
+      if (column.hasEditor() && (field = column.getEditor())) {
+        field.destroy();
+      }
+      this.removeFieldAccessors(column);
+    }
+  }
+}, onColumnResize:function(ct, column, width) {
+  if (column.isHeader) {
+    var me = this, editor = me.getEditor();
+    if (editor) {
+      editor.onColumnResize(column, width);
+    }
+  }
+}, onColumnHide:function(ct, column) {
+  var me = this, editor = me.getEditor();
+  if (editor) {
+    editor.onColumnHide(column);
+  }
+}, onColumnShow:function(ct, column) {
+  var me = this, editor = me.getEditor();
+  if (editor) {
+    editor.onColumnShow(column);
+  }
+}, onColumnMove:function(ct, column, fromIdx, toIdx) {
+  var me = this, editor = me.getEditor();
+  me.initFieldAccessors(column);
+  if (editor) {
+    editor.onColumnMove(column, fromIdx, toIdx);
+  }
+}, setColumnField:function(column, field) {
+  var me = this, editor = me.getEditor();
+  if (editor) {
+    editor.destroyColumnEditor(column);
+  }
+  me.callParent(arguments);
+  if (editor) {
+    editor.insertColumnEditor(column);
+  }
+}, createColumnField:function(column, defaultField) {
+  var editor = this.editor, def, field;
+  if (editor) {
+    def = editor.getDefaultFieldCfg();
+  }
+  field = this.callParent([column, defaultField || def]);
+  if (field) {
+    field.skipLabelForAttribute = true;
+    field.ariaAttributes = field.ariaAttributes || {};
+    if (this.grid.hideHeaders) {
+      field.ariaAttributes['aria-label'] = column.text;
+    } else {
+      field.ariaAttributes['aria-labelledby'] = column.id;
+    }
+  }
+  return field;
+}});
 Ext.define('Ext.util.Queue', {constructor:function() {
   this.clear();
 }, add:function(obj, replace) {
@@ -85298,47 +86495,6 @@ Ext.define('Ext.layout.Context', {remainingLayouts:0, state:0, cycleWatchDog:200
   me.timesByType[type] = (me.timesByType[type] || 0) + time;
   return ret;
 }}});
-Ext.define('Ext.layout.component.Body', {alias:['layout.body'], extend:Ext.layout.component.Auto, type:'body', beginLayout:function(ownerContext) {
-  this.callParent(arguments);
-  ownerContext.bodyContext = ownerContext.getEl('body');
-}, beginLayoutCycle:function(ownerContext, firstCycle) {
-  var me = this, lastWidthModel = me.lastWidthModel, lastHeightModel = me.lastHeightModel, body = me.owner.body;
-  me.callParent(arguments);
-  if (lastWidthModel && lastWidthModel.fixed && ownerContext.widthModel.shrinkWrap) {
-    body.setWidth(null);
-  }
-  if (lastHeightModel && lastHeightModel.fixed && ownerContext.heightModel.shrinkWrap) {
-    body.setHeight(null);
-  }
-}, calculateOwnerHeightFromContentHeight:function(ownerContext, contentHeight) {
-  var height = this.callParent(arguments);
-  if (ownerContext.targetContext !== ownerContext) {
-    height += ownerContext.getPaddingInfo().height;
-  }
-  return height;
-}, calculateOwnerWidthFromContentWidth:function(ownerContext, contentWidth) {
-  var width = this.callParent(arguments);
-  if (ownerContext.targetContext !== ownerContext) {
-    width += ownerContext.getPaddingInfo().width;
-  }
-  return width;
-}, measureContentWidth:function(ownerContext) {
-  return ownerContext.bodyContext.setWidth(ownerContext.bodyContext.el.dom.offsetWidth, false);
-}, measureContentHeight:function(ownerContext) {
-  return ownerContext.bodyContext.setHeight(ownerContext.bodyContext.el.dom.offsetHeight, false);
-}, publishInnerHeight:function(ownerContext, height) {
-  var innerHeight = height - ownerContext.getFrameInfo().height, targetContext = ownerContext.targetContext;
-  if (targetContext !== ownerContext) {
-    innerHeight -= ownerContext.getPaddingInfo().height;
-  }
-  return ownerContext.bodyContext.setHeight(innerHeight, !ownerContext.heightModel.natural);
-}, publishInnerWidth:function(ownerContext, width) {
-  var innerWidth = width - ownerContext.getFrameInfo().width, targetContext = ownerContext.targetContext;
-  if (targetContext !== ownerContext) {
-    innerWidth -= ownerContext.getPaddingInfo().width;
-  }
-  ownerContext.bodyContext.setWidth(innerWidth, !ownerContext.widthModel.natural);
-}});
 Ext.define('Ext.resizer.BorderSplitter', {extend:Ext.resizer.Splitter, alias:'widget.bordersplitter', collapseTarget:null, getTrackerConfig:function() {
   var trackerConfig = this.callParent();
   trackerConfig.xclass = 'Ext.resizer.BorderSplitterTracker';
@@ -86905,743 +88061,6 @@ Ext.define('Ext.theme.triton.selection.CheckboxModel', {override:'Ext.selection.
     header.getView().ownerGrid.el.syncRepaint();
   }
 }});
-Ext.define('Ext.tab.Tab', {extend:Ext.button.Button, alias:'widget.tab', isTab:true, baseCls:Ext.baseCSSPrefix + 'tab', closeElOverCls:Ext.baseCSSPrefix + 'tab-close-btn-over', closeElPressedCls:Ext.baseCSSPrefix + 'tab-close-btn-pressed', config:{rotation:'default', tabPosition:'top'}, closable:true, closeText:'removable', active:false, childEls:['closeEl'], scale:false, ariaRole:'tab', tabIndex:-1, keyMap:{scope:'this', DELETE:'onDeleteKey'}, _btnWrapCls:Ext.baseCSSPrefix + 'tab-wrap', _btnCls:Ext.baseCSSPrefix + 
-'tab-button', _baseIconCls:Ext.baseCSSPrefix + 'tab-icon-el', _glyphCls:Ext.baseCSSPrefix + 'tab-glyph', _innerCls:Ext.baseCSSPrefix + 'tab-inner', _textCls:Ext.baseCSSPrefix + 'tab-text', _noTextCls:Ext.baseCSSPrefix + 'tab-no-text', _hasIconCls:Ext.baseCSSPrefix + 'tab-icon', _activeCls:Ext.baseCSSPrefix + 'tab-active', _closableCls:Ext.baseCSSPrefix + 'tab-closable', overCls:Ext.baseCSSPrefix + 'tab-over', _pressedCls:Ext.baseCSSPrefix + 'tab-pressed', _disabledCls:Ext.baseCSSPrefix + 'tab-disabled', 
-_rotateClasses:{1:Ext.baseCSSPrefix + 'tab-rotate-right', 2:Ext.baseCSSPrefix + 'tab-rotate-left'}, _positions:{top:{'default':'top', 0:'top', 1:'left', 2:'right'}, right:{'default':'top', 0:'right', 1:'top', 2:'bottom'}, bottom:{'default':'bottom', 0:'bottom', 1:'right', 2:'left'}, left:{'default':'top', 0:'left', 1:'bottom', 2:'top'}}, _defaultRotations:{top:0, right:1, bottom:0, left:2}, initComponent:function() {
-  var me = this;
-  if (me.closable) {
-    Ext.ariaWarn(me, 'Closable tabs can be confusing to users relying on Assistive Technologies ' + 'such as Screen Readers, and are not recommended in accessible applications. ' + 'Please consider setting ' + me.title + ' tab (' + me.id + ') to closable: false.');
-  }
-  if (me.card) {
-    me.setCard(me.card);
-  }
-  me.callParent(arguments);
-}, getActualRotation:function() {
-  var rotation = this.getRotation();
-  return rotation !== 'default' ? rotation : this._defaultRotations[this.getTabPosition()];
-}, updateRotation:function() {
-  this.syncRotationAndPosition();
-}, updateTabPosition:function() {
-  this.syncRotationAndPosition();
-}, syncRotationAndPosition:function() {
-  var me = this, rotateClasses = me._rotateClasses, position = me.getTabPosition(), rotation = me.getActualRotation(), oldRotateCls = me._rotateCls, rotateCls = me._rotateCls = rotateClasses[rotation], oldPositionCls = me._positionCls, positionCls = me._positionCls = me._positions[position][rotation];
-  if (oldRotateCls !== rotateCls) {
-    if (oldRotateCls) {
-      me.removeCls(oldRotateCls);
-    }
-    if (rotateCls) {
-      me.addCls(rotateCls);
-    }
-  }
-  if (oldPositionCls !== positionCls) {
-    if (oldPositionCls) {
-      me.removeClsWithUI(oldPositionCls);
-    }
-    if (positionCls) {
-      me.addClsWithUI(positionCls);
-    }
-    if (me.rendered) {
-      me.updateFrame();
-    }
-  }
-  if (me.rendered) {
-    me.setElOrientation();
-  }
-}, onAdded:function(container, pos, instanced) {
-  this.callParent([container, pos, instanced]);
-  this.syncRotationAndPosition();
-}, getTemplateArgs:function() {
-  var me = this, result = me.callParent();
-  result.closable = me.closable;
-  result.closeText = me.closeText;
-  return result;
-}, beforeRender:function() {
-  var me = this, tabBar = me.up('tabbar'), tabPanel = me.up('tabpanel');
-  me.callParent();
-  me.ariaRenderAttributes = me.ariaRenderAttributes || {};
-  if (me.active) {
-    me.ariaRenderAttributes['aria-selected'] = true;
-    me.addCls(me._activeCls);
-  } else {
-    me.ariaRenderAttributes['aria-selected'] = false;
-  }
-  me.syncClosableCls();
-  if (!me.minWidth) {
-    me.minWidth = tabBar ? tabBar.minTabWidth : me.minWidth;
-    if (!me.minWidth && tabPanel) {
-      me.minWidth = tabPanel.minTabWidth;
-    }
-    if (me.minWidth && me.iconCls) {
-      me.minWidth += 25;
-    }
-  }
-  if (!me.maxWidth) {
-    me.maxWidth = tabBar ? tabBar.maxTabWidth : me.maxWidth;
-    if (!me.maxWidth && tabPanel) {
-      me.maxWidth = tabPanel.maxTabWidth;
-    }
-  }
-}, onRender:function() {
-  var me = this;
-  me.setElOrientation();
-  me.callParent(arguments);
-  if (me.closable) {
-    me.closeEl.addClsOnOver(me.closeElOverCls);
-    me.closeEl.addClsOnClick(me.closeElPressedCls);
-  }
-}, setElOrientation:function() {
-  var me = this, rotation = me.getActualRotation(), el = me.el;
-  if (rotation) {
-    el.setVertical(rotation === 1 ? 90 : 270);
-  } else {
-    el.setHorizontal();
-  }
-}, enable:function(silent) {
-  var me = this;
-  me.callParent(arguments);
-  me.removeCls(me._disabledCls);
-  return me;
-}, disable:function(silent) {
-  var me = this;
-  me.callParent(arguments);
-  me.addCls(me._disabledCls);
-  return me;
-}, setClosable:function(closable) {
-  var me = this;
-  closable = !arguments.length || !!closable;
-  if (me.closable !== closable) {
-    me.closable = closable;
-    if (me.card) {
-      me.card.closable = closable;
-    }
-    me.syncClosableCls();
-    if (me.rendered) {
-      me.syncClosableElements();
-      me.updateLayout();
-    }
-  }
-}, syncClosableElements:function() {
-  var me = this, closeEl = me.closeEl;
-  if (me.closable) {
-    if (!closeEl) {
-      closeEl = me.closeEl = me.btnWrap.insertSibling({tag:'span', id:me.id + '-closeEl', cls:me.baseCls + '-close-btn', html:me.closeText}, 'after');
-    }
-    closeEl.addClsOnOver(me.closeElOverCls);
-    closeEl.addClsOnClick(me.closeElPressedCls);
-  } else {
-    if (closeEl) {
-      closeEl.destroy();
-      delete me.closeEl;
-    }
-  }
-}, syncClosableCls:function() {
-  var me = this, closableCls = me._closableCls;
-  if (me.closable) {
-    me.addCls(closableCls);
-  } else {
-    me.removeCls(closableCls);
-  }
-}, setCard:function(card) {
-  var me = this;
-  me.card = card;
-  if (card.iconAlign) {
-    me.setIconAlign(card.iconAlign);
-  }
-  if (card.textAlign) {
-    me.setTextAlign(card.textAlign);
-  }
-  me.setText(me.title || card.title);
-  me.setIconCls(me.iconCls || card.iconCls);
-  me.setIcon(me.icon || card.icon);
-  me.setGlyph(me.glyph || card.glyph);
-}, onCloseClick:function() {
-  var me = this;
-  if (me.fireEvent('beforeclose', me) !== false) {
-    if (me.tabBar) {
-      if (me.tabBar.closeTab(me) === false) {
-        return;
-      }
-    } else {
-      me.fireClose();
-    }
-  }
-}, fireClose:function() {
-  this.fireEvent('close', this);
-}, onEnterKey:function(e) {
-  var me = this;
-  if (me.tabBar) {
-    me.tabBar.onClick(e, me.el);
-    e.stopEvent();
-    return false;
-  }
-}, onDeleteKey:function(e) {
-  if (this.closable) {
-    this.onCloseClick();
-    e.stopEvent();
-    return false;
-  }
-}, beforeClick:function(isCloseClick) {
-  if (!isCloseClick) {
-    this.focus();
-  }
-}, activate:function(supressEvent) {
-  var me = this, card = me.card, ariaDom = me.ariaEl.dom;
-  me.active = true;
-  me.addCls(me._activeCls);
-  if (ariaDom) {
-    ariaDom.setAttribute('aria-selected', true);
-  } else {
-    me.ariaRenderAttributes = me.ariaRenderAttributes || {};
-    me.ariaRenderAttributes['aria-selected'] = true;
-  }
-  if (card) {
-    if (card.ariaEl.dom) {
-      card.ariaEl.dom.setAttribute('aria-expanded', true);
-    } else {
-      card.ariaRenderAttributes = card.ariaRenderAttributes || {};
-      card.ariaRenderAttributes['aria-expanded'] = true;
-    }
-  }
-  if (supressEvent !== true) {
-    me.fireEvent('activate', me);
-  }
-}, deactivate:function(supressEvent) {
-  var me = this, card = me.card, ariaDom = me.ariaEl.dom;
-  me.active = false;
-  me.removeCls(me._activeCls);
-  if (ariaDom) {
-    ariaDom.setAttribute('aria-selected', false);
-  } else {
-    me.ariaRenderAttributes = me.ariaRenderAttributes || {};
-    me.ariaRenderAttributes['aria-selected'] = false;
-  }
-  if (card) {
-    if (card.ariaEl.dom) {
-      card.ariaEl.dom.setAttribute('aria-expanded', false);
-    } else {
-      card.ariaRenderAttributes = card.ariaRenderAttributes || {};
-      card.ariaRenderAttributes['aria-expanded'] = false;
-    }
-  }
-  if (supressEvent !== true) {
-    me.fireEvent('deactivate', me);
-  }
-}, privates:{getFramingInfoCls:function() {
-  return this.baseCls + '-' + this.ui + '-' + this._positionCls;
-}, wrapPrimaryEl:function(dom) {
-  Ext.Button.superclass.wrapPrimaryEl.call(this, dom);
-}}});
-Ext.define('Ext.tab.Bar', {extend:Ext.panel.Bar, xtype:'tabbar', baseCls:Ext.baseCSSPrefix + 'tab-bar', componentLayout:'body', isTabBar:true, config:{tabRotation:'default', tabStretchMax:true, activateOnFocus:true}, defaultType:'tab', plain:false, ensureActiveVisibleOnChange:true, ariaRole:'tablist', focusableContainer:true, childEls:['body', 'strip'], _stripCls:Ext.baseCSSPrefix + 'tab-bar-strip', _baseBodyCls:Ext.baseCSSPrefix + 'tab-bar-body', renderTpl:'\x3ctpl if\x3d"hasTabGuard"\x3e{% this.renderTabGuard(out, values, \'before\'); %}\x3c/tpl\x3e' + 
-'\x3cdiv id\x3d"{id}-body" data-ref\x3d"body" role\x3d"presentation" class\x3d"{baseBodyCls} {baseBodyCls}-{ui} ' + '{bodyCls} {bodyTargetCls}{childElCls}"\x3ctpl if\x3d"bodyStyle"\x3e style\x3d"{bodyStyle}"\x3c/tpl\x3e\x3e' + '{%this.renderContainer(out,values)%}' + '\x3c/div\x3e' + '\x3ctpl if\x3d"hasTabGuard"\x3e{% this.renderTabGuard(out, values, \'after\'); %}\x3c/tpl\x3e' + '\x3cdiv id\x3d"{id}-strip" data-ref\x3d"strip" role\x3d"presentation" class\x3d"{stripCls} {stripCls}-{ui}{childElCls}"\x3e\x3c/div\x3e', 
-_reverseDockNames:{left:'right', right:'left'}, _layoutAlign:{top:'end', right:'begin', bottom:'begin', left:'end'}, initComponent:function() {
-  var me = this, initialLayout = me.initialConfig.layout, initialAlign = initialLayout && initialLayout.align, initialOverflowHandler = initialLayout && initialLayout.overflowHandler;
-  if (me.plain) {
-    me.addCls(me.baseCls + '-plain');
-  }
-  me.layout = Ext.apply({align:initialAlign || (me.getTabStretchMax() ? 'stretchmax' : me._layoutAlign[me.dock]), overflowHandler:initialOverflowHandler || 'scroller'}, me.layout);
-  me.callParent();
-  me.on({click:me.onClick, element:'el', scope:me});
-}, ensureTabVisible:function(tab) {
-  var me = this, tabPanel = me.tabPanel, overflowHandler = me.layout.overflowHandler;
-  if (me.rendered && overflowHandler && me.tooNarrow && overflowHandler.scrollToItem) {
-    if (tab || tab === 0) {
-      if (!tab.isTab) {
-        if (Ext.isNumber(tab)) {
-          tab = this.items.getAt(tab);
-        } else {
-          if (tab.isComponent && tabPanel && tabPanel.items.contains(tab)) {
-            tab = tab.tab;
-          }
-        }
-      }
-    }
-    if (!tab) {
-      tab = me.activeTab;
-    }
-    if (tab) {
-      overflowHandler.scrollToItem(tab);
-    }
-  }
-}, initRenderData:function() {
-  var me = this;
-  return Ext.apply(me.callParent(), {bodyCls:me.bodyCls, baseBodyCls:me._baseBodyCls, bodyTargetCls:me.bodyTargetCls, stripCls:me._stripCls, dock:me.dock});
-}, setDock:function(dock) {
-  var me = this, items = me.items, ownerCt = me.ownerCt, item, i, ln;
-  items = items && items.items;
-  if (items) {
-    for (i = 0, ln = items.length; i < ln; i++) {
-      item = items[i];
-      if (item.isTab) {
-        item.setTabPosition(dock);
-      }
-    }
-  }
-  if (me.rendered) {
-    me.resetItemMargins();
-    if (ownerCt && ownerCt.isHeader) {
-      ownerCt.resetItemMargins();
-    }
-    me.needsScroll = true;
-  }
-  me.callParent([dock]);
-}, updateTabRotation:function(tabRotation) {
-  var me = this, items = me.items, i, ln, item;
-  items = items && items.items;
-  if (items) {
-    for (i = 0, ln = items.length; i < ln; i++) {
-      item = items[i];
-      if (item.isTab) {
-        item.setRotation(tabRotation);
-      }
-    }
-  }
-  if (me.rendered) {
-    me.resetItemMargins();
-    me.needsScroll = true;
-    me.updateLayout();
-  }
-}, onRender:function() {
-  var me = this, overflowHandler = this.layout.overflowHandler;
-  me.callParent();
-  if (Ext.isIE8 && me.vertical) {
-    me.el.on({mousemove:me.onMouseMove, scope:me});
-  }
-  if (overflowHandler && overflowHandler.type === 'menu') {
-    overflowHandler.menu.on('click', 'onOverflowMenuItemClick', me);
-  }
-}, afterLayout:function() {
-  this.adjustTabPositions();
-  this.callParent(arguments);
-}, onAdd:function(tab, pos) {
-  var fn = this.onTabContentChange;
-  if (this.ensureActiveVisibleOnChange) {
-    tab.barListeners = tab.on({scope:this, destroyable:true, glyphchange:fn, iconchange:fn, textchange:fn});
-  }
-  this.callParent([tab, pos]);
-}, onAdded:function(container, pos, instanced) {
-  if (container.isHeader) {
-    this.addCls(container.baseCls + '-' + container.ui + '-tab-bar');
-  }
-  this.callParent([container, pos, instanced]);
-}, onRemove:function(tab, destroying) {
-  var me = this;
-  if (me.ensureActiveVisibleOnChange) {
-    if (!destroying) {
-      tab.barListeners.destroy();
-    }
-    tab.barListeners = null;
-  }
-  if (tab === me.previousTab) {
-    me.previousTab = null;
-  }
-  me.callParent([tab, destroying]);
-}, onRemoved:function(destroying) {
-  var ownerCt = this.ownerCt;
-  if (ownerCt.isHeader) {
-    this.removeCls(ownerCt.baseCls + '-' + ownerCt.ui + '-tab-bar');
-  }
-  this.callParent([destroying]);
-}, onTabContentChange:function(tab) {
-  if (tab === this.activeTab) {
-    this.ensureTabVisible(tab);
-  }
-}, afterComponentLayout:function(width) {
-  var me = this, needsScroll = me.needsScroll, overflowHandler = me.layout.overflowHandler;
-  me.callParent(arguments);
-  if (overflowHandler && needsScroll && me.tooNarrow && overflowHandler.scrollToItem) {
-    overflowHandler.scrollToItem(me.activeTab);
-  }
-  delete me.needsScroll;
-}, onMouseMove:function(e) {
-  var me = this, overTab = me._overTab, tabInfo, tab;
-  if (e.getTarget('.' + Ext.baseCSSPrefix + 'box-scroller')) {
-    return;
-  }
-  tabInfo = me.getTabInfoFromPoint(e.getXY());
-  tab = tabInfo.tab;
-  if (tab !== overTab) {
-    if (overTab && overTab.rendered) {
-      overTab.onMouseLeave(e);
-      me._overTab = null;
-    }
-    if (tab) {
-      tab.onMouseEnter(e);
-      me._overTab = tab;
-      if (!tab.disabled) {
-        me.el.setStyle('cursor', 'pointer');
-      }
-    } else {
-      me.el.setStyle('cursor', 'default');
-    }
-  }
-}, onMouseLeave:function(e) {
-  var overTab = this._overTab;
-  if (overTab && overTab.rendered) {
-    overTab.onMouseLeave(e);
-  }
-}, getTabInfoFromPoint:function(xy) {
-  var me = this, tabs = me.items.items, length = tabs.length, innerCt = me.layout.innerCt, innerCtXY = innerCt.getXY(), point = new Ext.util.Point(xy[0], xy[1]), i = 0, lastBox, tabRegion, closeEl, close, closeXY, closeX, closeY, closeWidth, closeHeight, tabX, tabY, tabWidth, tabHeight, closeRegion, isTabReversed, direction, tab;
-  for (; i < length; i++) {
-    tab = tabs[i];
-    lastBox = tab.lastBox;
-    if (!lastBox || !tab.isTab) {
-      continue;
-    }
-    tabX = innerCtXY[0] + lastBox.x;
-    tabY = innerCtXY[1] - innerCt.dom.scrollTop + lastBox.y;
-    tabWidth = lastBox.width;
-    tabHeight = lastBox.height;
-    tabRegion = new Ext.util.Region(tabY, tabX + tabWidth, tabY + tabHeight, tabX);
-    if (tabRegion.contains(point)) {
-      closeEl = tab.closeEl;
-      if (closeEl) {
-        if (me._isTabReversed === undefined) {
-          me._isTabReversed = isTabReversed = tab.btnWrap.dom.currentStyle.filter.indexOf('rotation\x3d2') !== -1;
-        }
-        direction = isTabReversed ? this._reverseDockNames[me.dock] : me.dock;
-        closeWidth = closeEl.getWidth();
-        closeHeight = closeEl.getHeight();
-        closeXY = me.getCloseXY(closeEl, tabX, tabY, tabWidth, tabHeight, closeWidth, closeHeight, direction);
-        closeX = closeXY[0];
-        closeY = closeXY[1];
-        closeRegion = new Ext.util.Region(closeY, closeX + closeWidth, closeY + closeHeight, closeX);
-        close = closeRegion.contains(point);
-      }
-      break;
-    }
-  }
-  return {tab:tab, close:close};
-}, getCloseXY:function(closeEl, tabX, tabY, tabWidth, tabHeight, closeWidth, closeHeight, direction) {
-  var closeXY = closeEl.getXY(), closeX, closeY;
-  if (direction === 'right') {
-    closeX = tabX + tabWidth - (closeXY[1] - tabY + closeHeight);
-    closeY = tabY + (closeXY[0] - tabX);
-  } else {
-    closeX = tabX + (closeXY[1] - tabY);
-    closeY = tabY + tabX + tabHeight - closeXY[0] - closeWidth;
-  }
-  return [closeX, closeY];
-}, closeTab:function(toClose) {
-  var me = this, card = toClose.card, tabPanel = me.tabPanel, toActivate;
-  if (card && card.fireEvent('beforeclose', card) === false) {
-    return false;
-  }
-  toActivate = me.findNextActivatable(toClose);
-  Ext.suspendLayouts();
-  if (toActivate) {
-    if (tabPanel) {
-      tabPanel.setActiveTab(toActivate.card);
-    } else {
-      me.setActiveTab(toActivate);
-    }
-    toActivate.focus();
-  }
-  if (tabPanel && card) {
-    delete toClose.ownerCt;
-    card.fireEvent('close', card);
-    tabPanel.remove(card);
-    if (card.ownerCt !== tabPanel) {
-      toClose.fireClose();
-      me.remove(toClose);
-    } else {
-      toClose.ownerCt = me;
-      Ext.resumeLayouts(true);
-      return false;
-    }
-  }
-  Ext.resumeLayouts(true);
-}, findNextActivatable:function(toClose) {
-  var me = this, previousTab = me.previousTab, nextTab;
-  if (toClose.active && me.items.getCount() > 1) {
-    if (previousTab && previousTab !== toClose && !previousTab.disabled) {
-      nextTab = previousTab;
-    } else {
-      nextTab = toClose.next('tab[disabled\x3dfalse]') || toClose.prev('tab[disabled\x3dfalse]');
-    }
-  }
-  return nextTab || me.activeTab;
-}, setActiveTab:function(tab, initial) {
-  var me = this;
-  if (!tab.disabled && tab !== me.activeTab) {
-    if (me.activeTab) {
-      if (me.activeTab.destroyed) {
-        me.previousTab = null;
-      } else {
-        me.previousTab = me.activeTab;
-        me.activeTab.deactivate();
-        me.deactivateFocusable(me.activeTab);
-      }
-    }
-    tab.activate();
-    me.activateFocusable(tab);
-    me.activeTab = tab;
-    me.needsScroll = true;
-    if (!initial) {
-      me.fireEvent('change', me, tab, tab.card);
-      me.updateLayout();
-    }
-  }
-}, privates:{adjustTabPositions:function() {
-  var me = this, items = me.items.items, i = items.length, tab, lastBox, el, rotation, prop;
-  if (!Ext.isIE8) {
-    prop = me._getTabAdjustProp();
-    while (i--) {
-      tab = items[i];
-      el = tab.el;
-      lastBox = tab.lastBox;
-      rotation = tab.isTab ? tab.getActualRotation() : 0;
-      if (rotation === 1 && tab.isVisible()) {
-        el.setStyle(prop, lastBox.x + lastBox.width + 'px');
-      } else {
-        if (rotation === 2 && tab.isVisible()) {
-          el.setStyle(prop, lastBox.x - lastBox.height + 'px');
-        }
-      }
-    }
-  }
-}, applyTargetCls:function(targetCls) {
-  this.bodyTargetCls = targetCls;
-}, _getTabAdjustProp:function() {
-  return 'left';
-}, getTargetEl:function() {
-  return this.body || this.frameBody || this.el;
-}, onClick:function(e, target) {
-  var me = this, tabEl, tab, isCloseClick, tabInfo;
-  if (e.getTarget('.' + Ext.baseCSSPrefix + 'box-scroller')) {
-    return;
-  }
-  if (Ext.isIE8 && me.vertical) {
-    tabInfo = me.getTabInfoFromPoint(e.getXY());
-    tab = tabInfo.tab;
-    isCloseClick = tabInfo.close;
-  } else {
-    tabEl = e.getTarget('.' + Ext.tab.Tab.prototype.baseCls);
-    tab = tabEl && Ext.getCmp(tabEl.id);
-    isCloseClick = tab && tab.closeEl && target === tab.closeEl.dom;
-  }
-  if (isCloseClick) {
-    e.preventDefault();
-  }
-  if (tab && tab.isDisabled && !tab.isDisabled()) {
-    tab.beforeClick(isCloseClick);
-    if (tab.closable && isCloseClick) {
-      tab.onCloseClick();
-    } else {
-      me.doActivateTab(tab);
-    }
-  }
-}, onOverflowMenuItemClick:function(menu, item, e, eOpts) {
-  var tab = item && item.masterComponent, overflowHandler = this.layout.overflowHandler;
-  if (tab && !tab.isDisabled()) {
-    this.doActivateTab(tab);
-    if (overflowHandler.menuTrigger) {
-      overflowHandler.menuTrigger.focus();
-    }
-  }
-}, doActivateTab:function(tab) {
-  var tabPanel = this.tabPanel;
-  if (tabPanel) {
-    if (!tab.disabled) {
-      tabPanel.setActiveTab(tab.card);
-    }
-  } else {
-    this.setActiveTab(tab);
-  }
-}, onFocusableContainerFocus:function(e) {
-  var me = this, mixin = me.mixins.focusablecontainer, child;
-  child = mixin.onFocusableContainerFocus.call(me, e);
-  if (child && child.isTab) {
-    me.doActivateTab(child);
-  }
-}, onFocusableContainerFocusEnter:function(e) {
-  var me = this, mixin = me.mixins.focusablecontainer, child;
-  child = mixin.onFocusableContainerFocusEnter.call(me, e);
-  if (child && child.isTab) {
-    me.doActivateTab(child);
-  }
-}, focusChild:function(child, forward) {
-  var me = this, mixin = me.mixins.focusablecontainer, nextChild;
-  nextChild = mixin.focusChild.call(me, child, forward);
-  if (me.activateOnFocus && nextChild && nextChild.isTab) {
-    me.doActivateTab(nextChild);
-  }
-}}});
-Ext.define('Ext.tab.Panel', {extend:Ext.panel.Panel, alias:'widget.tabpanel', alternateClassName:['Ext.TabPanel'], config:{tabBar:undefined, tabPosition:'top', tabRotation:'default', tabStretchMax:true}, removePanelHeader:true, plain:false, itemCls:Ext.baseCSSPrefix + 'tabpanel-child', minTabWidth:undefined, maxTabWidth:undefined, deferredRender:true, _defaultTabRotation:{top:0, right:1, bottom:0, left:2}, initComponent:function() {
-  var me = this, activeTab = me.activeTab !== null ? me.activeTab || 0 : null, dockedItems = me.dockedItems, header = me.header, tabBarHeaderPosition = me.tabBarHeaderPosition, tabBar = me.getTabBar(), headerItems;
-  me.layout = Ext.apply({type:'card', deferredRender:me.deferredRender, itemCls:me.itemCls, activeItem:activeTab}, me.layout);
-  if (tabBarHeaderPosition != null) {
-    header = me.header = Ext.apply({}, header);
-    headerItems = header.items = header.items ? header.items.slice() : [];
-    header.itemPosition = tabBarHeaderPosition;
-    headerItems.push(tabBar);
-    header.hasTabBar = true;
-  } else {
-    dockedItems = [].concat(me.dockedItems || []);
-    dockedItems.push(tabBar);
-    me.dockedItems = dockedItems;
-  }
-  me.callParent(arguments);
-  activeTab = me.activeTab = me.getComponent(activeTab);
-  if (activeTab) {
-    tabBar.setActiveTab(activeTab.tab, true);
-  }
-}, onRender:function() {
-  var items = this.items.items, len = items.length, i;
-  this.callParent(arguments);
-  for (i = 0; i < len; ++i) {
-    items[i].getBind();
-  }
-}, setActiveTab:function(card) {
-  var me = this, previous;
-  if (!Ext.isObject(card) || card.isComponent) {
-    card = me.getComponent(card);
-  }
-  previous = me.getActiveTab();
-  if (card) {
-    Ext.suspendLayouts();
-    if (!card.isComponent) {
-      card = me.add(card);
-    }
-    if (previous === card || me.fireEvent('beforetabchange', me, card, previous) === false) {
-      Ext.resumeLayouts(true);
-      return previous;
-    }
-    me.activeTab = card;
-    me.layout.setActiveItem(card);
-    card = me.activeTab = me.layout.getActiveItem();
-    if (card && card !== previous) {
-      me.tabBar.setActiveTab(card.tab);
-      Ext.resumeLayouts(true);
-      if (previous !== card) {
-        me.fireEvent('tabchange', me, card, previous);
-      }
-    } else {
-      Ext.resumeLayouts(true);
-    }
-    return card;
-  }
-  return previous;
-}, setActiveItem:function(item) {
-  return this.setActiveTab(item);
-}, getActiveTab:function() {
-  var me = this, result = me.getComponent(me.activeTab);
-  if (result && me.items.indexOf(result) !== -1) {
-    me.activeTab = result;
-  } else {
-    me.activeTab = undefined;
-  }
-  return me.activeTab;
-}, applyTabBar:function(tabBar) {
-  var me = this, dock = me.tabBarHeaderPosition != null ? me.getHeaderPosition() : me.getTabPosition();
-  return new Ext.tab.Bar(Ext.apply({ui:me.ui, dock:dock, tabRotation:me.getTabRotation(), vertical:dock === 'left' || dock === 'right', plain:me.plain, tabStretchMax:me.getTabStretchMax(), tabPanel:me}, tabBar));
-}, updateHeaderPosition:function(headerPosition, oldHeaderPosition) {
-  var tabBar = this.getTabBar();
-  if (tabBar && this.tabBarHeaderPosition != null) {
-    tabBar.setDock(headerPosition);
-  }
-  this.callParent([headerPosition, oldHeaderPosition]);
-}, updateTabPosition:function(tabPosition) {
-  var tabBar = this.getTabBar();
-  if (tabBar && this.tabBarHeaderPosition == null) {
-    tabBar.setDock(tabPosition);
-  }
-}, updateTabRotation:function(tabRotation) {
-  var tabBar = this.getTabBar();
-  if (tabBar) {
-    tabBar.setTabRotation(tabRotation);
-  }
-}, onAdd:function(item, index) {
-  var me = this, cfg = Ext.apply({}, item.tabConfig), tabBar = me.getTabBar(), ariaDom, defaultConfig = {xtype:'tab', title:item.title, icon:item.icon, iconCls:item.iconCls, glyph:item.glyph, ui:tabBar.ui, card:item, disabled:item.disabled, closable:item.closable, hidden:item.hidden && !item.hiddenByLayout, tooltip:item.tooltip, tabBar:tabBar, tabPosition:tabBar.dock, rotation:tabBar.getTabRotation()};
-  if (item.closeText !== undefined) {
-    defaultConfig.closeText = item.closeText;
-  }
-  cfg = Ext.applyIf(cfg, defaultConfig);
-  item.tab = me.tabBar.insert(index, cfg);
-  item.ariaRole = 'tabpanel';
-  ariaDom = item.ariaEl.dom;
-  if (ariaDom) {
-    ariaDom.setAttribute('aria-labelledby', item.tab.id);
-  } else {
-    item.ariaRenderAttributes = item.ariaRenderAttributes || {};
-    item.ariaRenderAttributes['aria-labelledby'] = item.tab.id;
-  }
-  item.on({scope:me, enable:me.onItemEnable, disable:me.onItemDisable, beforeshow:me.onItemBeforeShow, iconchange:me.onItemIconChange, iconclschange:me.onItemIconClsChange, glyphchange:me.onItemGlyphChange, titlechange:me.onItemTitleChange});
-  if (item.isPanel) {
-    if (me.removePanelHeader) {
-      if (item.rendered) {
-        if (item.header) {
-          item.header.hide();
-        }
-      } else {
-        item.header = false;
-      }
-    }
-    if (item.isPanel && me.border) {
-      item.setBorder(false);
-    }
-  }
-  if (me.rendered) {
-    item.getBind();
-  }
-  if (me.rendered && me.loader && me.activeTab === undefined && me.layout.activeItem !== null) {
-    me.setActiveTab(0);
-  }
-}, onMove:function(item, fromIdx, toIdx) {
-  var tabBar = this.getTabBar();
-  this.callParent([item, fromIdx, toIdx]);
-  if (tabBar.items.indexOf(item.tab) !== toIdx) {
-    tabBar.move(item.tab, toIdx);
-  }
-}, onItemEnable:function(item) {
-  item.tab.enable();
-}, onItemDisable:function(item) {
-  item.tab.disable();
-}, onItemBeforeShow:function(item) {
-  if (item !== this.activeTab) {
-    this.setActiveTab(item);
-    return false;
-  }
-}, onItemGlyphChange:function(item, newGlyph) {
-  item.tab.setGlyph(newGlyph);
-}, onItemIconChange:function(item, newIcon) {
-  item.tab.setIcon(newIcon);
-}, onItemIconClsChange:function(item, newIconCls) {
-  item.tab.setIconCls(newIconCls);
-}, onItemTitleChange:function(item, newTitle) {
-  item.tab.setText(newTitle);
-}, onRemove:function(item, destroying) {
-  var me = this;
-  item.un({scope:me, enable:me.onItemEnable, disable:me.onItemDisable, beforeshow:me.onItemBeforeShow, iconchange:me.onItemIconChange, iconclschange:me.onItemIconClsChange, glyphchange:me.onItemGlyphChange, titlechange:me.onItemTitleChange});
-  if (item.tab && !me.destroying && item.tab.ownerCt === me.tabBar) {
-    me.tabBar.remove(item.tab);
-  }
-}, enable:function() {
-  var me = this, activeTab = me.activeTab !== null ? me.activeTab || 0 : null, wasDisabled = me.disabled;
-  me.callParent(arguments);
-  if (wasDisabled) {
-    activeTab = activeTab.isComponent ? activeTab : me.getComponent(activeTab);
-    if (activeTab) {
-      me.getTabBar().setActiveTab(activeTab.tab);
-    }
-  }
-  return me;
-}, privates:{doRemove:function(item, autoDestroy) {
-  var me = this, toActivate;
-  Ext.suspendLayouts();
-  if (me.removingAll || me.destroying || me.items.getCount() === 1) {
-    me.activeTab = null;
-  } else {
-    if (item.tab && (toActivate = me.tabBar.items.indexOf(me.tabBar.findNextActivatable(item.tab))) !== -1) {
-      me.setActiveTab(toActivate);
-    }
-  }
-  me.callParent([item, autoDestroy]);
-  Ext.resumeLayouts();
-  if (item.tab) {
-    delete item.tab.card;
-    delete item.tab;
-  }
-}}});
 Ext.define('Ext.toolbar.Fill', {extend:Ext.Component, alias:'widget.tbfill', alternateClassName:'Ext.Toolbar.Fill', ariaRole:'presentation', isFill:true, flex:1});
 Ext.define('Ext.toolbar.Spacer', {extend:Ext.Component, alias:'widget.tbspacer', alternateClassName:'Ext.Toolbar.Spacer', baseCls:Ext.baseCSSPrefix + 'toolbar-spacer', ariaRole:'presentation'});
 Ext.define('Ext.draw.ContainerBase', {extend:Ext.panel.Panel, previewTitleText:'Chart Preview', previewAltText:'Chart preview', layout:'container', addElementListener:function() {
@@ -104069,16 +104488,19 @@ Ext.define('Admin.model.contract.ContractModel', {extend:Admin.model.Base, field
 {type:'string', name:'processStatus'}], proxy:{type:'rest', url:'/contract'}});
 Ext.define('Admin.model.contractapprove.ContractApproveModel', {extend:Admin.model.Base, fields:[{type:'int', name:'id'}, {type:'string', name:'userId'}, {type:'string', name:'contractNumber'}, {type:'string', name:'customerName'}, {type:'string', name:'hoseName'}, {type:'string', name:'employeeName'}, {type:'date', name:'startTime'}, {type:'date', name:'endTime'}, {type:'string', name:'contractType'}, {type:'float', name:'total'}, {type:'string', name:'area'}, {type:'string', name:'processStatus'}, 
 {type:'string', name:'processInstanceId'}, {type:'string', name:'taskId'}, {type:'string', name:'taskName'}, {type:'date', name:'taskCreateTime'}, {type:'string', name:'assignee'}, {type:'string', name:'taskDefinitionKey'}, {type:'string', name:'processDefinitionId'}, {type:'boolean', name:'suspended'}, {type:'int', name:'version'}, {type:'string', name:'depreason'}, {type:'string', name:'manreason'}]});
-Ext.define('Admin.model.contractapprove.ProcessDefinitionModel', {extend:Admin.model.Base, fields:[{type:'string', name:'id'}, {type:'string', name:'category'}, {type:'string', name:'name'}, {type:'string', name:'key'}, {type:'string', name:'description'}, {type:'int', name:'version'}, {type:'string', name:'resourceName'}, {type:'string', name:'deploymentId'}, {type:'string', name:'diagramResourceName'}, {type:'string', name:'tenantId'}, {type:'boolean', name:'startFormKey'}, {type:'boolean', name:'graphicalNotation'}, 
+Ext.define('Admin.model.leave.LeaveModel', {extend:Admin.model.Base, fields:[{type:'int', name:'id'}, {type:'string', name:'userId'}, {type:'date', name:'startTime', dateFormat:'Y/m/d H:i:s'}, {type:'date', name:'endTime', dateFormat:'Y/m/d H:i:s'}, {type:'date', name:'realityStartTime', dateFormat:'Y/m/d H:i:s'}, {type:'date', name:'realityEndTime', dateFormat:'Y/m/d H:i:s'}, {type:'date', name:'applyTime', dateFormat:'Y/m/d H:i:s'}, {type:'string', name:'leaveType'}, {type:'string', name:'processStatus'}, 
+{type:'string', name:'reason'}, {type:'string', name:'processInstanceId'}, {type:'string', name:'depReason'}, {type:'string', name:'hrReason'}], proxy:{type:'rest', url:'/leave'}});
+Ext.define('Admin.model.processdefinition.ProcessDefinitionModel', {extend:Admin.model.Base, fields:[{type:'string', name:'id'}, {type:'string', name:'category'}, {type:'string', name:'name'}, {type:'string', name:'key'}, {type:'string', name:'description'}, {type:'int', name:'version'}, {type:'string', name:'resourceName'}, {type:'string', name:'deploymentId'}, {type:'string', name:'diagramResourceName'}, {type:'string', name:'tenantId'}, {type:'boolean', name:'startFormKey'}, {type:'boolean', name:'graphicalNotation'}, 
 {type:'boolean', name:'suspended'}]});
 Ext.define('Admin.model.user.UserModel', {extend:Admin.model.Base, fields:[{type:'int', name:'id'}, {type:'string', name:'userName'}, {type:'date', name:'createTime', dateFormat:'Y/m/d H:i:s'}], proxy:{type:'rest', url:'/user'}});
 Ext.define('Admin.store.NavigationTree', {extend:Ext.data.TreeStore, storeId:'NavigationTree', fields:[{name:'text'}], root:{expanded:true, children:[{text:'Dashboard', iconCls:'x-fa fa-desktop', viewType:'admindashboard', routeId:'dashboard', leaf:true}, {text:'模板', iconCls:'x-fa fa-address-card', viewType:'user', leaf:true}, {text:'业务管理模块', iconCls:'x-fa fa-briefcase', expanded:false, selectable:false, children:[{text:'合同管理', iconCls:'x-fa fa-clipboard', viewType:'contract', leaf:true}, {text:'业务审核', 
-iconCls:'x-fa fa-pencil-square-o', viewType:'contractApprove', leaf:true}]}, {text:'通讯录', iconCls:'x-fa fa-address-card', viewType:'addressList', leaf:true}, {text:'日程管理', iconCls:'x-fa fa-calendar', viewType:'calendar', leaf:true}, {text:'个人考勤', iconCls:'x-fa fa-fax', viewType:'attence', leaf:true}, {text:'Login', iconCls:'x-fa fa-check', viewType:'login', leaf:true}]}});
+iconCls:'x-fa fa-pencil-square-o', viewType:'contractApprove', leaf:true}]}, {text:'通讯录', iconCls:'x-fa fa-address-card', viewType:'addressList', leaf:true}, {text:'日程管理', iconCls:'x-fa fa-calendar', viewType:'calendar', leaf:true}, {text:'个人考勤', iconCls:'x-fa fa-fax', viewType:'attence', leaf:true}, {text:'流程定义图', iconCls:'x-fa fa-file-picture-o', viewType:'processDefinition', leaf:true}, {text:'Login', iconCls:'x-fa fa-check', viewType:'login', leaf:true}]}});
 Ext.define('Admin.store.addressList.AddressListPanelStroe', {extend:Ext.data.Store, alias:'store.addressListPanelStroe', model:'Admin.model.addressList.AddListModel', proxy:{type:'rest', url:'/addressList', reader:{type:'json', rootProperty:'content', totalProperty:'totalElements'}, writer:{type:'json'}, simpleSortMode:true}, autoLoad:'true', autoSync:true, remoteSort:true, pageSize:20, sorters:{direction:'ASC', property:'id'}});
 Ext.define('Admin.store.attence.AttenceGridStroe', {extend:Ext.data.Store, storeId:'attenceGridStroe', alias:'store.attenceGridStroe', model:'Admin.model.attence.AttenceModel', proxy:{type:'rest', url:'/attence', reader:{type:'json', rootProperty:'content', totalProperty:'totalElements'}, writer:{type:'json'}, simpleSortMode:true}, autoLoad:'true', autoSync:true, remoteSort:true, pageSize:20, sorters:{direction:'ASC', property:'id'}});
 Ext.define('Admin.store.contract.ContractGridStroe', {extend:Ext.data.Store, storeId:'contractGridStroe', alias:'store.contractGridStroe', model:'Admin.model.contract.ContractModel', proxy:{type:'rest', url:'/contract', reader:{type:'json', rootProperty:'content', totalProperty:'totalElements'}, writer:{type:'json'}, simpleSortMode:true}, autoLoad:'true', autoSync:true, remoteSort:true, pageSize:20, sorters:{direction:'ASC', property:'id'}});
 Ext.define('Admin.store.contractapprove.ContractApproveStore', {extend:Ext.data.Store, storeId:'contractApproveStore', alias:'store.contractApproveStore', model:'Admin.model.contractapprove.ContractApproveModel', proxy:{type:'ajax', url:'contract/tasks', reader:new Ext.data.JsonReader({type:'json', rootProperty:'content', totalProperty:'totalElements'}), simpleSortMode:true}, remoteSort:true, sorters:[{property:'id', direction:'desc'}], autoLoad:true});
-Ext.define('Admin.store.contractapprove.ProcessDefinitionStroe', {extend:Ext.data.Store, storeId:'processDefinitionStroe', alias:'store.processDefinitionStroe', model:'Admin.model.contractapprove.ProcessDefinitionModel', pageSize:15, proxy:{type:'ajax', url:'/process-definition', reader:{type:'json', rootProperty:'content', totalProperty:'totalElements'}, simpleSortMode:true}, remoteSort:true, sorters:[{property:'id', direction:'desc'}], autoLoad:true, listeners:{}});
+Ext.define('Admin.store.leave.LeaveStroe', {extend:Ext.data.Store, storeId:'leaveStroe', alias:'store.leaveStroe', model:'Admin.model.leave.LeaveModel', proxy:{type:'rest', url:'/leave', reader:{type:'json', rootProperty:'content', totalProperty:'totalElements'}, writer:{type:'json'}, simpleSortMode:true}, autoLoad:true, autoSync:true, remoteSort:true, pageSize:15, sorters:{direction:'DESC', property:'id'}, listeners:{}});
+Ext.define('Admin.store.processdefinition.ProcessDefinitionStroe', {extend:Ext.data.Store, storeId:'processDefinitionStroe', alias:'store.processDefinitionStroe', model:'Admin.model.processdefinition.ProcessDefinitionModel', pageSize:15, proxy:{type:'ajax', url:'/process-definition', reader:{type:'json', rootProperty:'content', totalProperty:'totalElements'}, simpleSortMode:true}, remoteSort:true, sorters:[{property:'id', direction:'desc'}], autoLoad:true, listeners:{}});
 Ext.define('Admin.store.user.UserGridStroe', {extend:Ext.data.Store, alias:'store.userGridStroe', model:'Admin.model.user.UserModel', data:{'content':[{'id':1, 'userName':'No001', 'createTime':'2018/09/08 19:40:52'}, {'id':2, 'userName':'No002', 'createTime':'2018/09/08 19:40:52'}]}, proxy:{type:'memory', reader:{type:'json', rootProperty:'content'}}, autoLoad:'true', sorters:{direction:'ASC', property:'userName'}});
 Ext.define('Admin.view.dashboard.DashboardController', {extend:Ext.app.ViewController, alias:'controller.dashboard', onRefreshToggle:function(tool, e, owner) {
   var store, runner;
@@ -104146,11 +104568,59 @@ Ext.define('Admin.view.attence.AttencePanel', {extend:Ext.panel.Panel, xtype:'at
   }
   return val;
 }}, {xtype:'gridcolumn', cls:'content-column', width:150, dataIndex:'employeeName', text:'员工姓名'}, {xtype:'gridcolumn', cls:'content-column', width:150, dataIndex:'location', text:'打卡地点'}, {xtype:'datecolumn', cls:'content-column', width:150, dataIndex:'workinTime', text:'上班时间', flex:1, formatter:'date("Y/m/d H:i:s")'}, {xtype:'datecolumn', cls:'content-column', width:150, dataIndex:'workoutTime', text:'下班时间', flex:1, formatter:'date("Y/m/d H:i:s")'}, {xtype:'gridcolumn', cls:'content-column', width:150, 
-dataIndex:'processInstanceId', text:'地点', hidden:true, id:'attencePanel_processInstanceId'}, {xtype:'actioncolumn', cls:'content-column', width:150, dataIndex:'bool', text:'操作', tooltip:'edit ', items:[{xtype:'button', iconCls:'x-fa  fa-hand-paper-o', tooltip:'发起请假', handler:'starLeaveProcess'}]}], dockedItems:[{xtype:'pagingtoolbar', dock:'bottom', itemId:'userPaginationToolbar', displayInfo:true, bind:'{attenceLists}'}]}]});
+dataIndex:'processInstanceId', text:'流程id', hidden:true}, {xtype:'gridcolumn', cls:'content-column', width:150, dataIndex:'processStatus', text:'审核状态', hidden:true, id:'attencePanel_processStatus'}, {xtype:'actioncolumn', cls:'content-column', width:150, dataIndex:'bool', text:'操作', tooltip:'edit ', items:[{xtype:'button', iconCls:'x-fa  fa-hand-paper-o', tooltip:'发起请假', getClass:function(v, meta, rec, grid) {
+  if (rec.get('processInstanceId') != '') {
+    return 'x-hidden';
+  }
+  return 'x-fa fa-hand-paper-o';
+}, handler:'starLeaveProcess'}, {xtype:'button', iconCls:'x-fa fa-ban', tooltip:'取消请假', getClass:function(v, meta, rec) {
+  if (rec.get('processInstanceId') == '') {
+    return 'x-hidden';
+  }
+  return 'x-fa fa-ban';
+}, handler:'cancelLeaveProcess'}]}], dockedItems:[{xtype:'pagingtoolbar', dock:'bottom', itemId:'userPaginationToolbar', displayInfo:true, bind:'{attenceLists}'}]}]});
 Ext.define('Admin.view.attence.AttenceViewController', {extend:Ext.app.ViewController, alias:'controller.attenceViewController', openLeaveWindow:function(toolbar, rowIndex, colIndex) {
   toolbar.up('panel').up('container').add(Ext.widget('leaveGridWindow')).show();
 }, openAddWindow:function(toolbar, rowIndex, colIndex) {
   toolbar.up('panel').up('container').add(Ext.widget('leaveAddWindow')).show();
+}, submitAddForm:function(btn) {
+  var win = btn.up('window');
+  var form = win.down('form');
+  if (form.isValid()) {
+    var record = Ext.create('Admin.model.leave.LeaveModel');
+    var values = form.getValues();
+    record.set(values);
+    record.save();
+    var store = Ext.data.StoreManager.lookup('leaveStroe');
+    store.load();
+    win.close();
+  } else {
+    Ext.Msg.alert('提示', '不允许为空');
+  }
+}, deleteOneRow:function(grid, rowIndex, colIndex) {
+  var store = grid.getStore();
+  var record = store.getAt(rowIndex);
+  if (record.data.processStatus == 'NEW') {
+    Ext.MessageBox.confirm('提示', '确定要进行删除操作吗？数据将无法还原！', function(btn, text) {
+      if (btn == 'yes') {
+        store.remove(record);
+      }
+    }, this);
+  } else {
+    Ext.Msg.alert('提示', "只可以删除'新建'状态的信息！");
+  }
+}, starLeaveProcess:function(grid, rowIndex, colIndex) {
+  var record = grid.getStore().getAt(rowIndex);
+  Ext.Ajax.request({url:'/leave/start', method:'post', params:{id:record.get('id')}, success:function(response, options) {
+    var json = Ext.util.JSON.decode(response.responseText);
+    if (json.success) {
+      Ext.Msg.alert('操作成功', json.msg, function() {
+        grid.getStore().reload();
+      });
+    } else {
+      Ext.Msg.alert('操作失败', json.msg);
+    }
+  }});
 }, search:function(btn) {
   Ext.getCmp('attence_searchFieldValue').show();
   Ext.getCmp('attence_search').hide();
@@ -104159,15 +104629,15 @@ Ext.define('Admin.view.attence.AttenceViewController', {extend:Ext.app.ViewContr
 }, starLeaveProcess:function(grid) {
   Ext.getCmp('attencePanel_processInstanceId').show();
 }});
-Ext.define('Admin.view.attence.AttenceViewModel', {extend:Ext.app.ViewModel, alias:'viewmodel.attenceViewModel', stores:{attenceLists:{type:'attenceGridStroe'}}});
+Ext.define('Admin.view.attence.AttenceViewModel', {extend:Ext.app.ViewModel, alias:'viewmodel.attenceViewModel', stores:{attenceLists:{type:'attenceGridStroe'}, leaveLists:{type:'leaveStroe'}}});
 Ext.define('Admin.view.attence.LeaveAddWindow', {extend:Ext.window.Window, alias:'widget.leaveAddWindow', height:350, minHeight:350, minWidth:300, width:500, scrollable:true, title:'请假单', closable:true, constrain:true, defaultFocus:'textfield', modal:true, layout:'fit', items:[{xtype:'form', layout:'form', padding:'10px', ariaLabel:'Enter your name', items:[{xtype:'textfield', fieldLabel:'id', name:'id', hidden:true, readOnly:true}, {xtype:'textfield', fieldLabel:'processStatus', name:'processStatus', 
 value:'NEW', hidden:true, readOnly:true}, {xtype:'textfield', name:'userId', fieldLabel:'请假人', allowBlank:false, emptyText:'请填写请假人姓名', blankText:'请填写请假人'}, {xtype:'combobox', name:'leaveType', fieldLabel:'请假类型', store:Ext.create('Ext.data.Store', {fields:['value', 'name'], data:[{'value':'A', 'name':'带薪假期'}, {'value':'B', 'name':'无薪假期'}, {'value':'C', 'name':'病假'}]}), queryMode:'local', displayField:'name', valueField:'value', emptyText:'--------请选择---------', allowBlank:false, blankText:'请选择类型'}, 
 {xtype:'datefield', fieldLabel:'请假开始时间', value:new Date, minValue:new Date, minText:'请选择当前日期后的时间', format:'Y/m/d H:i:s', altFormats:'Y/m/d|Ymd', name:'startTime', emptyText:'--------请选择---------', allowBlank:false, blankText:'请选择开始时间'}, {xtype:'datefield', fieldLabel:'请假结束时间', value:new Date, minValue:new Date, minText:'请选择当前日期后的时间', format:'Y/m/d H:i:s', altFormats:'Y/m/d|Ymd', name:'endTime', emptyText:'--------请选择---------', allowBlank:false, blankText:'请选择结束时间'}, {xtype:'textareafield', grow:true, 
 name:'reason', fieldLabel:'请假原因', anchor:'100%', emptyText:'请填写请假原因', allowBlank:false, blankText:'请填写请假原因'}]}], buttons:[{xtype:'button', text:'保存', handler:'submitAddForm'}, '-\x3e', {xtype:'button', text:'取消', handler:function(btn) {
   btn.up('window').close();
 }}]});
-Ext.define('Admin.view.attence.LeaveGridWindow', {extend:Ext.window.Window, alias:'widget.leaveGridWindow', height:550, minHeight:500, width:1200, scrollable:true, title:'我的请假单', closable:true, constrain:false, autoScroll:true, header:{items:[{iconCls:'fa fa-search', ui:'header', tooltip:'查找', handler:'hhh'}]}, modal:true, layout:'fit', items:[{xtype:'gridpanel', bind:'{leaveLists}', autoScroll:true, selModel:{type:'checkboxmodel'}, columns:[{header:'id', dataIndex:'id', width:60, sortable:true, 
-hidden:true}, {header:'请假状态', dataIndex:'processStatus', width:60, sortable:true, renderer:function(val) {
+Ext.define('Admin.view.attence.LeaveGridWindow', {extend:Ext.window.Window, alias:'widget.leaveGridWindow', height:550, minHeight:500, width:1200, scrollable:true, title:'我的请假单', closable:true, constrain:false, autoScroll:true, header:{items:[{iconCls:'fa fa-search', ui:'header', tooltip:'查找', handler:'hhh'}, '-', {iconCls:'fa fa-trash', ui:'header', tooltip:'删除多条', disabled:true}]}, modal:true, layout:'fit', items:[{xtype:'gridpanel', bind:'{leaveLists}', autoScroll:true, selModel:{type:'checkboxmodel'}, 
+plugins:{rowediting:{clicksToEdit:2}}, columns:[{header:'id', dataIndex:'id', width:60, sortable:true, hidden:true}, {header:'审核状态', dataIndex:'processStatus', width:60, sortable:true, renderer:function(val) {
   if (val == 'NEW') {
     return '\x3cspan style\x3d"color:green;"\x3e新建\x3c/span\x3e';
   } else {
@@ -104182,7 +104652,8 @@ hidden:true}, {header:'请假状态', dataIndex:'processStatus', width:60, sorta
     }
   }
   return val;
-}}, {header:'申请人', dataIndex:'userId', width:60, sortable:true}, {header:'开始时间', dataIndex:'startTime', width:180, sortable:true, renderer:Ext.util.Format.dateRenderer('Y/m/d H:i:s')}, {header:'结束时间', dataIndex:'endTime', width:180, sortable:true, renderer:Ext.util.Format.dateRenderer('Y/m/d H:i:s')}, {header:'请假类型', dataIndex:'leaveType', width:120, sortable:true, renderer:function(val) {
+}}, {header:'申请人', dataIndex:'userId', width:60, sortable:true}, {header:'开始时间', dataIndex:'startTime', width:180, sortable:true, renderer:Ext.util.Format.dateRenderer('Y/m/d H:i:s'), editor:{xtype:'datefield', value:new Date, minValue:new Date, format:'Y/m/d H:i:s', altFormats:'Y/m/d|Ymd'}}, {header:'结束时间', dataIndex:'endTime', width:180, sortable:true, renderer:Ext.util.Format.dateRenderer('Y/m/d H:i:s'), editor:{xtype:'datefield', value:new Date, minValue:new Date, format:'Y/m/d H:i:s', altFormats:'Y/m/d|Ymd'}}, 
+{header:'请假类型', dataIndex:'leaveType', width:120, sortable:true, renderer:function(val) {
   if (val == 'A') {
     return '\x3cspan style\x3d"color:green;"\x3e带薪假期\x3c/span\x3e';
   } else {
@@ -104195,8 +104666,8 @@ hidden:true}, {header:'请假状态', dataIndex:'processStatus', width:60, sorta
     }
   }
   return val;
-}}, {header:'请假原因', dataIndex:'reason', width:220, sortable:true}, {header:'经理意见', dataIndex:'depReason', width:120, sortable:true}, {header:'人事经理意见', dataIndex:'hrReason', width:120, sortable:true}, {xtype:'actioncolumn', cls:'content-column', width:120, text:'操作', tooltip:'edit ', items:[{xtype:'button', iconCls:'x-fa fa-pencil', handler:'openEditWindow'}, {xtype:'button', iconCls:'x-fa fa-close', handler:'deleteOneRow'}, {xtype:'button', iconCls:'x-fa fa-star', tooltip:'发起请假', getClass:function(v, 
-meta, rec) {
+}, editor:{xtype:'combobox', store:Ext.create('Ext.data.Store', {fields:['value', 'name'], data:[{'value':'A', 'name':'带薪假期'}, {'value':'B', 'name':'无薪假期'}, {'value':'C', 'name':'病假'}]}), queryMode:'local', displayField:'name', valueField:'value'}}, {header:'请假原因', dataIndex:'reason', width:220, sortable:true, editor:'textfield'}, {header:'经理意见', dataIndex:'depReason', width:120, sortable:true}, {header:'人事经理意见', dataIndex:'hrReason', width:120, sortable:true}, {xtype:'actioncolumn', cls:'content-column', 
+width:120, text:'操作', tooltip:'edit ', items:[{xtype:'button', iconCls:'x-fa fa-close', handler:'deleteOneRow'}, {xtype:'button', iconCls:'x-fa fa-star', tooltip:'发起请假', getClass:function(v, meta, rec) {
   if (rec.get('processInstanceId') != '') {
     return 'x-hidden';
   }
@@ -104391,7 +104862,7 @@ Ext.define('Admin.view.contract.ContractViewController', {extend:Ext.app.ViewCon
 }});
 Ext.define('Admin.view.contract.ContractViewModel', {extend:Ext.app.ViewModel, alias:'viewmodel.contractViewModel', stores:{contractLists:{type:'contractGridStroe'}}});
 Ext.define('Admin.view.contractapprove.ContractApprove', {extend:Ext.container.Container, xtype:'contractApprove', controller:'contractApproveViewController', viewModel:{type:'contractApproveViewModel'}, layout:'fit', items:[{xtype:'contractApprovePanel'}]});
-Ext.define('Admin.view.contractapprove.ContractApprovePanel', {extend:Ext.tab.Panel, xtype:'contractApprovePanel', items:[{title:'合同审核', xtype:'gridpanel', cls:'process-definition-grid', layout:'fit', bind:'{contractApproveLists}', columns:[{xtype:'actioncolumn', items:[{xtype:'button', iconCls:'x-fa fa-pencil', tooltip:'签收任务', getClass:function(v, meta, rec) {
+Ext.define('Admin.view.contractapprove.ContractApprovePanel', {extend:Ext.panel.Panel, xtype:'contractApprovePanel', layout:'fit', items:[{title:'合同审核', xtype:'gridpanel', cls:'process-definition-grid', layout:'fit', bind:'{contractApproveLists}', columns:[{xtype:'actioncolumn', items:[{xtype:'button', iconCls:'x-fa fa-pencil', tooltip:'签收任务', getClass:function(v, meta, rec) {
   if (rec.get('assignee') != '') {
     return 'x-hidden';
   }
@@ -104421,53 +104892,8 @@ text:'签约时间', flex:1, formatter:'date("Y/m/d H:i:s")'}, {xtype:'datecolum
   return '\x3cspan\x3e' + Ext.util.Format.number(val, '0,000.00') + '万\x3c/span\x3e';
 }}, {xtype:'gridcolumn', cls:'content-column', width:100, dataIndex:'area', text:'公司区域'}, {header:'processInstanceId', dataIndex:'processInstanceId', width:80, sortable:true, hidden:true}, {header:'taskId', dataIndex:'taskId', width:80, sortable:true, hidden:true}, {header:'审核名称', dataIndex:'taskName', width:100, sortable:true}, {header:'提交审核时间', dataIndex:'taskCreateTime', width:100, sortable:true, renderer:Ext.util.Format.dateRenderer('Y/m/d H:i:s')}, {header:'assignee', dataIndex:'assignee', width:80, 
 sortable:true, hidden:true}, {header:'taskDefinitionKey', dataIndex:'taskDefinitionKey', width:80, sortable:true, hidden:true}, {header:'processDefinitionId', dataIndex:'processDefinitionId', width:80, sortable:true, hidden:true}, {header:'suspended', dataIndex:'suspended', width:80, sortable:true, hidden:true}, {header:'version', dataIndex:'version', width:60, sortable:true, hidden:true}, {header:'depreason', dataIndex:'depreason', width:60, sortable:true, hidden:true}, {header:'manreason', dataIndex:'manreason', 
-width:60, sortable:true, hidden:true}], dockedItems:[{xtype:'pagingtoolbar', dock:'bottom', displayInfo:true, bind:'{contractApproveLists}'}]}, {title:'流程定义', layout:'fit', items:[{xtype:'gridpanel', cls:'process-definition-grid', bind:'{processDefinitionLists}', scrollable:false, columns:[{header:'流程定义实体Id', dataIndex:'id', width:120, sortable:true}, {header:'类别', dataIndex:'category', width:200, sortable:true}, {header:'名称', dataIndex:'name', width:100, sortable:true}, {header:'流程key', dataIndex:'key', 
-width:80, sortable:true}, {header:'版本号', dataIndex:'version', width:60, sortable:true}, {header:'部署Id', dataIndex:'deploymentId', width:60, sortable:true, hidden:true}, {header:'bpmn XML', dataIndex:'resourceName', width:120, sortable:true, hidden:true, renderer:function(value, metaData, record, rowIdx, colIdx, store, view) {
-  return '\x3ca target\x3d"_blank" href\x3d"' + 'process-definition/resource?pdid\x3d' + record.get('id') + '\x26resourceName\x3d' + record.get('resourceName') + '"\x3e' + record.get('resourceName') + '\x3c/a\x3e';
-}}, {header:'流程图', dataIndex:'diagramResourceName', width:120, sortable:true, hidden:true, renderer:function(value, metaData, record, rowIdx, colIdx, store, view) {
-  return '\x3ca target\x3d"_blank" href\x3d"' + 'process-definition/resource?pdid\x3d' + record.get('id') + '\x26resourceName\x3d' + record.get('diagramResourceName') + '"\x3e' + record.get('diagramResourceName') + '\x3c/a\x3e';
-}}, {header:'是否挂起', dataIndex:'suspended', width:80, sortable:true, hidden:true}, {header:'startFormKey', dataIndex:'startFormKey', width:180, sortable:true, hidden:true}, {header:'graphicalNotation', dataIndex:'graphicalNotation', width:180, sortable:true, hidden:true}, {header:'description', dataIndex:'description', width:60, sortable:true, hidden:true}, {header:'tenantId', dataIndex:'tenantId', width:180, sortable:true, hidden:true}, {xtype:'actioncolumn', cls:'content-column', width:260, text:'操作', 
-items:[{xtype:'button', iconCls:'x-fa fa-trash-o', tooltip:'删除', handler:'onClickProcessDefinitionGridDeleteButton'}, {xtype:'button', iconCls:'x-fa  fa-file-excel-o', tooltip:'BPMN XML', handler:'onClickProcessDefinitionReadResourceButton'}, {xtype:'button', iconCls:'x-fa fa-file-picture-o', tooltip:'流程定义图', handler:'onClickProcessDefinitionReadDiagramResourceButton'}]}], tbar:[{text:'上传BPMN', tooltip:'上传流程图', iconCls:'fa fa-cloud-upload', handler:'onClickProcessDefinitionGridUploadButton'}], dockedItems:[{xtype:'pagingtoolbar', 
-dock:'bottom', displayInfo:true, bind:'{processDefinitionLists}'}]}]}]});
-Ext.define('Admin.view.contractapprove.ContractApproveViewController', {extend:Ext.app.ViewController, alias:'controller.contractApproveViewController', onClickProcessDefinitionGridUploadButton:function(btn) {
-  btn.up('panel').up('container').add(Ext.widget('processDefinitionUploadWindow')).show();
-}, onClickUploadFormSumbitButton:function(btn) {
-  var form = btn.up('window').down('form');
-  form.getForm().submit({url:'/process-definition', method:'POST', waitMsg:'正在上传，请耐心等待....', success:function(form, action) {
-    Ext.Msg.alert('Success', action.result.msg, function() {
-      btn.up('window').close();
-      Ext.data.StoreManager.lookup('processDefinitionStroe').load();
-    });
-  }, failure:function(form, action) {
-    Ext.Msg.alert('Error', action.result.msg);
-  }});
-}, onClickProcessDefinitionReadResourceButton:function(view, recIndex, cellIndex, item, e, record) {
-  var resourceUrl = 'process-definition/resource?pdid\x3d' + record.get('id') + '\x26resourceName\x3d' + record.get('resourceName');
-  var win = new Ext.window.Window({title:'流程文件bpmn', width:780, height:470, layout:'fit', items:[{xtype:'panel', autoScroll:true}]});
-  win.show();
-  Ext.Ajax.request({url:resourceUrl, success:function(response, options) {
-    var panel = win.down('panel');
-    panel.body.update('\x3cxmp\x3e' + response.responseText + '\x3c/xmp\x3e');
-  }});
-}, onClickProcessDefinitionReadDiagramResourceButton:function(view, recIndex, cellIndex, item, e, record) {
-  var diagramResourceUrl = 'process-definition/resource?pdid\x3d' + record.get('id') + '\x26resourceName\x3d' + record.get('diagramResourceName');
-  var win = new Ext.window.Window({title:'查看流程PNG', width:860, height:500, layout:'fit', items:[new Ext.Panel({resizeTabs:true, autoScroll:false, html:'\x3ciframe scrolling\x3d"auto" frameborder\x3d"0" width\x3d"100%" height\x3d"100%" src\x3d' + diagramResourceUrl + '\x3e\x3c/iframe\x3e'})]});
-  win.show();
-}, onClickProcessDefinitionGridDeleteButton:function(view, recIndex, cellIndex, item, e, record) {
-  Ext.MessageBox.confirm('提示', '确定要进行删除操作吗？数据将无法还原！', function(btn, text) {
-    if (btn == 'yes') {
-      Ext.Ajax.request({url:'/process-definition', method:'delete', params:{deploymentId:record.get('deploymentId')}, success:function(response, options) {
-        var json = Ext.util.JSON.decode(response.responseText);
-        Ext.Msg.alert('操作成功', json.msg, function() {
-          view.getStore('processDefinitionGridStore').reload();
-        });
-      }, failure:function(response, options) {
-        var json = Ext.util.JSON.decode(response.responseText);
-        Ext.Msg.alert('操作失败', json.msg);
-      }});
-    }
-  }, this);
-}, onClickLeaveApproveClaimButton:function(view, recIndex, cellIndex, item, e, record) {
+width:60, sortable:true, hidden:true}], dockedItems:[{xtype:'pagingtoolbar', dock:'bottom', displayInfo:true, bind:'{contractApproveLists}'}]}]});
+Ext.define('Admin.view.contractapprove.ContractApproveViewController', {extend:Ext.app.ViewController, alias:'controller.contractApproveViewController', onClickLeaveApproveClaimButton:function(view, recIndex, cellIndex, item, e, record) {
   Ext.Ajax.request({url:'contract/claim/' + record.get('taskId'), method:'post', success:function(response, options) {
     var json = Ext.util.JSON.decode(response.responseText);
     if (json.success) {
@@ -104558,7 +104984,7 @@ Ext.define('Admin.view.contractapprove.ContractApproveViewController', {extend:E
     Ext.Msg.alert('提示', '不允许为空');
   }
 }});
-Ext.define('Admin.view.contractapprove.ContractApproveViewModel', {extend:Ext.app.ViewModel, alias:'viewmodel.contractApproveViewModel', stores:{processDefinitionLists:{type:'processDefinitionStroe'}, contractApproveLists:{type:'contractApproveStore'}}});
+Ext.define('Admin.view.contractapprove.ContractApproveViewModel', {extend:Ext.app.ViewModel, alias:'viewmodel.contractApproveViewModel', stores:{contractApproveLists:{type:'contractApproveStore'}}});
 Ext.define('Admin.view.contractapprove.ContractApproveWindow', {extend:Ext.window.Window, alias:'widget.contractApproveWindow', autoShow:true, modal:true, layout:'fit', width:520, height:680, afterRender:function() {
   var me = this;
   me.callParent(arguments);
@@ -104573,10 +104999,6 @@ Ext.define('Admin.view.contractapprove.ContractApproveWindow', {extend:Ext.windo
   var width = Ext.Element.getViewportWidth(), height = Ext.Element.getViewportHeight();
   this.setXY([Math.floor(width * 0.05), Math.floor(height * 0.05)]);
 }});
-Ext.define('Admin.view.contractapprove.ProcessDefinitionUploadWindow', {extend:Ext.window.Window, alias:'widget.processDefinitionUploadWindow', height:180, minHeight:100, minWidth:300, width:500, scrollable:true, title:'ProcessDefinition Upload Window', closable:true, constrain:true, defaultFocus:'textfield', modal:true, layout:'fit', items:[{xtype:'form', layout:'form', padding:'10px', items:[{xtype:'filefield', width:400, labelWidth:80, name:'file', emptyText:'Select an zip/bpmn/bpmn.20.xml file!', 
-fieldLabel:'上传文件:', labelSeparator:'', buttonConfig:{xtype:'filebutton', glyph:'', iconCls:'x-fa fa-cloud-upload', text:'Browse'}}]}], buttons:['-\x3e', {xtype:'button', text:'Upload', handler:'onClickUploadFormSumbitButton'}, {xtype:'button', text:'Close', handler:function(btn) {
-  btn.up('window').close();
-}}, '-\x3e']});
 Ext.define('Admin.view.contractapprove.task.Confirm', {extend:Ext.form.Panel, alias:'widget.confirm', bodyPadding:10, bodyBorder:true, defaults:{anchor:'100%'}, fieldDefaults:{labelAlign:'left', msgTarget:'none', invalidCls:''}, items:[{xtype:'textfield', name:'taskId', fieldLabel:'任务ID', hidden:true, readOnly:true}, {xtype:'textfield', cls:'dep', name:'contractNumber', fieldLabel:'合同编号', readOnly:true}, {xtype:'textfield', cls:'dep', name:'customerName', fieldLabel:'客户姓名', readOnly:true}, {xtype:'textfield', 
 cls:'dep', name:'hoseName', fieldLabel:'房源名称', readOnly:true}, {xtype:'textfield', cls:'dep', name:'employeeName', fieldLabel:'房产经纪人姓名', readOnly:true}, {xtype:'datefield', cls:'dep', name:'startTime', fieldLabel:'签约时间', format:'Y/m/d H:i:s', readOnly:true}, {xtype:'datefield', cls:'dep', name:'endTime', fieldLabel:'失效时间', format:'Y/m/d H:i:s', readOnly:true}, {xtype:'textfield', cls:'dep', name:'contractType', fieldLabel:'合同类型', readOnly:true}, {xtype:'textfield', cls:'dep', name:'total', fieldLabel:'金额', 
 readOnly:true}, {xtype:'textareafield', name:'depreason', fieldLabel:'店长审批意见', readOnly:true}, {xtype:'textareafield', name:'manreason', fieldLabel:'经理审批意见', readOnly:true}, {xtype:'textfield', name:'confirmName', fieldLabel:'请签名确认'}], bbar:[{xtype:'button', ui:'soft-green', text:'提交', handler:'onClickConfirmFormSubmitButton'}, {xtype:'button', ui:'gray', text:'取消', handler:function(btn) {
@@ -104752,6 +105174,74 @@ Ext.define('Admin.view.main.MainController', {extend:Ext.app.ViewController, ali
   }});
 }});
 Ext.define('Admin.view.main.MainModel', {extend:Ext.app.ViewModel, alias:'viewmodel.main', data:{currentView:null}});
+Ext.define('Admin.view.processdefinition.ProcessDefinition', {extend:Ext.container.Container, xtype:'processDefinition', controller:'processDefinitionViewController', viewModel:{type:'processDefinitionViewModel'}, layout:'fit', items:[{xtype:'processDefinitionPanel'}]});
+Ext.define('Admin.view.processdefinition.ProcessDefinitionPanel', {extend:Ext.panel.Panel, xtype:'processDefinitionPanel', layout:'fit', items:[{xtype:'gridpanel', cls:'process-definition-grid', title:'流程定义列表', bind:'{processDefinitionLists}', scrollable:false, columns:[{header:'流程定义实体Id', dataIndex:'id', width:120, sortable:true}, {header:'类别', dataIndex:'category', width:200, sortable:true}, {header:'名称', dataIndex:'name', width:100, sortable:true}, {header:'流程key', dataIndex:'key', width:80, sortable:true}, 
+{header:'版本号', dataIndex:'version', width:60, sortable:true}, {header:'部署Id', dataIndex:'deploymentId', width:60, sortable:true, hidden:true}, {header:'bpmn XML', dataIndex:'resourceName', width:120, sortable:true, hidden:true, renderer:function(value, metaData, record, rowIdx, colIdx, store, view) {
+  return '\x3ca target\x3d"_blank" href\x3d"' + 'process-definition/resource?pdid\x3d' + record.get('id') + '\x26resourceName\x3d' + record.get('resourceName') + '"\x3e' + record.get('resourceName') + '\x3c/a\x3e';
+}}, {header:'流程图', dataIndex:'diagramResourceName', width:120, sortable:true, hidden:true, renderer:function(value, metaData, record, rowIdx, colIdx, store, view) {
+  return '\x3ca target\x3d"_blank" href\x3d"' + 'process-definition/resource?pdid\x3d' + record.get('id') + '\x26resourceName\x3d' + record.get('diagramResourceName') + '"\x3e' + record.get('diagramResourceName') + '\x3c/a\x3e';
+}}, {header:'是否挂起', dataIndex:'suspended', width:80, sortable:true, hidden:true}, {header:'startFormKey', dataIndex:'startFormKey', width:180, sortable:true, hidden:true}, {header:'graphicalNotation', dataIndex:'graphicalNotation', width:180, sortable:true, hidden:true}, {header:'description', dataIndex:'description', width:60, sortable:true, hidden:true}, {header:'tenantId', dataIndex:'tenantId', width:180, sortable:true, hidden:true}, {xtype:'actioncolumn', cls:'content-column', width:260, text:'操作', 
+items:[{xtype:'button', iconCls:'x-fa fa-trash-o', tooltip:'删除', handler:'onClickProcessDefinitionGridDeleteButton'}, {xtype:'button', iconCls:'x-fa  fa-file-excel-o', tooltip:'BPMN XML', handler:'onClickProcessDefinitionReadResourceButton'}, {xtype:'button', iconCls:'x-fa fa-file-picture-o', tooltip:'流程定义图', handler:'onClickProcessDefinitionReadDiagramResourceButton'}, {xtype:'button', iconCls:'x-fa fa-cog', tooltip:'激活', getClass:function(v, meta, rec) {
+  if (rec.get('suspended') != true) {
+    return 'x-hidden';
+  }
+  return 'x-fa fa-cog';
+}, handler:'onClickProcessDefinitionActiveButton'}, {xtype:'button', iconCls:'x-fa fa-ban', tooltip:'挂起', getClass:function(v, meta, rec) {
+  if (rec.get('suspended') != false) {
+    return 'x-hidden';
+  }
+  return 'x-fa fa-ban';
+}, handler:'onClickProcessDefinitionSuspendButton'}, {xtype:'button', iconCls:'x-fa fa-exchange', tooltip:'转换为Model', handler:'onClickProcessDefinitionGridConvertModelButton'}]}], tbar:[{text:'上传BPMN', tooltip:'上传流程图', iconCls:'fa fa-cloud-upload', handler:'onClickProcessDefinitionGridUploadButton'}], dockedItems:[{xtype:'pagingtoolbar', dock:'bottom', displayInfo:true, bind:'{processDefinitionLists}'}]}]});
+Ext.define('Admin.view.processdefinition.ProcessDefinitionUploadWindow', {extend:Ext.window.Window, alias:'widget.processDefinitionUploadWindow', height:180, minHeight:100, minWidth:300, width:500, scrollable:true, title:'ProcessDefinition Upload Window', closable:true, constrain:true, defaultFocus:'textfield', modal:true, layout:'fit', items:[{xtype:'form', layout:'form', padding:'10px', items:[{xtype:'filefield', width:400, labelWidth:80, name:'file', emptyText:'Select an zip/bpmn/bpmn.20.xml file!', 
+fieldLabel:'上传文件:', labelSeparator:'', buttonConfig:{xtype:'filebutton', glyph:'', iconCls:'x-fa fa-cloud-upload', text:'Browse'}}]}], buttons:['-\x3e', {xtype:'button', text:'Upload', handler:'onClickUploadFormSumbitButton'}, {xtype:'button', text:'Close', handler:function(btn) {
+  btn.up('window').close();
+}}, '-\x3e']});
+Ext.define('Admin.view.processdefinition.ProcessDefinitionViewController', {extend:Ext.app.ViewController, alias:'controller.processDefinitionViewController', onClickProcessDefinitionGridUploadButton:function(btn) {
+  btn.up('panel').up('container').add(Ext.widget('processDefinitionUploadWindow')).show();
+}, onClickUploadFormSumbitButton:function(btn) {
+  var form = btn.up('window').down('form');
+  form.getForm().submit({url:'/process-definition', method:'POST', waitMsg:'正在上传，请耐心等待....', success:function(form, action) {
+    Ext.Msg.alert('Success', action.result.msg, function() {
+      btn.up('window').close();
+      Ext.data.StoreManager.lookup('processDefinitionStroe').load();
+    });
+  }, failure:function(form, action) {
+    Ext.Msg.alert('Error', action.result.msg);
+  }});
+}, onClickProcessDefinitionReadResourceButton:function(view, recIndex, cellIndex, item, e, record) {
+  var resourceUrl = 'process-definition/resource?pdid\x3d' + record.get('id') + '\x26resourceName\x3d' + record.get('resourceName');
+  var win = new Ext.window.Window({title:'流程文件bpmn', width:780, height:470, layout:'fit', items:[{xtype:'panel', autoScroll:true}]});
+  win.show();
+  Ext.Ajax.request({url:resourceUrl, success:function(response, options) {
+    var panel = win.down('panel');
+    panel.body.update('\x3cxmp\x3e' + response.responseText + '\x3c/xmp\x3e');
+  }});
+}, onClickProcessDefinitionReadDiagramResourceButton:function(view, recIndex, cellIndex, item, e, record) {
+  var diagramResourceUrl = 'process-definition/resource?pdid\x3d' + record.get('id') + '\x26resourceName\x3d' + record.get('diagramResourceName');
+  var win = new Ext.window.Window({title:'查看流程PNG', width:860, height:500, layout:'fit', items:[new Ext.Panel({resizeTabs:true, html:'\x3ciframe scrolling\x3d"auto" frameborder\x3d"0" width\x3d"100%" height\x3d"100%" src\x3d' + diagramResourceUrl + '\x3e\x3c/iframe\x3e'})]});
+  win.show();
+}, onClickProcessDefinitionGridDeleteButton:function(view, recIndex, cellIndex, item, e, record) {
+  Ext.MessageBox.confirm('提示', '确定要进行删除操作吗？数据将无法还原！', function(btn, text) {
+    if (btn == 'yes') {
+      Ext.Ajax.request({url:'/process-definition', method:'delete', params:{deploymentId:record.get('deploymentId')}, success:function(response, options) {
+        var json = Ext.util.JSON.decode(response.responseText);
+        Ext.Msg.alert('操作成功', json.msg, function() {
+          view.getStore('processDefinitionGridStore').reload();
+        });
+      }, failure:function(response, options) {
+        var json = Ext.util.JSON.decode(response.responseText);
+        Ext.Msg.alert('操作失败', json.msg);
+      }});
+    }
+  }, this);
+}, onClickProcessDefinitionActiveButton:function(view, recIndex, cellIndex, item, e, record) {
+  Ext.Msg.alert('Title', 'Click Active Button');
+}, onClickProcessDefinitionSuspendButton:function(view, recIndex, cellIndex, item, e, record) {
+  Ext.Msg.alert('Title', 'Click Suspend Button');
+}, onClickProcessDefinitionGridConvertModelButton:function(view, recIndex, cellIndex, item, e, record) {
+  Ext.Msg.alert('Title', 'Click Convert Model Button');
+}});
+Ext.define('Admin.view.processdefinition.ProcessDefinitionViewModel', {extend:Ext.app.ViewModel, alias:'viewmodel.processDefinitionViewModel', stores:{processDefinitionLists:{type:'processDefinitionStroe'}}});
 Ext.define('Admin.view.user.User', {extend:Ext.container.Container, xtype:'user', controller:'userViewController', viewModel:{type:'userViewModel'}, layout:'fit', items:[{xtype:'userPanel'}]});
 Ext.define('Aria.view.User.UserAddWindow', {extend:Ext.window.Window, alias:'widget.userAddWindow', height:200, minHeight:100, minWidth:300, width:500, scrollable:true, title:'Add User Window', closable:true, constrain:true, modal:true, layout:'fit', items:[{xtype:'form', layout:'form', padding:'10px', ariaLabel:'Enter your name', items:[{xtype:'textfield', fieldLabel:'id', name:'id', hidden:true, readOnly:true}, {xtype:'textfield', fieldLabel:'Order Number', name:'orderNumber'}, {xtype:'datefield', 
 fieldLabel:'Create Time', name:'createTime', format:'Y/m/d H:i:s'}]}], buttons:[{xtype:'button', text:'Submit', handler:'submitAddForm'}, {xtype:'button', text:'Close', handler:function(btn) {

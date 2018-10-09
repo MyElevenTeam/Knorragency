@@ -1,4 +1,4 @@
-﻿Ext.define('Admin.model.contractapprove.ProcessDefinitionModel', {
+﻿Ext.define('Admin.model.processdefinition.ProcessDefinitionModel', {
     extend: 'Admin.model.Base',
  	fields: [
     	 {type: 'string' ,name: 'id'}
@@ -9,7 +9,6 @@
 		,{type: 'int'	 ,name: 'version'}
         ,{type: 'string' ,name: 'resourceName'}
         ,{type: 'string' ,name: 'deploymentId'}
-		//,{type: 'date'   ,name: 'deploymentTime'}
 		,{type: 'string' ,name: 'diagramResourceName'}
         ,{type: 'string' ,name: 'tenantId'}		
         ,{type: 'boolean',name: 'startFormKey'}

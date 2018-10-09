@@ -60,6 +60,12 @@ Ext.define('Admin.store.NavigationTree', {
                 viewType: 'attence',
                 leaf: true
             },{
+                text: '流程定义图',
+                iconCls: 'x-fa fa-file-picture-o',
+                //rowCls: 'nav-tree-badge nav-tree-badge-new',
+                viewType: 'processDefinition',
+                leaf: true
+            },{
                 text: 'Login',
                 iconCls: 'x-fa fa-check',
                 viewType: 'login',

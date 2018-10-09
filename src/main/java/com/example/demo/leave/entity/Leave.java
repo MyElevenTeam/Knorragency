@@ -1,4 +1,4 @@
-package com.example.demo.attence.entity;
+package com.example.demo.leave.entity;
 
 import com.example.demo.activiti.entity.ProcessStatus;
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -7,7 +7,7 @@ import java.io.Serializable;
 import java.util.Date;
 
 @Entity
-@Table(name = "OA_LEAVE")
+@Table(name = "t_leave")
 public class Leave  implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -134,4 +134,5 @@ public class Leave  implements Serializable {
 	}
 	
 }
+
 
