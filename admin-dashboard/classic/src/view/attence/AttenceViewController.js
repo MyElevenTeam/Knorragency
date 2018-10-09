@@ -117,10 +117,5 @@ Ext.define('Admin.view.attence.AttenceViewController', {
     },
     hhh:function(btn){
       alert("sss");
-    },
-    starLeaveProcess:function(grid){
-      Ext.getCmp('attencePanel_processInstanceId').show();
-      //grid.columns['workoutTime'].show();
     }
-	
 });

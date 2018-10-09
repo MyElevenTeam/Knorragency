@@ -24,6 +24,7 @@ import com.example.demo.activiti.entity.WorkflowDTO;
 import com.example.demo.activiti.service.IWorkflowService;
 import com.example.demo.contract.entity.Contract;
 import com.example.demo.contract.entity.ContractDTO;
+import com.example.demo.contract.entity.ContractQueryDTO;
 import com.example.demo.contract.repository.ContractRepository;
 
 @Service

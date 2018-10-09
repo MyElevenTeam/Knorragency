@@ -35,7 +35,9 @@
     },  
     listeners: {
 		selectionchange: function(selModel, selections){
-			this.getCmp('#leaveGridPanelRemove').setDisabled(selections.length === 0);
+			if(selections.length>1){
+				Ext.getCmp('#leaveGridPanelRemove').setDisabled(false);
+			}
 		}
 	},
     modal:true,

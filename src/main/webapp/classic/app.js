@@ -86495,6 +86495,47 @@ Ext.define('Ext.layout.Context', {remainingLayouts:0, state:0, cycleWatchDog:200
   me.timesByType[type] = (me.timesByType[type] || 0) + time;
   return ret;
 }}});
+Ext.define('Ext.layout.component.Body', {alias:['layout.body'], extend:Ext.layout.component.Auto, type:'body', beginLayout:function(ownerContext) {
+  this.callParent(arguments);
+  ownerContext.bodyContext = ownerContext.getEl('body');
+}, beginLayoutCycle:function(ownerContext, firstCycle) {
+  var me = this, lastWidthModel = me.lastWidthModel, lastHeightModel = me.lastHeightModel, body = me.owner.body;
+  me.callParent(arguments);
+  if (lastWidthModel && lastWidthModel.fixed && ownerContext.widthModel.shrinkWrap) {
+    body.setWidth(null);
+  }
+  if (lastHeightModel && lastHeightModel.fixed && ownerContext.heightModel.shrinkWrap) {
+    body.setHeight(null);
+  }
+}, calculateOwnerHeightFromContentHeight:function(ownerContext, contentHeight) {
+  var height = this.callParent(arguments);
+  if (ownerContext.targetContext !== ownerContext) {
+    height += ownerContext.getPaddingInfo().height;
+  }
+  return height;
+}, calculateOwnerWidthFromContentWidth:function(ownerContext, contentWidth) {
+  var width = this.callParent(arguments);
+  if (ownerContext.targetContext !== ownerContext) {
+    width += ownerContext.getPaddingInfo().width;
+  }
+  return width;
+}, measureContentWidth:function(ownerContext) {
+  return ownerContext.bodyContext.setWidth(ownerContext.bodyContext.el.dom.offsetWidth, false);
+}, measureContentHeight:function(ownerContext) {
+  return ownerContext.bodyContext.setHeight(ownerContext.bodyContext.el.dom.offsetHeight, false);
+}, publishInnerHeight:function(ownerContext, height) {
+  var innerHeight = height - ownerContext.getFrameInfo().height, targetContext = ownerContext.targetContext;
+  if (targetContext !== ownerContext) {
+    innerHeight -= ownerContext.getPaddingInfo().height;
+  }
+  return ownerContext.bodyContext.setHeight(innerHeight, !ownerContext.heightModel.natural);
+}, publishInnerWidth:function(ownerContext, width) {
+  var innerWidth = width - ownerContext.getFrameInfo().width, targetContext = ownerContext.targetContext;
+  if (targetContext !== ownerContext) {
+    innerWidth -= ownerContext.getPaddingInfo().width;
+  }
+  ownerContext.bodyContext.setWidth(innerWidth, !ownerContext.widthModel.natural);
+}});
 Ext.define('Ext.resizer.BorderSplitter', {extend:Ext.resizer.Splitter, alias:'widget.bordersplitter', collapseTarget:null, getTrackerConfig:function() {
   var trackerConfig = this.callParent();
   trackerConfig.xclass = 'Ext.resizer.BorderSplitterTracker';
@@ -88061,6 +88102,743 @@ Ext.define('Ext.theme.triton.selection.CheckboxModel', {override:'Ext.selection.
     header.getView().ownerGrid.el.syncRepaint();
   }
 }});
+Ext.define('Ext.tab.Tab', {extend:Ext.button.Button, alias:'widget.tab', isTab:true, baseCls:Ext.baseCSSPrefix + 'tab', closeElOverCls:Ext.baseCSSPrefix + 'tab-close-btn-over', closeElPressedCls:Ext.baseCSSPrefix + 'tab-close-btn-pressed', config:{rotation:'default', tabPosition:'top'}, closable:true, closeText:'removable', active:false, childEls:['closeEl'], scale:false, ariaRole:'tab', tabIndex:-1, keyMap:{scope:'this', DELETE:'onDeleteKey'}, _btnWrapCls:Ext.baseCSSPrefix + 'tab-wrap', _btnCls:Ext.baseCSSPrefix + 
+'tab-button', _baseIconCls:Ext.baseCSSPrefix + 'tab-icon-el', _glyphCls:Ext.baseCSSPrefix + 'tab-glyph', _innerCls:Ext.baseCSSPrefix + 'tab-inner', _textCls:Ext.baseCSSPrefix + 'tab-text', _noTextCls:Ext.baseCSSPrefix + 'tab-no-text', _hasIconCls:Ext.baseCSSPrefix + 'tab-icon', _activeCls:Ext.baseCSSPrefix + 'tab-active', _closableCls:Ext.baseCSSPrefix + 'tab-closable', overCls:Ext.baseCSSPrefix + 'tab-over', _pressedCls:Ext.baseCSSPrefix + 'tab-pressed', _disabledCls:Ext.baseCSSPrefix + 'tab-disabled', 
+_rotateClasses:{1:Ext.baseCSSPrefix + 'tab-rotate-right', 2:Ext.baseCSSPrefix + 'tab-rotate-left'}, _positions:{top:{'default':'top', 0:'top', 1:'left', 2:'right'}, right:{'default':'top', 0:'right', 1:'top', 2:'bottom'}, bottom:{'default':'bottom', 0:'bottom', 1:'right', 2:'left'}, left:{'default':'top', 0:'left', 1:'bottom', 2:'top'}}, _defaultRotations:{top:0, right:1, bottom:0, left:2}, initComponent:function() {
+  var me = this;
+  if (me.closable) {
+    Ext.ariaWarn(me, 'Closable tabs can be confusing to users relying on Assistive Technologies ' + 'such as Screen Readers, and are not recommended in accessible applications. ' + 'Please consider setting ' + me.title + ' tab (' + me.id + ') to closable: false.');
+  }
+  if (me.card) {
+    me.setCard(me.card);
+  }
+  me.callParent(arguments);
+}, getActualRotation:function() {
+  var rotation = this.getRotation();
+  return rotation !== 'default' ? rotation : this._defaultRotations[this.getTabPosition()];
+}, updateRotation:function() {
+  this.syncRotationAndPosition();
+}, updateTabPosition:function() {
+  this.syncRotationAndPosition();
+}, syncRotationAndPosition:function() {
+  var me = this, rotateClasses = me._rotateClasses, position = me.getTabPosition(), rotation = me.getActualRotation(), oldRotateCls = me._rotateCls, rotateCls = me._rotateCls = rotateClasses[rotation], oldPositionCls = me._positionCls, positionCls = me._positionCls = me._positions[position][rotation];
+  if (oldRotateCls !== rotateCls) {
+    if (oldRotateCls) {
+      me.removeCls(oldRotateCls);
+    }
+    if (rotateCls) {
+      me.addCls(rotateCls);
+    }
+  }
+  if (oldPositionCls !== positionCls) {
+    if (oldPositionCls) {
+      me.removeClsWithUI(oldPositionCls);
+    }
+    if (positionCls) {
+      me.addClsWithUI(positionCls);
+    }
+    if (me.rendered) {
+      me.updateFrame();
+    }
+  }
+  if (me.rendered) {
+    me.setElOrientation();
+  }
+}, onAdded:function(container, pos, instanced) {
+  this.callParent([container, pos, instanced]);
+  this.syncRotationAndPosition();
+}, getTemplateArgs:function() {
+  var me = this, result = me.callParent();
+  result.closable = me.closable;
+  result.closeText = me.closeText;
+  return result;
+}, beforeRender:function() {
+  var me = this, tabBar = me.up('tabbar'), tabPanel = me.up('tabpanel');
+  me.callParent();
+  me.ariaRenderAttributes = me.ariaRenderAttributes || {};
+  if (me.active) {
+    me.ariaRenderAttributes['aria-selected'] = true;
+    me.addCls(me._activeCls);
+  } else {
+    me.ariaRenderAttributes['aria-selected'] = false;
+  }
+  me.syncClosableCls();
+  if (!me.minWidth) {
+    me.minWidth = tabBar ? tabBar.minTabWidth : me.minWidth;
+    if (!me.minWidth && tabPanel) {
+      me.minWidth = tabPanel.minTabWidth;
+    }
+    if (me.minWidth && me.iconCls) {
+      me.minWidth += 25;
+    }
+  }
+  if (!me.maxWidth) {
+    me.maxWidth = tabBar ? tabBar.maxTabWidth : me.maxWidth;
+    if (!me.maxWidth && tabPanel) {
+      me.maxWidth = tabPanel.maxTabWidth;
+    }
+  }
+}, onRender:function() {
+  var me = this;
+  me.setElOrientation();
+  me.callParent(arguments);
+  if (me.closable) {
+    me.closeEl.addClsOnOver(me.closeElOverCls);
+    me.closeEl.addClsOnClick(me.closeElPressedCls);
+  }
+}, setElOrientation:function() {
+  var me = this, rotation = me.getActualRotation(), el = me.el;
+  if (rotation) {
+    el.setVertical(rotation === 1 ? 90 : 270);
+  } else {
+    el.setHorizontal();
+  }
+}, enable:function(silent) {
+  var me = this;
+  me.callParent(arguments);
+  me.removeCls(me._disabledCls);
+  return me;
+}, disable:function(silent) {
+  var me = this;
+  me.callParent(arguments);
+  me.addCls(me._disabledCls);
+  return me;
+}, setClosable:function(closable) {
+  var me = this;
+  closable = !arguments.length || !!closable;
+  if (me.closable !== closable) {
+    me.closable = closable;
+    if (me.card) {
+      me.card.closable = closable;
+    }
+    me.syncClosableCls();
+    if (me.rendered) {
+      me.syncClosableElements();
+      me.updateLayout();
+    }
+  }
+}, syncClosableElements:function() {
+  var me = this, closeEl = me.closeEl;
+  if (me.closable) {
+    if (!closeEl) {
+      closeEl = me.closeEl = me.btnWrap.insertSibling({tag:'span', id:me.id + '-closeEl', cls:me.baseCls + '-close-btn', html:me.closeText}, 'after');
+    }
+    closeEl.addClsOnOver(me.closeElOverCls);
+    closeEl.addClsOnClick(me.closeElPressedCls);
+  } else {
+    if (closeEl) {
+      closeEl.destroy();
+      delete me.closeEl;
+    }
+  }
+}, syncClosableCls:function() {
+  var me = this, closableCls = me._closableCls;
+  if (me.closable) {
+    me.addCls(closableCls);
+  } else {
+    me.removeCls(closableCls);
+  }
+}, setCard:function(card) {
+  var me = this;
+  me.card = card;
+  if (card.iconAlign) {
+    me.setIconAlign(card.iconAlign);
+  }
+  if (card.textAlign) {
+    me.setTextAlign(card.textAlign);
+  }
+  me.setText(me.title || card.title);
+  me.setIconCls(me.iconCls || card.iconCls);
+  me.setIcon(me.icon || card.icon);
+  me.setGlyph(me.glyph || card.glyph);
+}, onCloseClick:function() {
+  var me = this;
+  if (me.fireEvent('beforeclose', me) !== false) {
+    if (me.tabBar) {
+      if (me.tabBar.closeTab(me) === false) {
+        return;
+      }
+    } else {
+      me.fireClose();
+    }
+  }
+}, fireClose:function() {
+  this.fireEvent('close', this);
+}, onEnterKey:function(e) {
+  var me = this;
+  if (me.tabBar) {
+    me.tabBar.onClick(e, me.el);
+    e.stopEvent();
+    return false;
+  }
+}, onDeleteKey:function(e) {
+  if (this.closable) {
+    this.onCloseClick();
+    e.stopEvent();
+    return false;
+  }
+}, beforeClick:function(isCloseClick) {
+  if (!isCloseClick) {
+    this.focus();
+  }
+}, activate:function(supressEvent) {
+  var me = this, card = me.card, ariaDom = me.ariaEl.dom;
+  me.active = true;
+  me.addCls(me._activeCls);
+  if (ariaDom) {
+    ariaDom.setAttribute('aria-selected', true);
+  } else {
+    me.ariaRenderAttributes = me.ariaRenderAttributes || {};
+    me.ariaRenderAttributes['aria-selected'] = true;
+  }
+  if (card) {
+    if (card.ariaEl.dom) {
+      card.ariaEl.dom.setAttribute('aria-expanded', true);
+    } else {
+      card.ariaRenderAttributes = card.ariaRenderAttributes || {};
+      card.ariaRenderAttributes['aria-expanded'] = true;
+    }
+  }
+  if (supressEvent !== true) {
+    me.fireEvent('activate', me);
+  }
+}, deactivate:function(supressEvent) {
+  var me = this, card = me.card, ariaDom = me.ariaEl.dom;
+  me.active = false;
+  me.removeCls(me._activeCls);
+  if (ariaDom) {
+    ariaDom.setAttribute('aria-selected', false);
+  } else {
+    me.ariaRenderAttributes = me.ariaRenderAttributes || {};
+    me.ariaRenderAttributes['aria-selected'] = false;
+  }
+  if (card) {
+    if (card.ariaEl.dom) {
+      card.ariaEl.dom.setAttribute('aria-expanded', false);
+    } else {
+      card.ariaRenderAttributes = card.ariaRenderAttributes || {};
+      card.ariaRenderAttributes['aria-expanded'] = false;
+    }
+  }
+  if (supressEvent !== true) {
+    me.fireEvent('deactivate', me);
+  }
+}, privates:{getFramingInfoCls:function() {
+  return this.baseCls + '-' + this.ui + '-' + this._positionCls;
+}, wrapPrimaryEl:function(dom) {
+  Ext.Button.superclass.wrapPrimaryEl.call(this, dom);
+}}});
+Ext.define('Ext.tab.Bar', {extend:Ext.panel.Bar, xtype:'tabbar', baseCls:Ext.baseCSSPrefix + 'tab-bar', componentLayout:'body', isTabBar:true, config:{tabRotation:'default', tabStretchMax:true, activateOnFocus:true}, defaultType:'tab', plain:false, ensureActiveVisibleOnChange:true, ariaRole:'tablist', focusableContainer:true, childEls:['body', 'strip'], _stripCls:Ext.baseCSSPrefix + 'tab-bar-strip', _baseBodyCls:Ext.baseCSSPrefix + 'tab-bar-body', renderTpl:'\x3ctpl if\x3d"hasTabGuard"\x3e{% this.renderTabGuard(out, values, \'before\'); %}\x3c/tpl\x3e' + 
+'\x3cdiv id\x3d"{id}-body" data-ref\x3d"body" role\x3d"presentation" class\x3d"{baseBodyCls} {baseBodyCls}-{ui} ' + '{bodyCls} {bodyTargetCls}{childElCls}"\x3ctpl if\x3d"bodyStyle"\x3e style\x3d"{bodyStyle}"\x3c/tpl\x3e\x3e' + '{%this.renderContainer(out,values)%}' + '\x3c/div\x3e' + '\x3ctpl if\x3d"hasTabGuard"\x3e{% this.renderTabGuard(out, values, \'after\'); %}\x3c/tpl\x3e' + '\x3cdiv id\x3d"{id}-strip" data-ref\x3d"strip" role\x3d"presentation" class\x3d"{stripCls} {stripCls}-{ui}{childElCls}"\x3e\x3c/div\x3e', 
+_reverseDockNames:{left:'right', right:'left'}, _layoutAlign:{top:'end', right:'begin', bottom:'begin', left:'end'}, initComponent:function() {
+  var me = this, initialLayout = me.initialConfig.layout, initialAlign = initialLayout && initialLayout.align, initialOverflowHandler = initialLayout && initialLayout.overflowHandler;
+  if (me.plain) {
+    me.addCls(me.baseCls + '-plain');
+  }
+  me.layout = Ext.apply({align:initialAlign || (me.getTabStretchMax() ? 'stretchmax' : me._layoutAlign[me.dock]), overflowHandler:initialOverflowHandler || 'scroller'}, me.layout);
+  me.callParent();
+  me.on({click:me.onClick, element:'el', scope:me});
+}, ensureTabVisible:function(tab) {
+  var me = this, tabPanel = me.tabPanel, overflowHandler = me.layout.overflowHandler;
+  if (me.rendered && overflowHandler && me.tooNarrow && overflowHandler.scrollToItem) {
+    if (tab || tab === 0) {
+      if (!tab.isTab) {
+        if (Ext.isNumber(tab)) {
+          tab = this.items.getAt(tab);
+        } else {
+          if (tab.isComponent && tabPanel && tabPanel.items.contains(tab)) {
+            tab = tab.tab;
+          }
+        }
+      }
+    }
+    if (!tab) {
+      tab = me.activeTab;
+    }
+    if (tab) {
+      overflowHandler.scrollToItem(tab);
+    }
+  }
+}, initRenderData:function() {
+  var me = this;
+  return Ext.apply(me.callParent(), {bodyCls:me.bodyCls, baseBodyCls:me._baseBodyCls, bodyTargetCls:me.bodyTargetCls, stripCls:me._stripCls, dock:me.dock});
+}, setDock:function(dock) {
+  var me = this, items = me.items, ownerCt = me.ownerCt, item, i, ln;
+  items = items && items.items;
+  if (items) {
+    for (i = 0, ln = items.length; i < ln; i++) {
+      item = items[i];
+      if (item.isTab) {
+        item.setTabPosition(dock);
+      }
+    }
+  }
+  if (me.rendered) {
+    me.resetItemMargins();
+    if (ownerCt && ownerCt.isHeader) {
+      ownerCt.resetItemMargins();
+    }
+    me.needsScroll = true;
+  }
+  me.callParent([dock]);
+}, updateTabRotation:function(tabRotation) {
+  var me = this, items = me.items, i, ln, item;
+  items = items && items.items;
+  if (items) {
+    for (i = 0, ln = items.length; i < ln; i++) {
+      item = items[i];
+      if (item.isTab) {
+        item.setRotation(tabRotation);
+      }
+    }
+  }
+  if (me.rendered) {
+    me.resetItemMargins();
+    me.needsScroll = true;
+    me.updateLayout();
+  }
+}, onRender:function() {
+  var me = this, overflowHandler = this.layout.overflowHandler;
+  me.callParent();
+  if (Ext.isIE8 && me.vertical) {
+    me.el.on({mousemove:me.onMouseMove, scope:me});
+  }
+  if (overflowHandler && overflowHandler.type === 'menu') {
+    overflowHandler.menu.on('click', 'onOverflowMenuItemClick', me);
+  }
+}, afterLayout:function() {
+  this.adjustTabPositions();
+  this.callParent(arguments);
+}, onAdd:function(tab, pos) {
+  var fn = this.onTabContentChange;
+  if (this.ensureActiveVisibleOnChange) {
+    tab.barListeners = tab.on({scope:this, destroyable:true, glyphchange:fn, iconchange:fn, textchange:fn});
+  }
+  this.callParent([tab, pos]);
+}, onAdded:function(container, pos, instanced) {
+  if (container.isHeader) {
+    this.addCls(container.baseCls + '-' + container.ui + '-tab-bar');
+  }
+  this.callParent([container, pos, instanced]);
+}, onRemove:function(tab, destroying) {
+  var me = this;
+  if (me.ensureActiveVisibleOnChange) {
+    if (!destroying) {
+      tab.barListeners.destroy();
+    }
+    tab.barListeners = null;
+  }
+  if (tab === me.previousTab) {
+    me.previousTab = null;
+  }
+  me.callParent([tab, destroying]);
+}, onRemoved:function(destroying) {
+  var ownerCt = this.ownerCt;
+  if (ownerCt.isHeader) {
+    this.removeCls(ownerCt.baseCls + '-' + ownerCt.ui + '-tab-bar');
+  }
+  this.callParent([destroying]);
+}, onTabContentChange:function(tab) {
+  if (tab === this.activeTab) {
+    this.ensureTabVisible(tab);
+  }
+}, afterComponentLayout:function(width) {
+  var me = this, needsScroll = me.needsScroll, overflowHandler = me.layout.overflowHandler;
+  me.callParent(arguments);
+  if (overflowHandler && needsScroll && me.tooNarrow && overflowHandler.scrollToItem) {
+    overflowHandler.scrollToItem(me.activeTab);
+  }
+  delete me.needsScroll;
+}, onMouseMove:function(e) {
+  var me = this, overTab = me._overTab, tabInfo, tab;
+  if (e.getTarget('.' + Ext.baseCSSPrefix + 'box-scroller')) {
+    return;
+  }
+  tabInfo = me.getTabInfoFromPoint(e.getXY());
+  tab = tabInfo.tab;
+  if (tab !== overTab) {
+    if (overTab && overTab.rendered) {
+      overTab.onMouseLeave(e);
+      me._overTab = null;
+    }
+    if (tab) {
+      tab.onMouseEnter(e);
+      me._overTab = tab;
+      if (!tab.disabled) {
+        me.el.setStyle('cursor', 'pointer');
+      }
+    } else {
+      me.el.setStyle('cursor', 'default');
+    }
+  }
+}, onMouseLeave:function(e) {
+  var overTab = this._overTab;
+  if (overTab && overTab.rendered) {
+    overTab.onMouseLeave(e);
+  }
+}, getTabInfoFromPoint:function(xy) {
+  var me = this, tabs = me.items.items, length = tabs.length, innerCt = me.layout.innerCt, innerCtXY = innerCt.getXY(), point = new Ext.util.Point(xy[0], xy[1]), i = 0, lastBox, tabRegion, closeEl, close, closeXY, closeX, closeY, closeWidth, closeHeight, tabX, tabY, tabWidth, tabHeight, closeRegion, isTabReversed, direction, tab;
+  for (; i < length; i++) {
+    tab = tabs[i];
+    lastBox = tab.lastBox;
+    if (!lastBox || !tab.isTab) {
+      continue;
+    }
+    tabX = innerCtXY[0] + lastBox.x;
+    tabY = innerCtXY[1] - innerCt.dom.scrollTop + lastBox.y;
+    tabWidth = lastBox.width;
+    tabHeight = lastBox.height;
+    tabRegion = new Ext.util.Region(tabY, tabX + tabWidth, tabY + tabHeight, tabX);
+    if (tabRegion.contains(point)) {
+      closeEl = tab.closeEl;
+      if (closeEl) {
+        if (me._isTabReversed === undefined) {
+          me._isTabReversed = isTabReversed = tab.btnWrap.dom.currentStyle.filter.indexOf('rotation\x3d2') !== -1;
+        }
+        direction = isTabReversed ? this._reverseDockNames[me.dock] : me.dock;
+        closeWidth = closeEl.getWidth();
+        closeHeight = closeEl.getHeight();
+        closeXY = me.getCloseXY(closeEl, tabX, tabY, tabWidth, tabHeight, closeWidth, closeHeight, direction);
+        closeX = closeXY[0];
+        closeY = closeXY[1];
+        closeRegion = new Ext.util.Region(closeY, closeX + closeWidth, closeY + closeHeight, closeX);
+        close = closeRegion.contains(point);
+      }
+      break;
+    }
+  }
+  return {tab:tab, close:close};
+}, getCloseXY:function(closeEl, tabX, tabY, tabWidth, tabHeight, closeWidth, closeHeight, direction) {
+  var closeXY = closeEl.getXY(), closeX, closeY;
+  if (direction === 'right') {
+    closeX = tabX + tabWidth - (closeXY[1] - tabY + closeHeight);
+    closeY = tabY + (closeXY[0] - tabX);
+  } else {
+    closeX = tabX + (closeXY[1] - tabY);
+    closeY = tabY + tabX + tabHeight - closeXY[0] - closeWidth;
+  }
+  return [closeX, closeY];
+}, closeTab:function(toClose) {
+  var me = this, card = toClose.card, tabPanel = me.tabPanel, toActivate;
+  if (card && card.fireEvent('beforeclose', card) === false) {
+    return false;
+  }
+  toActivate = me.findNextActivatable(toClose);
+  Ext.suspendLayouts();
+  if (toActivate) {
+    if (tabPanel) {
+      tabPanel.setActiveTab(toActivate.card);
+    } else {
+      me.setActiveTab(toActivate);
+    }
+    toActivate.focus();
+  }
+  if (tabPanel && card) {
+    delete toClose.ownerCt;
+    card.fireEvent('close', card);
+    tabPanel.remove(card);
+    if (card.ownerCt !== tabPanel) {
+      toClose.fireClose();
+      me.remove(toClose);
+    } else {
+      toClose.ownerCt = me;
+      Ext.resumeLayouts(true);
+      return false;
+    }
+  }
+  Ext.resumeLayouts(true);
+}, findNextActivatable:function(toClose) {
+  var me = this, previousTab = me.previousTab, nextTab;
+  if (toClose.active && me.items.getCount() > 1) {
+    if (previousTab && previousTab !== toClose && !previousTab.disabled) {
+      nextTab = previousTab;
+    } else {
+      nextTab = toClose.next('tab[disabled\x3dfalse]') || toClose.prev('tab[disabled\x3dfalse]');
+    }
+  }
+  return nextTab || me.activeTab;
+}, setActiveTab:function(tab, initial) {
+  var me = this;
+  if (!tab.disabled && tab !== me.activeTab) {
+    if (me.activeTab) {
+      if (me.activeTab.destroyed) {
+        me.previousTab = null;
+      } else {
+        me.previousTab = me.activeTab;
+        me.activeTab.deactivate();
+        me.deactivateFocusable(me.activeTab);
+      }
+    }
+    tab.activate();
+    me.activateFocusable(tab);
+    me.activeTab = tab;
+    me.needsScroll = true;
+    if (!initial) {
+      me.fireEvent('change', me, tab, tab.card);
+      me.updateLayout();
+    }
+  }
+}, privates:{adjustTabPositions:function() {
+  var me = this, items = me.items.items, i = items.length, tab, lastBox, el, rotation, prop;
+  if (!Ext.isIE8) {
+    prop = me._getTabAdjustProp();
+    while (i--) {
+      tab = items[i];
+      el = tab.el;
+      lastBox = tab.lastBox;
+      rotation = tab.isTab ? tab.getActualRotation() : 0;
+      if (rotation === 1 && tab.isVisible()) {
+        el.setStyle(prop, lastBox.x + lastBox.width + 'px');
+      } else {
+        if (rotation === 2 && tab.isVisible()) {
+          el.setStyle(prop, lastBox.x - lastBox.height + 'px');
+        }
+      }
+    }
+  }
+}, applyTargetCls:function(targetCls) {
+  this.bodyTargetCls = targetCls;
+}, _getTabAdjustProp:function() {
+  return 'left';
+}, getTargetEl:function() {
+  return this.body || this.frameBody || this.el;
+}, onClick:function(e, target) {
+  var me = this, tabEl, tab, isCloseClick, tabInfo;
+  if (e.getTarget('.' + Ext.baseCSSPrefix + 'box-scroller')) {
+    return;
+  }
+  if (Ext.isIE8 && me.vertical) {
+    tabInfo = me.getTabInfoFromPoint(e.getXY());
+    tab = tabInfo.tab;
+    isCloseClick = tabInfo.close;
+  } else {
+    tabEl = e.getTarget('.' + Ext.tab.Tab.prototype.baseCls);
+    tab = tabEl && Ext.getCmp(tabEl.id);
+    isCloseClick = tab && tab.closeEl && target === tab.closeEl.dom;
+  }
+  if (isCloseClick) {
+    e.preventDefault();
+  }
+  if (tab && tab.isDisabled && !tab.isDisabled()) {
+    tab.beforeClick(isCloseClick);
+    if (tab.closable && isCloseClick) {
+      tab.onCloseClick();
+    } else {
+      me.doActivateTab(tab);
+    }
+  }
+}, onOverflowMenuItemClick:function(menu, item, e, eOpts) {
+  var tab = item && item.masterComponent, overflowHandler = this.layout.overflowHandler;
+  if (tab && !tab.isDisabled()) {
+    this.doActivateTab(tab);
+    if (overflowHandler.menuTrigger) {
+      overflowHandler.menuTrigger.focus();
+    }
+  }
+}, doActivateTab:function(tab) {
+  var tabPanel = this.tabPanel;
+  if (tabPanel) {
+    if (!tab.disabled) {
+      tabPanel.setActiveTab(tab.card);
+    }
+  } else {
+    this.setActiveTab(tab);
+  }
+}, onFocusableContainerFocus:function(e) {
+  var me = this, mixin = me.mixins.focusablecontainer, child;
+  child = mixin.onFocusableContainerFocus.call(me, e);
+  if (child && child.isTab) {
+    me.doActivateTab(child);
+  }
+}, onFocusableContainerFocusEnter:function(e) {
+  var me = this, mixin = me.mixins.focusablecontainer, child;
+  child = mixin.onFocusableContainerFocusEnter.call(me, e);
+  if (child && child.isTab) {
+    me.doActivateTab(child);
+  }
+}, focusChild:function(child, forward) {
+  var me = this, mixin = me.mixins.focusablecontainer, nextChild;
+  nextChild = mixin.focusChild.call(me, child, forward);
+  if (me.activateOnFocus && nextChild && nextChild.isTab) {
+    me.doActivateTab(nextChild);
+  }
+}}});
+Ext.define('Ext.tab.Panel', {extend:Ext.panel.Panel, alias:'widget.tabpanel', alternateClassName:['Ext.TabPanel'], config:{tabBar:undefined, tabPosition:'top', tabRotation:'default', tabStretchMax:true}, removePanelHeader:true, plain:false, itemCls:Ext.baseCSSPrefix + 'tabpanel-child', minTabWidth:undefined, maxTabWidth:undefined, deferredRender:true, _defaultTabRotation:{top:0, right:1, bottom:0, left:2}, initComponent:function() {
+  var me = this, activeTab = me.activeTab !== null ? me.activeTab || 0 : null, dockedItems = me.dockedItems, header = me.header, tabBarHeaderPosition = me.tabBarHeaderPosition, tabBar = me.getTabBar(), headerItems;
+  me.layout = Ext.apply({type:'card', deferredRender:me.deferredRender, itemCls:me.itemCls, activeItem:activeTab}, me.layout);
+  if (tabBarHeaderPosition != null) {
+    header = me.header = Ext.apply({}, header);
+    headerItems = header.items = header.items ? header.items.slice() : [];
+    header.itemPosition = tabBarHeaderPosition;
+    headerItems.push(tabBar);
+    header.hasTabBar = true;
+  } else {
+    dockedItems = [].concat(me.dockedItems || []);
+    dockedItems.push(tabBar);
+    me.dockedItems = dockedItems;
+  }
+  me.callParent(arguments);
+  activeTab = me.activeTab = me.getComponent(activeTab);
+  if (activeTab) {
+    tabBar.setActiveTab(activeTab.tab, true);
+  }
+}, onRender:function() {
+  var items = this.items.items, len = items.length, i;
+  this.callParent(arguments);
+  for (i = 0; i < len; ++i) {
+    items[i].getBind();
+  }
+}, setActiveTab:function(card) {
+  var me = this, previous;
+  if (!Ext.isObject(card) || card.isComponent) {
+    card = me.getComponent(card);
+  }
+  previous = me.getActiveTab();
+  if (card) {
+    Ext.suspendLayouts();
+    if (!card.isComponent) {
+      card = me.add(card);
+    }
+    if (previous === card || me.fireEvent('beforetabchange', me, card, previous) === false) {
+      Ext.resumeLayouts(true);
+      return previous;
+    }
+    me.activeTab = card;
+    me.layout.setActiveItem(card);
+    card = me.activeTab = me.layout.getActiveItem();
+    if (card && card !== previous) {
+      me.tabBar.setActiveTab(card.tab);
+      Ext.resumeLayouts(true);
+      if (previous !== card) {
+        me.fireEvent('tabchange', me, card, previous);
+      }
+    } else {
+      Ext.resumeLayouts(true);
+    }
+    return card;
+  }
+  return previous;
+}, setActiveItem:function(item) {
+  return this.setActiveTab(item);
+}, getActiveTab:function() {
+  var me = this, result = me.getComponent(me.activeTab);
+  if (result && me.items.indexOf(result) !== -1) {
+    me.activeTab = result;
+  } else {
+    me.activeTab = undefined;
+  }
+  return me.activeTab;
+}, applyTabBar:function(tabBar) {
+  var me = this, dock = me.tabBarHeaderPosition != null ? me.getHeaderPosition() : me.getTabPosition();
+  return new Ext.tab.Bar(Ext.apply({ui:me.ui, dock:dock, tabRotation:me.getTabRotation(), vertical:dock === 'left' || dock === 'right', plain:me.plain, tabStretchMax:me.getTabStretchMax(), tabPanel:me}, tabBar));
+}, updateHeaderPosition:function(headerPosition, oldHeaderPosition) {
+  var tabBar = this.getTabBar();
+  if (tabBar && this.tabBarHeaderPosition != null) {
+    tabBar.setDock(headerPosition);
+  }
+  this.callParent([headerPosition, oldHeaderPosition]);
+}, updateTabPosition:function(tabPosition) {
+  var tabBar = this.getTabBar();
+  if (tabBar && this.tabBarHeaderPosition == null) {
+    tabBar.setDock(tabPosition);
+  }
+}, updateTabRotation:function(tabRotation) {
+  var tabBar = this.getTabBar();
+  if (tabBar) {
+    tabBar.setTabRotation(tabRotation);
+  }
+}, onAdd:function(item, index) {
+  var me = this, cfg = Ext.apply({}, item.tabConfig), tabBar = me.getTabBar(), ariaDom, defaultConfig = {xtype:'tab', title:item.title, icon:item.icon, iconCls:item.iconCls, glyph:item.glyph, ui:tabBar.ui, card:item, disabled:item.disabled, closable:item.closable, hidden:item.hidden && !item.hiddenByLayout, tooltip:item.tooltip, tabBar:tabBar, tabPosition:tabBar.dock, rotation:tabBar.getTabRotation()};
+  if (item.closeText !== undefined) {
+    defaultConfig.closeText = item.closeText;
+  }
+  cfg = Ext.applyIf(cfg, defaultConfig);
+  item.tab = me.tabBar.insert(index, cfg);
+  item.ariaRole = 'tabpanel';
+  ariaDom = item.ariaEl.dom;
+  if (ariaDom) {
+    ariaDom.setAttribute('aria-labelledby', item.tab.id);
+  } else {
+    item.ariaRenderAttributes = item.ariaRenderAttributes || {};
+    item.ariaRenderAttributes['aria-labelledby'] = item.tab.id;
+  }
+  item.on({scope:me, enable:me.onItemEnable, disable:me.onItemDisable, beforeshow:me.onItemBeforeShow, iconchange:me.onItemIconChange, iconclschange:me.onItemIconClsChange, glyphchange:me.onItemGlyphChange, titlechange:me.onItemTitleChange});
+  if (item.isPanel) {
+    if (me.removePanelHeader) {
+      if (item.rendered) {
+        if (item.header) {
+          item.header.hide();
+        }
+      } else {
+        item.header = false;
+      }
+    }
+    if (item.isPanel && me.border) {
+      item.setBorder(false);
+    }
+  }
+  if (me.rendered) {
+    item.getBind();
+  }
+  if (me.rendered && me.loader && me.activeTab === undefined && me.layout.activeItem !== null) {
+    me.setActiveTab(0);
+  }
+}, onMove:function(item, fromIdx, toIdx) {
+  var tabBar = this.getTabBar();
+  this.callParent([item, fromIdx, toIdx]);
+  if (tabBar.items.indexOf(item.tab) !== toIdx) {
+    tabBar.move(item.tab, toIdx);
+  }
+}, onItemEnable:function(item) {
+  item.tab.enable();
+}, onItemDisable:function(item) {
+  item.tab.disable();
+}, onItemBeforeShow:function(item) {
+  if (item !== this.activeTab) {
+    this.setActiveTab(item);
+    return false;
+  }
+}, onItemGlyphChange:function(item, newGlyph) {
+  item.tab.setGlyph(newGlyph);
+}, onItemIconChange:function(item, newIcon) {
+  item.tab.setIcon(newIcon);
+}, onItemIconClsChange:function(item, newIconCls) {
+  item.tab.setIconCls(newIconCls);
+}, onItemTitleChange:function(item, newTitle) {
+  item.tab.setText(newTitle);
+}, onRemove:function(item, destroying) {
+  var me = this;
+  item.un({scope:me, enable:me.onItemEnable, disable:me.onItemDisable, beforeshow:me.onItemBeforeShow, iconchange:me.onItemIconChange, iconclschange:me.onItemIconClsChange, glyphchange:me.onItemGlyphChange, titlechange:me.onItemTitleChange});
+  if (item.tab && !me.destroying && item.tab.ownerCt === me.tabBar) {
+    me.tabBar.remove(item.tab);
+  }
+}, enable:function() {
+  var me = this, activeTab = me.activeTab !== null ? me.activeTab || 0 : null, wasDisabled = me.disabled;
+  me.callParent(arguments);
+  if (wasDisabled) {
+    activeTab = activeTab.isComponent ? activeTab : me.getComponent(activeTab);
+    if (activeTab) {
+      me.getTabBar().setActiveTab(activeTab.tab);
+    }
+  }
+  return me;
+}, privates:{doRemove:function(item, autoDestroy) {
+  var me = this, toActivate;
+  Ext.suspendLayouts();
+  if (me.removingAll || me.destroying || me.items.getCount() === 1) {
+    me.activeTab = null;
+  } else {
+    if (item.tab && (toActivate = me.tabBar.items.indexOf(me.tabBar.findNextActivatable(item.tab))) !== -1) {
+      me.setActiveTab(toActivate);
+    }
+  }
+  me.callParent([item, autoDestroy]);
+  Ext.resumeLayouts();
+  if (item.tab) {
+    delete item.tab.card;
+    delete item.tab;
+  }
+}}});
 Ext.define('Ext.toolbar.Fill', {extend:Ext.Component, alias:'widget.tbfill', alternateClassName:'Ext.Toolbar.Fill', ariaRole:'presentation', isFill:true, flex:1});
 Ext.define('Ext.toolbar.Spacer', {extend:Ext.Component, alias:'widget.tbspacer', alternateClassName:'Ext.Toolbar.Spacer', baseCls:Ext.baseCSSPrefix + 'toolbar-spacer', ariaRole:'presentation'});
 Ext.define('Ext.draw.ContainerBase', {extend:Ext.panel.Panel, previewTitleText:'Chart Preview', previewAltText:'Chart preview', layout:'container', addElementListener:function() {
@@ -104484,6 +105262,8 @@ text:'Today', margin:'0 10 0 0'}, value:undefined, views:{day:{xtype:'calendar-d
 Ext.define('Admin.model.Base', {extend:Ext.data.Model, schema:{namespace:'Admin.model'}});
 Ext.define('Admin.model.addressList.AddListModel', {extend:Admin.model.Base, fields:[{type:'int', name:'id'}, {type:'string', name:'employeeName'}, {type:'string', name:'employeeNumber'}, {type:'string', name:'employeeArea'}, {type:'string', name:'post'}, {type:'string', name:'email'}], proxy:{type:'rest', url:'/addressList'}});
 Ext.define('Admin.model.attence.AttenceModel', {extend:Admin.model.Base, fields:[{type:'int', name:'id'}, {type:'string', name:'employeeName'}, {type:'string', name:'location'}, {type:'date', name:'workinTime', dateFormat:'Y/m/d H:i:s'}, {type:'date', name:'workoutTime', dateFormat:'Y/m/d H:i:s'}, {type:'string', name:'attenceStatus'}], proxy:{type:'rest', url:'/attence'}});
+Ext.define('Admin.model.attenceapprove.LeaveApproveModel', {extend:Admin.model.Base, fields:[{type:'int', name:'id'}, {type:'string', name:'userId'}, {type:'date', name:'startTime'}, {type:'date', name:'endTime'}, {type:'date', name:'realityStartTime'}, {type:'date', name:'realityEndTime'}, {type:'date', name:'applyTime'}, {type:'string', name:'leaveType'}, {type:'string', name:'processStatus'}, {type:'string', name:'reason'}, {type:'string', name:'processInstanceId'}, {type:'string', name:'taskId'}, 
+{type:'string', name:'taskName'}, {type:'date', name:'taskCreateTime'}, {type:'string', name:'assignee'}, {type:'string', name:'taskDefinitionKey'}, {type:'string', name:'processDefinitionId'}, {type:'boolean', name:'suspended'}, {type:'int', name:'version'}, {type:'string', name:'depreason'}, {type:'string', name:'hrreason'}]});
 Ext.define('Admin.model.contract.ContractModel', {extend:Admin.model.Base, fields:[{type:'int', name:'id'}, {type:'string', name:'contractNumber'}, {type:'string', name:'customerName'}, {type:'string', name:'hoseName'}, {type:'string', name:'employeeName'}, {type:'date', name:'startTime', dateFormat:'Y/m/d H:i:s'}, {type:'date', name:'endTime', dateFormat:'Y/m/d H:i:s'}, {type:'string', name:'contractType'}, {type:'float', name:'total'}, {type:'string', name:'area'}, {type:'string', name:'processInstanceId'}, 
 {type:'string', name:'processStatus'}], proxy:{type:'rest', url:'/contract'}});
 Ext.define('Admin.model.contractapprove.ContractApproveModel', {extend:Admin.model.Base, fields:[{type:'int', name:'id'}, {type:'string', name:'userId'}, {type:'string', name:'contractNumber'}, {type:'string', name:'customerName'}, {type:'string', name:'hoseName'}, {type:'string', name:'employeeName'}, {type:'date', name:'startTime'}, {type:'date', name:'endTime'}, {type:'string', name:'contractType'}, {type:'float', name:'total'}, {type:'string', name:'area'}, {type:'string', name:'processStatus'}, 
@@ -104494,9 +105274,11 @@ Ext.define('Admin.model.processdefinition.ProcessDefinitionModel', {extend:Admin
 {type:'boolean', name:'suspended'}]});
 Ext.define('Admin.model.user.UserModel', {extend:Admin.model.Base, fields:[{type:'int', name:'id'}, {type:'string', name:'userName'}, {type:'date', name:'createTime', dateFormat:'Y/m/d H:i:s'}], proxy:{type:'rest', url:'/user'}});
 Ext.define('Admin.store.NavigationTree', {extend:Ext.data.TreeStore, storeId:'NavigationTree', fields:[{name:'text'}], root:{expanded:true, children:[{text:'Dashboard', iconCls:'x-fa fa-desktop', viewType:'admindashboard', routeId:'dashboard', leaf:true}, {text:'模板', iconCls:'x-fa fa-address-card', viewType:'user', leaf:true}, {text:'业务管理模块', iconCls:'x-fa fa-briefcase', expanded:false, selectable:false, children:[{text:'合同管理', iconCls:'x-fa fa-clipboard', viewType:'contract', leaf:true}, {text:'业务审核', 
-iconCls:'x-fa fa-pencil-square-o', viewType:'contractApprove', leaf:true}]}, {text:'通讯录', iconCls:'x-fa fa-address-card', viewType:'addressList', leaf:true}, {text:'日程管理', iconCls:'x-fa fa-calendar', viewType:'calendar', leaf:true}, {text:'个人考勤', iconCls:'x-fa fa-fax', viewType:'attence', leaf:true}, {text:'流程定义图', iconCls:'x-fa fa-file-picture-o', viewType:'processDefinition', leaf:true}, {text:'Login', iconCls:'x-fa fa-check', viewType:'login', leaf:true}]}});
+iconCls:'x-fa fa-pencil-square-o', viewType:'contractApprove', leaf:true}]}, {text:'通讯录', iconCls:'x-fa fa-address-card', viewType:'addressList', leaf:true}, {text:'日程管理', iconCls:'x-fa fa-calendar', viewType:'calendar', leaf:true}, {text:'个人考勤', iconCls:'x-fa fa-fax', viewType:'attence', leaf:true}, {text:'考勤管理', iconCls:'x-fa  fa-calendar-o', expanded:false, selectable:false, children:[{text:'部门考勤表', iconCls:'x-fa fa-copy', leaf:true}, {text:'考勤审核', iconCls:'x-fa fa-pencil-square-o', viewType:'attenceApprove', 
+leaf:true}]}, {text:'流程定义图', iconCls:'x-fa fa-file-picture-o', viewType:'processDefinition', leaf:true}, {text:'Login', iconCls:'x-fa fa-check', viewType:'login', leaf:true}]}});
 Ext.define('Admin.store.addressList.AddressListPanelStroe', {extend:Ext.data.Store, alias:'store.addressListPanelStroe', model:'Admin.model.addressList.AddListModel', proxy:{type:'rest', url:'/addressList', reader:{type:'json', rootProperty:'content', totalProperty:'totalElements'}, writer:{type:'json'}, simpleSortMode:true}, autoLoad:'true', autoSync:true, remoteSort:true, pageSize:20, sorters:{direction:'ASC', property:'id'}});
 Ext.define('Admin.store.attence.AttenceGridStroe', {extend:Ext.data.Store, storeId:'attenceGridStroe', alias:'store.attenceGridStroe', model:'Admin.model.attence.AttenceModel', proxy:{type:'rest', url:'/attence', reader:{type:'json', rootProperty:'content', totalProperty:'totalElements'}, writer:{type:'json'}, simpleSortMode:true}, autoLoad:'true', autoSync:true, remoteSort:true, pageSize:20, sorters:{direction:'ASC', property:'id'}});
+Ext.define('Admin.store.attenceapprove.LeaveApproveStore', {extend:Ext.data.Store, storeId:'leaveApproveStore', alias:'store.leaveApproveStore', model:'Admin.model.attenceapprove.LeaveApproveModel', proxy:{type:'ajax', url:'leave/tasks', reader:new Ext.data.JsonReader({type:'json', rootProperty:'content', totalProperty:'totalElements'}), simpleSortMode:true}, remoteSort:true, sorters:[{property:'id', direction:'desc'}], autoLoad:true});
 Ext.define('Admin.store.contract.ContractGridStroe', {extend:Ext.data.Store, storeId:'contractGridStroe', alias:'store.contractGridStroe', model:'Admin.model.contract.ContractModel', proxy:{type:'rest', url:'/contract', reader:{type:'json', rootProperty:'content', totalProperty:'totalElements'}, writer:{type:'json'}, simpleSortMode:true}, autoLoad:'true', autoSync:true, remoteSort:true, pageSize:20, sorters:{direction:'ASC', property:'id'}});
 Ext.define('Admin.store.contractapprove.ContractApproveStore', {extend:Ext.data.Store, storeId:'contractApproveStore', alias:'store.contractApproveStore', model:'Admin.model.contractapprove.ContractApproveModel', proxy:{type:'ajax', url:'contract/tasks', reader:new Ext.data.JsonReader({type:'json', rootProperty:'content', totalProperty:'totalElements'}), simpleSortMode:true}, remoteSort:true, sorters:[{property:'id', direction:'desc'}], autoLoad:true});
 Ext.define('Admin.store.leave.LeaveStroe', {extend:Ext.data.Store, storeId:'leaveStroe', alias:'store.leaveStroe', model:'Admin.model.leave.LeaveModel', proxy:{type:'rest', url:'/leave', reader:{type:'json', rootProperty:'content', totalProperty:'totalElements'}, writer:{type:'json'}, simpleSortMode:true}, autoLoad:true, autoSync:true, remoteSort:true, pageSize:15, sorters:{direction:'DESC', property:'id'}, listeners:{}});
@@ -104654,8 +105436,6 @@ Ext.define('Admin.view.attence.AttenceViewController', {extend:Ext.app.ViewContr
   Ext.getCmp('attence_search').hide();
 }, hhh:function(btn) {
   alert('sss');
-}, starLeaveProcess:function(grid) {
-  Ext.getCmp('attencePanel_processInstanceId').show();
 }});
 Ext.define('Admin.view.attence.AttenceViewModel', {extend:Ext.app.ViewModel, alias:'viewmodel.attenceViewModel', stores:{attenceLists:{type:'attenceGridStroe'}, leaveLists:{type:'leaveStroe'}}});
 Ext.define('Admin.view.attence.LeaveAddWindow', {extend:Ext.window.Window, alias:'widget.leaveAddWindow', height:350, minHeight:350, minWidth:300, width:500, scrollable:true, title:'请假单', closable:true, constrain:true, defaultFocus:'textfield', modal:true, layout:'fit', items:[{xtype:'form', layout:'form', padding:'10px', ariaLabel:'Enter your name', items:[{xtype:'textfield', fieldLabel:'id', name:'id', hidden:true, readOnly:true}, {xtype:'textfield', fieldLabel:'processStatus', name:'processStatus', 
@@ -104665,7 +105445,9 @@ name:'reason', fieldLabel:'请假原因', anchor:'100%', emptyText:'请填写请
   btn.up('window').close();
 }}]});
 Ext.define('Admin.view.attence.LeaveGridWindow', {extend:Ext.window.Window, alias:'widget.leaveGridWindow', height:550, minHeight:500, width:1200, scrollable:true, title:'我的请假单', closable:true, constrain:false, autoScroll:true, header:{items:[{iconCls:'fa fa-search', ui:'header', tooltip:'查找', handler:'hhh'}, {iconCls:'fa fa-trash', ui:'header', id:'leaveGridPanelRemove', disabled:true, tooltip:'删除多条', handler:'deleteMoreRows'}]}, listeners:{selectionchange:function(selModel, selections) {
-  this.getCmp('#leaveGridPanelRemove').setDisabled(selections.length === 0);
+  if (selections.length > 1) {
+    Ext.getCmp('#leaveGridPanelRemove').setDisabled(false);
+  }
 }}, modal:true, layout:'fit', items:[{xtype:'gridpanel', bind:'{leaveLists}', autoScroll:true, selModel:{type:'checkboxmodel'}, plugins:{rowediting:{clicksToEdit:2}}, columns:[{header:'id', dataIndex:'id', width:60, sortable:true, hidden:true}, {header:'审核状态', dataIndex:'processStatus', width:60, sortable:true, renderer:function(val) {
   if (val == 'NEW') {
     return '\x3cspan style\x3d"color:green;"\x3e新建\x3c/span\x3e';
@@ -104707,6 +105489,231 @@ width:120, text:'操作', tooltip:'edit ', items:[{xtype:'button', iconCls:'x-fa
   }
   return 'x-fa fa-ban';
 }, handler:'cancelLeaveProcess'}]}], dockedItems:[{xtype:'pagingtoolbar', dock:'bottom', displayInfo:true, bind:'{leaveLists}'}]}]});
+Ext.define('Admin.view.attenceapprove.AttenceApprovePanel', {extend:Ext.tab.Panel, xtype:'attenceApprovePanel', layout:'fit', items:[{title:'请假审核', xtype:'gridpanel', cls:'process-definition-grid', bind:'{leaveApproveList}', layout:'fit', columns:[{xtype:'actioncolumn', items:[{xtype:'button', iconCls:'x-fa fa-pencil', tooltip:'签收任务', getClass:function(v, meta, rec) {
+  if (rec.get('assignee') != '') {
+    return 'x-hidden';
+  }
+  return 'x-fa fa-pencil';
+}, handler:'onClickLeaveApproveClaimButton'}, {xtype:'button', iconCls:'x-fa fa-edit', tooltip:'审批任务', getClass:function(v, meta, rec) {
+  if (rec.get('assignee') == '') {
+    return 'x-hidden';
+  }
+  return 'x-fa fa-edit';
+}, handler:'onClickLeaveApproveCompleteWindowButton'}, {xtype:'button', iconCls:'x-fa fa-object-group', tooltip:'任务跟踪', handler:'onClickGraphTraceButton'}], cls:'content-column', width:120, dataIndex:'bool', text:'操作', tooltip:'edit '}, {header:'id', dataIndex:'id', width:60, sortable:true, hidden:true}, {header:'审核状态', dataIndex:'processStatus', width:60, sortable:true, renderer:function(val) {
+  if (val == 'NEW') {
+    return '\x3cspan style\x3d"color:green;"\x3e新建\x3c/span\x3e';
+  } else {
+    if (val == 'APPROVAL') {
+      return '\x3cspan style\x3d"color:blue;"\x3e审批中...\x3c/span\x3e';
+    } else {
+      if (val == 'COMPLETE') {
+        return '\x3cspan style\x3d"color:orange;"\x3e完成审批\x3c/span\x3e';
+      } else {
+        return '\x3cspan style\x3d"color:red;"\x3e取消申请\x3c/span\x3e';
+      }
+    }
+  }
+  return val;
+}}, {header:'申请人', dataIndex:'userId', width:60, sortable:true}, {header:'拟请假开始时间', dataIndex:'startTime', width:150, sortable:true, renderer:Ext.util.Format.dateRenderer('Y/m/d H:i:s')}, {header:'拟请假结束时间', dataIndex:'endTime', width:150, sortable:true, renderer:Ext.util.Format.dateRenderer('Y/m/d H:i:s')}, {header:'请假开始时间', dataIndex:'realityStartTime', width:150, sortable:true, renderer:Ext.util.Format.dateRenderer('Y/m/d H:i:s')}, {header:'请假结束时间', dataIndex:'realityEndTime', width:150, sortable:true, 
+renderer:Ext.util.Format.dateRenderer('Y/m/d H:i:s')}, {header:'申请提交时间', dataIndex:'applyTime', width:150, sortable:true, renderer:Ext.util.Format.dateRenderer('Y/m/d H:i:s')}, {header:'请假类型', dataIndex:'leaveType', width:80, sortable:true, renderer:function(val) {
+  if (val == 'A') {
+    return '\x3cspan style\x3d"color:green;"\x3e带薪假期\x3c/span\x3e';
+  } else {
+    if (val == 'B') {
+      return '\x3cspan style\x3d"color:red;"\x3e无薪假期\x3c/span\x3e';
+    } else {
+      if (val == 'C') {
+        return '\x3cspan style\x3d"color:blue;"\x3e病假\x3c/span\x3e';
+      }
+    }
+  }
+  return val;
+}}, {header:'请假原因', dataIndex:'reason', width:80, sortable:true}, {header:'processInstanceId', dataIndex:'processInstanceId', width:80, sortable:true, hidden:true}, {header:'taskId', dataIndex:'taskId', width:80, sortable:true, hidden:true}, {header:'审核名称', dataIndex:'taskName', width:80, sortable:true}, {header:'审核时间', dataIndex:'taskCreateTime', width:150, sortable:true, renderer:Ext.util.Format.dateRenderer('Y/m/d H:i:s')}, {header:'assignee', dataIndex:'assignee', width:80, sortable:true, hidden:true}, 
+{header:'taskDefinitionKey', dataIndex:'taskDefinitionKey', width:80, sortable:true, hidden:true}, {header:'processDefinitionId', dataIndex:'processDefinitionId', width:80, sortable:true, hidden:true}, {header:'suspended', dataIndex:'suspended', width:80, sortable:true, hidden:true}, {header:'version', dataIndex:'version', width:60, sortable:true, hidden:true}, {header:'部门经理意见', dataIndex:'depreason', width:60, sortable:true}, {header:'人事部经理意见', dataIndex:'hrreason', width:60, sortable:true}], dockedItems:[{xtype:'pagingtoolbar', 
+dock:'bottom', bind:'{leaveApproveList}', displayInfo:true}]}, {title:'申诉审核', xtype:'gridpanel', cls:'process-definition-grid', layout:'fit', columns:[{xtype:'actioncolumn', items:[{xtype:'button', iconCls:'x-fa fa-pencil', tooltip:'签收任务', getClass:function(v, meta, rec) {
+  if (rec.get('assignee') != '') {
+    return 'x-hidden';
+  }
+  return 'x-fa fa-pencil';
+}, handler:'onClickLeaveApproveClaimButton'}, {xtype:'button', iconCls:'x-fa fa-edit', tooltip:'审批任务', getClass:function(v, meta, rec) {
+  if (rec.get('assignee') == '') {
+    return 'x-hidden';
+  }
+  return 'x-fa fa-edit';
+}, handler:'onClickLeaveApproveCompleteWindowButton'}, {xtype:'button', iconCls:'x-fa fa-object-group', tooltip:'任务跟踪', handler:'onClickGraphTraceButton'}], cls:'content-column', width:60, dataIndex:'bool', text:'操作', tooltip:'edit '}, {header:'id', dataIndex:'id', width:60, sortable:true, hidden:true}, {header:'审核状态', dataIndex:'processStatus', width:120, sortable:true, renderer:function(val) {
+  if (val == 'NEW') {
+    return '\x3cspan style\x3d"color:green;"\x3e新建\x3c/span\x3e';
+  } else {
+    if (val == 'APPROVAL') {
+      return '\x3cspan style\x3d"color:blue;"\x3e审批中...\x3c/span\x3e';
+    } else {
+      if (val == 'COMPLETE') {
+        return '\x3cspan style\x3d"color:orange;"\x3e完成审批\x3c/span\x3e';
+      } else {
+        return '\x3cspan style\x3d"color:red;"\x3e取消申请\x3c/span\x3e';
+      }
+    }
+  }
+  return val;
+}}, {header:'申请人', dataIndex:'userId', width:120, sortable:true}, {header:'待申诉开始时间', dataIndex:'realityStartTime', width:180, sortable:true, renderer:Ext.util.Format.dateRenderer('Y/m/d H:i:s')}, {header:'待申诉结束时间', dataIndex:'realityEndTime', width:180, sortable:true, renderer:Ext.util.Format.dateRenderer('Y/m/d H:i:s')}, {header:'申诉原因', dataIndex:'reason', width:120, sortable:true}, {header:'申诉提交时间', dataIndex:'applyTime', width:150, sortable:true, renderer:Ext.util.Format.dateRenderer('Y/m/d H:i:s')}, 
+{header:'processInstanceId', dataIndex:'processInstanceId', width:80, sortable:true, hidden:true}, {header:'taskId', dataIndex:'taskId', width:80, sortable:true, hidden:true}, {header:'审核名称', dataIndex:'taskName', width:120, sortable:true}, {header:'审核时间', dataIndex:'taskCreateTime', width:150, sortable:true, renderer:Ext.util.Format.dateRenderer('Y/m/d H:i:s')}, {header:'assignee', dataIndex:'assignee', width:80, sortable:true, hidden:true}, {header:'taskDefinitionKey', dataIndex:'taskDefinitionKey', 
+width:80, sortable:true, hidden:true}, {header:'processDefinitionId', dataIndex:'processDefinitionId', width:80, sortable:true, hidden:true}, {header:'suspended', dataIndex:'suspended', width:80, sortable:true, hidden:true}, {header:'version', dataIndex:'version', width:60, sortable:true, hidden:true}, {header:'部门经理意见', dataIndex:'depreason', width:60, sortable:true, hidden:true}, {header:'人事部经理意见', dataIndex:'hrreason', width:60, sortable:true, hidden:true}], dockedItems:[{xtype:'pagingtoolbar', 
+dock:'bottom', displayInfo:true}]}]});
+Ext.define('Admin.view.attenceapprove.AttenceApproveViewController', {extend:Ext.app.ViewController, alias:'controller.attenceApproveViewController', complete:function(url, variables, form) {
+  var keys = '', values = '', types = '';
+  if (variables) {
+    Ext.each(variables, function(item) {
+      if (keys != '') {
+        keys += ',';
+        values += ',';
+        types += ',';
+      }
+      keys += item.key;
+      values += item.value;
+      types += item.type;
+    });
+  }
+  Ext.Ajax.request({url:url, method:'post', params:{keys:keys, values:values, types:types}, success:function(response, options) {
+    var json = Ext.util.JSON.decode(response.responseText);
+    if (json.success) {
+      Ext.Msg.alert('操作成功', json.msg, function() {
+        form.up('window').close();
+        Ext.data.StoreManager.lookup('leaveApproveStore').load();
+      });
+    } else {
+      Ext.Msg.alert('操作失败', json.msg);
+    }
+  }});
+}, onClickLeaveApproveClaimButton:function(view, recIndex, cellIndex, item, e, record) {
+  Ext.Ajax.request({url:'leave/claim/' + record.get('taskId'), method:'post', success:function(response, options) {
+    var json = Ext.util.JSON.decode(response.responseText);
+    if (json.success) {
+      Ext.Msg.alert('操作成功', json.msg, function() {
+        view.getStore().reload();
+      });
+    } else {
+      Ext.Msg.alert('操作失败', json.msg);
+    }
+  }});
+}, setCurrentView:function(view, form, title) {
+  var cfg = Ext.apply({xtype:'attenceApproveWindow', items:[{xtype:form}]}, {title:title});
+  var win = Ext.widget(cfg);
+  view.up('panel').up('container').add(win);
+  return win;
+}, onClickLeaveApproveCompleteWindowButton:function(view, recIndex, cellIndex, item, e, record) {
+  var taskDefinitionKey = record.get('taskDefinitionKey');
+  var leavetype = record.get('leaveType');
+  if (leavetype == 'A') {
+    record.data.leaveType = '带薪假期';
+  } else {
+    if (leavetype == 'B') {
+      record.data.leaveType = '无薪假期';
+    } else {
+      if (leavetype == 'C') {
+        record.data.leaveType = '病假';
+      }
+    }
+  }
+  if (taskDefinitionKey == 'deptLeaderAudit') {
+    var win = this.setCurrentView(view, 'leavedeptLeaderAudit', '部门领导审批');
+    win.down('form').getForm().loadRecord(record);
+  } else {
+    if (taskDefinitionKey == 'hrAudit') {
+      var win = this.setCurrentView(view, taskDefinitionKey, '人事审批表单');
+      win.down('form').getForm().loadRecord(record);
+    } else {
+      if (taskDefinitionKey == 'reportBack') {
+        var win = this.setCurrentView(view, taskDefinitionKey, '销假表单');
+        win.down('form').getForm().loadRecord(record);
+      } else {
+        if (taskDefinitionKey == 'modifyApply') {
+          var win = this.setCurrentView(view, taskDefinitionKey, '调整申请表单');
+          win.down('form').getForm().loadRecord(record);
+        }
+      }
+    }
+  }
+}, onClickDeptleaderAuditFormSubmitButton:function(btn) {
+  var form = btn.up('form');
+  var values = form.getValues();
+  var url = 'leave/complete/' + values.taskId;
+  var variables = [{key:'deptLeaderPass', value:values.deptLeaderPass, type:'B'}, {key:'deptLeaderBackReason', value:values.deptLeaderBackReason, type:'S'}];
+  this.complete(url, variables, form);
+}, onClickHrAuditFormSubmitButton:function(btn) {
+  var form = btn.up('form');
+  var values = form.getValues();
+  var url = 'leave/complete/' + values.taskId;
+  var variables = [{key:'hrPass', value:values.hrPass, type:'B'}, {key:'hrBackReason', value:values.hrBackReason, type:'S'}];
+  this.complete(url, variables, form);
+}, onClickReportBackFormSubmitButton:function(btn) {
+  var form = btn.up('form');
+  if (form.isValid()) {
+    var values = form.getValues();
+    var url = 'leave/complete/' + values.taskId;
+    var variables = [{key:'realityStartTime', value:values.realityStartTime, type:'D'}, {key:'realityEndTime', value:values.realityEndTime, type:'D'}];
+    this.complete(url, variables, form);
+  } else {
+    Ext.Msg.alert('提示', '不允许为空');
+  }
+}, onClickModifyApplyFormSubmitButton:function(btn) {
+  var form = btn.up('form');
+  var values = form.getValues();
+  var url = 'leave/complete/' + values.taskId;
+  var variables = [{key:'reApply', value:values.reApply, type:'B'}, {key:'leaveType', value:values.leaveType, type:'S'}, {key:'startTime', value:values.startTime, type:'D'}, {key:'endTime', value:values.endTime, type:'D'}, {key:'reason', value:values.reason, type:'S'}];
+  this.complete(url, variables, form);
+}, onClickGraphTraceButton:function(btn) {
+  alert('on Click Add Button!');
+}, selectChange:function() {
+  var val = this.lookReference('ss').getValue();
+  alert(val);
+}});
+Ext.define('Admin.view.attenceapprove.AttenceApproveViewModel', {extend:Ext.app.ViewModel, alias:'viewmodel.attenceApproveViewModel', stores:{leaveApproveList:{type:'leaveApproveStore'}}});
+Ext.define('Admin.view.attenceapprove.AttenceApproveWindow', {extend:Ext.window.Window, alias:'widget.attenceApproveWindow', autoShow:true, modal:true, layout:'fit', width:520, height:600, afterRender:function() {
+  var me = this;
+  me.callParent(arguments);
+  me.syncSize();
+  Ext.on(me.resizeListeners = {resize:me.onViewportResize, scope:me, buffer:50});
+}, doDestroy:function() {
+  Ext.un(this.resizeListeners);
+  this.callParent();
+}, onViewportResize:function() {
+  this.syncSize();
+}, syncSize:function() {
+  var width = Ext.Element.getViewportWidth(), height = Ext.Element.getViewportHeight();
+  this.setXY([Math.floor(width * 0.05), Math.floor(height * 0.05)]);
+}});
+Ext.define('Admin.view.attenceapprove.AttenceApprove', {extend:Ext.panel.Panel, xtype:'attenceApprove', controller:'attenceApproveViewController', viewModel:{type:'attenceApproveViewModel'}, layout:'fit', items:[{xtype:'attenceApprovePanel'}]});
+Ext.define('Admin.view.attenceapprove.task.DeptLeaderAudit', {extend:Ext.form.Panel, alias:'widget.leavedeptLeaderAudit', bodyPadding:10, bodyBorder:true, defaults:{anchor:'100%'}, fieldDefaults:{labelAlign:'left', msgTarget:'none', invalidCls:''}, items:[{xtype:'textfield', name:'taskId', fieldLabel:'任务ID', hidden:true, readOnly:true}, {xtype:'textfield', cls:'dep', name:'userId', fieldLabel:'申请人', readOnly:true}, {xtype:'textfield', cls:'dep', name:'leaveType', fieldLabel:'请假类型', readOnly:true}, 
+{xtype:'datefield', cls:'dep', name:'startTime', fieldLabel:'开始时间', format:'Y/m/d H:i:s', readOnly:true}, {xtype:'datefield', cls:'dep', name:'endTime', fieldLabel:'结束时间', format:'Y/m/d H:i:s', readOnly:true}, {xtype:'textareafield', name:'reason', fieldLabel:'请假原因', readOnly:true}, {xtype:'radiogroup', fieldLabel:'部门经理审批', defaults:{flex:1}, items:[{name:'deptLeaderPass', inputValue:true, boxLabel:'同意', checked:true}, {name:'deptLeaderPass', inputValue:false, boxLabel:'不同意'}]}, {xtype:'textareafield', 
+grow:true, name:'deptLeaderBackReason', emptyText:'此处可填写意见', fieldLabel:'意见', anchor:'100%'}], bbar:[{xtype:'button', ui:'soft-green', text:'提交', handler:'onClickDeptleaderAuditFormSubmitButton'}, {xtype:'button', ui:'gray', text:'取消', handler:function(btn) {
+  var win = btn.up('window');
+  if (win) {
+    win.close();
+  }
+}}]});
+Ext.define('Admin.view.attenceapprove.task.HrAudit', {extend:Ext.form.Panel, alias:'widget.hrAudit', bodyPadding:10, bodyBorder:true, defaults:{anchor:'100%'}, fieldDefaults:{labelAlign:'left', msgTarget:'none', invalidCls:''}, items:[{xtype:'textfield', name:'taskId', fieldLabel:'任务ID', hidden:true, readOnly:true}, {xtype:'textfield', cls:'dep', name:'userId', fieldLabel:'申请人', readOnly:true}, {xtype:'textfield', cls:'dep', name:'leaveType', fieldLabel:'请假类型', readOnly:true}, {xtype:'datefield', 
+cls:'dep', name:'startTime', fieldLabel:'开始时间', format:'Y/m/d H:i:s', readOnly:true}, {xtype:'datefield', cls:'dep', name:'endTime', fieldLabel:'结束时间', format:'Y/m/d H:i:s', readOnly:true}, {xtype:'textareafield', name:'reason', fieldLabel:'请假原因', readOnly:true}, {xtype:'textareafield', name:'depreason', fieldLabel:'部门经理审批意见', readOnly:true}, {xtype:'radiogroup', fieldLabel:'人事文员审批', defaults:{flex:1}, items:[{name:'hrPass', inputValue:true, boxLabel:'同意', checked:true}, {name:'hrPass', inputValue:false, 
+boxLabel:'不同意'}]}, {xtype:'textareafield', grow:true, name:'hrBackReason', fieldLabel:'人事文员审批意见', emptyText:'此处可填写意见', anchor:'100%'}], bbar:[{xtype:'button', ui:'soft-green', text:'提交', handler:'onClickHrAuditFormSubmitButton'}, {xtype:'button', ui:'gray', text:'取消', handler:function(btn) {
+  var win = btn.up('window');
+  if (win) {
+    win.close();
+  }
+}}]});
+Ext.define('Admin.view.attenceapprove.task.ModifyApply', {extend:Ext.form.Panel, alias:'widget.modifyApply', bodyPadding:5, bodyBorder:true, defaults:{anchor:'100%'}, fieldDefaults:{labelAlign:'left', msgTarget:'none', invalidCls:''}, items:[{xtype:'radiogroup', fieldLabel:'重新申请', items:[{name:'reApply', inputValue:true, boxLabel:'是', checked:true}, {name:'reApply', inputValue:false, boxLabel:'否'}]}, {xtype:'textfield', name:'taskId', fieldLabel:'任务ID', hidden:true, readOnly:true}, {xtype:'combobox', 
+name:'leaveType', fieldLabel:'请假类型', store:Ext.create('Ext.data.Store', {fields:['value', 'name'], data:[{'value':'A', 'name':'带薪假期'}, {'value':'B', 'name':'无薪假期'}, {'value':'C', 'name':'病假'}]}), queryMode:'local', displayField:'name', valueField:'value', allowBlank:false}, {xtype:'datefield', fieldLabel:'请假开始时间', format:'Y/m/d H:i:s', name:'startTime'}, {xtype:'datefield', fieldLabel:'请假结束时间', format:'Y/m/d H:i:s', name:'endTime'}, {xtype:'textareafield', grow:true, name:'reason', fieldLabel:'请假原因', 
+anchor:'100%'}, {xtype:'textareafield', name:'depreason', fieldLabel:'部门经理审批意见', emptyText:'部门经理还未审批', readOnly:true}, {xtype:'textareafield', name:'hrreason', fieldLabel:'人事文员审批意见', emptyText:'人事文员还未审批', readOnly:true}], bbar:[{xtype:'button', ui:'soft-green', text:'提交', handler:'onClickModifyApplyFormSubmitButton'}, {xtype:'button', ui:'gray', text:'取消', handler:function(btn) {
+  var win = btn.up('window');
+  if (win) {
+    win.close();
+  }
+}}]});
+Ext.define('Admin.view.attenceapprove.task.ReportBack', {extend:Ext.form.Panel, alias:'widget.reportBack', bodyPadding:10, bodyBorder:true, defaults:{anchor:'100%'}, fieldDefaults:{labelAlign:'left', msgTarget:'none', invalidCls:''}, items:[{xtype:'textfield', name:'taskId', fieldLabel:'任务ID', hidden:true, readOnly:true}, {xtype:'datefield', fieldLabel:'实际开始时间', format:'Y/m/d H:i:s', name:'realityStartTime', emptyText:'--------请选择---------', allowBlank:false, blankText:'请选择实际开始时间'}, {xtype:'datefield', 
+fieldLabel:'实际结束时间', format:'Y/m/d H:i:s', name:'realityEndTime', emptyText:'--------请选择---------', allowBlank:false, blankText:'请选择实际结束时间'}], bbar:[{xtype:'button', ui:'soft-green', text:'提交', handler:'onClickReportBackFormSubmitButton'}, {xtype:'button', ui:'gray', text:'取消', handler:function(btn) {
+  var win = btn.up('window');
+  if (win) {
+    win.close();
+  }
+}}]});
 Ext.define('Admin.view.authentication.AuthenticationController', {extend:Ext.app.ViewController, alias:'controller.authentication', onFaceBookLogin:function() {
   this.redirectTo('dashboard', true);
 }, onLoginButton:function(btn) {

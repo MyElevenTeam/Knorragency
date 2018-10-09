@@ -60,6 +60,25 @@ Ext.define('Admin.store.NavigationTree', {
                 viewType: 'attence',
                 leaf: true
             },{
+                text: '考勤管理',
+                iconCls: 'x-fa  fa-calendar-o',
+                expanded: false,
+                selectable: false,
+                children: [
+                    {
+                        text: '部门考勤表',
+                        iconCls: 'x-fa fa-copy',
+                        //viewType: 'contract',
+                        leaf: true
+                    },
+                    {
+                        text: '考勤审核',
+                        iconCls: 'x-fa fa-pencil-square-o',
+                        viewType: 'attenceApprove',
+                        leaf: true
+                    }
+                ]
+            },{
                 text: '流程定义图',
                 iconCls: 'x-fa fa-file-picture-o',
                 //rowCls: 'nav-tree-badge nav-tree-badge-new',
