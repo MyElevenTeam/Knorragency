@@ -21,6 +21,8 @@ public interface IAttenceService {
 	
 	public Page<Attence> findAll(Specification<Attence> spec, Pageable pageable);
 	
-	public List<Attence> findAttence(Specification<Attence> spec);
+	public int findAttence(String employeeName);
+	
+	public List<Attence> findByEmployeeName(Specification<Attence> spec);
 
 }

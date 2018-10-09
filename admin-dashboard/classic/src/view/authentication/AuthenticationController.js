@@ -20,10 +20,8 @@
             success: function(response, options) {
             	var json = Ext.util.JSON.decode(response.responseText);
 	            if(json.success){
-	            	me.redirectTo('dashboard', true);
-	            	Ext.getCmp('loginUserName').setText(json.map.userName);
-	            	//Ext.getCmp('loginUserImage').getEl().dom.src = json.map.loginUserImage;
-	            
+                    me.redirectTo('dashboard', true);
+                    Ext.getCmp('loginUserName').setText(json.map.userName);
 		        }else{
 		        	Ext.Msg.alert('登录失败', json.msg);
 		        }

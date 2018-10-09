@@ -9,8 +9,11 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.poi.POIXMLDocument;
@@ -29,6 +32,10 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.util.ResourceUtils;
 
+import com.example.demo.attence.entity.Attence;
+import com.example.demo.attence.entity.AttenceQueryDTO;
+import com.example.demo.attence.service.AttenceService;
+import com.example.demo.attence.utils.AttenceUtil;
 import com.example.demo.contract.entity.Contract;
 import com.example.demo.contract.service.IContractService;
 
@@ -38,6 +45,9 @@ public class ContractServiceTest {
 	
 	@Autowired
 	private IContractService contractService;
+	
+	@Autowired
+	private AttenceService attenceService;
 	
 	@Test
 	public void readWord() throws IOException, ParseException, XmlException, OpenXML4JException {
@@ -70,7 +80,8 @@ public class ContractServiceTest {
 	
 	public void build(File tmpFile, Map<String, String> contentMap, String exportFile) throws Exception {
 	    FileInputStream tempFileInputStream = new FileInputStream(tmpFile);
-	    HWPFDocument document = new HWPFDocument(tempFileInputStream);
+	    @SuppressWarnings("resource")
+		HWPFDocument document = new HWPFDocument(tempFileInputStream);
 	    // 读取文本内容
 	    Range bodyRange = document.getRange();
 	    // 替换内容
@@ -103,22 +114,46 @@ public class ContractServiceTest {
 	@Test
 	public void tt() throws ParseException {
 		
-		SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
+        
+		Calendar todayStart = Calendar.getInstance();		
+		todayStart.set(Calendar.HOUR_OF_DAY, 0);		
+		todayStart.set(Calendar.MINUTE, 0);		
+		todayStart.set(Calendar.SECOND, 0);		
 		
-		String time="10:00:00";
-		
-		Date date=new Date();
-		String work=sdf.format(date);
-		
-		//System.out.println(sdf.format(date));
-		
-		String[]array1 = time.split(":");				
-		int total1 = Integer.valueOf(array1[0])*3600+Integer.valueOf(array1[1])*60+Integer.valueOf(array1[2]);				
-		String[]array2 = work.split(":");				
-		int total2 = Integer.valueOf(array2[0])*3600+Integer.valueOf(array2[1])*60+Integer.valueOf(array2[2]);
+		System.out.println("todayStart:"+todayStart.getTime());
 
-		System.out.println("time:"+total1);
-		System.out.println("work:"+total2);
+		
+		Calendar calendar = Calendar.getInstance();
+		calendar.setTime(new Date());
+		calendar.set(Calendar.HOUR_OF_DAY, 0);
+		calendar.set(Calendar.MINUTE, 0);
+		calendar.set(Calendar.SECOND, 0);
+		calendar.set(Calendar.MILLISECOND, 0);
+		calendar.add(Calendar.DAY_OF_MONTH, 1);
+		System.out.println("todayEnd:"+calendar.getTime());
+        
+        AttenceQueryDTO dto=new AttenceQueryDTO();
+        dto.setEmployeeName("admin");
+        dto.setWorkinTime(todayStart.getTime());
+        //dto.setWorkoutTime(new Date());
+        List<Attence> attenceList=new ArrayList<Attence>();
+		attenceList=attenceService.findByEmployeeName(AttenceQueryDTO.getWhereClause(dto));
+		for(Attence attence:attenceList) {
+			System.out.println(attence);
+		}
+
 	}
+	
+	@Test
+	public void time() throws ParseException {
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+		Date dBegin = sdf.parse("2018-10-08");
+		Date dEnd = sdf.parse("2018-10-12");
+		List<Date> datas = AttenceUtil.findDates(dBegin, dEnd);
+        for(Date date:datas) {
+        	System.out.println(sdf.format(date));
+        }
+	}
+
 
 }

@@ -11,7 +11,6 @@
         'Ext.data.reader.Json'
     ],
     stores: {
-        processDefinitionLists: {type: 'processDefinitionStroe'},
         contractApproveLists:{type:'contractApproveStore'}
     }
 });

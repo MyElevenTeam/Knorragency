@@ -6,11 +6,11 @@ Ext.define('Admin.view.dashboard.Dashboard', {
         'Ext.ux.layout.ResponsiveColumn'
     ],
 
-   /* controller: 'dashboard',
-    viewModel: {
-        type: 'dashboard'
-    },*/
-
+    controller: 'dashboard',
+    // viewModel: {
+    //     type: 'dashboard'
+    // },
+    
     layout: 'responsivecolumn',
 
     items:[
