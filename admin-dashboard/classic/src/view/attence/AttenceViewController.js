@@ -43,44 +43,44 @@ Ext.define('Admin.view.attence.AttenceViewController', {
         Ext.Msg.alert('提示', "只可以删除'新建'状态的信息！");
       }
     },
-    // /*Delete More Rows*/  
-    // deleteMoreRows:function(btn, rowIndex, colIndex){
-    //   var grid = btn.up('gridpanel');
-    //   var selModel = grid.getSelectionModel();
-    //   if (selModel.hasSelection()) {
-    //     Ext.Msg.confirm("警告", "确定要删除吗？", function (button) {
-    //       if (button == "yes") {
-    //         var rows = selModel.getSelection();
-    //         var selectIds = []; //要删除的id
-    //         Ext.each(rows, function (row) {
-    //           if(row.data.processStatus=="NEW"){
-    //             selectIds.push(row.data.id);
-    //           }
-    //         });
-    //         Ext.Ajax.request({ 
-    //           url : '/leave/deletes', 
-    //           method : 'post', 
-    //           params : { 
-    //             //ids[] :selectIds
-    //             ids :selectIds
-    //           }, 
-    //           success: function(response, options) {
-    //             var json = Ext.util.JSON.decode(response.responseText);
-    //             if(json.success){
-    //               Ext.Msg.alert('操作成功', json.msg, function() {
-    //               grid.getStore().reload();
-    //             });
-    //             }else{
-    //               Ext.Msg.alert('操作失败', json.msg);
-    //             }
-    //           }
-    //         });
-    //       }
-    //     });
-    //   }else {
-    //     Ext.Msg.alert("错误", "没有任何行被选中，无法进行删除操作！");
-    //   }
-    // },
+    /*Delete More Rows*/  
+    deleteMoreRows:function(btn, rowIndex, colIndex){
+      var grid = btn.up('gridpanel');
+      var selModel = grid.getSelectionModel();
+      if (selModel.hasSelection()) {
+        Ext.Msg.confirm("警告", "确定要删除吗？", function (button) {
+          if (button == "yes") {
+            var rows = selModel.getSelection();
+            var selectIds = []; //要删除的id
+            Ext.each(rows, function (row) {
+              if(row.data.processStatus=="NEW"){
+                selectIds.push(row.data.id);
+              }
+            });
+            Ext.Ajax.request({ 
+              url : '/leave/deletes', 
+              method : 'post', 
+              params : { 
+                //ids[] :selectIds
+                ids :selectIds
+              }, 
+              success: function(response, options) {
+                var json = Ext.util.JSON.decode(response.responseText);
+                if(json.success){
+                  Ext.Msg.alert('操作成功', json.msg, function() {
+                  grid.getStore().reload();
+                });
+                }else{
+                  Ext.Msg.alert('操作失败', json.msg);
+                }
+              }
+            });
+          }
+        });
+      }else {
+        Ext.Msg.alert("错误", "没有任何行被选中，无法进行删除操作！");
+      }
+    },
     /*Star Leave Process*/  
     starLeaveProcess:function(grid, rowIndex, colIndex){
       var record = grid.getStore().getAt(rowIndex);

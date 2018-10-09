@@ -22,15 +22,22 @@
                 ui: 'header',
                 tooltip: '查找',
                 handler:'hhh'  
-            },'-',
+            },
             {
                 iconCls:'fa fa-trash',
                 ui: 'header',
+                id: 'leaveGridPanelRemove',
+                disabled: true,
                 tooltip: '删除多条',
-                disabled: true
+                handler:'deleteMoreRows'  
             }
         ]
-    },   
+    },  
+    listeners: {
+		selectionchange: function(selModel, selections){
+			this.getCmp('#leaveGridPanelRemove').setDisabled(selections.length === 0);
+		}
+	},
     modal:true,
     layout: 'fit',
     items: [
@@ -137,7 +144,6 @@
                     ]
                 }
             ],
-               
             dockedItems: [{
                 xtype: 'pagingtoolbar',
                 dock: 'bottom',

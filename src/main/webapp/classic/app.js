@@ -104609,6 +104609,34 @@ Ext.define('Admin.view.attence.AttenceViewController', {extend:Ext.app.ViewContr
   } else {
     Ext.Msg.alert('提示', "只可以删除'新建'状态的信息！");
   }
+}, deleteMoreRows:function(btn, rowIndex, colIndex) {
+  var grid = btn.up('gridpanel');
+  var selModel = grid.getSelectionModel();
+  if (selModel.hasSelection()) {
+    Ext.Msg.confirm('警告', '确定要删除吗？', function(button) {
+      if (button == 'yes') {
+        var rows = selModel.getSelection();
+        var selectIds = [];
+        Ext.each(rows, function(row) {
+          if (row.data.processStatus == 'NEW') {
+            selectIds.push(row.data.id);
+          }
+        });
+        Ext.Ajax.request({url:'/leave/deletes', method:'post', params:{ids:selectIds}, success:function(response, options) {
+          var json = Ext.util.JSON.decode(response.responseText);
+          if (json.success) {
+            Ext.Msg.alert('操作成功', json.msg, function() {
+              grid.getStore().reload();
+            });
+          } else {
+            Ext.Msg.alert('操作失败', json.msg);
+          }
+        }});
+      }
+    });
+  } else {
+    Ext.Msg.alert('错误', '没有任何行被选中，无法进行删除操作！');
+  }
 }, starLeaveProcess:function(grid, rowIndex, colIndex) {
   var record = grid.getStore().getAt(rowIndex);
   Ext.Ajax.request({url:'/leave/start', method:'post', params:{id:record.get('id')}, success:function(response, options) {
@@ -104636,8 +104664,9 @@ value:'NEW', hidden:true, readOnly:true}, {xtype:'textfield', name:'userId', fie
 name:'reason', fieldLabel:'请假原因', anchor:'100%', emptyText:'请填写请假原因', allowBlank:false, blankText:'请填写请假原因'}]}], buttons:[{xtype:'button', text:'保存', handler:'submitAddForm'}, '-\x3e', {xtype:'button', text:'取消', handler:function(btn) {
   btn.up('window').close();
 }}]});
-Ext.define('Admin.view.attence.LeaveGridWindow', {extend:Ext.window.Window, alias:'widget.leaveGridWindow', height:550, minHeight:500, width:1200, scrollable:true, title:'我的请假单', closable:true, constrain:false, autoScroll:true, header:{items:[{iconCls:'fa fa-search', ui:'header', tooltip:'查找', handler:'hhh'}, '-', {iconCls:'fa fa-trash', ui:'header', tooltip:'删除多条', disabled:true}]}, modal:true, layout:'fit', items:[{xtype:'gridpanel', bind:'{leaveLists}', autoScroll:true, selModel:{type:'checkboxmodel'}, 
-plugins:{rowediting:{clicksToEdit:2}}, columns:[{header:'id', dataIndex:'id', width:60, sortable:true, hidden:true}, {header:'审核状态', dataIndex:'processStatus', width:60, sortable:true, renderer:function(val) {
+Ext.define('Admin.view.attence.LeaveGridWindow', {extend:Ext.window.Window, alias:'widget.leaveGridWindow', height:550, minHeight:500, width:1200, scrollable:true, title:'我的请假单', closable:true, constrain:false, autoScroll:true, header:{items:[{iconCls:'fa fa-search', ui:'header', tooltip:'查找', handler:'hhh'}, {iconCls:'fa fa-trash', ui:'header', id:'leaveGridPanelRemove', disabled:true, tooltip:'删除多条', handler:'deleteMoreRows'}]}, listeners:{selectionchange:function(selModel, selections) {
+  this.getCmp('#leaveGridPanelRemove').setDisabled(selections.length === 0);
+}}, modal:true, layout:'fit', items:[{xtype:'gridpanel', bind:'{leaveLists}', autoScroll:true, selModel:{type:'checkboxmodel'}, plugins:{rowediting:{clicksToEdit:2}}, columns:[{header:'id', dataIndex:'id', width:60, sortable:true, hidden:true}, {header:'审核状态', dataIndex:'processStatus', width:60, sortable:true, renderer:function(val) {
   if (val == 'NEW') {
     return '\x3cspan style\x3d"color:green;"\x3e新建\x3c/span\x3e';
   } else {
