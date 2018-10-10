@@ -105656,6 +105656,7 @@ Ext.define('Admin.view.attenceapprove.AttenceApproveViewController', {extend:Ext
       Ext.Msg.alert('操作成功', json.msg, function() {
         form.up('window').close();
         Ext.data.StoreManager.lookup('leaveApproveStore').load();
+        Ext.data.StoreManager.lookup('appealApproveStore').load();
       });
     } else {
       Ext.Msg.alert('操作失败', json.msg);

@@ -33,6 +33,7 @@
                         form.up('window').close();
                         //grid.getStore().reload();
                         Ext.data.StoreManager.lookup('leaveApproveStore').load();
+                        Ext.data.StoreManager.lookup('appealApproveStore').load();
                     });
                 } else {
                     Ext.Msg.alert('操作失败', json.msg);

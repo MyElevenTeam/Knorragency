@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.example.demo.activiti.entity.ProcessStatus;
 import com.example.demo.attence.entity.Attence;
+import com.example.demo.attence.entity.AttenceStatus;
 import com.example.demo.attence.service.IAttenceService;
 
 public class AppealProcessorEndListener implements TaskListener{
@@ -27,6 +28,7 @@ public class AppealProcessorEndListener implements TaskListener{
         Attence attence = attenceService.findById(new Long(processInstance.getBusinessKey())).get();
 
         attence.setProcessStatus(ProcessStatus.COMPLETE);
+        attence.setAttenceStatus(AttenceStatus.NORMAL);
         //leaveService.save(leave);
     }
 }
