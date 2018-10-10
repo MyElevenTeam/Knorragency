@@ -82,8 +82,28 @@ Ext.define('Admin.view.attence.AttenceViewController', {
         Ext.Msg.alert("错误", "没有任何行被选中，无法进行删除操作！");
       }
     },
-
-
+    /***********************************************开启请假流程***********************************************************/
+    /*Star Leave Process*/ 
+    starLeaveProcess:function(grid, rowIndex, colIndex){
+      var record = grid.getStore().getAt(rowIndex);
+      Ext.Ajax.request({ 
+        url : '/leave/start', 
+        method : 'post', 
+        params : {
+          id :record.get("id")
+        }, 
+        success: function(response, options) {
+          var json = Ext.util.JSON.decode(response.responseText);
+          if(json.success){
+            Ext.Msg.alert('操作成功', json.msg, function() {
+            grid.getStore().reload();
+          });
+          }else{
+            Ext.Msg.alert('操作失败', json.msg);
+          }
+        }
+      });
+    },
 
     /***********************************************申诉业务***********************************************************/
     openAppealWindow:function(grid,rowIndex, colIndex){
@@ -109,30 +129,31 @@ Ext.define('Admin.view.attence.AttenceViewController', {
         Ext.Msg.alert('提示','上班记录正常无需申诉');
       }
     },
-    /*Star Appeal Process*/  
-    starAppealProcess:function(grid, rowIndex, colIndex){
-      var record = grid.getStore().getAt(rowIndex);
-      if(form.isValid()){
-          Ext.Ajax.request({ 
-              url : '/attence/start', 
-              method : 'post', 
-              params : {
-                id :record.get("id")
-              }, 
-              success: function(response, options) {
-                var json = Ext.util.JSON.decode(response.responseText);
-                if(json.success){
-                  Ext.Msg.alert('操作成功', json.msg, function() {
-                  grid.getStore().reload();
-                });
-                }else{
-                  Ext.Msg.alert('操作失败', json.msg);
-                }
+
+     /*Star Appeal Process*/ 
+    starAppealProcess:function(btn){
+        Ext.Ajax.request({ 
+            url : '/attence/start', 
+            method : 'post', 
+            params : {
+              id :btn.up('window').down('form').getForm().findField("id").getValue(),
+              appealreason:btn.up('window').down('form').getForm().findField("appealreason").getValue()
+            }, 
+            success: function(response, options) {
+              var json = Ext.util.JSON.decode(response.responseText);
+              if(json.success){
+                Ext.Msg.alert('操作成功', json.msg, function() {
+                Ext.getCmp('appeal_processStatus').show();
+                Ext.getCmp('appeal_appealreason').show();
+                btn.up('window').close();
+                Ext.data.StoreManager.lookup('attenceGridStroe').load();
+              });
+              }else{
+                Ext.Msg.alert('操作失败', json.msg);
               }
-          });
-      }else{
-        Ext.Msg.alert('提示','请填写申诉原因再提交');
-      }
-      
+            }
+        });
     }
+  
+     
 });

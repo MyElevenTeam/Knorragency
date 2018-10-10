@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import org.activiti.engine.runtime.ProcessInstance;
 import org.springframework.beans.BeanUtils;
@@ -120,8 +121,9 @@ public class LeaveService implements ILeaveService {
 	            if (workflow.getBusinessKey() == null) {
 	                continue;
 	            }
-	            Leave leave = leaveRepository.findById(businessKey).get();
-	            if(leave!=null){
+	            Optional<Leave> leaveOptional=leaveRepository.findById(businessKey);
+	            if(leaveOptional!=null&&leaveOptional.isPresent()){
+	            	Leave leave=leaveOptional.get();
 	            	LeaveDTO leaveDTO = new LeaveDTO();
 	            	
 	            	leaveDTO.setDepreason(depreason);

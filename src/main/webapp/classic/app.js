@@ -105264,6 +105264,8 @@ Ext.define('Admin.model.Base', {extend:Ext.data.Model, schema:{namespace:'Admin.
 Ext.define('Admin.model.addressList.AddListModel', {extend:Admin.model.Base, fields:[{type:'int', name:'id'}, {type:'string', name:'employeeName'}, {type:'string', name:'employeeNumber'}, {type:'string', name:'employeeArea'}, {type:'string', name:'post'}, {type:'string', name:'email'}], proxy:{type:'rest', url:'/addressList'}});
 Ext.define('Admin.model.attence.AttenceModel', {extend:Admin.model.Base, fields:[{type:'int', name:'id'}, {type:'string', name:'employeeName'}, {type:'string', name:'location'}, {type:'date', name:'workinTime', dateFormat:'Y/m/d H:i:s'}, {type:'date', name:'workoutTime', dateFormat:'Y/m/d H:i:s'}, {type:'string', name:'attenceStatus'}, {type:'string', name:'processInstanceId'}, {type:'string', name:'processStatus'}, {type:'string', name:'userId'}, {type:'string', name:'appealreason'}], proxy:{type:'rest', 
 url:'/attence'}});
+Ext.define('Admin.model.attenceapprove.AppealApproveModel', {extend:Admin.model.Base, fields:[{type:'int', name:'id'}, {type:'string', name:'employeeName'}, {type:'string', name:'location'}, {type:'date', name:'workinTime'}, {type:'date', name:'workoutTime'}, {type:'string', name:'attenceStatus'}, {type:'string', name:'processStatus'}, {type:'string', name:'appealreason'}, {type:'date', name:'applyTime'}, {type:'string', name:'taskId'}, {type:'string', name:'taskName'}, {type:'date', name:'taskCreateTime'}, 
+{type:'string', name:'assignee'}, {type:'string', name:'taskDefinitionKey'}, {type:'string', name:'processInstanceId'}, {type:'string', name:'processDefinitionId'}, {type:'boolean', name:'suspended'}, {type:'int', name:'version'}, {type:'string', name:'depreason'}, {type:'string', name:'hrreason'}]});
 Ext.define('Admin.model.attenceapprove.LeaveApproveModel', {extend:Admin.model.Base, fields:[{type:'int', name:'id'}, {type:'string', name:'userId'}, {type:'date', name:'startTime'}, {type:'date', name:'endTime'}, {type:'date', name:'realityStartTime'}, {type:'date', name:'realityEndTime'}, {type:'date', name:'applyTime'}, {type:'string', name:'leaveType'}, {type:'string', name:'processStatus'}, {type:'string', name:'reason'}, {type:'string', name:'processInstanceId'}, {type:'string', name:'taskId'}, 
 {type:'string', name:'taskName'}, {type:'date', name:'taskCreateTime'}, {type:'string', name:'assignee'}, {type:'string', name:'taskDefinitionKey'}, {type:'string', name:'processDefinitionId'}, {type:'boolean', name:'suspended'}, {type:'int', name:'version'}, {type:'string', name:'depreason'}, {type:'string', name:'hrreason'}]});
 Ext.define('Admin.model.contract.ContractModel', {extend:Admin.model.Base, fields:[{type:'int', name:'id'}, {type:'string', name:'contractNumber'}, {type:'string', name:'customerName'}, {type:'string', name:'hoseName'}, {type:'string', name:'employeeName'}, {type:'date', name:'startTime', dateFormat:'Y/m/d H:i:s'}, {type:'date', name:'endTime', dateFormat:'Y/m/d H:i:s'}, {type:'string', name:'contractType'}, {type:'float', name:'total'}, {type:'string', name:'area'}, {type:'string', name:'processInstanceId'}, 
@@ -105280,6 +105282,7 @@ iconCls:'x-fa fa-pencil-square-o', viewType:'contractApprove', leaf:true}]}, {te
 leaf:true}]}, {text:'流程定义图', iconCls:'x-fa fa-file-picture-o', viewType:'processDefinition', leaf:true}, {text:'Charts', iconCls:'x-fa fa-fax', viewType:'charts', leaf:true}, {text:'Login', iconCls:'x-fa fa-check', viewType:'login', leaf:true}]}});
 Ext.define('Admin.store.addressList.AddressListPanelStroe', {extend:Ext.data.Store, alias:'store.addressListPanelStroe', model:'Admin.model.addressList.AddListModel', proxy:{type:'rest', url:'/addressList', reader:{type:'json', rootProperty:'content', totalProperty:'totalElements'}, writer:{type:'json'}, simpleSortMode:true}, autoLoad:'true', autoSync:true, remoteSort:true, pageSize:20, sorters:{direction:'ASC', property:'id'}});
 Ext.define('Admin.store.attence.AttenceGridStroe', {extend:Ext.data.Store, storeId:'attenceGridStroe', alias:'store.attenceGridStroe', model:'Admin.model.attence.AttenceModel', proxy:{type:'rest', url:'/attence', reader:{type:'json', rootProperty:'content', totalProperty:'totalElements'}, writer:{type:'json'}, simpleSortMode:true}, autoLoad:'true', autoSync:true, remoteSort:true, pageSize:20, sorters:{direction:'ASC', property:'id'}});
+Ext.define('Admin.store.attenceapprove.AppealApproveStore', {extend:Ext.data.Store, storeId:'appealApproveStore', alias:'store.appealApproveStore', model:'Admin.model.attenceapprove.AppealApproveModel', proxy:{type:'ajax', url:'attence/tasks', reader:new Ext.data.JsonReader({type:'json', rootProperty:'content', totalProperty:'totalElements'}), simpleSortMode:true}, remoteSort:true, sorters:[{property:'id', direction:'desc'}], autoLoad:true});
 Ext.define('Admin.store.attenceapprove.LeaveApproveStore', {extend:Ext.data.Store, storeId:'leaveApproveStore', alias:'store.leaveApproveStore', model:'Admin.model.attenceapprove.LeaveApproveModel', proxy:{type:'ajax', url:'leave/tasks', reader:new Ext.data.JsonReader({type:'json', rootProperty:'content', totalProperty:'totalElements'}), simpleSortMode:true}, remoteSort:true, sorters:[{property:'id', direction:'desc'}], autoLoad:true});
 Ext.define('Admin.store.contract.ContractGridStroe', {extend:Ext.data.Store, storeId:'contractGridStroe', alias:'store.contractGridStroe', model:'Admin.model.contract.ContractModel', proxy:{type:'rest', url:'/contract', reader:{type:'json', rootProperty:'content', totalProperty:'totalElements'}, writer:{type:'json'}, simpleSortMode:true}, autoLoad:'true', autoSync:true, remoteSort:true, pageSize:20, sorters:{direction:'ASC', property:'id'}});
 Ext.define('Admin.store.contractapprove.ContractApproveStore', {extend:Ext.data.Store, storeId:'contractApproveStore', alias:'store.contractApproveStore', model:'Admin.model.contractapprove.ContractApproveModel', proxy:{type:'ajax', url:'contract/tasks', reader:new Ext.data.JsonReader({type:'json', rootProperty:'content', totalProperty:'totalElements'}), simpleSortMode:true}, remoteSort:true, sorters:[{property:'id', direction:'desc'}], autoLoad:true});
@@ -105331,8 +105334,8 @@ cls:'content-column', dataIndex:'employeeArea', text:'Area', flex:1}, {xtype:'gr
 iconCls:'x-fa fa-ban', handler:'onDisableButton'}]}], dockedItems:[{xtype:'pagingtoolbar', dock:'bottom', itemId:'userPaginationToolbar', displayInfo:true, bind:'{addressListLists}'}]}]});
 Ext.define('Admin.view.addressList.AddressListViewModel', {extend:Ext.app.ViewModel, alias:'viewmodel.addressListViewModel', stores:{addressListLists:{type:'addressListPanelStroe'}}});
 Ext.define('Admin.view.attence.AppealWindow', {extend:Ext.window.Window, alias:'widget.appealWindow', height:420, width:550, scrollable:true, title:'申诉表', closable:true, modal:true, layout:'fit', items:[{xtype:'form', layout:'form', padding:'10px', ariaLabel:'Enter your name', items:[{xtype:'textfield', fieldLabel:'id', name:'id', hidden:true, readOnly:true}, {xtype:'textfield', fieldLabel:'申诉人', cls:'appeal', readOnly:true, name:'employeeName'}, {xtype:'textfield', fieldLabel:'打卡地点', cls:'appeal', 
-readOnly:true, name:'location'}, {xtype:'datefield', fieldLabel:'上班时间', cls:'appeal', readOnly:true, name:'workinTime', format:'Y/m/d H:i:s'}, {xtype:'datefield', fieldLabel:'下班时间', cls:'appeal', readOnly:true, name:'workoutTime', format:'Y/m/d H:i:s'}, {xtype:'textfield', fieldLabel:'原上班状态', cls:'appeal', readOnly:true, name:'attenceStatus'}, {xtype:'textareafield', grow:true, name:'appealreason', emptyText:'此处填写申诉原因', fieldLabel:'申诉原因', allowBlank:false, anchor:'100%'}]}], buttons:[{xtype:'button', 
-text:'发起申诉', style:{'background-color':'dynamic(#fc8999)', 'border-color':'dynamic(#fc8999)'}, handler:'submitUserEditFormButton'}, {xtype:'button', text:'取消', handler:function(btn) {
+readOnly:true, name:'location'}, {xtype:'datefield', fieldLabel:'上班时间', cls:'appeal', readOnly:true, name:'workinTime', format:'Y/m/d H:i:s'}, {xtype:'datefield', fieldLabel:'下班时间', cls:'appeal', readOnly:true, name:'workoutTime', format:'Y/m/d H:i:s'}, {xtype:'textfield', fieldLabel:'原上班状态', cls:'appeal', readOnly:true, name:'attenceStatus', style:{'color':'red'}}, {xtype:'textareafield', grow:true, name:'appealreason', emptyText:'此处填写申诉原因', fieldLabel:'申诉原因', allowBlank:false, anchor:'100%'}]}], 
+buttons:[{xtype:'button', text:'发起申诉', style:{'background-color':'dynamic(#fc8999)', 'border-color':'dynamic(#fc8999)'}, handler:'starAppealProcess'}, {xtype:'button', text:'取消', handler:function(btn) {
   btn.up('window').close();
 }}]});
 Ext.define('Admin.view.attence.Attence', {extend:Ext.container.Container, xtype:'attence', controller:'attenceViewController', viewModel:{type:'attenceViewModel'}, layout:'fit', items:[{xtype:'attencePanel'}]});
@@ -105356,8 +105359,25 @@ Ext.define('Admin.view.attence.AttencePanel', {extend:Ext.panel.Panel, xtype:'at
     }
   }
   return val;
-}}, {xtype:'gridcolumn', cls:'content-column', width:150, dataIndex:'employeeName', text:'员工姓名'}, {xtype:'gridcolumn', cls:'content-column', width:150, dataIndex:'location', text:'打卡地点'}, {xtype:'datecolumn', cls:'content-column', width:150, dataIndex:'workinTime', text:'上班时间', flex:1, formatter:'date("Y/m/d H:i:s")'}, {xtype:'datecolumn', cls:'content-column', width:150, dataIndex:'workoutTime', text:'下班时间', flex:1, formatter:'date("Y/m/d H:i:s")'}, {xtype:'gridcolumn', cls:'content-column', width:150, 
-dataIndex:'processStatus', text:'申诉状态', hidden:true}, {xtype:'gridcolumn', cls:'content-column', width:150, dataIndex:'userId', text:'申诉人', hidden:true}, {xtype:'gridcolumn', cls:'content-column', width:150, dataIndex:'appealreason', text:'申诉原因', hidden:true}, {xtype:'actioncolumn', cls:'content-column', width:150, dataIndex:'bool', text:'操作', tooltip:'edit ', items:[{xtype:'button', iconCls:'x-fa fa-hand-paper-o', tooltip:'发起申诉', getClass:function(v, meta, rec) {
+}}, {header:'申诉状态', dataIndex:'processStatus', width:120, sortable:true, hidden:true, id:'appeal_processStatus', renderer:function(val) {
+  if (val == 'NEW') {
+    return '\x3cspan style\x3d"color:green;"\x3e未发起申诉\x3c/span\x3e';
+  } else {
+    if (val == 'APPROVAL') {
+      return '\x3cspan style\x3d"color:blue;"\x3e申诉中……\x3c/span\x3e';
+    } else {
+      if (val == 'COMPLETE') {
+        return '\x3cspan style\x3d"color:orange;"\x3e已通过申诉\x3c/span\x3e';
+      } else {
+        if (val == 'CANCEL') {
+          return '\x3cspan style\x3d"color:red;"\x3e取消申诉\x3c/span\x3e';
+        }
+      }
+    }
+  }
+  return val;
+}}, {xtype:'gridcolumn', cls:'content-column', width:150, dataIndex:'appealreason', text:'申诉原因', hidden:true, id:'appeal_appealreason'}, {xtype:'gridcolumn', cls:'content-column', width:150, dataIndex:'userId', text:'申诉人', hidden:true}, {xtype:'gridcolumn', cls:'content-column', width:150, dataIndex:'employeeName', text:'员工姓名'}, {xtype:'gridcolumn', cls:'content-column', width:150, dataIndex:'location', text:'打卡地点'}, {xtype:'datecolumn', cls:'content-column', width:180, dataIndex:'workinTime', text:'上班时间', 
+flex:1, formatter:'date("Y/m/d H:i:s")'}, {xtype:'datecolumn', cls:'content-column', width:180, dataIndex:'workoutTime', text:'下班时间', flex:1, formatter:'date("Y/m/d H:i:s")'}, {xtype:'actioncolumn', cls:'content-column', width:80, dataIndex:'bool', text:'操作', tooltip:'edit ', items:[{xtype:'button', iconCls:'x-fa fa-hand-paper-o', tooltip:'发起申诉', getClass:function(v, meta, rec) {
   if (rec.get('processInstanceId') != '') {
     return 'x-hidden';
   }
@@ -105463,6 +105483,20 @@ Ext.define('Admin.view.attence.AttenceViewController', {extend:Ext.app.ViewContr
   } else {
     Ext.Msg.alert('提示', '上班记录正常无需申诉');
   }
+}, starAppealProcess:function(btn) {
+  Ext.Ajax.request({url:'/attence/start', method:'post', params:{id:btn.up('window').down('form').getForm().findField('id').getValue(), appealreason:btn.up('window').down('form').getForm().findField('appealreason').getValue()}, success:function(response, options) {
+    var json = Ext.util.JSON.decode(response.responseText);
+    if (json.success) {
+      Ext.Msg.alert('操作成功', json.msg, function() {
+        Ext.getCmp('appeal_processStatus').show();
+        Ext.getCmp('appeal_appealreason').show();
+        btn.up('window').close();
+        Ext.data.StoreManager.lookup('attenceGridStroe').load();
+      });
+    } else {
+      Ext.Msg.alert('操作失败', json.msg);
+    }
+  }});
 }});
 Ext.define('Admin.view.attence.AttenceViewModel', {extend:Ext.app.ViewModel, alias:'viewmodel.attenceViewModel', stores:{attenceLists:{type:'attenceGridStroe'}, leaveLists:{type:'leaveStroe'}}});
 Ext.define('Admin.view.attence.LeaveAddWindow', {extend:Ext.window.Window, alias:'widget.leaveAddWindow', height:350, minHeight:350, minWidth:300, width:500, scrollable:true, title:'请假单', closable:true, constrain:true, defaultFocus:'textfield', modal:true, layout:'fit', items:[{xtype:'form', layout:'form', padding:'10px', ariaLabel:'Enter your name', items:[{xtype:'textfield', fieldLabel:'id', name:'id', hidden:true, readOnly:true}, {xtype:'textfield', fieldLabel:'processStatus', name:'processStatus', 
@@ -105557,35 +105591,51 @@ renderer:Ext.util.Format.dateRenderer('Y/m/d H:i:s')}, {header:'申请提交时�
   return val;
 }}, {header:'请假原因', dataIndex:'reason', width:80, sortable:true}, {header:'processInstanceId', dataIndex:'processInstanceId', width:80, sortable:true, hidden:true}, {header:'taskId', dataIndex:'taskId', width:80, sortable:true, hidden:true}, {header:'审核名称', dataIndex:'taskName', width:80, sortable:true}, {header:'审核时间', dataIndex:'taskCreateTime', width:150, sortable:true, renderer:Ext.util.Format.dateRenderer('Y/m/d H:i:s')}, {header:'assignee', dataIndex:'assignee', width:80, sortable:true, hidden:true}, 
 {header:'taskDefinitionKey', dataIndex:'taskDefinitionKey', width:80, sortable:true, hidden:true}, {header:'processDefinitionId', dataIndex:'processDefinitionId', width:80, sortable:true, hidden:true}, {header:'suspended', dataIndex:'suspended', width:80, sortable:true, hidden:true}, {header:'version', dataIndex:'version', width:60, sortable:true, hidden:true}, {header:'部门经理意见', dataIndex:'depreason', width:60, sortable:true}, {header:'人事部经理意见', dataIndex:'hrreason', width:60, sortable:true}], dockedItems:[{xtype:'pagingtoolbar', 
-dock:'bottom', bind:'{leaveApproveList}', displayInfo:true}]}, {title:'申诉审核', xtype:'gridpanel', cls:'process-definition-grid', layout:'fit', columns:[{xtype:'actioncolumn', items:[{xtype:'button', iconCls:'x-fa fa-pencil', tooltip:'签收任务', getClass:function(v, meta, rec) {
+dock:'bottom', bind:'{leaveApproveList}', displayInfo:true}]}, {title:'申诉审核', xtype:'gridpanel', cls:'process-definition-grid', bind:'{appealApproveList}', layout:'fit', columns:[{xtype:'actioncolumn', items:[{xtype:'button', iconCls:'x-fa fa-pencil', tooltip:'签收任务', getClass:function(v, meta, rec) {
   if (rec.get('assignee') != '') {
     return 'x-hidden';
   }
   return 'x-fa fa-pencil';
-}, handler:'onClickLeaveApproveClaimButton'}, {xtype:'button', iconCls:'x-fa fa-edit', tooltip:'审批任务', getClass:function(v, meta, rec) {
+}, handler:'onClickAppealApproveClaimButton'}, {xtype:'button', iconCls:'x-fa fa-edit', tooltip:'审批任务', getClass:function(v, meta, rec) {
   if (rec.get('assignee') == '') {
     return 'x-hidden';
   }
   return 'x-fa fa-edit';
-}, handler:'onClickLeaveApproveCompleteWindowButton'}, {xtype:'button', iconCls:'x-fa fa-object-group', tooltip:'任务跟踪', handler:'onClickGraphTraceButton'}], cls:'content-column', width:60, dataIndex:'bool', text:'操作', tooltip:'edit '}, {header:'id', dataIndex:'id', width:60, sortable:true, hidden:true}, {header:'审核状态', dataIndex:'processStatus', width:120, sortable:true, renderer:function(val) {
+}, handler:'onClickAppealApproveCompleteWindowButton'}, {xtype:'button', iconCls:'x-fa fa-object-group', tooltip:'任务跟踪', handler:'onClickGraphTraceButton'}], cls:'content-column', width:60, dataIndex:'bool', text:'操作', tooltip:'edit '}, {header:'id', dataIndex:'id', width:60, sortable:true, hidden:true}, {header:'审核状态', dataIndex:'processStatus', width:120, sortable:true, renderer:function(val) {
   if (val == 'NEW') {
-    return '\x3cspan style\x3d"color:green;"\x3e新建\x3c/span\x3e';
+    return '\x3cspan style\x3d"color:green;"\x3e未发起申诉\x3c/span\x3e';
   } else {
     if (val == 'APPROVAL') {
-      return '\x3cspan style\x3d"color:blue;"\x3e审批中...\x3c/span\x3e';
+      return '\x3cspan style\x3d"color:blue;"\x3e申诉审批中...\x3c/span\x3e';
     } else {
       if (val == 'COMPLETE') {
         return '\x3cspan style\x3d"color:orange;"\x3e完成审批\x3c/span\x3e';
       } else {
-        return '\x3cspan style\x3d"color:red;"\x3e取消申请\x3c/span\x3e';
+        return '\x3cspan style\x3d"color:red;"\x3e取消申诉\x3c/span\x3e';
       }
     }
   }
   return val;
-}}, {header:'申请人', dataIndex:'userId', width:120, sortable:true}, {header:'待申诉开始时间', dataIndex:'realityStartTime', width:180, sortable:true, renderer:Ext.util.Format.dateRenderer('Y/m/d H:i:s')}, {header:'待申诉结束时间', dataIndex:'realityEndTime', width:180, sortable:true, renderer:Ext.util.Format.dateRenderer('Y/m/d H:i:s')}, {header:'申诉原因', dataIndex:'reason', width:120, sortable:true}, {header:'申诉提交时间', dataIndex:'applyTime', width:150, sortable:true, renderer:Ext.util.Format.dateRenderer('Y/m/d H:i:s')}, 
-{header:'processInstanceId', dataIndex:'processInstanceId', width:80, sortable:true, hidden:true}, {header:'taskId', dataIndex:'taskId', width:80, sortable:true, hidden:true}, {header:'审核名称', dataIndex:'taskName', width:120, sortable:true}, {header:'审核时间', dataIndex:'taskCreateTime', width:150, sortable:true, renderer:Ext.util.Format.dateRenderer('Y/m/d H:i:s')}, {header:'assignee', dataIndex:'assignee', width:80, sortable:true, hidden:true}, {header:'taskDefinitionKey', dataIndex:'taskDefinitionKey', 
-width:80, sortable:true, hidden:true}, {header:'processDefinitionId', dataIndex:'processDefinitionId', width:80, sortable:true, hidden:true}, {header:'suspended', dataIndex:'suspended', width:80, sortable:true, hidden:true}, {header:'version', dataIndex:'version', width:60, sortable:true, hidden:true}, {header:'部门经理意见', dataIndex:'depreason', width:60, sortable:true, hidden:true}, {header:'人事部经理意见', dataIndex:'hrreason', width:60, sortable:true, hidden:true}], dockedItems:[{xtype:'pagingtoolbar', 
-dock:'bottom', displayInfo:true}]}]});
+}}, {header:'申请人', dataIndex:'employeeName', width:120, sortable:true}, {header:'待申诉开始时间', dataIndex:'workinTime', width:180, sortable:true, renderer:Ext.util.Format.dateRenderer('Y/m/d H:i:s')}, {header:'待申诉结束时间', dataIndex:'workoutTime', width:180, sortable:true, renderer:Ext.util.Format.dateRenderer('Y/m/d H:i:s')}, {header:'原上班状态', dataIndex:'attenceStatus', width:120, sortable:true, renderer:function(val) {
+  if (val == 'NORMAL') {
+    return '\x3cspan style\x3d"color:green;"\x3e正常\x3c/span\x3e';
+  } else {
+    if (val == 'LEAVE') {
+      return '\x3cspan style\x3d"color:blue;"\x3e请假\x3c/span\x3e';
+    } else {
+      if (val == 'LATER') {
+        return '\x3cspan style\x3d"color:red;"\x3e迟到\x3c/span\x3e';
+      } else {
+        if (val == 'EARLY') {
+          return '\x3cspan style\x3d"color:red;"\x3e早退\x3c/span\x3e';
+        }
+      }
+    }
+  }
+  return val;
+}}, {header:'申诉原因', dataIndex:'appealreason', width:120, sortable:true}, {header:'申诉提交时间', dataIndex:'applyTime', width:150, sortable:true, renderer:Ext.util.Format.dateRenderer('Y/m/d H:i:s')}, {header:'processInstanceId', dataIndex:'processInstanceId', width:80, sortable:true, hidden:true}, {header:'taskId', dataIndex:'taskId', width:80, sortable:true, hidden:true}, {header:'审核名称', dataIndex:'taskName', width:120, sortable:true}, {header:'审核时间', dataIndex:'taskCreateTime', width:150, sortable:true, 
+renderer:Ext.util.Format.dateRenderer('Y/m/d H:i:s')}, {header:'assignee', dataIndex:'assignee', width:80, sortable:true, hidden:true}, {header:'taskDefinitionKey', dataIndex:'taskDefinitionKey', width:80, sortable:true, hidden:true}, {header:'processDefinitionId', dataIndex:'processDefinitionId', width:80, sortable:true, hidden:true}, {header:'suspended', dataIndex:'suspended', width:80, sortable:true, hidden:true}, {header:'version', dataIndex:'version', width:60, sortable:true, hidden:true}, {header:'部门经理意见', 
+dataIndex:'depreason', width:60, sortable:true, hidden:true}, {header:'人事部经理意见', dataIndex:'hrreason', width:60, sortable:true, hidden:true}], dockedItems:[{xtype:'pagingtoolbar', dock:'bottom', bind:'{appealApproveList}', displayInfo:true}]}]});
 Ext.define('Admin.view.attenceapprove.AttenceApproveViewController', {extend:Ext.app.ViewController, alias:'controller.attenceApproveViewController', complete:function(url, variables, form) {
   var keys = '', values = '', types = '';
   if (variables) {
@@ -105693,8 +105743,65 @@ Ext.define('Admin.view.attenceapprove.AttenceApproveViewController', {extend:Ext
 }, selectChange:function() {
   var val = this.lookReference('ss').getValue();
   alert(val);
+}, onClickAppealApproveClaimButton:function(view, recIndex, cellIndex, item, e, record) {
+  Ext.Ajax.request({url:'attence/claim/' + record.get('taskId'), method:'post', success:function(response, options) {
+    var json = Ext.util.JSON.decode(response.responseText);
+    if (json.success) {
+      Ext.Msg.alert('操作成功', json.msg, function() {
+        view.getStore().reload();
+      });
+    } else {
+      Ext.Msg.alert('操作失败', json.msg);
+    }
+  }});
+}, onClickAppealApproveCompleteWindowButton:function(view, recIndex, cellIndex, item, e, record) {
+  var taskDefinitionKey = record.get('taskDefinitionKey');
+  var attenceStatus = record.get('attenceStatus');
+  if (attenceStatus == 'LEAVE') {
+    record.data.attenceStatus = '请假';
+  } else {
+    if (attenceStatus == 'LATER') {
+      record.data.attenceStatus = '迟到';
+    } else {
+      if (attenceStatus == 'EARLY') {
+        record.data.attenceStatus = '早退';
+      }
+    }
+  }
+  if (taskDefinitionKey == 'deptLeaderAudit') {
+    var win = this.setCurrentView(view, 'appealdeptLeaderAudit', '部门领导审批');
+    win.down('form').getForm().loadRecord(record);
+  } else {
+    if (taskDefinitionKey == 'hrAudit') {
+      var win = this.setCurrentView(view, 'appealhrAudit', '人事审批表单');
+      win.down('form').getForm().loadRecord(record);
+    } else {
+      if (taskDefinitionKey == 'modifyAppeal') {
+        var win = this.setCurrentView(view, 'appealmodifyApply', '调整申诉表单');
+        win.down('form').getForm().loadRecord(record);
+      }
+    }
+  }
+}, onClickAppealDeptleaderAuditFormSubmitButton:function(btn) {
+  var form = btn.up('form');
+  var values = form.getValues();
+  var url = 'attence/complete/' + values.taskId;
+  var variables = [{key:'deptLeaderPass', value:values.deptLeaderPass, type:'B'}, {key:'deptLeaderBackReason', value:values.deptLeaderBackReason, type:'S'}];
+  this.complete(url, variables, form);
+}, onClickAppealHrAuditFormSubmitButton:function(btn) {
+  var form = btn.up('form');
+  var values = form.getValues();
+  var url = 'attence/complete/' + values.taskId;
+  var variables = [{key:'hrPass', value:values.hrPass, type:'B'}, {key:'hrBackReason', value:values.hrBackReason, type:'S'}];
+  this.complete(url, variables, form);
+}, onClickAppealModifyApplyFormSubmitButton:function(btn) {
+  var form = btn.up('form');
+  var values = form.getValues();
+  var url = 'attence/complete/' + values.taskId;
+  var variables = [{key:'appealreason', value:values.appealreason, type:'S'}];
+  this.complete(url, variables, form);
 }});
-Ext.define('Admin.view.attenceapprove.AttenceApproveViewModel', {extend:Ext.app.ViewModel, alias:'viewmodel.attenceApproveViewModel', stores:{leaveApproveList:{type:'leaveApproveStore'}}});
+Ext.define('Admin.view.attenceapprove.AttenceApproveViewModel', {extend:Ext.app.ViewModel, alias:'viewmodel.attenceApproveViewModel', stores:{leaveApproveList:{type:'leaveApproveStore'}, appealApproveList:{type:'appealApproveStore'}}});
 Ext.define('Admin.view.attenceapprove.AttenceApproveWindow', {extend:Ext.window.Window, alias:'widget.attenceApproveWindow', autoShow:true, modal:true, layout:'fit', width:520, height:600, afterRender:function() {
   var me = this;
   me.callParent(arguments);
@@ -105710,6 +105817,30 @@ Ext.define('Admin.view.attenceapprove.AttenceApproveWindow', {extend:Ext.window.
   this.setXY([Math.floor(width * 0.05), Math.floor(height * 0.05)]);
 }});
 Ext.define('Admin.view.attenceapprove.AttenceApprove', {extend:Ext.panel.Panel, xtype:'attenceApprove', controller:'attenceApproveViewController', viewModel:{type:'attenceApproveViewModel'}, layout:'fit', items:[{xtype:'attenceApprovePanel'}]});
+Ext.define('Admin.view.attenceapprove.task.DeptLeaderAudit', {extend:Ext.form.Panel, alias:'widget.appealdeptLeaderAudit', bodyPadding:10, bodyBorder:true, defaults:{anchor:'100%'}, fieldDefaults:{labelAlign:'left', msgTarget:'none', invalidCls:''}, items:[{xtype:'textfield', name:'taskId', fieldLabel:'任务ID', hidden:true, readOnly:true}, {xtype:'textfield', fieldLabel:'申诉人', readOnly:true, name:'employeeName'}, {xtype:'textfield', fieldLabel:'打卡地点', readOnly:true, name:'location'}, {xtype:'datefield', 
+fieldLabel:'上班时间', readOnly:true, name:'workinTime', format:'Y/m/d H:i:s'}, {xtype:'datefield', fieldLabel:'下班时间', readOnly:true, name:'workoutTime', format:'Y/m/d H:i:s'}, {xtype:'textfield', fieldLabel:'原上班状态', readOnly:true, name:'attenceStatus', style:{'color':'red'}}, {xtype:'textareafield', grow:true, name:'appealreason', fieldLabel:'申诉原因', anchor:'100%'}, {xtype:'radiogroup', fieldLabel:'部门经理审批', defaults:{flex:1}, items:[{name:'deptLeaderPass', inputValue:true, boxLabel:'同意', checked:true}, 
+{name:'deptLeaderPass', inputValue:false, boxLabel:'不同意'}]}, {xtype:'textareafield', grow:true, name:'deptLeaderBackReason', emptyText:'此处可填写意见', fieldLabel:'意见', anchor:'100%'}], bbar:[{xtype:'button', ui:'soft-green', text:'提交', handler:'onClickAppealDeptleaderAuditFormSubmitButton'}, {xtype:'button', ui:'gray', text:'取消', handler:function(btn) {
+  var win = btn.up('window');
+  if (win) {
+    win.close();
+  }
+}}]});
+Ext.define('Admin.view.attenceapprove.task.HrAudit', {extend:Ext.form.Panel, alias:'widget.appealhrAudit', bodyPadding:10, bodyBorder:true, defaults:{anchor:'100%'}, fieldDefaults:{labelAlign:'left', msgTarget:'none', invalidCls:''}, items:[{xtype:'textfield', name:'taskId', fieldLabel:'任务ID', hidden:true, readOnly:true}, {xtype:'textfield', fieldLabel:'申诉人', readOnly:true, name:'employeeName'}, {xtype:'textfield', fieldLabel:'打卡地点', readOnly:true, name:'location'}, {xtype:'datefield', fieldLabel:'上班时间', 
+readOnly:true, name:'workinTime', format:'Y/m/d H:i:s'}, {xtype:'datefield', fieldLabel:'下班时间', readOnly:true, name:'workoutTime', format:'Y/m/d H:i:s'}, {xtype:'textfield', fieldLabel:'原上班状态', readOnly:true, name:'attenceStatus', style:{'color':'red'}}, {xtype:'textareafield', grow:true, readOnly:true, name:'appealreason', fieldLabel:'申诉原因', anchor:'100%'}, {xtype:'textareafield', name:'depreason', fieldLabel:'部门经理审批意见', readOnly:true}, {xtype:'radiogroup', fieldLabel:'人事文员审批', defaults:{flex:1}, 
+items:[{name:'hrPass', inputValue:true, boxLabel:'同意', checked:true}, {name:'hrPass', inputValue:false, boxLabel:'不同意'}]}, {xtype:'textareafield', grow:true, name:'hrBackReason', fieldLabel:'人事文员审批意见', emptyText:'此处可填写意见', anchor:'100%'}], bbar:[{xtype:'button', ui:'soft-green', text:'提交', handler:'onClickAppealHrAuditFormSubmitButton'}, {xtype:'button', ui:'gray', text:'取消', handler:function(btn) {
+  var win = btn.up('window');
+  if (win) {
+    win.close();
+  }
+}}]});
+Ext.define('Admin.view.attenceapprove.task.ModifyApply', {extend:Ext.form.Panel, alias:'widget.appealmodifyApply', bodyPadding:5, bodyBorder:true, defaults:{anchor:'100%'}, fieldDefaults:{labelAlign:'left', msgTarget:'none', invalidCls:''}, items:[{xtype:'radiogroup', fieldLabel:'重新申请', items:[{name:'reApply', inputValue:true, boxLabel:'是', checked:true}, {name:'reApply', inputValue:false, boxLabel:'否'}]}, {xtype:'textfield', name:'taskId', fieldLabel:'任务ID', hidden:true, readOnly:true}, {xtype:'textfield', 
+fieldLabel:'申诉人', readOnly:true, name:'employeeName'}, {xtype:'textfield', fieldLabel:'打卡地点', readOnly:true, name:'location'}, {xtype:'datefield', fieldLabel:'上班时间', readOnly:true, name:'workinTime', format:'Y/m/d H:i:s'}, {xtype:'datefield', fieldLabel:'下班时间', readOnly:true, name:'workoutTime', format:'Y/m/d H:i:s'}, {xtype:'textfield', fieldLabel:'原上班状态', readOnly:true, name:'attenceStatus', style:{'color':'red'}}, {xtype:'textareafield', grow:true, name:'appealreason', fieldLabel:'申诉原因', anchor:'100%'}, 
+{xtype:'textareafield', name:'depreason', fieldLabel:'部门经理审批意见', emptyText:'部门经理还未审批', readOnly:true}, {xtype:'textareafield', name:'hrreason', fieldLabel:'人事文员审批意见', emptyText:'人事文员还未审批', readOnly:true}], bbar:[{xtype:'button', ui:'soft-green', text:'提交', handler:'onClickAppealModifyApplyFormSubmitButton'}, {xtype:'button', ui:'gray', text:'取消', handler:function(btn) {
+  var win = btn.up('window');
+  if (win) {
+    win.close();
+  }
+}}]});
 Ext.define('Admin.view.attenceapprove.task.DeptLeaderAudit', {extend:Ext.form.Panel, alias:'widget.leavedeptLeaderAudit', bodyPadding:10, bodyBorder:true, defaults:{anchor:'100%'}, fieldDefaults:{labelAlign:'left', msgTarget:'none', invalidCls:''}, items:[{xtype:'textfield', name:'taskId', fieldLabel:'任务ID', hidden:true, readOnly:true}, {xtype:'textfield', cls:'dep', name:'userId', fieldLabel:'申请人', readOnly:true}, {xtype:'textfield', cls:'dep', name:'leaveType', fieldLabel:'请假类型', readOnly:true}, 
 {xtype:'datefield', cls:'dep', name:'startTime', fieldLabel:'开始时间', format:'Y/m/d H:i:s', readOnly:true}, {xtype:'datefield', cls:'dep', name:'endTime', fieldLabel:'结束时间', format:'Y/m/d H:i:s', readOnly:true}, {xtype:'textareafield', name:'reason', fieldLabel:'请假原因', readOnly:true}, {xtype:'radiogroup', fieldLabel:'部门经理审批', defaults:{flex:1}, items:[{name:'deptLeaderPass', inputValue:true, boxLabel:'同意', checked:true}, {name:'deptLeaderPass', inputValue:false, boxLabel:'不同意'}]}, {xtype:'textareafield', 
 grow:true, name:'deptLeaderBackReason', emptyText:'此处可填写意见', fieldLabel:'意见', anchor:'100%'}], bbar:[{xtype:'button', ui:'soft-green', text:'提交', handler:'onClickDeptleaderAuditFormSubmitButton'}, {xtype:'button', ui:'gray', text:'取消', handler:function(btn) {

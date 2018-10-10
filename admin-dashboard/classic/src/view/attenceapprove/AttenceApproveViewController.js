@@ -198,10 +198,101 @@
         /*if(val==""){
             this.lookReference('ss').hidden();
         }*/
-    }
+    },
 
 
 
 
     /***********************************************申诉业务**********************************************************/
+    //1.签收任务
+    onClickAppealApproveClaimButton: function(view, recIndex, cellIndex, item, e, record) {
+        Ext.Ajax.request({
+            url: 'attence/claim/' + record.get('taskId'),
+            method: 'post',
+            success: function(response, options) {
+                var json = Ext.util.JSON.decode(response.responseText);
+                if (json.success) {
+                    Ext.Msg.alert('操作成功', json.msg, function() {
+                        view.getStore().reload();
+                    });
+                } else {
+                    Ext.Msg.alert('操作失败', json.msg);
+                }
+            }
+        });
+    },
+    //2.审批
+    onClickAppealApproveCompleteWindowButton: function(view, recIndex, cellIndex, item, e, record) {
+        //选中点击的行
+        var taskDefinitionKey = record.get('taskDefinitionKey');
+
+        var attenceStatus=record.get('attenceStatus');
+        if(attenceStatus=='LEAVE'){
+            record.data.attenceStatus='请假';
+        }else if(attenceStatus=='LATER'){
+            record.data.attenceStatus='迟到';
+        }else if(attenceStatus=='EARLY'){
+            record.data.attenceStatus='早退';
+        }
+
+        if (taskDefinitionKey == 'deptLeaderAudit') {
+            //部门领导审批
+            var win = this.setCurrentView(view,'appealdeptLeaderAudit', '部门领导审批');
+            win.down('form').getForm().loadRecord(record);
+        } else if (taskDefinitionKey == 'hrAudit') {
+            //人事审批
+            var win = this.setCurrentView(view,'appealhrAudit','人事审批表单');
+            win.down('form').getForm().loadRecord(record);
+        }
+        else if (taskDefinitionKey == 'modifyAppeal') {
+            //申请人调整申请：可以编写到工具类中
+            var win = this.setCurrentView(view,'appealmodifyApply','调整申诉表单');
+            win.down('form').getForm().loadRecord(record);
+        }
+    },
+    //部门经理审批
+    onClickAppealDeptleaderAuditFormSubmitButton: function(btn) {
+        var form = btn.up('form');
+        var values = form.getValues();
+        var url = 'attence/complete/' + values.taskId;
+        var variables = [{
+            key: 'deptLeaderPass',
+            value: values.deptLeaderPass,//获取表单选择的value
+            type: 'B'
+        },{
+            key: 'deptLeaderBackReason',
+            value: values.deptLeaderBackReason,//获取表单选择的value
+            type: 'S'
+        }];
+        this.complete(url,variables,form);
+    },
+    //人事文员审批
+    onClickAppealHrAuditFormSubmitButton: function(btn) {
+        var form = btn.up('form');
+        var values = form.getValues();
+        var url = 'attence/complete/' + values.taskId;
+        var variables = [{
+            key: 'hrPass',
+            value: values.hrPass,//获取表单选择的value
+            type: 'B'
+        },{
+            key: 'hrBackReason',
+            value: values.hrBackReason,//获取表单选择的value
+            type: 'S'
+        }];
+        this.complete(url,variables,form);
+    },
+    //调整申请
+    onClickAppealModifyApplyFormSubmitButton: function(btn) {
+        var form = btn.up('form');
+        var values = form.getValues();
+        var url = 'attence/complete/' + values.taskId;
+        var variables = [{
+            key: 'appealreason',
+            value: values.appealreason,//获取表单选择的value
+            type: 'S'
+        }];
+        this.complete(url,variables,form);
+    }
+
 });

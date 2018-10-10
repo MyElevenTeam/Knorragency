@@ -174,8 +174,9 @@ public class ContractService implements IContractService {
 	            if (workflow.getBusinessKey() == null) {
 	                continue;
 	            }
-	            Contract contract = contractRepository.findById(businessKey).get();
-	            if(contract!=null){
+	            Optional<Contract> contractOptional=contractRepository.findById(businessKey);
+	            if(contractOptional!=null&&contractOptional.isPresent()){
+	            	Contract contract=contractOptional.get();
 	            	ContractDTO contractDTO = new ContractDTO();
 	            	
 	            	contractDTO.setDepreason(depreason);

@@ -90,14 +90,29 @@ Ext.define('Admin.view.attence.AttencePanel', {
                         return val;
                     }
                 },
+
+                {header: '申诉状态',dataIndex: 'processStatus',width: 120,sortable: true,hidden:true,id:'appeal_processStatus',
+                    renderer: function(val) {
+                        if (val =='NEW') {
+                            return '<span style="color:green;">未发起申诉</span>';
+                        } else if (val =='APPROVAL') {
+                            return '<span style="color:blue;">申诉中……</span>';
+                        } else if (val =='COMPLETE') {
+                            return '<span style="color:orange;">已通过申诉</span>';
+                        }else if (val =='CANCEL') {
+                            return '<span style="color:red;">取消申诉</span>';
+                        }
+                        return val;
+                    }
+                },
+                {xtype: 'gridcolumn', cls: 'content-column',width:150,dataIndex: 'appealreason',text: '申诉原因',hidden:true,id:'appeal_appealreason'},
+                {xtype: 'gridcolumn', cls: 'content-column',width:150,dataIndex: 'userId',text: '申诉人',hidden:true},
+
                 {xtype: 'gridcolumn', cls: 'content-column',width:150,dataIndex: 'employeeName',text: '员工姓名'},
                 {xtype: 'gridcolumn', cls: 'content-column',width:150,dataIndex: 'location',text: '打卡地点'},
-                {xtype: 'datecolumn',cls: 'content-column',width: 150,dataIndex: 'workinTime',text: '上班时间',flex:1,formatter: 'date("Y/m/d H:i:s")'},
-                {xtype: 'datecolumn',cls: 'content-column',width: 150,dataIndex: 'workoutTime',text: '下班时间',flex:1,formatter: 'date("Y/m/d H:i:s")'},
-                {xtype: 'gridcolumn', cls: 'content-column',width:150,dataIndex: 'processStatus',text: '申诉状态',hidden:true},
-                {xtype: 'gridcolumn', cls: 'content-column',width:150,dataIndex: 'userId',text: '申诉人',hidden:true},
-                {xtype: 'gridcolumn', cls: 'content-column',width:150,dataIndex: 'appealreason',text: '申诉原因',hidden:true},
-                {xtype: 'actioncolumn',cls: 'content-column', width: 150,dataIndex: 'bool',text: '操作',tooltip: 'edit ',
+                {xtype: 'datecolumn',cls: 'content-column',width: 180,dataIndex: 'workinTime',text: '上班时间',flex:1,formatter: 'date("Y/m/d H:i:s")'},
+                {xtype: 'datecolumn',cls: 'content-column',width: 180,dataIndex: 'workoutTime',text: '下班时间',flex:1,formatter: 'date("Y/m/d H:i:s")'},
+                {xtype: 'actioncolumn',cls: 'content-column', width: 80,dataIndex: 'bool',text: '操作',tooltip: 'edit ',
                     items: [
                         {
                             xtype: 'button',iconCls: 'x-fa fa-hand-paper-o',tooltip: '发起申诉',
