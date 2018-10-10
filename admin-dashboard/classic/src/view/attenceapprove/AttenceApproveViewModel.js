@@ -11,6 +11,7 @@
         'Ext.data.reader.Json'
     ],
     stores: {
-    	leaveApproveList: {type: 'leaveApproveStore'}
+    	leaveApproveList: {type: 'leaveApproveStore'},
+        appealApproveList:{type:'appealApproveStore'}
     }
 });

@@ -154,8 +154,9 @@ public class AttenceService implements IAttenceService {
 	            if (workflow.getBusinessKey() == null) {
 	                continue;
 	            }
-	            Attence attence = attenceRepository.findById(businessKey).get();
-	            if(attence!=null){
+	            Optional<Attence> attenceOptional=attenceRepository.findById(businessKey);
+	            if(attenceOptional!=null&&attenceOptional.isPresent()){
+	            	Attence attence=attenceOptional.get();
 	            	AttenceDTO attenceDTO = new AttenceDTO();
 	            	
 	            	attenceDTO.setDepreason(depreason);

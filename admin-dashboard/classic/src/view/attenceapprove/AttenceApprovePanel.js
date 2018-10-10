@@ -110,7 +110,7 @@
     		title:'申诉审核',
     		xtype: 'gridpanel',
     		cls:'process-definition-grid',
-			//bind: '{leaveApproveStore}',
+			bind: '{appealApproveList}',
 			layout:'fit',
 			columns: [{
 					xtype: 'actioncolumn',
@@ -124,7 +124,7 @@
 				            }
 				            return 'x-fa fa-pencil';
 						},
-						handler: 'onClickLeaveApproveClaimButton'	//ajax  taskId
+						handler: 'onClickAppealApproveClaimButton'	//ajax  taskId
 					},{
 						xtype: 'button',
 						iconCls: 'x-fa fa-edit',
@@ -135,7 +135,7 @@
 				            }
 				            return 'x-fa fa-edit';
 						},
-						handler: 'onClickLeaveApproveCompleteWindowButton'	//taskDefinitionKey 动态表单
+						handler: 'onClickAppealApproveCompleteWindowButton'	//taskDefinitionKey 动态表单
 					},{
 						xtype: 'button',
 						iconCls: 'x-fa fa-object-group',
@@ -152,21 +152,35 @@
 				,{header: '审核状态',dataIndex: 'processStatus',width: 120,sortable: true,
 		            renderer: function(val) {
 			            if (val =='NEW') {
-				            return '<span style="color:green;">新建</span>';
+				            return '<span style="color:green;">未发起申诉</span>';
 				        } else if (val =='APPROVAL') {
-				            return '<span style="color:blue;">审批中...</span>';
+				            return '<span style="color:blue;">申诉审批中...</span>';
 				        } else if (val =='COMPLETE') {
 				            return '<span style="color:orange;">完成审批</span>';
 				        }else{
-				        	return '<span style="color:red;">取消申请</span>';
+				        	return '<span style="color:red;">取消申诉</span>';
 				        }
 				        return val;
 		            }
 				}
-				,{header: '申请人'  		,dataIndex: 'userId',width: 120,sortable: true}
-				,{header: '待申诉开始时间' 	,dataIndex: 'realityStartTime',width: 180,sortable: true,renderer: Ext.util.Format.dateRenderer('Y/m/d H:i:s')}
-				,{header: '待申诉结束时间' 	,dataIndex: 'realityEndTime',width: 180,sortable: true,renderer: Ext.util.Format.dateRenderer('Y/m/d H:i:s')}
-				,{header: '申诉原因' 		,dataIndex: 'reason',width: 120,sortable: true}
+				,{header: '申请人'  		,dataIndex: 'employeeName',width: 120,sortable: true}
+				,{header: '待申诉开始时间' 	,dataIndex: 'workinTime',width: 180,sortable: true,renderer: Ext.util.Format.dateRenderer('Y/m/d H:i:s')}
+				,{header: '待申诉结束时间' 	,dataIndex: 'workoutTime',width: 180,sortable: true,renderer: Ext.util.Format.dateRenderer('Y/m/d H:i:s')}
+				,{header: '原上班状态',dataIndex: 'attenceStatus',width: 120,sortable: true,
+		            renderer: function(val) {
+			            if (val =='NORMAL') {
+                            return '<span style="color:green;">正常</span>';
+                        } else if (val =='LEAVE') {
+                            return '<span style="color:blue;">请假</span>';
+                        } else if (val =='LATER') {
+                            return '<span style="color:red;">迟到</span>';
+                        }else if (val =='EARLY') {
+                            return '<span style="color:red;">早退</span>';
+                        }
+                        return val;
+		            }
+				 }
+				,{header: '申诉原因' 		,dataIndex: 'appealreason',width: 120,sortable: true}
 				,{header: '申诉提交时间' 	,dataIndex: 'applyTime',width: 150,sortable: true,renderer: Ext.util.Format.dateRenderer('Y/m/d H:i:s')}
 				,{header: 'processInstanceId' ,dataIndex: 'processInstanceId',width: 80,sortable: true,hidden:true}
 				,{header: 'taskId'  		,dataIndex: 'taskId',width: 80,sortable: true,hidden:true}
@@ -183,7 +197,7 @@
 			dockedItems: [{
 			    xtype: 'pagingtoolbar',
 			    dock: 'bottom',
-				//bind: '{leaveApproveStore}',	
+				bind: '{appealApproveList}',	
 			    displayInfo: true
 			}]
     	}
