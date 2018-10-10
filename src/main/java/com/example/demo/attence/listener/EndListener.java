@@ -7,15 +7,21 @@ import org.activiti.engine.delegate.ExecutionListener;
 import org.activiti.engine.delegate.TaskListener;
 import org.activiti.engine.runtime.ProcessInstance;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.example.demo.activiti.entity.ProcessStatus;
 import com.example.demo.attence.entity.Attence;
 import com.example.demo.attence.entity.AttenceStatus;
 import com.example.demo.attence.service.IAttenceService;
 
-public class EndListener implements ExecutionListener,TaskListener{
+@Component
+@Transactional
+public class EndListener implements ExecutionListener{
 	
 	private static final long serialVersionUID = 1L;
+	
+	//https://blog.csdn.net/qq_30739519/article/details/51258447
 	
 	@Autowired
     private IAttenceService attenceService;
@@ -23,8 +29,6 @@ public class EndListener implements ExecutionListener,TaskListener{
     @Autowired
     private RuntimeService runtimeService;
     
-    private boolean flag=false;
-	
 	@Override
 	public void notify(DelegateExecution execution) {
 	    String eventName = execution.getEventName();
@@ -33,11 +37,11 @@ public class EndListener implements ExecutionListener,TaskListener{
 	    }
 	    if(eventName.equals("end")) {
 	    	System.out.println("End");
-	    	flag=true;
+	    	
 	    }
 	}
 
-	@Override
+	/*@Override
 	public void notify(DelegateTask delegateTask) {
 		if(flag) {
 			String processInstanceId = delegateTask.getProcessInstanceId();
@@ -50,6 +54,6 @@ public class EndListener implements ExecutionListener,TaskListener{
 		}
 		
    
-	}
+	}*/
 
 }
