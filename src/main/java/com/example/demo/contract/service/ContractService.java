@@ -24,7 +24,6 @@ import com.example.demo.activiti.entity.WorkflowDTO;
 import com.example.demo.activiti.service.IWorkflowService;
 import com.example.demo.contract.entity.Contract;
 import com.example.demo.contract.entity.ContractDTO;
-import com.example.demo.contract.entity.ContractQueryDTO;
 import com.example.demo.contract.repository.ContractRepository;
 
 @Service
@@ -66,12 +65,16 @@ public class ContractService implements IContractService {
 		if(contractLists!=null) {
 			contractRepository.deleteAll(contractLists);
 		}
-
 	}
 
 	@Override
 	public Page<Contract> findAll(Specification<Contract> spec, Pageable pageable) {
 		return contractRepository.findAll(spec, pageable);
+	}
+	
+	@Override
+	public List<Contract> findAllContract(Specification<Contract> spec) {
+		return contractRepository.findAll(spec);
 	}
 
 	/*上传word文档*/
@@ -229,4 +232,5 @@ public class ContractService implements IContractService {
 		workflowService.complete(taskId, variables);
 	}
 
+	
 }

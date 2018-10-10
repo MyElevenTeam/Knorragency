@@ -94,22 +94,23 @@ Ext.define('Admin.view.attence.AttencePanel', {
                 {xtype: 'gridcolumn', cls: 'content-column',width:150,dataIndex: 'location',text: '打卡地点'},
                 {xtype: 'datecolumn',cls: 'content-column',width: 150,dataIndex: 'workinTime',text: '上班时间',flex:1,formatter: 'date("Y/m/d H:i:s")'},
                 {xtype: 'datecolumn',cls: 'content-column',width: 150,dataIndex: 'workoutTime',text: '下班时间',flex:1,formatter: 'date("Y/m/d H:i:s")'},
-                {xtype: 'gridcolumn', cls: 'content-column',width:150,dataIndex: 'processInstanceId',text: '流程id',hidden:true},
-                {xtype: 'gridcolumn', cls: 'content-column',width:150,dataIndex: 'processStatus',text: '审核状态',hidden:true,id:'attencePanel_processStatus'},
+                {xtype: 'gridcolumn', cls: 'content-column',width:150,dataIndex: 'processStatus',text: '申诉状态',hidden:true},
+                {xtype: 'gridcolumn', cls: 'content-column',width:150,dataIndex: 'userId',text: '申诉人',hidden:true},
+                {xtype: 'gridcolumn', cls: 'content-column',width:150,dataIndex: 'appealreason',text: '申诉原因',hidden:true},
                 {xtype: 'actioncolumn',cls: 'content-column', width: 150,dataIndex: 'bool',text: '操作',tooltip: 'edit ',
                     items: [
                         {
-                            xtype: 'button',iconCls: 'x-fa  fa-hand-paper-o',tooltip: '发起请假',
-                            getClass: function(v, meta, rec,grid) {
+                            xtype: 'button',iconCls: 'x-fa fa-hand-paper-o',tooltip: '发起申诉',
+                            getClass: function(v, meta, rec) {
                                 if (rec.get('processInstanceId')!="") {
                                     return 'x-hidden';
                                 }
                                 return 'x-fa fa-hand-paper-o';
                             },
-                            handler: 'starLeaveProcess'
+                            handler: 'openAppealWindow'
                         },
                         {
-                            xtype: 'button',iconCls: 'x-fa fa-ban',tooltip: '取消请假',
+                            xtype: 'button',iconCls: 'x-fa fa-ban',tooltip: '取消申诉',
                             getClass: function(v, meta, rec) {
                                 if (rec.get('processInstanceId')=="") {
                                     return 'x-hidden';

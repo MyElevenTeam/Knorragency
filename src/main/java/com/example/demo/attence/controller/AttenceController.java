@@ -10,6 +10,7 @@ import javax.servlet.http.HttpSession;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -35,11 +36,15 @@ public class AttenceController {
 	@GetMapping 
 	public Page<Attence> getPersonAttence(HttpSession session,AttenceQueryDTO attenceQueryDTO,ExtjsPageRequest pageRequest) {
 		
+		Page<Attence> page;
 		String userId = SessionUtil.getUserName(session);  //通过session查找userId
 		if(userId!=null) {
 			attenceQueryDTO.setEmployeeName(userId);
+			page=attenceService.findAll(AttenceQueryDTO.getWhereClause(attenceQueryDTO), pageRequest.getPageable());
+		}else {
+			page = new PageImpl<Attence>(new ArrayList<Attence>(),pageRequest.getPageable(),0);
 		}
-		return attenceService.findAll(AttenceQueryDTO.getWhereClause(attenceQueryDTO), pageRequest.getPageable());
+		return page;
 		
 	}
 	

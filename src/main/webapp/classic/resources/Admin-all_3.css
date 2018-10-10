@@ -4162,7 +4162,14 @@
     font-weight: bold;
 }
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+/* C:/Users/Administrator/git/Knorragency/admin-dashboard/classic/src/view/attence/AppealWindow.scss:1 */
+.appeal .x-form-trigger-wrap {
+    border: none;
+}
+>>>>>>> branch 'master' of https://github.com/MyElevenTeam/Knorragency.git
 /* C:/Users/Administrator/git/Knorragency/admin-dashboard/classic/src/view/attence/AttencePanel.scss:1 */
 .has-border {
     border: solid 8px #dfdfdf;
