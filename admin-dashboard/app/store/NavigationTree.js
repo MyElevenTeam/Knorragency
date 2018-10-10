@@ -85,6 +85,12 @@ Ext.define('Admin.store.NavigationTree', {
                 viewType: 'processDefinition',
                 leaf: true
             },{
+                text: 'Charts',
+                iconCls: 'x-fa fa-fax',
+                //rowCls: 'nav-tree-badge nav-tree-badge-new',
+                viewType: 'charts',
+                leaf: true
+            },{
                 text: 'Login',
                 iconCls: 'x-fa fa-check',
                 viewType: 'login',

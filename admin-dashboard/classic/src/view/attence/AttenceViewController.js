@@ -2,6 +2,7 @@ Ext.define('Admin.view.attence.AttenceViewController', {
     extend: 'Ext.app.ViewController',
     alias: 'controller.attenceViewController',
 
+    /***********************************************请假的增删改查***********************************************************/
     /*Find All Leave*/
     openLeaveWindow:function(toolbar, rowIndex, colIndex){
       toolbar.up('panel').up('container').add(Ext.widget('leaveGridWindow')).show();
@@ -81,41 +82,57 @@ Ext.define('Admin.view.attence.AttenceViewController', {
         Ext.Msg.alert("错误", "没有任何行被选中，无法进行删除操作！");
       }
     },
-    /*Star Leave Process*/  
-    starLeaveProcess:function(grid, rowIndex, colIndex){
+
+
+
+    /***********************************************申诉业务***********************************************************/
+    openAppealWindow:function(grid,rowIndex, colIndex){
       var record = grid.getStore().getAt(rowIndex);
-      Ext.Ajax.request({ 
-        url : '/leave/start', 
-        method : 'post', 
-        params : {
-          id :record.get("id")
-        }, 
-        success: function(response, options) {
-          var json = Ext.util.JSON.decode(response.responseText);
-          if(json.success){
-            Ext.Msg.alert('操作成功', json.msg, function() {
-            grid.getStore().reload();
-          });
-          }else{
-            Ext.Msg.alert('操作失败', json.msg);
-          }
-        }
-      });
-    },  
-
-
-
-
-
-
-
-
-
-    search:function(btn){
-      Ext.getCmp('attence_searchFieldValue').show();
-      Ext.getCmp('attence_search').hide();
+      if(record.data.attenceStatus!="NORMAL"){
+          Ext.Msg.alert('提示','请先填写申述表',function(){
+            var attenceStatus=record.get('attenceStatus');
+            if(attenceStatus=='LEAVE'){
+                record.data.attenceStatus='请假';
+            }else if(attenceStatus=='LATER'){
+                record.data.attenceStatus='迟到';
+            }else if(attenceStatus=='EARLY'){
+                record.data.attenceStatus='早退';
+            }
+              //获取选中数据的字段值：console.log(record.get('id')); 或者 console.log(record.data.id);
+            if (record ) {
+              var win = grid.up('panel').up('container').add(Ext.widget('appealWindow'));
+              win.show();
+              win.down('form').getForm().loadRecord(record);
+            }
+        });
+      }else{
+        Ext.Msg.alert('提示','上班记录正常无需申诉');
+      }
     },
-    hhh:function(btn){
-      alert("sss");
+    /*Star Appeal Process*/  
+    starAppealProcess:function(grid, rowIndex, colIndex){
+      var record = grid.getStore().getAt(rowIndex);
+      if(form.isValid()){
+          Ext.Ajax.request({ 
+              url : '/attence/start', 
+              method : 'post', 
+              params : {
+                id :record.get("id")
+              }, 
+              success: function(response, options) {
+                var json = Ext.util.JSON.decode(response.responseText);
+                if(json.success){
+                  Ext.Msg.alert('操作成功', json.msg, function() {
+                  grid.getStore().reload();
+                });
+                }else{
+                  Ext.Msg.alert('操作失败', json.msg);
+                }
+              }
+          });
+      }else{
+        Ext.Msg.alert('提示','请填写申诉原因再提交');
+      }
+      
     }
 });

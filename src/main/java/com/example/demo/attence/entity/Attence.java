@@ -8,6 +8,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
+import com.example.demo.activiti.entity.ProcessStatus;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 @Entity
@@ -25,6 +26,14 @@ public class Attence {
 	private Date workoutTime;
 	
 	private AttenceStatus attenceStatus;
+	
+	private ProcessStatus processStatus;//申诉状态
+	
+	private String appealreason;  //申诉原因
+	//工作流程数据字段
+    private String userId;//启动流程的用户ID
+    //流程实例Id：用于关联流程引擎相关数据没有启动流程之前为""
+    private String processInstanceId;
 	
 	@Id
 	@GeneratedValue(strategy=GenerationType.IDENTITY)
@@ -54,6 +63,22 @@ public class Attence {
 	public AttenceStatus getAttenceStatus() {
 		return attenceStatus;
 	}
+	
+	public String getUserId() {
+		return userId;
+	}
+
+	public String getProcessInstanceId() {
+		return processInstanceId;
+	}
+	
+	public ProcessStatus getProcessStatus() {
+		return processStatus;
+	}
+	
+	public String getAppealreason() {
+		return appealreason;
+	}
 
 	public void setId(Long id) {
 		this.id = id;
@@ -77,6 +102,22 @@ public class Attence {
 
 	public void setAttenceStatus(AttenceStatus attenceStatus) {
 		this.attenceStatus = attenceStatus;
+	}
+	
+	public void setUserId(String userId) {
+		this.userId = userId;
+	}
+
+	public void setProcessInstanceId(String processInstanceId) {
+		this.processInstanceId = processInstanceId;
+	}
+	
+	public void setProcessStatus(ProcessStatus processStatus) {
+		this.processStatus = processStatus;
+	}
+	
+	public void setAppealreason(String appealreason) {
+		this.appealreason = appealreason;
 	}
 
 	@Override

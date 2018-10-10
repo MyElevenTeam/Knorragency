@@ -65,6 +65,7 @@ public class ReportBackEndProcessor implements TaskListener
 			attence.setWorkinTime(date);
 			attence.setWorkoutTime(date);
 			attence.setAttenceStatus(AttenceStatus.LEAVE);
+			attenceService.save(attence);
 		}
         //leaveService.save(leave);
     }

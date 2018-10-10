@@ -1,5 +1,6 @@
 package com.example.demo.contract.service;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -22,6 +23,8 @@ public interface IContractService {
 	public Optional<Contract> findById(Long id);
 	
 	public Page<Contract> findAll(Specification<Contract> spec, Pageable pageable);
+	
+	public List<Contract> findAllContract(Specification<Contract> spec);
 	
 	/*上传word文档*/
 	public Contract readWord(String buffer);

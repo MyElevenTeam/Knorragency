@@ -9,7 +9,11 @@ requires: [
 		{type: 'string',name: 'location'},
 		{type: 'date', name: 'workinTime', dateFormat:'Y/m/d H:i:s'},
 		{type: 'date', name: 'workoutTime', dateFormat:'Y/m/d H:i:s'},
-		{type:'string',name:'attenceStatus'}
+		{type:'string',name:'attenceStatus'},
+		{type:'string',name:'processInstanceId'},
+		{type:'string',name:'processStatus'},
+		{type:'string',name:'userId'},
+		{type:'string',name:'appealreason'}
 	],
 	proxy: {
 		type: 'rest',
