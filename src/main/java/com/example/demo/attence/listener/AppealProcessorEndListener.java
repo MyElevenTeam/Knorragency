@@ -29,6 +29,6 @@ public class AppealProcessorEndListener implements TaskListener{
 
         attence.setProcessStatus(ProcessStatus.COMPLETE);
         attence.setAttenceStatus(AttenceStatus.NORMAL);
-        //leaveService.save(leave);
+        attenceService.save(attence);
     }
 }

@@ -62,7 +62,6 @@ Ext.define('Admin.view.attenceapprove.task.DeptLeaderAudit', {
         grow: true,
         name: 'appealreason',
         fieldLabel: '申诉原因',
-        anchor: '100%'
     },{
 		xtype: 'radiogroup',
 		fieldLabel: '部门经理审批',

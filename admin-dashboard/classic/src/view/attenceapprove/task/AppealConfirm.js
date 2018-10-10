@@ -1,12 +1,12 @@
-Ext.define('Admin.view.attenceapprove.task.ModifyApply', {
+Ext.define('Admin.view.attenceapprove.task.AppealConfirm', {
     extend: 'Ext.form.Panel',
-    alias: 'widget.appealmodifyApply',
+    alias: 'widget.appealConfirm',
     requires: [
         'Ext.button.Button',
         'Ext.form.RadioGroup',
         'Ext.form.field.*'
     ],
-    bodyPadding: 5,
+    bodyPadding: 10,
     bodyBorder: true,
     defaults: {
         anchor: '100%'
@@ -17,18 +17,11 @@ Ext.define('Admin.view.attenceapprove.task.ModifyApply', {
         invalidCls: '' 
     },
     items: [{
-		xtype: 'radiogroup',
-		fieldLabel: '重新申请',
-		items: [{
-			name: 'reApply',
-			inputValue: true,
-			boxLabel: '是',
-			checked: true
-		}, {
-			name: 'reApply',
-			inputValue: false,
-			boxLabel: '否'
-		}]
+        xtype: 'textfield',
+        name: 'taskId',
+        fieldLabel: '任务ID',
+        hidden: true,
+        readOnly: true
     },{
     	xtype: 'textfield',
 		name: 'taskId',
@@ -74,21 +67,24 @@ Ext.define('Admin.view.attenceapprove.task.ModifyApply', {
         xtype: 'textareafield',
         name: 'depreason',
         fieldLabel: '部门经理审批意见',
-        emptyText: '部门经理还未审批',
-        readOnly: true
+        readOnly: true 
     },{
         xtype: 'textareafield',
         name: 'hrreason',
         fieldLabel: '人事文员审批意见',
-        emptyText: '人事文员还未审批',
         readOnly: true
+        
+    },{
+        xtype: 'textfield',
+        name:'confirmName',
+        fieldLabel: '请签名确认',
+        allowBlank:false
     }],
-
    	bbar: [{
 		xtype: 'button',
 		ui: 'soft-green',
 		text: '提交'	,
-		handler: 'onClickAppealModifyApplyFormSubmitButton'
+		handler: 'onClickAppealConfirmFormSubmitButton'
 	},{
 		xtype: 'button',
 		ui: 'gray',
