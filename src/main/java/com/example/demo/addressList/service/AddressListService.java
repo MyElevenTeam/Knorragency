@@ -1,5 +1,7 @@
 package com.example.demo.addressList.service;
 
+import javax.transaction.Transactional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -11,6 +13,7 @@ import com.example.demo.addressList.repository.AddressListRepository;
 
 
 @Service
+@Transactional
 public class AddressListService implements IAddressListService {
 	@Autowired
 	private AddressListRepository addressListRepository;

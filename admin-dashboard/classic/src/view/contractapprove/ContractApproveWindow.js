@@ -7,7 +7,7 @@
     layout: 'fit',
 
     width: 520,
-    height: 600,
+    height: 680,
 
     afterRender: function () {
         var me = this;

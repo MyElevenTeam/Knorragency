@@ -138,10 +138,10 @@ public class ContractController {
 	@GetMapping 
 	public Page<Contract> getPage(HttpSession session,ContractQueryDTO contractQueryDTO,ExtjsPageRequest pageRequest) {
 		
-		/*String userId = SessionUtil.getUserName(session);  //通过session查找userId
+		String userId = SessionUtil.getUserName(session);  //通过session查找userId
 		if(userId!=null) {
 			contractQueryDTO.setEmployeeName(userId);
-		}*/
+		}
 		return contractService.findAll(ContractQueryDTO.getWhereClause(contractQueryDTO), pageRequest.getPageable());
 		
 	}
@@ -278,14 +278,14 @@ public class ContractController {
 	 * @return
 	 */
 	@RequestMapping(value = "/start")
-    public @ResponseBody ExtAjaxResponse start(@RequestParam(name="id") Long leaveId,HttpSession session) {
+    public @ResponseBody ExtAjaxResponse start(@RequestParam(name="id") Long contractId,HttpSession session) {
     	try {
     		String userId = SessionUtil.getUserName(session);
     		Map<String, Object> variables = new HashMap<String, Object>();
     		variables.put("deptLeader", "financeManager");
     		variables.put("manLeader", "hrManager");
     		variables.put("applyUserId", userId);
-    		contractService.startWorkflow(userId,leaveId, variables);
+    		contractService.startWorkflow(userId,contractId, variables);
     		return new ExtAjaxResponse(true,"操作成功!");
 	    } catch (Exception e) {
 	    	e.printStackTrace();

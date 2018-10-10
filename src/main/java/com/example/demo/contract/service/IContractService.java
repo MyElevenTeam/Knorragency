@@ -1,5 +1,6 @@
 package com.example.demo.contract.service;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -23,6 +24,8 @@ public interface IContractService {
 	
 	public Page<Contract> findAll(Specification<Contract> spec, Pageable pageable);
 	
+	public List<Contract> findAllContract(Specification<Contract> spec);
+	
 	/*上传word文档*/
 	public Contract readWord(String buffer);
 	
@@ -38,6 +41,6 @@ public interface IContractService {
 	public void claim(String taskId,String userId);
 	
 	//4.完成流程任务
-	public void complete(String taskId, Map<String, Object> variables); 
-
+	public void complete(String taskId, Map<String, Object> variables);
+	
 }

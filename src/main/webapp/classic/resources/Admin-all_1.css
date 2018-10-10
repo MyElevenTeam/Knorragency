@@ -2800,6 +2800,48 @@ the height of a multi-line element */
 .x-grid-inner-locked.x-border-region-slide-in > .x-panel-bodyWrap > .x-grid-body > .x-tree-view {
     overflow-y: hidden !important;
 }
+<<<<<<< HEAD
+=======
+/* C:/Users/Administrator/git/Knorragency/admin-dashboard/ext/classic/theme-base/sass/src/grid/plugin/Editing.scss:7 */
+.x-grid-editor .x-form-cb-wrap {
+    /*
+ * Rules for fields which are rendered to fit inside grid cells.
+ * This includes cell and row editor fields and fields in widget columns.
+ */
+    text-align: center;
+}
+/* C:/Users/Administrator/git/Knorragency/admin-dashboard/ext/classic/theme-base/sass/src/grid/plugin/Editing.scss:12 */
+.x-grid-editor .x-form-cb {
+    position: static;
+    display: inline-block;
+}
+/* C:/Users/Administrator/git/Knorragency/admin-dashboard/ext/classic/theme-base/sass/src/grid/plugin/Editing.scss:20 */
+.x-grid-editor .x-form-display-field {
+    margin: 0;
+    white-space: nowrap;
+    overflow: hidden;
+}
+/* C:/Users/Administrator/git/Knorragency/admin-dashboard/ext/classic/theme-base/sass/src/grid/plugin/Editing.scss:28 */
+.x-grid-editor div.x-form-action-col-field {
+    line-height: 0;
+}
+/* C:/Users/Administrator/git/Knorragency/admin-dashboard/ext/classic/theme-base/sass/src/grid/plugin/RowEditing.scss:1 */
+.x-grid-row-editor-wrap {
+    position: absolute;
+    overflow: visible;
+    z-index: 2;
+}
+/* C:/Users/Administrator/git/Knorragency/admin-dashboard/ext/classic/theme-base/sass/src/grid/plugin/RowEditing.scss:8 */
+.x-grid-row-editor {
+    position: absolute;
+    z-index: 0;
+}
+/* C:/Users/Administrator/git/Knorragency/admin-dashboard/ext/classic/theme-base/sass/src/grid/plugin/RowEditing.scss:15 */
+.x-grid-row-editor-buttons {
+    position: absolute;
+    white-space: nowrap;
+}
+>>>>>>> branch 'master' of https://github.com/MyElevenTeam/Knorragency.git
 /* C:/Users/Administrator/git/Knorragency/admin-dashboard/ext/classic/theme-base/sass/src/layout/container/Border.scss:1 */
 .x-border-layout-ct {
     overflow: hidden;
@@ -10224,6 +10266,14 @@ body > .x-mask {
 .x-form-trigger.x-form-trigger-default.x-form-trigger-click {
     background-position: -64px center;
 }
+<<<<<<< HEAD
+=======
+/* C:/Users/Administrator/git/Knorragency/admin-dashboard/ext/classic/theme-neutral/sass/var/form/field/Text.scss:376 */
+.x-textfield-default-cell > .x-grid-cell-inner {
+    padding-top: 0px;
+    padding-bottom: 0px;
+}
+>>>>>>> branch 'master' of https://github.com/MyElevenTeam/Knorragency.git
 /* C:/Users/Administrator/git/Knorragency/admin-dashboard/ext/classic/theme-neutral/sass/src/form/field/Text.scss:54 */
 .x-form-clear-trigger {
     font-size: 16px;
@@ -10376,6 +10426,14 @@ body > .x-mask {
 .x-form-cb-label-default.x-form-cb-label-after {
     padding-left: 22px;
 }
+<<<<<<< HEAD
+=======
+/* C:/Users/Administrator/git/Knorragency/admin-dashboard/ext/classic/theme-neutral/sass/var/form/field/Checkbox.scss:215 */
+.x-checkbox-default-cell > .x-grid-cell-inner {
+    padding-top: 0px;
+    padding-bottom: 0px;
+}
+>>>>>>> branch 'master' of https://github.com/MyElevenTeam/Knorragency.git
 /* C:/Users/Administrator/git/Knorragency/admin-dashboard/ext/classic/theme-neutral/sass/var/form/CheckboxGroup.scss:96 */
 .x-form-item-body-default.x-form-checkboxgroup-body {
     padding: 0 4px;
@@ -12549,6 +12607,304 @@ a.x-color-picker-item:hover {
 .x-grid-scroll-container {
     background-color: #fff;
 }
+<<<<<<< HEAD
+=======
+/* C:/Users/Administrator/git/Knorragency/admin-dashboard/ext/classic/theme-neutral/sass/src/grid/plugin/Editing.scss:18 */
+.x-grid-editor .x-form-display-field {
+    text-overflow: ellipsis;
+}
+/* C:/Users/Administrator/git/Knorragency/admin-dashboard/ext/classic/theme-neutral/sass/src/grid/plugin/Editing.scss:24 */
+.x-grid-editor .x-form-action-col-field {
+    padding: 7px 4px 7px 4px;
+}
+/* C:/Users/Administrator/git/Knorragency/admin-dashboard/ext/classic/theme-neutral/sass/src/grid/plugin/Editing.scss:30 */
+.x-grid-editor .x-form-text {
+    padding-left: 9px;
+    padding-right: 9px;
+}
+/* C:/Users/Administrator/git/Knorragency/admin-dashboard/ext/classic/theme-neutral/sass/src/grid/plugin/RowEditing.scss:2 */
+.x-grid-row-editor .x-field {
+    margin: 0 3px 0 2px;
+}
+/* C:/Users/Administrator/git/Knorragency/admin-dashboard/ext/classic/theme-neutral/sass/src/grid/plugin/RowEditing.scss:7 */
+.x-grid-row-editor .x-form-display-field {
+    padding: 7px 8px 6px 8px;
+    line-height: 19px;
+}
+/* C:/Users/Administrator/git/Knorragency/admin-dashboard/ext/classic/theme-neutral/sass/src/grid/plugin/RowEditing.scss:18 */
+.x-ie9m .x-grid-row-editor .x-form-display-field {
+    min-height: 19px;
+}
+/* C:/Users/Administrator/git/Knorragency/admin-dashboard/ext/classic/theme-neutral/sass/src/grid/plugin/RowEditing.scss:26 */
+.x-grid-row-editor .x-form-action-col-field {
+    padding: 7px 1px 7px 2px;
+}
+/* C:/Users/Administrator/git/Knorragency/admin-dashboard/ext/classic/theme-neutral/sass/src/grid/plugin/RowEditing.scss:37 */
+.x-grid-row-editor .x-form-text {
+    padding: 5px 6px 4px 7px;
+}
+/* C:/Users/Administrator/git/Knorragency/admin-dashboard/ext/classic/theme-neutral/sass/src/grid/plugin/RowEditing.scss:41 */
+.x-gecko .x-grid-row-editor .x-form-text {
+    padding-left: 6px;
+    padding-right: 5px;
+}
+/* C:/Users/Administrator/git/Knorragency/admin-dashboard/ext/classic/theme-neutral/sass/src/grid/plugin/RowEditing.scss:50 */
+.x-grid-row-editor .x-panel-body {
+    border-top: 1px solid #d0d0d0 !important;
+    border-bottom: 1px solid #d0d0d0 !important;
+    padding: 5px 0 5px 0;
+    background-color: #e0edee;
+}
+/* C:/Users/Administrator/git/Knorragency/admin-dashboard/ext/classic/theme-neutral/sass/src/grid/plugin/RowEditing.scss:60 */
+.x-grid-with-col-lines .x-grid-row-editor .x-form-cb {
+    margin-right: 1px;
+}
+/* C:/Users/Administrator/git/Knorragency/admin-dashboard/ext/classic/theme-base/sass/etc/mixins/frame.scss:187 */
+.x-grid-row-editor-buttons-default-bottom {
+    -moz-border-radius-topleft: 0;
+    -webkit-border-top-left-radius: 0;
+    border-top-left-radius: 0;
+    -moz-border-radius-topright: 0;
+    -webkit-border-top-right-radius: 0;
+    border-top-right-radius: 0;
+    -moz-border-radius-bottomright: 5px;
+    -webkit-border-bottom-right-radius: 5px;
+    border-bottom-right-radius: 5px;
+    -moz-border-radius-bottomleft: 5px;
+    -webkit-border-bottom-left-radius: 5px;
+    border-bottom-left-radius: 5px;
+    padding: 5px 5px 5px 5px;
+    border-width: 0 1px 1px 1px;
+    border-style: solid;
+    background-color: #e0edee;
+}
+/* C:/Users/Administrator/git/Knorragency/admin-dashboard/ext/classic/theme-base/sass/etc/mixins/frame.scss:237 */
+.x-grid-row-editor-buttons-default-bottom-mc {
+    background-color: #e0edee;
+}
+/* C:/Users/Administrator/git/Knorragency/admin-dashboard/ext/classic/theme-base/sass/etc/mixins/frame.scss:264 */
+.x-nbr .x-grid-row-editor-buttons-default-bottom {
+    padding: 0 !important;
+    border-width: 0 !important;
+    -webkit-border-radius: 0px;
+    -moz-border-radius: 0px;
+    -ms-border-radius: 0px;
+    -o-border-radius: 0px;
+    border-radius: 0px;
+    background-color: transparent !important;
+    box-shadow: none !important;
+}
+/* C:/Users/Administrator/git/Knorragency/admin-dashboard/ext/classic/theme-base/sass/etc/mixins/frame.scss:281 */
+.x-grid-row-editor-buttons-default-bottom-frameInfo {
+    font-family: th-0-5-5-5-0-1-1-1-5-5-5-5;
+}
+/* C:/Users/Administrator/git/Knorragency/admin-dashboard/ext/classic/theme-base/sass/etc/mixins/frame.scss:347 */
+.x-grid-row-editor-buttons-default-bottom-tl {
+    background-position: 0 -10px;
+}
+/* C:/Users/Administrator/git/Knorragency/admin-dashboard/ext/classic/theme-base/sass/etc/mixins/frame.scss:351 */
+.x-grid-row-editor-buttons-default-bottom-tr {
+    background-position: right -15px;
+}
+/* C:/Users/Administrator/git/Knorragency/admin-dashboard/ext/classic/theme-base/sass/etc/mixins/frame.scss:355 */
+.x-grid-row-editor-buttons-default-bottom-bl {
+    background-position: 0 -20px;
+}
+/* C:/Users/Administrator/git/Knorragency/admin-dashboard/ext/classic/theme-base/sass/etc/mixins/frame.scss:359 */
+.x-grid-row-editor-buttons-default-bottom-br {
+    background-position: right -25px;
+}
+/* C:/Users/Administrator/git/Knorragency/admin-dashboard/ext/classic/theme-base/sass/etc/mixins/frame.scss:363 */
+.x-grid-row-editor-buttons-default-bottom-ml {
+    background-position: 0 top;
+}
+/* C:/Users/Administrator/git/Knorragency/admin-dashboard/ext/classic/theme-base/sass/etc/mixins/frame.scss:371 */
+.x-grid-row-editor-buttons-default-bottom-mr {
+    background-position: right top;
+}
+/* C:/Users/Administrator/git/Knorragency/admin-dashboard/ext/classic/theme-base/sass/etc/mixins/frame.scss:379 */
+.x-grid-row-editor-buttons-default-bottom-tc {
+    background-position: 0 0;
+}
+/* C:/Users/Administrator/git/Knorragency/admin-dashboard/ext/classic/theme-base/sass/etc/mixins/frame.scss:383 */
+.x-grid-row-editor-buttons-default-bottom-bc {
+    background-position: 0 -5px;
+}
+/* C:/Users/Administrator/git/Knorragency/admin-dashboard/ext/classic/theme-base/sass/etc/mixins/frame.scss:388 */
+.x-grid-row-editor-buttons-default-bottom-tr,
+.x-grid-row-editor-buttons-default-bottom-br,
+.x-grid-row-editor-buttons-default-bottom-mr {
+    padding-right: 5px;
+}
+/* C:/Users/Administrator/git/Knorragency/admin-dashboard/ext/classic/theme-base/sass/etc/mixins/frame.scss:394 */
+.x-grid-row-editor-buttons-default-bottom-tl,
+.x-grid-row-editor-buttons-default-bottom-bl,
+.x-grid-row-editor-buttons-default-bottom-ml {
+    padding-left: 5px;
+}
+/* C:/Users/Administrator/git/Knorragency/admin-dashboard/ext/classic/theme-base/sass/etc/mixins/frame.scss:400 */
+.x-grid-row-editor-buttons-default-bottom-tc {
+    height: 0;
+}
+/* C:/Users/Administrator/git/Knorragency/admin-dashboard/ext/classic/theme-base/sass/etc/mixins/frame.scss:403 */
+.x-grid-row-editor-buttons-default-bottom-bc {
+    height: 5px;
+}
+/* C:/Users/Administrator/git/Knorragency/admin-dashboard/ext/classic/theme-base/sass/etc/mixins/frame.scss:407 */
+.x-grid-row-editor-buttons-default-bottom-tl,
+.x-grid-row-editor-buttons-default-bottom-bl,
+.x-grid-row-editor-buttons-default-bottom-tr,
+.x-grid-row-editor-buttons-default-bottom-br,
+.x-grid-row-editor-buttons-default-bottom-tc,
+.x-grid-row-editor-buttons-default-bottom-bc,
+.x-grid-row-editor-buttons-default-bottom-ml,
+.x-grid-row-editor-buttons-default-bottom-mr {
+    background-image: url(images/grid-row-editor-buttons/grid-row-editor-buttons-default-bottom-corners.gif);
+}
+/* C:/Users/Administrator/git/Knorragency/admin-dashboard/ext/classic/theme-base/sass/etc/mixins/frame.scss:453 */
+.x-grid-row-editor-buttons-default-bottom-ml,
+.x-grid-row-editor-buttons-default-bottom-mr {
+    background-image: url(images/grid-row-editor-buttons/grid-row-editor-buttons-default-bottom-sides.gif);
+    background-repeat: repeat-y;
+}
+/* C:/Users/Administrator/git/Knorragency/admin-dashboard/ext/classic/theme-base/sass/etc/mixins/frame.scss:464 */
+.x-grid-row-editor-buttons-default-bottom-mc {
+    padding: 5px 1px 1px 1px;
+}
+/* C:/Users/Administrator/git/Knorragency/admin-dashboard/ext/classic/theme-base/sass/etc/mixins/frame.scss:187 */
+.x-grid-row-editor-buttons-default-top {
+    -moz-border-radius-topleft: 5px;
+    -webkit-border-top-left-radius: 5px;
+    border-top-left-radius: 5px;
+    -moz-border-radius-topright: 5px;
+    -webkit-border-top-right-radius: 5px;
+    border-top-right-radius: 5px;
+    -moz-border-radius-bottomright: 0;
+    -webkit-border-bottom-right-radius: 0;
+    border-bottom-right-radius: 0;
+    -moz-border-radius-bottomleft: 0;
+    -webkit-border-bottom-left-radius: 0;
+    border-bottom-left-radius: 0;
+    padding: 5px 5px 5px 5px;
+    border-width: 1px 1px 0 1px;
+    border-style: solid;
+    background-color: #e0edee;
+}
+/* C:/Users/Administrator/git/Knorragency/admin-dashboard/ext/classic/theme-base/sass/etc/mixins/frame.scss:237 */
+.x-grid-row-editor-buttons-default-top-mc {
+    background-color: #e0edee;
+}
+/* C:/Users/Administrator/git/Knorragency/admin-dashboard/ext/classic/theme-base/sass/etc/mixins/frame.scss:264 */
+.x-nbr .x-grid-row-editor-buttons-default-top {
+    padding: 0 !important;
+    border-width: 0 !important;
+    -webkit-border-radius: 0px;
+    -moz-border-radius: 0px;
+    -ms-border-radius: 0px;
+    -o-border-radius: 0px;
+    border-radius: 0px;
+    background-color: transparent !important;
+    box-shadow: none !important;
+}
+/* C:/Users/Administrator/git/Knorragency/admin-dashboard/ext/classic/theme-base/sass/etc/mixins/frame.scss:281 */
+.x-grid-row-editor-buttons-default-top-frameInfo {
+    font-family: th-5-5-0-5-1-1-0-1-5-5-5-5;
+}
+/* C:/Users/Administrator/git/Knorragency/admin-dashboard/ext/classic/theme-base/sass/etc/mixins/frame.scss:347 */
+.x-grid-row-editor-buttons-default-top-tl {
+    background-position: 0 -10px;
+}
+/* C:/Users/Administrator/git/Knorragency/admin-dashboard/ext/classic/theme-base/sass/etc/mixins/frame.scss:351 */
+.x-grid-row-editor-buttons-default-top-tr {
+    background-position: right -15px;
+}
+/* C:/Users/Administrator/git/Knorragency/admin-dashboard/ext/classic/theme-base/sass/etc/mixins/frame.scss:355 */
+.x-grid-row-editor-buttons-default-top-bl {
+    background-position: 0 -20px;
+}
+/* C:/Users/Administrator/git/Knorragency/admin-dashboard/ext/classic/theme-base/sass/etc/mixins/frame.scss:359 */
+.x-grid-row-editor-buttons-default-top-br {
+    background-position: right -25px;
+}
+/* C:/Users/Administrator/git/Knorragency/admin-dashboard/ext/classic/theme-base/sass/etc/mixins/frame.scss:363 */
+.x-grid-row-editor-buttons-default-top-ml {
+    background-position: 0 top;
+}
+/* C:/Users/Administrator/git/Knorragency/admin-dashboard/ext/classic/theme-base/sass/etc/mixins/frame.scss:371 */
+.x-grid-row-editor-buttons-default-top-mr {
+    background-position: right top;
+}
+/* C:/Users/Administrator/git/Knorragency/admin-dashboard/ext/classic/theme-base/sass/etc/mixins/frame.scss:379 */
+.x-grid-row-editor-buttons-default-top-tc {
+    background-position: 0 0;
+}
+/* C:/Users/Administrator/git/Knorragency/admin-dashboard/ext/classic/theme-base/sass/etc/mixins/frame.scss:383 */
+.x-grid-row-editor-buttons-default-top-bc {
+    background-position: 0 -5px;
+}
+/* C:/Users/Administrator/git/Knorragency/admin-dashboard/ext/classic/theme-base/sass/etc/mixins/frame.scss:388 */
+.x-grid-row-editor-buttons-default-top-tr,
+.x-grid-row-editor-buttons-default-top-br,
+.x-grid-row-editor-buttons-default-top-mr {
+    padding-right: 5px;
+}
+/* C:/Users/Administrator/git/Knorragency/admin-dashboard/ext/classic/theme-base/sass/etc/mixins/frame.scss:394 */
+.x-grid-row-editor-buttons-default-top-tl,
+.x-grid-row-editor-buttons-default-top-bl,
+.x-grid-row-editor-buttons-default-top-ml {
+    padding-left: 5px;
+}
+/* C:/Users/Administrator/git/Knorragency/admin-dashboard/ext/classic/theme-base/sass/etc/mixins/frame.scss:400 */
+.x-grid-row-editor-buttons-default-top-tc {
+    height: 5px;
+}
+/* C:/Users/Administrator/git/Knorragency/admin-dashboard/ext/classic/theme-base/sass/etc/mixins/frame.scss:403 */
+.x-grid-row-editor-buttons-default-top-bc {
+    height: 0;
+}
+/* C:/Users/Administrator/git/Knorragency/admin-dashboard/ext/classic/theme-base/sass/etc/mixins/frame.scss:407 */
+.x-grid-row-editor-buttons-default-top-tl,
+.x-grid-row-editor-buttons-default-top-bl,
+.x-grid-row-editor-buttons-default-top-tr,
+.x-grid-row-editor-buttons-default-top-br,
+.x-grid-row-editor-buttons-default-top-tc,
+.x-grid-row-editor-buttons-default-top-bc,
+.x-grid-row-editor-buttons-default-top-ml,
+.x-grid-row-editor-buttons-default-top-mr {
+    background-image: url(images/grid-row-editor-buttons/grid-row-editor-buttons-default-top-corners.gif);
+}
+/* C:/Users/Administrator/git/Knorragency/admin-dashboard/ext/classic/theme-base/sass/etc/mixins/frame.scss:453 */
+.x-grid-row-editor-buttons-default-top-ml,
+.x-grid-row-editor-buttons-default-top-mr {
+    background-image: url(images/grid-row-editor-buttons/grid-row-editor-buttons-default-top-sides.gif);
+    background-repeat: repeat-y;
+}
+/* C:/Users/Administrator/git/Knorragency/admin-dashboard/ext/classic/theme-base/sass/etc/mixins/frame.scss:464 */
+.x-grid-row-editor-buttons-default-top-mc {
+    padding: 1px 1px 5px 1px;
+}
+/* C:/Users/Administrator/git/Knorragency/admin-dashboard/ext/classic/theme-neutral/sass/src/grid/plugin/RowEditing.scss:108 */
+.x-grid-row-editor-buttons {
+    border-color: #d0d0d0;
+}
+/* C:/Users/Administrator/git/Knorragency/admin-dashboard/ext/classic/theme-neutral/sass/src/grid/plugin/RowEditing.scss:112 */
+.x-row-editor-update-button {
+    margin-right: 3px;
+}
+/* C:/Users/Administrator/git/Knorragency/admin-dashboard/ext/classic/theme-neutral/sass/src/grid/plugin/RowEditing.scss:115 */
+.x-row-editor-cancel-button {
+    margin-left: 2px;
+}
+/* C:/Users/Administrator/git/Knorragency/admin-dashboard/ext/classic/theme-neutral/sass/src/grid/plugin/RowEditing.scss:131 */
+.x-grid-row-editor-errors .x-tip-body {
+    padding: 5px;
+}
+/* C:/Users/Administrator/git/Knorragency/admin-dashboard/ext/classic/theme-neutral/sass/src/grid/plugin/RowEditing.scss:136 */
+.x-grid-row-editor-errors-item {
+    list-style: disc;
+    margin-left: 15px;
+}
+>>>>>>> branch 'master' of https://github.com/MyElevenTeam/Knorragency.git
 /* C:/Users/Administrator/git/Knorragency/admin-dashboard/ext/classic/theme-neutral/sass/src/layout/container/Border.scss:5 */
 body.x-border-layout-ct,
 div.x-border-layout-ct {
@@ -15135,6 +15491,7 @@ div.x-border-layout-ct {
 .x-btn.x-btn-disabled .x-btn-plain-toolbar-medium-tc,
 .x-btn.x-btn-disabled .x-btn-plain-toolbar-medium-bc {
     background-image: url(images/btn/btn-plain-toolbar-medium-disabled-corners.gif);
+<<<<<<< HEAD
 }
 /* C:/Users/Administrator/git/Knorragency/admin-dashboard/ext/classic/theme-neutral/sass/var/button/Button.scss:3103 */
 .x-btn.x-btn-disabled .x-btn-plain-toolbar-medium-ml,
@@ -15513,4 +15870,6 @@ div.x-border-layout-ct {
     border-color: #d2d2d2;
     background-image: none;
     background-color: #e2e2e2;
+=======
+>>>>>>> branch 'master' of https://github.com/MyElevenTeam/Knorragency.git
 }

@@ -1,8 +1,8 @@
-﻿Ext.define('Admin.store.contractapprove.ProcessDefinitionStroe', {
+﻿Ext.define('Admin.store.processdefinition.ProcessDefinitionStroe', {
     extend: 'Ext.data.Store',
     storeId:'processDefinitionStroe',
     alias: 'store.processDefinitionStroe',
-	model:'Admin.model.contractapprove.ProcessDefinitionModel',
+	model:'Admin.model.processdefinition.ProcessDefinitionModel',
     pageSize: 15,
     proxy: {
         type: 'ajax',

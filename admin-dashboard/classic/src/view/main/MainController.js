@@ -173,5 +173,46 @@ Ext.define('Admin.view.main.MainController', {
                 }
             }
         });
+    },
+    attence:function(){
+
+        Ext.Ajax.request({
+            url: '/attence/workIn',
+            method: 'post',
+            success: function(response, options) {
+                var json = Ext.util.JSON.decode(response.responseText);
+                if(json.success){
+                    Ext.Msg.alert('提示', json.msg);
+                    Ext.getCmp('work').hide();
+                    Ext.getCmp('out').show();
+                    Ext.data.StoreManager.lookup('attenceGridStroe').load();
+                }else{
+                    Ext.Msg.alert('提示', json.msg);
+                    Ext.data.StoreManager.lookup('attenceGridStroe').load();
+                }
+            }
+            
+        });
+        
+    },
+    signback:function(){
+
+        Ext.Ajax.request({
+            url: '/attence/workOut',
+            method: 'post',
+            success: function(response, options) {
+                var json = Ext.util.JSON.decode(response.responseText);
+                if(json.success){
+                    Ext.Msg.alert('提示', json.msg);
+                    Ext.getCmp('work').show();
+                    Ext.getCmp('out').hide();
+                    Ext.data.StoreManager.lookup('attenceGridStroe').load();
+                }else{
+                    Ext.Msg.alert('提示', json.msg);
+                    Ext.data.StoreManager.lookup('attenceGridStroe').load();
+                }
+            }
+            
+        });
     }
 });

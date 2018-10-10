@@ -30,36 +30,64 @@ Ext.define('Admin.view.leaveapprove.task.DeptLeaderAudit', {
         readOnly: true
 	},/*{
         xtype: 'textfield',
+        fieldLabel: '家乐房产中介合同',
+        style:{'text-align':'center',
+               'position': 'absolute',
+               'top': '10%',
+               'left':'50%',
+        },
+        readOnly: true
+    },*/{
+        xtype: 'textfield',
         cls:'dep',
-        name: 'userId',
-        fieldLabel: '申请人',
+        name: 'contractNumber',
+        fieldLabel: '合同编号',
         readOnly: true
     },{
         xtype: 'textfield',
         cls:'dep',
-        name: 'leaveType',
-        fieldLabel: '请假类型',
+        name: 'customerName',
+        fieldLabel: '客户姓名',
+        readOnly: true
+    },{
+        xtype: 'textfield',
+        cls:'dep',
+        name: 'hoseName',
+        fieldLabel: '房源名称',
+        readOnly: true
+    },{
+        xtype: 'textfield',
+        cls:'dep',
+        name: 'employeeName',
+        fieldLabel: '房产经纪人姓名',
         readOnly: true
     },{
         xtype: 'datefield',
         cls:'dep',
         name: 'startTime',
-        fieldLabel: '开始时间',
+        fieldLabel: '签约时间',
         format: 'Y/m/d H:i:s',
         readOnly: true
     },{
         xtype: 'datefield',
         cls:'dep',
         name: 'endTime',
-        fieldLabel: '结束时间',
+        fieldLabel: '失效时间',
         format: 'Y/m/d H:i:s',
         readOnly: true
     },{
-        xtype: 'textareafield',
-        name: 'reason',
-        fieldLabel: '请假原因',
+        xtype: 'textfield',
+        cls:'dep',
+        name: 'contractType',
+        fieldLabel: '合同类型',
         readOnly: true
-    },*/{
+    },{
+        xtype: 'textfield',
+        cls:'dep',
+        name: 'total',
+        fieldLabel: '金额',
+        readOnly: true
+    },{
 		xtype: 'radiogroup',
 		fieldLabel: '店长审批',
 		defaults: {

@@ -36,6 +36,9 @@ public class ContractService implements IContractService {
 	@Autowired 
 	private IWorkflowService workflowService;
 	
+	private String depreason=null;
+	private String manreason=null;
+	
 	/*----------------------------------------------系统业务--------------------------------------------*/
 	@Override
 	public void save(Contract contract) {
@@ -62,12 +65,16 @@ public class ContractService implements IContractService {
 		if(contractLists!=null) {
 			contractRepository.deleteAll(contractLists);
 		}
-
 	}
 
 	@Override
 	public Page<Contract> findAll(Specification<Contract> spec, Pageable pageable) {
 		return contractRepository.findAll(spec, pageable);
+	}
+	
+	@Override
+	public List<Contract> findAllContract(Specification<Contract> spec) {
+		return contractRepository.findAll(spec);
 	}
 
 	/*上传word文档*/
@@ -129,7 +136,7 @@ public class ContractService implements IContractService {
      */
 	@Override
 	public void startWorkflow(String userId, Long contractId, Map<String, Object> variables) {
-		
+
 		//1.声明流程实例
 		ProcessInstance processInstance = null;
 		//2.获取创建好的合同审核实例
@@ -167,14 +174,13 @@ public class ContractService implements IContractService {
 	            if (workflow.getBusinessKey() == null) {
 	                continue;
 	            }
-	            Contract contract = contractRepository.findById(businessKey).get();
-	            if(contract!=null){
+	            Optional<Contract> contractOptional=contractRepository.findById(businessKey);
+	            if(contractOptional!=null&&contractOptional.isPresent()){
+	            	Contract contract=contractOptional.get();
 	            	ContractDTO contractDTO = new ContractDTO();
 	            	
-	            	/*leaveDTO.setDepreason(depreason);
-	            	leaveDTO.setHrreason(hrreason);
-	            	leave.setDepReason(depreason);
-	            	leave.setHrReason(hrreason);*/
+	            	contractDTO.setDepreason(depreason);
+	            	contractDTO.setManreason(manreason);
 	            	
 	            	BeanUtils.copyProperties(contract, contractDTO);
 	            	BeanUtils.copyProperties(workflow, contractDTO);
@@ -206,7 +212,26 @@ public class ContractService implements IContractService {
      */
 	@Override
 	public void complete(String taskId, Map<String, Object> variables) {
+		
+		//流程变量的处理
+		if(variables.containsKey("confirmName")) {
+			depreason=null;
+			manreason=null;
+		}
+		if(variables.containsKey("deptLeaderPass")&&(boolean) variables.get("deptLeaderPass")) {
+			depreason="同意";
+		}
+		if(variables.containsKey("manLeaderPass")&&(boolean) variables.get("manLeaderPass")) {
+			manreason="同意";
+		}
+		if(variables.containsKey("deptLeaderBackReason")) {
+			depreason=(String) variables.get("deptLeaderBackReason");
+		}
+		if(variables.containsKey("managerBackReason")) {
+			manreason=(String) variables.get("managerBackReason");
+		}
 		workflowService.complete(taskId, variables);
 	}
-
+	
+	
 }

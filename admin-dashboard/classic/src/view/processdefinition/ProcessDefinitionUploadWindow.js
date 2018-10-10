@@ -1,4 +1,4 @@
-﻿Ext.define('Admin.view.contractapprove.ProcessDefinitionUploadWindow', {
+﻿Ext.define('Admin.view.processdefinition.ProcessDefinitionUploadWindow', {
     extend: 'Ext.window.Window',
     alias: 'widget.processDefinitionUploadWindow',
     requires: [

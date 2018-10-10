@@ -123,20 +123,22 @@ public class EventController {
 	
 	@RequestMapping(value="/save",method=RequestMethod.POST)
 	public ExtAjaxResponse save(@RequestBody Event event) {
-		eventService.save(event);
-		return new ExtAjaxResponse(true,"成功!");
-		
+		try {
+			eventService.save(event);
+			return new ExtAjaxResponse(true,"成功!");
+		} catch (Exception e) {
+			return new ExtAjaxResponse(false,"失败!");
+		}
 	}
 	
 	@RequestMapping("/delete")
-	public ExtAjaxResponse delete(@RequestParam(name="id") Long id) 
-	{
-	try {
-		eventService.deleteById(id);
-		return new ExtAjaxResponse(true,"成功!");
-	} catch (Exception e) {
-		return new ExtAjaxResponse(false,"失败!");
+	public ExtAjaxResponse delete(@RequestParam(name="id") Long id) {
+		try {
+			eventService.deleteById(id);
+			return new ExtAjaxResponse(true,"成功!");
+		} catch (Exception e) {
+			return new ExtAjaxResponse(false,"失败!");
+		}
 	}
-}
 
 }

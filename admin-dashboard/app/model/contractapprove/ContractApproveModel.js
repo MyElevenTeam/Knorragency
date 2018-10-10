@@ -24,6 +24,9 @@
         ,{type: 'string' ,name: 'processDefinitionId'}
         ,{type: 'boolean' ,name: 'suspended'}
         ,{type: 'int' ,name: 'version'}
+
+        ,{type: 'string' ,name: 'depreason'}
+        ,{type: 'string' ,name: 'manreason'}
     ]
 });
 

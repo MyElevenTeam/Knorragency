@@ -1,5 +1,5 @@
 Ext.define('Admin.view.contractapprove.ContractApprovePanel', {
-    extend: 'Ext.tab.Panel',
+    extend: 'Ext.panel.Panel',
     xtype: 'contractApprovePanel',
 
      requires: [
@@ -9,7 +9,7 @@ Ext.define('Admin.view.contractapprove.ContractApprovePanel', {
         'Ext.grid.column.Date',
         'Ext.selection.CheckboxModel'
     ],
-
+    layout: 'fit',
     items: [
     {
         title: '合同审核',
@@ -51,11 +51,11 @@ Ext.define('Admin.view.contractapprove.ContractApprovePanel', {
                 cls: 'content-column',
                 width: 120,
                 dataIndex: 'bool',
-                text: 'Actions',
+                text: '操作',
                 tooltip: 'edit '
             }
             ,{header: 'id'          ,dataIndex: 'id',width: 60,sortable: true   ,hidden:true}
-            ,{header: 'processStatus',dataIndex: 'processStatus',width: 60,sortable: true,
+            ,{header: '审核状态',dataIndex: 'processStatus',width: 100,sortable: true,
                 renderer: function(val) {
                     if (val =='NEW') {
                         return '<span style="color:green;">新建</span>';
@@ -69,16 +69,31 @@ Ext.define('Admin.view.contractapprove.ContractApprovePanel', {
                     return val;
                 }
             }
-            ,{header: 'userId'          ,dataIndex: 'userId',width: 60,sortable: true}
-            ,{header: 'processInstanceId' ,dataIndex: 'processInstanceId',width: 80,sortable: true}
-            ,{header: 'taskId'          ,dataIndex: 'taskId',width: 80,sortable: true}
-            ,{header: 'taskName'        ,dataIndex: 'taskName',width: 80,sortable: true}
-            ,{header: 'taskCreateTime'  ,dataIndex: 'taskCreateTime',width: 150,sortable: true,renderer: Ext.util.Format.dateRenderer('Y/m/d H:i:s')}
-            ,{header: 'assignee'        ,dataIndex: 'assignee',width: 80,sortable: true}
-            ,{header: 'taskDefinitionKey',dataIndex: 'taskDefinitionKey',width: 80,sortable: true}
-            ,{header: 'processDefinitionId' ,dataIndex: 'processDefinitionId',width: 80,sortable: true}
-            ,{header: 'suspended'       ,dataIndex: 'suspended',width: 80,sortable: true}
-            ,{header: 'version'         ,dataIndex: 'version',width: 60,sortable: true}
+            ,{header: '申请人'          ,dataIndex: 'userId',width: 100,sortable: true}
+            ,{xtype: 'gridcolumn', cls: 'content-column',width:100,dataIndex: 'contractNumber',text: '合同编号'}
+            ,{xtype: 'gridcolumn', cls: 'content-column',width:100,dataIndex: 'customerName',text: '客户姓名'}
+            ,{xtype: 'gridcolumn', cls: 'content-column',width:100,dataIndex: 'hoseName',text: '房源名称'}
+            ,{xtype: 'gridcolumn', cls: 'content-column',width:120,dataIndex: 'employeeName',text: '房产经纪人姓名'}
+            ,{xtype: 'datecolumn',cls: 'content-column',width: 150,dataIndex: 'startTime',text: '签约时间',flex:1,formatter: 'date("Y/m/d H:i:s")'}
+            ,{xtype: 'datecolumn',cls: 'content-column',width: 150,dataIndex: 'endTime',text: '失效时间',flex:1,formatter: 'date("Y/m/d H:i:s")'}
+            ,{xtype: 'gridcolumn', cls: 'content-column',width:90,dataIndex: 'contractType',text: '合同类型'}
+            ,{xtype: 'gridcolumn', cls: 'content-column',width:100,dataIndex: 'total',text: '金额',
+                renderer: function(val) {
+                    return '<span>'+Ext.util.Format.number(val, '0,000.00')+'万</span>';
+                }
+            }
+            ,{xtype: 'gridcolumn', cls: 'content-column',width:100,dataIndex: 'area',text: '公司区域'}
+            ,{header: 'processInstanceId' ,dataIndex: 'processInstanceId',width: 80,sortable: true,hidden:true}
+            ,{header: 'taskId'          ,dataIndex: 'taskId',width: 80,sortable: true,hidden:true}
+            ,{header: '审核名称'        ,dataIndex: 'taskName',width: 100,sortable: true}
+            ,{header: '提交审核时间'  ,dataIndex: 'taskCreateTime',width: 100,sortable: true,renderer: Ext.util.Format.dateRenderer('Y/m/d H:i:s')}
+            ,{header: 'assignee'        ,dataIndex: 'assignee',width: 80,sortable: true,hidden:true}
+            ,{header: 'taskDefinitionKey',dataIndex: 'taskDefinitionKey',width: 80,sortable: true,hidden:true}
+            ,{header: 'processDefinitionId' ,dataIndex: 'processDefinitionId',width: 80,sortable: true,hidden:true}
+            ,{header: 'suspended'       ,dataIndex: 'suspended',width: 80,sortable: true,hidden:true}
+            ,{header: 'version'         ,dataIndex: 'version',width: 60,sortable: true,hidden:true}
+            ,{header: 'depreason' ,dataIndex: 'depreason',width: 60,sortable: true,hidden:true}
+            ,{header: 'manreason' ,dataIndex: 'manreason',width: 60,sortable: true,hidden:true}
         ],
         dockedItems: [{
             xtype: 'pagingtoolbar',
@@ -87,76 +102,6 @@ Ext.define('Admin.view.contractapprove.ContractApprovePanel', {
             bind: '{contractApproveLists}'
         }]
         
-    }, {
-        title: '流程定义',
-        layout:'fit',
-        items:[
-            {
-                xtype: 'gridpanel',
-                cls: 'process-definition-grid',
-                //title: '流程定义列表',
-                bind: '{processDefinitionLists}',
-                scrollable: false,
-                columns : [
-                     {header : '流程定义实体Id',dataIndex : 'id',width : 120,sortable : true}
-                    ,{header : '类别',dataIndex : 'category',width : 200,sortable : true}
-                    ,{header : '名称',dataIndex : 'name',width : 100,sortable : true}
-                    ,{header : '流程key',dataIndex : 'key',width : 80,sortable : true}
-                    ,{header : '版本号',dataIndex : 'version',width : 60,sortable : true}
-                    ,{header : '部署Id',dataIndex : 'deploymentId',width : 60,sortable : true,hidden : true}
-                    //,{header : '部署时间',dataIndex : 'deploymentTime',width : 150,sortable : true,renderer : Ext.util.Format.dateRenderer('Y/m/d H:i:s')}
-                    ,{header : 'bpmn XML',dataIndex : 'resourceName',width : 120,sortable : true,hidden : true,
-                        renderer : function(value, metaData, record, rowIdx, colIdx, store, view) {
-                            return '<a target="_blank" href="'
-                                    + 'process-definition/resource?pdid='
-                                    + record.get('id') + '&resourceName='
-                                    + record.get('resourceName') + '">'
-                                    + record.get('resourceName') + '</a>';
-                        }
-                    }
-                    ,{header : '流程图',dataIndex : 'diagramResourceName',width : 120,sortable : true,hidden : true,
-                        renderer : function(value, metaData, record, rowIdx, colIdx,store, view) {
-                            return '<a target="_blank" href="'
-                                    + 'process-definition/resource?pdid='
-                                    + record.get('id') + '&resourceName='
-                                    + record.get('diagramResourceName') + '">'
-                                    + record.get('diagramResourceName') + '</a>';
-                        }
-                    }
-                    ,{header : '是否挂起',dataIndex : 'suspended',width : 80,   sortable : true,hidden : true}
-                    ,{header : 'startFormKey',dataIndex : 'startFormKey',width : 180,sortable : true,hidden : true} 
-                    ,{header : 'graphicalNotation',dataIndex : 'graphicalNotation',width : 180,sortable : true,hidden : true} 
-                    ,{header : 'description',dataIndex : 'description',width : 60,sortable : true,hidden : true }
-                    ,{header : 'tenantId',dataIndex : 'tenantId',width : 180,sortable : true,hidden : true  }
-                    ,{xtype : 'actioncolumn',cls : 'content-column',width : 260,text : '操作',
-                        items : [
-                            {
-                                xtype : 'button',iconCls : 'x-fa fa-trash-o',tooltip: '删除',
-                                handler : 'onClickProcessDefinitionGridDeleteButton'
-                            }, {
-                                xtype : 'button',iconCls : 'x-fa  fa-file-excel-o',tooltip: 'BPMN XML',
-                                handler : 'onClickProcessDefinitionReadResourceButton'
-                            } ,{
-                                xtype: 'button',iconCls: 'x-fa fa-file-picture-o',tooltip: '流程定义图',
-                                handler: 'onClickProcessDefinitionReadDiagramResourceButton'
-                            }
-                        ]
-                    }
-                ],
-                tbar: [{
-                    text: '上传BPMN',
-                    tooltip: '上传流程图',
-                    iconCls:'fa fa-cloud-upload',
-                    handler: 'onClickProcessDefinitionGridUploadButton' 
-                }], 
-                dockedItems: [{
-                    xtype: 'pagingtoolbar',
-                    dock: 'bottom',
-                    displayInfo: true,
-                    bind: '{processDefinitionLists}'
-                }]
-            }
-        ]
     }]
     
 });

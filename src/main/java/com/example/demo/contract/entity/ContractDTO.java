@@ -54,6 +54,10 @@ public class ContractDTO {
     private boolean suspended;
     
     private int version;
+    
+    private String depreason;
+    
+    private String manreason;
 
 	public Long getId() {
 		return id;
@@ -141,6 +145,14 @@ public class ContractDTO {
 	public int getVersion() {
 		return version;
 	}
+	
+	public String getDepreason() {
+		return depreason;
+	}
+
+	public String getManreason() {
+		return manreason;
+	}
 
 	public void setId(Long id) {
 		this.id = id;
@@ -224,6 +236,14 @@ public class ContractDTO {
 
 	public void setVersion(int version) {
 		this.version = version;
+	}
+
+	public void setDepreason(String depreason) {
+		this.depreason = depreason;
+	}
+
+	public void setManreason(String manreason) {
+		this.manreason = manreason;
 	}
     
 }

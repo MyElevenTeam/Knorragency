@@ -36,7 +36,18 @@ public class ExtAjaxResponse {
 	}	
 	public Map<String, String> getMap() {
 		return map;
-	}	
+	}
 
+	public void setSuccess(boolean success) {
+		this.success = success;
+	}
+
+	public void setMsg(String msg) {
+		this.msg = msg;
+	}
+
+	public void setMap(Map<String, String> map) {
+		this.map = map;
+	}
 }
 

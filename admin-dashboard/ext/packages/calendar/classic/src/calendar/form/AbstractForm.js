@@ -303,38 +303,38 @@ Ext.define('Ext.calendar.form.AbstractForm', {
 
             if(id.search("Ext") != -1){
              var data =  JSON.stringify({
-                                    startDate : stime,
-                                    endDate :   etime,
-                                    calendarId : values.calendarId,
-                                    title : values.title,
-                                    description : values.description,
-                                    allDay : values.allDay
-                            });
+                        startDate : stime,
+                        endDate :   etime,
+                        calendarId : values.calendarId,
+                        title : values.title,
+                        description : values.description,
+                        allDay : values.allDay
+                });
 
                
             }else{
                 var data = JSON.stringify({
-                                    id : id,
-                                    startDate : stime,
-                                    endDate :   etime,
-                                    calendarId : values.calendarId,
-                                    title : values.title,
-                                    description : values.description,
-                                    allDay : values.allDay
-                            });
+                        id : id,
+                        startDate : stime,
+                        endDate :   etime,
+                        calendarId : values.calendarId,
+                        title : values.title,
+                        description : values.description,
+                        allDay : values.allDay
+                });
             }
 
              Ext.Ajax.request({ 
-                            url : '/calendar', 
-                            method : 'post', 
-                            headers: {'Content-Type':'application/json'},
-                            params : data,
-                            success: function(response, options) {
-                                    values.id=response.responseText; 
-                                    me.fireSave(me.produceEventData(values));
-                                   // window.location.reload();
-                            }
-                        });
+                url : '/calendar/save', 
+                method : 'post', 
+                headers: {'Content-Type':'application/json'},
+                params : data,
+                success: function(response, options) {
+                        values.id=response.responseText; 
+                        me.fireSave(me.produceEventData(values));
+                       // window.location.reload();
+                }
+            });
         }
     }
 });

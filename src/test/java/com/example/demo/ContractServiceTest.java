@@ -9,9 +9,13 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import org.apache.poi.POIXMLDocument;
 import org.apache.poi.POIXMLTextExtractor;
@@ -29,6 +33,10 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.util.ResourceUtils;
 
+import com.example.demo.attence.entity.Attence;
+import com.example.demo.attence.entity.AttenceQueryDTO;
+import com.example.demo.attence.service.AttenceService;
+import com.example.demo.attence.utils.AttenceUtil;
 import com.example.demo.contract.entity.Contract;
 import com.example.demo.contract.service.IContractService;
 
@@ -38,6 +46,9 @@ public class ContractServiceTest {
 	
 	@Autowired
 	private IContractService contractService;
+	
+	@Autowired
+	private AttenceService attenceService;
 	
 	@Test
 	public void readWord() throws IOException, ParseException, XmlException, OpenXML4JException {
@@ -70,7 +81,8 @@ public class ContractServiceTest {
 	
 	public void build(File tmpFile, Map<String, String> contentMap, String exportFile) throws Exception {
 	    FileInputStream tempFileInputStream = new FileInputStream(tmpFile);
-	    HWPFDocument document = new HWPFDocument(tempFileInputStream);
+	    @SuppressWarnings("resource")
+		HWPFDocument document = new HWPFDocument(tempFileInputStream);
 	    // 读取文本内容
 	    Range bodyRange = document.getRange();
 	    // 替换内容
@@ -99,10 +111,85 @@ public class ContractServiceTest {
 
 	    build(ResourceUtils.getFile(tmpFile), datas, expFile);
 	}
-
-
-
 	
+	@Test
+	public void tt() throws ParseException {
+		
+        
+		Calendar todayStart = Calendar.getInstance();		
+		todayStart.set(Calendar.HOUR_OF_DAY, 0);		
+		todayStart.set(Calendar.MINUTE, 0);		
+		todayStart.set(Calendar.SECOND, 0);		
+		
+		System.out.println("todayStart:"+todayStart.getTime());
+
+		
+		Calendar calendar = Calendar.getInstance();
+		calendar.setTime(new Date());
+		calendar.set(Calendar.HOUR_OF_DAY, 0);
+		calendar.set(Calendar.MINUTE, 0);
+		calendar.set(Calendar.SECOND, 0);
+		calendar.set(Calendar.MILLISECOND, 0);
+		calendar.add(Calendar.DAY_OF_MONTH, 1);
+		System.out.println("todayEnd:"+calendar.getTime());
+        
+        AttenceQueryDTO dto=new AttenceQueryDTO();
+        dto.setEmployeeName("admin");
+        dto.setWorkinTime(todayStart.getTime());
+        //dto.setWorkoutTime(new Date());
+        List<Attence> attenceList=new ArrayList<Attence>();
+		attenceList=attenceService.findByEmployeeName(AttenceQueryDTO.getWhereClause(dto));
+		for(Attence attence:attenceList) {
+			System.out.println(attence);
+		}
+
+	}
 	
+	@Test
+	public void time() throws ParseException {
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+		Date dBegin = sdf.parse("2018-10-08");
+		Date dEnd = sdf.parse("2018-10-12");
+		List<Date> datas = AttenceUtil.findDates(dBegin, dEnd);
+        for(Date date:datas) {
+        	System.out.println(sdf.format(date));
+        }
+	}
 	
+	@Test
+	public void timeFormatTest() throws Exception {
+		Optional<Contract> tmp=null;
+		tmp=contractService.findById(1L);
+		Calendar calendar=Calendar.getInstance();
+		calendar.setTime(tmp.get().getStartTime());
+		System.out.println(calendar.get(Calendar.MONTH));
+	}
+	/**
+	 * 给合同表添加数据
+	 */
+	@Test
+	public void addData() {
+		//得45
+		/*for(int i=0;i<10;i++) {
+			Contract contract=new Contract();
+			contract.setStartTime(new Date());
+			contract.setTotal(i);
+			contract.setEmployeeName("小明");
+			contractService.save(contract);
+		}*/
+	/*	//得36
+		for(int i=0;i<9;i++) {
+			Contract contract=new Contract();
+			contract.setStartTime(new Date());
+			contract.setTotal(i);
+			contract.setEmployeeName("小红");
+			contractService.save(contract);
+		}*/
+		List<Contract> tmps=contractService.findAllContract(null);
+		for(Contract tmp:tmps) {
+			System.out.println(tmp);
+		}
+	}
+	
+
 }
