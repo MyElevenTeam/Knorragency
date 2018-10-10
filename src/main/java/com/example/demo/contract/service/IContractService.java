@@ -41,6 +41,6 @@ public interface IContractService {
 	public void claim(String taskId,String userId);
 	
 	//4.完成流程任务
-	public void complete(String taskId, Map<String, Object> variables); 
-
+	public void complete(String taskId, Map<String, Object> variables);
+	
 }

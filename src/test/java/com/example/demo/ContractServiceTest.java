@@ -15,6 +15,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import org.apache.poi.POIXMLDocument;
 import org.apache.poi.POIXMLTextExtractor;
@@ -154,6 +155,41 @@ public class ContractServiceTest {
         	System.out.println(sdf.format(date));
         }
 	}
-
+	
+	@Test
+	public void timeFormatTest() throws Exception {
+		Optional<Contract> tmp=null;
+		tmp=contractService.findById(1L);
+		Calendar calendar=Calendar.getInstance();
+		calendar.setTime(tmp.get().getStartTime());
+		System.out.println(calendar.get(Calendar.MONTH));
+	}
+	/**
+	 * 给合同表添加数据
+	 */
+	@Test
+	public void addData() {
+		//得45
+		/*for(int i=0;i<10;i++) {
+			Contract contract=new Contract();
+			contract.setStartTime(new Date());
+			contract.setTotal(i);
+			contract.setEmployeeName("小明");
+			contractService.save(contract);
+		}*/
+	/*	//得36
+		for(int i=0;i<9;i++) {
+			Contract contract=new Contract();
+			contract.setStartTime(new Date());
+			contract.setTotal(i);
+			contract.setEmployeeName("小红");
+			contractService.save(contract);
+		}*/
+		List<Contract> tmps=contractService.findAllContract(null);
+		for(Contract tmp:tmps) {
+			System.out.println(tmp);
+		}
+	}
+	
 
 }
