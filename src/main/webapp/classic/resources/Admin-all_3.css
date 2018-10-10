@@ -1,3 +1,5 @@
+<<<<<<< HEAD
+=======
 /* C:/Users/Administrator/git/Knorragency/admin-dashboard/ext/classic/theme-base/sass/etc/mixins/frame.scss:351 */
 .x-btn-gray-small-tr {
     background-position: right -3px;
@@ -292,6 +294,7 @@
 .x-btn-over .x-btn-gray-small-mc {
     background-color: #888889;
 }
+>>>>>>> branch 'master' of https://github.com/MyElevenTeam/Knorragency.git
 /* C:/Users/Administrator/git/Knorragency/admin-dashboard/ext/classic/theme-neutral/sass/var/button/Button.scss:3016 */
 .x-keyboard-mode .x-btn-focus.x-btn-over .x-btn-gray-small-tl,
 .x-keyboard-mode .x-btn-focus.x-btn-over .x-btn-gray-small-bl,
@@ -4158,10 +4161,15 @@
 .boldFont {
     font-weight: bold;
 }
+<<<<<<< HEAD
+<<<<<<< HEAD
+=======
+=======
 /* C:/Users/Administrator/git/Knorragency/admin-dashboard/classic/src/view/attence/AppealWindow.scss:1 */
 .appeal .x-form-trigger-wrap {
     border: none;
 }
+>>>>>>> branch 'master' of https://github.com/MyElevenTeam/Knorragency.git
 /* C:/Users/Administrator/git/Knorragency/admin-dashboard/classic/src/view/attence/AttencePanel.scss:1 */
 .has-border {
     border: solid 8px #dfdfdf;
@@ -4283,6 +4291,7 @@
 .dep .x-form-trigger-wrap {
     border: none;
 }
+>>>>>>> branch 'master' of https://github.com/MyElevenTeam/Knorragency.git
 /* C:/Users/Administrator/git/Knorragency/admin-dashboard/classic/src/view/authentication/Dialog.scss:5 */
 .auth-dialog .auth-profile-wrap {
     background: #32a3a7;

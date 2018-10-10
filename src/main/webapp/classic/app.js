@@ -105328,10 +105328,33 @@ Ext.define('Admin.Application', {extend:Ext.app.Application, name:'Admin', store
     }
   });
 }});
-Ext.define('Admin.view.addressList.AddressList', {extend:Ext.container.Container, xtype:'addressList', viewModel:{type:'addressListViewModel'}, layout:'fit', items:[{xtype:'addressListPanel'}]});
-Ext.define('Admin.view.addressList.AddressListPanel', {extend:Ext.panel.Panel, xtype:'addressListPanel', layout:'fit', items:[{xtype:'gridpanel', cls:'user-grid', title:'AddressList Results', bind:'{addressListLists}', scrollable:false, columns:[{xtype:'gridcolumn', width:40, dataIndex:'id', text:'#'}, {xtype:'gridcolumn', cls:'content-column', dataIndex:'employeeName', text:'Name', flex:1}, {xtype:'gridcolumn', cls:'content-column', dataIndex:'employeeNumber', text:'Number', flex:1}, {xtype:'datecolumn', 
-cls:'content-column', dataIndex:'employeeArea', text:'Area', flex:1}, {xtype:'gridcolumn', cls:'content-column', dataIndex:'post', text:'post', flex:1}, {xtype:'gridcolumn', cls:'content-column', dataIndex:'email', text:'email', flex:1}, {xtype:'actioncolumn', cls:'content-column', width:120, dataIndex:'bool', text:'Actions', tooltip:'edit ', items:[{xtype:'button', iconCls:'x-fa fa-pencil', handler:'onEditButton'}, {xtype:'button', iconCls:'x-fa fa-close', handler:'onDeleteButton'}, {xtype:'button', 
-iconCls:'x-fa fa-ban', handler:'onDisableButton'}]}], dockedItems:[{xtype:'pagingtoolbar', dock:'bottom', itemId:'userPaginationToolbar', displayInfo:true, bind:'{addressListLists}'}]}]});
+Ext.define('Admin.view.addressList.AddressList', {extend:Ext.container.Container, xtype:'addressList', controller:'addressListViewController', viewModel:{type:'addressListViewModel'}, layout:'fit', items:[{xtype:'addressListPanel'}]});
+Ext.define('Admin.view.addressList.AddressListPanel', {extend:Ext.panel.Panel, xtype:'addressListPanel', layout:'fit', items:[{xtype:'gridpanel', cls:'user-grid', title:'AddressList Results', bind:'{addressListLists}', scrollable:false, columns:[{xtype:'gridcolumn', width:40, dataIndex:'id', text:'#', hidden:true}, {xtype:'gridcolumn', cls:'content-column', dataIndex:'employeeName', text:'Name', flex:1}, {xtype:'gridcolumn', cls:'content-column', dataIndex:'employeeNumber', text:'Number', flex:1}, 
+{xtype:'gridcolumn', cls:'content-column', dataIndex:'employeeArea', text:'Area', flex:1}, {xtype:'gridcolumn', cls:'content-column', dataIndex:'post', text:'post', flex:1}, {xtype:'gridcolumn', cls:'content-column', dataIndex:'email', text:'email', flex:1}, {xtype:'actioncolumn', cls:'content-column', width:120, dataIndex:'bool', text:'Actions', tooltip:'edit ', items:[{xtype:'button', iconCls:'x-fa fa-pencil', handler:'onEditButton'}, {xtype:'button', iconCls:'x-fa fa-close', handler:'onDeleteButton'}, 
+{xtype:'button', iconCls:'x-fa fa-ban', handler:'onDisableButton'}]}], tbar:[{xtype:'combobox', reference:'searchFieldName', hideLabel:true, store:Ext.create('Ext.data.Store', {fields:['name', 'value'], data:[{name:'姓名', value:'employeeName'}, {name:'工号', value:'employeeNumber'}, {name:'地域', value:'employeeArea'}, {name:'职称', value:'post'}]}), displayField:'name', valueField:'value', value:'employeeName', editable:false, queryMode:'local', triggerAction:'all', emptyText:'Select a state...', width:135}, 
+'-', {xtype:'textfield', reference:'searchFieldValue', name:'orderPanelSearchField'}, '-', {text:'搜索', iconCls:'fa fa-search', handler:'quickSearch'}, '-\x3e', {text:'视频会议', tooltip:'Add a new row', iconCls:'fa fa-plus', handler:'openAddWindow'}], dockedItems:[{xtype:'pagingtoolbar', dock:'bottom', itemId:'userPaginationToolbar', displayInfo:true, bind:'{addressListLists}'}]}]});
+Ext.define('Admin.view.addressList.AddressListViewController', {extend:Ext.app.ViewController, alias:'controller.addressListViewController', quickSearch:function(btn) {
+  var searchField = this.lookupReference('searchFieldName').getValue();
+  var searchValue = this.lookupReference('searchFieldValue').getValue();
+  var store = btn.up('gridpanel').getStore();
+  Ext.apply(store.proxy.extraParams, {employeeName:'', employeeNumber:'', employeeArea:'', post:''});
+  if (searchField === 'employeeName') {
+    Ext.apply(store.proxy.extraParams, {employeeName:searchValue});
+  } else {
+    if (searchField === 'employeeNumber') {
+      Ext.apply(store.proxy.extraParams, {employeeNumber:searchValue});
+    } else {
+      if (searchField === 'employeeArea') {
+        Ext.apply(store.proxy.extraParams, {employeeArea:searchValue});
+      } else {
+        if (searchField === 'post') {
+          Ext.apply(store.proxy.extraParams, {post:searchValue});
+        }
+      }
+    }
+  }
+  store.load({params:{start:0, limit:20, page:1}});
+}});
 Ext.define('Admin.view.addressList.AddressListViewModel', {extend:Ext.app.ViewModel, alias:'viewmodel.addressListViewModel', stores:{addressListLists:{type:'addressListPanelStroe'}}});
 Ext.define('Admin.view.attence.AppealWindow', {extend:Ext.window.Window, alias:'widget.appealWindow', height:420, width:550, scrollable:true, title:'申诉表', closable:true, modal:true, layout:'fit', items:[{xtype:'form', layout:'form', padding:'10px', ariaLabel:'Enter your name', items:[{xtype:'textfield', fieldLabel:'id', name:'id', hidden:true, readOnly:true}, {xtype:'textfield', fieldLabel:'申诉人', cls:'appeal', readOnly:true, name:'employeeName'}, {xtype:'textfield', fieldLabel:'打卡地点', cls:'appeal', 
 readOnly:true, name:'location'}, {xtype:'datefield', fieldLabel:'上班时间', cls:'appeal', readOnly:true, name:'workinTime', format:'Y/m/d H:i:s'}, {xtype:'datefield', fieldLabel:'下班时间', cls:'appeal', readOnly:true, name:'workoutTime', format:'Y/m/d H:i:s'}, {xtype:'textfield', fieldLabel:'原上班状态', cls:'appeal', readOnly:true, name:'attenceStatus', style:{'color':'red'}}, {xtype:'textareafield', grow:true, name:'appealreason', emptyText:'此处填写申诉原因', fieldLabel:'申诉原因', allowBlank:false, anchor:'100%'}]}], 

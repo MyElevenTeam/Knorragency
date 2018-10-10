@@ -20,6 +20,10 @@ public class AddreeListServiceTest {
 		for(int i=0;i<100;i++) {
 			Employee tmp=new Employee();
 			tmp.setEmployeeName("小明"+i);
+			tmp.setEmployeeNumber(""+i);
+			tmp.setEmployeeArea("第"+i+"地区");
+			tmp.setPost("路人"+i);
+			tmp.setEmail("1234567"+i+"@qq.com");
 			addressListService.save(tmp);
 		}
 
