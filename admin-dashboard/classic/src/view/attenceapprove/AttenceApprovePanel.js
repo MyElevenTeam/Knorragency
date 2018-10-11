@@ -143,7 +143,7 @@
 						handler: 'onClickGraphTraceButton'	//流程跟踪
 					}],
 					cls: 'content-column',
-					width: 60,
+					width: 120,
 					dataIndex: 'bool',
 					text: '操作',
 					tooltip: 'edit '

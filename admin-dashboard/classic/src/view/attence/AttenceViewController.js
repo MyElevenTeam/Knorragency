@@ -104,7 +104,12 @@ Ext.define('Admin.view.attence.AttenceViewController', {
         }
       });
     },
-
+    /*查看审批结果*/
+    LookLeave:function(grid,rowIndex, colIndex){
+       var record = grid.getStore().getAt(rowIndex);
+       var win=grid.up('window').up('panel').up('container').add(Ext.widget('lookLeaveWindow')).show();
+       win.down('form').getForm().loadRecord(record);
+    },
     /***********************************************申诉业务***********************************************************/
     openAppealWindow:function(grid,rowIndex, colIndex){
       var record = grid.getStore().getAt(rowIndex);
@@ -143,8 +148,6 @@ Ext.define('Admin.view.attence.AttenceViewController', {
               var json = Ext.util.JSON.decode(response.responseText);
               if(json.success){
                 Ext.Msg.alert('操作成功', json.msg, function() {
-                Ext.getCmp('appeal_processStatus').show();
-                Ext.getCmp('appeal_appealreason').show();
                 btn.up('window').close();
                 Ext.data.StoreManager.lookup('attenceGridStroe').load();
               });
@@ -153,6 +156,13 @@ Ext.define('Admin.view.attence.AttenceViewController', {
               }
             }
         });
+    },
+    /*查看申诉结果*/
+    LookAppeal:function(grid,rowIndex, colIndex){
+       var record = grid.getStore().getAt(rowIndex);
+       var win = grid.up('panel').up('container').add(Ext.widget('lookAppealWindow'));
+       win.show();
+       win.down('form').getForm().loadRecord(record);
     }
   
      

@@ -1,4 +1,4 @@
-Ext.define('Admin.view.attenceapprove.task.ModifyApply', {
+Ext.define('Admin.view.attenceapprove.task.AppealModifyApply', {
     extend: 'Ext.form.Panel',
     alias: 'widget.appealmodifyApply',
     requires: [
@@ -72,35 +72,16 @@ Ext.define('Admin.view.attenceapprove.task.ModifyApply', {
         anchor: '100%'
     },{
         xtype: 'textareafield',
-        //id:'depreasonModify',
-        name: 'depreason',//修改
+        name: 'depreason',
         fieldLabel: '部门经理审批意见',
         emptyText: '部门经理还未审批',
-        readOnly: true 
-        /*listeners:{
-        	change:function(){
-        		var val=Ext.getCmp('depreasonModify').getValue();
-        		if(val!=null){
-        			Ext.get('hrreasonModify').hide();
-        		}
-        	}
-        }*/
+        readOnly: true
     },{
         xtype: 'textareafield',
-        //id:'hrreasonModify',
-        name: 'hrreason',//修改
+        name: 'hrreason',
         fieldLabel: '人事文员审批意见',
         emptyText: '人事文员还未审批',
         readOnly: true
-        /*listeners:{
-        	change:function(){
-        		var val=Ext.getCmp('hrreasonModify').getValue();
-        		if(val!=null){
-        			Ext.get('depreasonModify').hide();
-        			Ext.get('hrreasonModify').setVisible(true);   
-        		}
-        	}
-        }*/
     }],
 
    	bbar: [{

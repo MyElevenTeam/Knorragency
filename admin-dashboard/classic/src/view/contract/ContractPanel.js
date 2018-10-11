@@ -166,6 +166,16 @@ Ext.define('Admin.view.contract.ContractPanel', {
                                 return 'x-fa fa-ban';
                             },
                             handler: 'cancelLeaveProcess'
+                        },
+                        {
+                            xtype: 'button',iconCls: 'x-fa fa-file-text-o',tooltip: '查看审批结果',
+                            getClass: function(v, meta, rec) {
+                                if (rec.get('processStatus')=='COMPLETE') {
+                                    return 'x-fa fa-file-text-o';
+                                }
+                                return 'x-hidden';
+                            },
+                            handler: 'LookContract'
                         }
                     ]
                 }

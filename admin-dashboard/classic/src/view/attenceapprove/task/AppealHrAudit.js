@@ -1,4 +1,4 @@
-Ext.define('Admin.view.attenceapprove.task.HrAudit', {
+Ext.define('Admin.view.attenceapprove.task.AppealHrAudit', {
     extend: 'Ext.form.Panel',
     alias: 'widget.appealhrAudit',
     requires: [

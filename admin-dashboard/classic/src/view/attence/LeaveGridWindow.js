@@ -116,10 +116,8 @@
                     }
                 }
                 ,{header: '请假原因',dataIndex: 'reason',width: 220,sortable: true,editor: 'textfield'}
-                //,{header: 'realityStartTime',dataIndex: 'realityStartTime',width: 60,sortable: true,renderer: Ext.util.Format.dateRenderer('Y/m/d H:i:s')}
-                //,{header: 'realityEndTime',dataIndex: 'realityEndTime',width: 60,sortable: true,renderer: Ext.util.Format.dateRenderer('Y/m/d H:i:s')}
-                ,{header: '经理意见',dataIndex: 'depReason',width: 120,sortable: true}
-                ,{header: '人事经理意见' ,dataIndex: 'hrReason',width: 120,sortable: true}
+                ,{header: '部门经理审批意见',dataIndex: 'depReason',width: 220,sortable: true,hidden:true}
+                ,{header: '人事经理审批意见',dataIndex: 'hrReason',width: 220,sortable: true,hidden:true}
                 ,{xtype: 'actioncolumn',cls: 'content-column', width: 120,text: '操作',tooltip: 'edit ',
                     items: [
                         //{xtype: 'button', iconCls: 'x-fa fa-pencil',handler: 'openEditWindow'},
@@ -133,7 +131,8 @@
                                 return 'x-fa fa-star';
                             },
                             handler: 'starLeaveProcess'
-                        },{
+                        },
+                        {
                             xtype: 'button',iconCls: 'x-fa fa-ban',tooltip: '取消请假',
                             getClass: function(v, meta, rec) {
                                 if (rec.get('processInstanceId')=="") {
@@ -142,6 +141,16 @@
                                 return 'x-fa fa-ban';
                             },
                             handler: 'cancelLeaveProcess'
+                        },
+                        {
+                            xtype: 'button',iconCls: 'x-fa fa-file-text-o',tooltip: '查看审批结果',
+                            getClass: function(v, meta, rec) {
+                                if (rec.get('processStatus')=='COMPLETE') {
+                                    return 'x-fa fa-file-text-o';
+                                }
+                                return 'x-hidden';
+                            },
+                            handler: 'LookLeave'
                         }
                     ]
                 }

@@ -1,15 +1,10 @@
-Ext.define('Admin.view.attenceapprove.task.AppealDeptLeaderAudit', {
+Ext.define('Admin.view.attenceapprove.task.AppealConfirm', {
     extend: 'Ext.form.Panel',
-    alias: 'widget.appealdeptLeaderAudit',
+    alias: 'widget.appealConfirm',
     requires: [
         'Ext.button.Button',
         'Ext.form.RadioGroup',
-        //'Ext.form.field.Radio', 
         'Ext.form.field.*'
-        //'Ext.form.field.File',
-        //'Ext.form.field.Date',
-        //'Ext.form.field.ComboBox',
-        //'Ext.form.field.HtmlEditor'
     ],
     bodyPadding: 10,
     bodyBorder: true,
@@ -21,8 +16,13 @@ Ext.define('Admin.view.attenceapprove.task.AppealDeptLeaderAudit', {
         msgTarget: 'none',
         invalidCls: '' 
     },
-   
     items: [{
+        xtype: 'textfield',
+        name: 'taskId',
+        fieldLabel: '任务ID',
+        hidden: true,
+        readOnly: true
+    },{
     	xtype: 'textfield',
 		name: 'taskId',
 		fieldLabel: '任务ID',
@@ -54,42 +54,37 @@ Ext.define('Admin.view.attenceapprove.task.AppealDeptLeaderAudit', {
         xtype: 'textfield',
         fieldLabel: '原上班状态',
         readOnly: true,
-        name:'attenceStatus'
+        name:'attenceStatus',
+        style:{'color':'red',
+        },
     },{
         xtype: 'textareafield',
         grow: true,
         name: 'appealreason',
         fieldLabel: '申诉原因',
-    },{
-		xtype: 'radiogroup',
-		fieldLabel: '部门经理审批',
-		defaults: {
-			flex: 1
-		},
-		items: [{
-			name: 'deptLeaderPass',
-			inputValue: true,
-			boxLabel: '同意',
-			checked: true
-		}, {
-			name: 'deptLeaderPass',
-			inputValue: false,
-			boxLabel: '不同意'
-		}]
+        anchor: '100%'
     },{
         xtype: 'textareafield',
-        grow: true,
-        name: 'deptLeaderBackReason',//修改
-        emptyText: '此处可填写意见', 
-        fieldLabel: '意见',
-        anchor: '100%',
+        name: 'depreason',
+        fieldLabel: '部门经理审批意见',
+        readOnly: true 
+    },{
+        xtype: 'textareafield',
+        name: 'hrreason',
+        fieldLabel: '人事文员审批意见',
+        readOnly: true
+        
+    },{
+        xtype: 'textfield',
+        name:'confirmName',
+        fieldLabel: '请签名确认',
+        allowBlank:false
     }],
-
    	bbar: [{
 		xtype: 'button',
 		ui: 'soft-green',
 		text: '提交'	,
-		handler: 'onClickAppealDeptleaderAuditFormSubmitButton'
+		handler: 'onClickAppealConfirmFormSubmitButton'
 	},{
 		xtype: 'button',
 		ui: 'gray',

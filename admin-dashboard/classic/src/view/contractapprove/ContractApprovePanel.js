@@ -30,7 +30,7 @@ Ext.define('Admin.view.contractapprove.ContractApprovePanel', {
                         }
                         return 'x-fa fa-pencil';
                     },
-                    handler: 'onClickLeaveApproveClaimButton'   //ajax  taskId
+                    handler: 'onClickContractApproveClaimButton'   //ajax  taskId
                 },{
                     xtype: 'button',
                     iconCls: 'x-fa fa-edit',
@@ -41,7 +41,7 @@ Ext.define('Admin.view.contractapprove.ContractApprovePanel', {
                         }
                         return 'x-fa fa-edit';
                     },
-                    handler: 'onClickLeaveApproveCompleteWindowButton'  //taskDefinitionKey 动态表单
+                    handler: 'onClickContractApproveCompleteWindowButton'  //taskDefinitionKey 动态表单
                 },{
                     xtype: 'button',
                     iconCls: 'x-fa fa-object-group',

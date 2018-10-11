@@ -4218,6 +4218,14 @@
     color: #32a3a7;
     background-color: #f5f5f5;
 }
+/* C:/Users/Administrator/git/Knorragency/admin-dashboard/classic/src/view/attence/LookAppealWindow.scss:1 */
+.lookqppeal .x-form-trigger-wrap {
+    border: none;
+}
+/* C:/Users/Administrator/git/Knorragency/admin-dashboard/classic/src/view/attence/LookLeaveWindow.scss:1 */
+.lookLeave .x-form-trigger-wrap {
+    border: none;
+}
 /* C:/Users/Administrator/git/Knorragency/admin-dashboard/classic/src/view/attenceapprove/AttenceApprovePanel.scss:1 */
 .process-definition-grid {
     border: solid 8px #dfdfdf;

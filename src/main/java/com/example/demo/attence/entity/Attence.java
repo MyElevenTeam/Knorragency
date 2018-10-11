@@ -34,6 +34,10 @@ public class Attence {
     private String userId;//启动流程的用户ID
     //流程实例Id：用于关联流程引擎相关数据没有启动流程之前为""
     private String processInstanceId;
+    
+    private String deptLeaderBackReason;
+    
+    private String hrBackReason;
 	
 	@Id
 	@GeneratedValue(strategy=GenerationType.IDENTITY)
@@ -79,6 +83,14 @@ public class Attence {
 	public String getAppealreason() {
 		return appealreason;
 	}
+	
+	public String getDeptLeaderBackReason() {
+		return deptLeaderBackReason;
+	}
+
+	public String getHrBackReason() {
+		return hrBackReason;
+	}
 
 	public void setId(Long id) {
 		this.id = id;
@@ -118,6 +130,14 @@ public class Attence {
 	
 	public void setAppealreason(String appealreason) {
 		this.appealreason = appealreason;
+	}
+	
+	public void setDeptLeaderBackReason(String deptLeaderBackReason) {
+		this.deptLeaderBackReason = deptLeaderBackReason;
+	}
+
+	public void setHrBackReason(String hrBackReason) {
+		this.hrBackReason = hrBackReason;
 	}
 
 	@Override
