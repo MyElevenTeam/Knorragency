@@ -5,26 +5,18 @@ Ext.define('Admin.store.allattence.AllAttenceGridStroe', {
 	model:'Admin.model.allattence.AllAttenceModel',
 
     //连接后台数据
-   proxy: {
-		type: 'rest',
-		url: '/attence/getAllAttence',
-		reader:{
-			type:'json',
-			rootProperty:'content',//对应后台返回的结果集名称
-			totalProperty: 'totalElements'//分页需要知道总记录数
-		},
-		writer: {
-			type: 'json'
-		},
-		simpleSortMode: true	//简单排序模式
-	},
-	autoLoad: 'true',
-    autoSync:true,
-    remoteSort:true,
-    pageSize:20,
-    sorters: {
-        direction: 'ASC',
-        property: 'id'
-    }
+  proxy: {
+        type: 'ajax',
+        url: 'attence/getAllAttence', 			//需要修改
+        reader : new Ext.data.JsonReader({  
+            type : 'json',  
+            rootProperty  : 'content',
+            totalProperty : 'totalElements'
+        })
+        ,simpleSortMode: true
+    },
+    remoteSort: true,
+    sorters: [{ property: 'id',direction: 'desc'}],
+    autoLoad: true
 	
 });

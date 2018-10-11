@@ -235,7 +235,6 @@
         }else if(attenceStatus=='EARLY'){
             record.data.attenceStatus='早退';
         }
-
         if (taskDefinitionKey == 'deptLeaderAudit') {
             //部门领导审批
             var win = this.setCurrentView(view,'appealdeptLeaderAudit', '部门领导审批');
@@ -245,9 +244,14 @@
             var win = this.setCurrentView(view,'appealhrAudit','人事审批表单');
             win.down('form').getForm().loadRecord(record);
         }
-        else if (taskDefinitionKey == 'modifyAppeal') {
+        else if (taskDefinitionKey == 'modify') {
             //申请人调整申请：可以编写到工具类中
             var win = this.setCurrentView(view,'appealmodifyApply','调整申诉表单');
+            win.down('form').getForm().loadRecord(record);
+        }
+        else if (taskDefinitionKey == 'confirm') {
+            //申请人调整申请：可以编写到工具类中
+            var win = this.setCurrentView(view,'appealConfirm','申诉结果确认');
             win.down('form').getForm().loadRecord(record);
         }
     },
@@ -294,6 +298,24 @@
             type: 'S'
         }];
         this.complete(url,variables,form);
+    },
+     //确认
+    onClickAppealConfirmFormSubmitButton: function(btn) {
+        
+        var form = btn.up('form');
+        if(form.isValid()){
+            var values = form.getValues();
+            var url = 'attence/complete/' + values.taskId;
+            var variables = [{
+                key: 'confirmName',
+                value: values.confirmName,//获取表单选择的value
+                type: 'S'
+            }];
+            this.complete(url,variables,form);
+        }else{
+            Ext.Msg.alert('提示','不允许为空');
+        }
+        
     }
 
 });

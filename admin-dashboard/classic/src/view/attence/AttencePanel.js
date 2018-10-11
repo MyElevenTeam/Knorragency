@@ -39,18 +39,9 @@ Ext.define('Admin.view.attence.AttencePanel', {
                 },
                 '->',
                 {
-	                xtype:'textfield',
-	                id:'attence_searchFieldValue',
-	                name:'userPanelSearchField',
-	                hidden:true
-                },
-                '-',
-                {
                     iconCls:'fa fa-search fa-5x',
-                    id:'attence_search',
                     ui: 'header',
-                    tooltip: '查找',
-                    handler:'search'
+                    tooltip: '查找'
                 },
                 '-',
                 {
@@ -91,7 +82,7 @@ Ext.define('Admin.view.attence.AttencePanel', {
                     }
                 },
 
-                {header: '申诉状态',dataIndex: 'processStatus',width: 120,sortable: true,hidden:true,id:'appeal_processStatus',
+                {header: '申诉状态',dataIndex: 'processStatus',width: 120,sortable: true,
                     renderer: function(val) {
                         if (val =='NEW') {
                             return '<span style="color:green;">未发起申诉</span>';
@@ -105,8 +96,9 @@ Ext.define('Admin.view.attence.AttencePanel', {
                         return val;
                     }
                 },
-                {xtype: 'gridcolumn', cls: 'content-column',width:150,dataIndex: 'appealreason',text: '申诉原因',hidden:true,id:'appeal_appealreason'},
-                {xtype: 'gridcolumn', cls: 'content-column',width:150,dataIndex: 'userId',text: '申诉人',hidden:true},
+                {xtype: 'gridcolumn', cls: 'content-column',width:50,dataIndex: 'appealreason',text: '申诉原因',hidden:true},
+                {xtype: 'gridcolumn', cls: 'content-column',width:50,dataIndex: 'deptLeaderBackReason',text: '经理意见',hidden:true},
+                {xtype: 'gridcolumn', cls: 'content-column',width:50,dataIndex: 'hrBackReason',text: '人事经理意见',hidden:true},
 
                 {xtype: 'gridcolumn', cls: 'content-column',width:150,dataIndex: 'employeeName',text: '员工姓名'},
                 {xtype: 'gridcolumn', cls: 'content-column',width:150,dataIndex: 'location',text: '打卡地点'},
@@ -133,6 +125,16 @@ Ext.define('Admin.view.attence.AttencePanel', {
                                 return 'x-fa fa-ban';
                             },
                             handler: 'cancelLeaveProcess'
+                        },
+                        {
+                            xtype: 'button',iconCls: 'x-fa fa-file-text-o',tooltip: '查看申诉结果',
+                            getClass: function(v, meta, rec) {
+                                if (rec.get('processStatus')=='COMPLETE') {
+                                    return 'x-fa fa-file-text-o';
+                                }
+                                return 'x-hidden';
+                            },
+                            handler: 'LookAppeal'
                         }
                     ]
                 }

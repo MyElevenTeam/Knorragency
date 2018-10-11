@@ -128,8 +128,13 @@ Ext.define('Admin.view.contract.ContractViewController', {
   /*Cancel Leave Process*/  
   cancelLeaveProcess:function(grid, rowIndex, colIndex){
     Ext.Msg.alert("Title","Cancel Leave Process");
+  },
+  /*查看审批结果*/
+  LookAppeal:function(grid,rowIndex, colIndex){
+     var record = grid.getStore().getAt(rowIndex);
+     var win = grid.up('panel').up('container').add(Ext.widget('lookContractWindow'));
+     win.show();
+     win.down('form').getForm().loadRecord(record);
   }
 
-    
-	
 });

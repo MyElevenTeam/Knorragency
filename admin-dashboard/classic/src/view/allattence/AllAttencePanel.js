@@ -27,10 +27,8 @@ Ext.define('Admin.view.allattence.AllAttencePanel', {
                 '->',
                 {
                     iconCls:'fa fa-search fa-5x',
-                    id:'attence_search',
                     ui: 'header',
-                    tooltip: '查找',
-                    handler:'search'
+                    tooltip: '查找'
                 },
                 '-',
                 {

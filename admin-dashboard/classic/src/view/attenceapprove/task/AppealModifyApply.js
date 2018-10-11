@@ -1,4 +1,4 @@
-Ext.define('Admin.view.attenceapprove.task.ModifyApply', {
+Ext.define('Admin.view.attenceapprove.task.AppealModifyApply', {
     extend: 'Ext.form.Panel',
     alias: 'widget.appealmodifyApply',
     requires: [

@@ -45,6 +45,10 @@ public class Contract implements Serializable{
     private String userId;//启动流程的用户ID
     //流程实例Id：用于关联流程引擎相关数据没有启动流程之前为""
     private String processInstanceId;
+    
+    private String depreason;
+    
+    private String manreason;
 	
 	@Id
 	@GeneratedValue(strategy=GenerationType.IDENTITY)
@@ -101,6 +105,14 @@ public class Contract implements Serializable{
 	public String getProcessInstanceId() {
 		return processInstanceId;
 	}
+	
+	public String getDepreason() {
+		return depreason;
+	}
+
+	public String getManreason() {
+		return manreason;
+	}
 
 	public void setId(Long id) {
 		this.id = id;
@@ -152,6 +164,14 @@ public class Contract implements Serializable{
 
 	public void setProcessInstanceId(String processInstanceId) {
 		this.processInstanceId = processInstanceId;
+	}
+	
+	public void setDepreason(String depreason) {
+		this.depreason = depreason;
+	}
+
+	public void setManreason(String manreason) {
+		this.manreason = manreason;
 	}
 
 	@Override

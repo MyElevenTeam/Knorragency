@@ -4,7 +4,7 @@
 
     /*-----------------------------合同审批业务-------------------------------------------*/
     //1.签收任务
-    onClickLeaveApproveClaimButton: function(view, recIndex, cellIndex, item, e, record) {
+    onClickContractApproveClaimButton: function(view, recIndex, cellIndex, item, e, record) {
         Ext.Ajax.request({
             url: 'contract/claim/' + record.get('taskId'),
             method: 'post',
@@ -32,7 +32,7 @@
         view.up('panel').up('container').add(win);
         return win;
     },
-    onClickLeaveApproveCompleteWindowButton: function(view, recIndex, cellIndex, item, e, record) {
+    onClickContractApproveCompleteWindowButton: function(view, recIndex, cellIndex, item, e, record) {
     	//选中点击的行
         var taskDefinitionKey = record.get('taskDefinitionKey');
 
