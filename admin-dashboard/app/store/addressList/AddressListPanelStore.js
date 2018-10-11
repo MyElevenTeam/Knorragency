@@ -17,13 +17,6 @@ Ext.define('Admin.store.addressList.AddressListPanelStroe', {
 		},
 		simpleSortMode: true	//简单排序模式
 	},
-	autoLoad: 'true',
-    autoSync:true,
-    remoteSort:true,
-    pageSize:20,
-    sorters: {
-        direction: 'ASC',
-        property: 'id'
-    }
-	
+	autoLoad: true,
+    autoSync: true
 });

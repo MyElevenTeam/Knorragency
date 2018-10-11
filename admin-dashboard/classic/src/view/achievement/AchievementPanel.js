@@ -6,7 +6,6 @@ Ext.define('Admin.view.achievement.AchievementPanel', {
         'Ext.chart.CartesianChart',
         'Ext.chart.axis.Category',
         'Ext.chart.axis.Numeric',
-        'Ext.chart.interactions.PanZoom',
         'Ext.chart.series.Bar'
     ],
 
@@ -43,6 +42,40 @@ Ext.define('Admin.view.achievement.AchievementPanel', {
             yField: [
                 'total'
             ]
-        }] 
+        }],
+        tbar:[{
+                xtype: 'combobox',
+                reference:'searchFieldName',
+                hideLabel: true,
+                store:Ext.create("Ext.data.Store", {
+                    fields: ["name", "value"],
+                    data: [
+                        { name: '一月', value: '一月' },
+                        { name: '二月', value: '二月' },
+                        { name: '三月', value: '三月' },
+                        { name: '四月', value: '四月' },
+                        { name: '五月', value: '五月' },
+                        { name: '六月', value: '六月' },
+                        { name: '七月', value: '七月' },
+                        { name: '八月', value: '八月' },
+                        { name: '九月', value: '九月' },
+                        { name: '十月', value: '十月' },
+                        { name: '十一月', value: '十一月' },
+                        { name: '十二月', value: '十二月' }
+                    ]
+                }),
+                displayField: 'name',
+                valueField:'value',
+                value:'一月',
+                editable: false,
+                queryMode: 'local',
+                triggerAction: 'all',
+                emptyText: 'Select a state...',
+                width: 135,
+                listeners:{
+                    select: 'searchCombobox'
+                }
+            }]
+
     }]
 });

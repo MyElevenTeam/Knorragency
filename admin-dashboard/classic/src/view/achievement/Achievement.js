@@ -8,9 +8,9 @@ Ext.define('Admin.view.achievement.Achievement', {
         'Admin.view.achievement.AchievementViewModel',
         'Ext.ux.layout.ResponsiveColumn'
     ],
-
+    controller: 'achievementController',
     viewModel: {
-        type: 'charts'
+        type: 'achievementViewModel'
     },
 
     layout: 'responsivecolumn',
