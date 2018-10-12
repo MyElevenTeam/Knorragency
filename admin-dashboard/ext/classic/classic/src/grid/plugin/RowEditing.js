@@ -257,6 +257,7 @@ Ext.define('Ext.grid.plugin.RowEditing', {
     },
 
     cancelEdit: function() {
+        alert("cancelEdit");
         var me = this;
 
         if (me.editing) {
@@ -270,7 +271,7 @@ Ext.define('Ext.grid.plugin.RowEditing', {
     },
 
     completeEdit: function() {
-        alert("sss");
+        alert("completeEdit");
         var me = this,
             context = me.context;
 

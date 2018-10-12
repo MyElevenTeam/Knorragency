@@ -7,13 +7,18 @@ Ext.define('Admin.view.user.UserPanel', {
         'Ext.toolbar.Paging',
         'Ext.form.field.ComboBox',
         'Ext.grid.column.Date',
-        'Ext.selection.CheckboxModel'
+        'Ext.selection.CheckboxModel',
+        'Admin.view.GridFilters.GridFilters'
     ],
     //controller: 'searchresults',
    // viewModel: {type: 'orderViewModel'},
     layout: 'fit',
     items: [{
             xtype: 'gridpanel',
+            plugins: {
+                
+                gfilters: true
+            },
             cls: 'user-grid',
             title: 'UserGrid Results',
             //routeId: 'user',
