@@ -107738,7 +107738,7 @@ Ext.define('Admin.model.processdefinition.ProcessDefinitionModel', {extend:Admin
 Ext.define('Admin.model.user.UserModel', {extend:Admin.model.Base, fields:[{type:'int', name:'id'}, {type:'string', name:'userName'}, {type:'date', name:'createTime', dateFormat:'Y/m/d H:i:s'}], proxy:{type:'rest', url:'/user'}});
 Ext.define('Admin.store.NavigationTree', {extend:Ext.data.TreeStore, storeId:'NavigationTree', fields:[{name:'text'}], root:{expanded:true, children:[{text:'Dashboard', iconCls:'x-fa fa-desktop', viewType:'admindashboard', routeId:'dashboard', leaf:true}, {text:'模板', iconCls:'x-fa fa-address-card', viewType:'user', leaf:true}, {text:'业务管理模块', iconCls:'x-fa fa-briefcase', expanded:false, selectable:false, children:[{text:'合同管理', iconCls:'x-fa fa-clipboard', viewType:'contract', leaf:true}, {text:'业务审核', 
 iconCls:'x-fa fa-pencil-square-o', viewType:'contractApprove', leaf:true}]}, {text:'通讯录', iconCls:'x-fa fa-address-card', viewType:'addressList', leaf:true}, {text:'日程管理', iconCls:'x-fa fa-calendar', viewType:'calendar', leaf:true}, {text:'个人考勤', iconCls:'x-fa fa-fax', viewType:'attence', leaf:true}, {text:'考勤管理', iconCls:'x-fa  fa-calendar-o', expanded:false, selectable:false, children:[{text:'部门考勤表', iconCls:'x-fa fa-copy', viewType:'allAttence', leaf:true}, {text:'考勤审核', iconCls:'x-fa fa-pencil-square-o', 
-viewType:'attenceApprove', leaf:true}]}, {text:'流程定义图', iconCls:'x-fa fa-file-picture-o', viewType:'processDefinition', leaf:true}, {text:'业务排行', iconCls:'x-fa fa-fax', viewType:'achievement', leaf:true}, {text:'Login', iconCls:'x-fa fa-check', viewType:'login', leaf:true}, {text:'模板', iconCls:'x-fa fa-address-card', viewType:'grid', leaf:true}]}});
+viewType:'attenceApprove', leaf:true}]}, {text:'流程定义图', iconCls:'x-fa fa-file-picture-o', viewType:'processDefinition', leaf:true}, {text:'业务排行', iconCls:'x-fa fa-fax', viewType:'achievement', leaf:true}, {text:'Login', iconCls:'x-fa fa-check', viewType:'login', leaf:true}]}});
 Ext.define('Admin.store.achievement.AchievementStore', {extend:Ext.data.Store, storeId:'achievementStore', alias:'store.achievementStore', model:'Admin.model.achievement.AchievementModel', proxy:{type:'rest', url:'/achievement', reader:{type:'json', rootProperty:'content'}, writer:{type:'json'}}, autoLoad:true, autoSync:true});
 Ext.define('Admin.store.addressList.AddressListPanelStroe', {extend:Ext.data.Store, alias:'store.addressListPanelStroe', model:'Admin.model.addressList.AddListModel', proxy:{type:'rest', url:'/addressList', reader:{type:'json', rootProperty:'content', totalProperty:'totalElements'}, writer:{type:'json'}, simpleSortMode:true}, autoLoad:true, autoSync:true});
 Ext.define('Admin.store.allattence.AllAttenceGridStroe', {extend:Ext.data.Store, storeId:'allAttenceGridStroe', alias:'store.allAttenceGridStroe', model:'Admin.model.allattence.AllAttenceModel', proxy:{type:'ajax', url:'attence/getAllAttence', reader:new Ext.data.JsonReader({type:'json', rootProperty:'content', totalProperty:'totalElements'}), simpleSortMode:true}, remoteSort:true, sorters:[{property:'id', direction:'desc'}], autoLoad:true});
@@ -107749,7 +107749,10 @@ Ext.define('Admin.store.contract.ContractGridStroe', {extend:Ext.data.Store, sto
 Ext.define('Admin.store.contractapprove.ContractApproveStore', {extend:Ext.data.Store, storeId:'contractApproveStore', alias:'store.contractApproveStore', model:'Admin.model.contractapprove.ContractApproveModel', proxy:{type:'ajax', url:'contract/tasks', reader:new Ext.data.JsonReader({type:'json', rootProperty:'content', totalProperty:'totalElements'}), simpleSortMode:true}, remoteSort:true, sorters:[{property:'id', direction:'desc'}], autoLoad:true});
 Ext.define('Admin.store.leave.LeaveStroe', {extend:Ext.data.Store, storeId:'leaveStroe', alias:'store.leaveStroe', model:'Admin.model.leave.LeaveModel', proxy:{type:'rest', url:'/leave', reader:{type:'json', rootProperty:'content', totalProperty:'totalElements'}, writer:{type:'json'}, simpleSortMode:true}, autoLoad:true, autoSync:true, remoteSort:true, pageSize:15, sorters:{direction:'DESC', property:'id'}, listeners:{}});
 Ext.define('Admin.store.processdefinition.ProcessDefinitionStroe', {extend:Ext.data.Store, storeId:'processDefinitionStroe', alias:'store.processDefinitionStroe', model:'Admin.model.processdefinition.ProcessDefinitionModel', pageSize:15, proxy:{type:'ajax', url:'/process-definition', reader:{type:'json', rootProperty:'content', totalProperty:'totalElements'}, simpleSortMode:true}, remoteSort:true, sorters:[{property:'id', direction:'desc'}], autoLoad:true, listeners:{}});
-Ext.define('Admin.store.user.UserGridStroe', {extend:Ext.data.Store, alias:'store.userGridStroe', model:'Admin.model.user.UserModel', data:{'content':[{'id':1, 'userName':'No001', 'createTime':'2018/09/08 19:40:52'}, {'id':2, 'userName':'No002', 'createTime':'2018/09/08 19:40:52'}]}, proxy:{type:'memory', reader:{type:'json', rootProperty:'content'}}, autoLoad:'true', sorters:{direction:'ASC', property:'userName'}});
+Ext.define('Admin.store.user.UserGridStroe', {extend:Ext.data.Store, alias:'store.userGridStroe', model:'Admin.model.user.UserModel', data:{'content':[{'id':1, 'userName':'No001', 'createTime':'2018/09/08 19:40:52'}, {'id':2, 'userName':'No002', 'createTime':'2018/09/08 19:40:52'}, {'id':3, 'userName':'No003', 'createTime':'2018/09/08 19:40:52'}, {'id':4, 'userName':'No004', 'createTime':'2018/09/08 19:40:52'}, {'id':5, 'userName':'No004', 'createTime':'2018/09/08 19:40:52'}, {'id':6, 'userName':'No006', 
+'createTime':'2018/09/08 19:40:52'}, {'id':7, 'userName':'No001', 'createTime':'2018/09/08 19:40:52'}, {'id':8, 'userName':'No002', 'createTime':'2018/09/08 19:40:52'}, {'id':9, 'userName':'No001', 'createTime':'2018/09/08 19:40:52'}, {'id':10, 'userName':'No0021', 'createTime':'2018/09/08 19:40:52'}, {'id':11, 'userName':'No0011', 'createTime':'2018/09/08 19:40:52'}, {'id':12, 'userName':'No0012', 'createTime':'2018/09/08 19:40:52'}, {'id':13, 'userName':'No0013', 'createTime':'2018/09/08 19:40:52'}, 
+{'id':14, 'userName':'No0014', 'createTime':'2018/09/08 19:40:52'}, {'id':15, 'userName':'No001', 'createTime':'2018/09/08 19:40:52'}, {'id':16, 'userName':'No0021', 'createTime':'2018/09/08 19:40:52'}, {'id':17, 'userName':'No0011', 'createTime':'2018/09/08 19:40:52'}, {'id':18, 'userName':'No0012', 'createTime':'2018/09/08 19:40:52'}, {'id':19, 'userName':'No0013', 'createTime':'2018/09/08 19:40:52'}, {'id':20, 'userName':'No0014', 'createTime':'2018/09/08 19:40:52'}]}, proxy:{type:'memory', reader:{type:'json', 
+rootProperty:'content'}}, autoLoad:'true', pageSize:10, sorters:{direction:'ASC', property:'userName'}});
 Ext.define('Admin.view.dashboard.DashboardController', {extend:Ext.app.ViewController, alias:'controller.dashboard', onRefreshToggle:function(tool, e, owner) {
   var store, runner;
   if (tool.toggleValue) {
@@ -107789,7 +107792,7 @@ Ext.define('Admin.Application', {extend:Ext.app.Application, name:'Admin', store
     }
   });
 }});
-Ext.define('Admin.view.GridFilters.GridFilters', {extend:Ext.plugin.Abstract, mixins:[Ext.util.StoreHolder], alias:'plugin.gfilters', pluginId:'gfilters', defaultFilterTypes:{'boolean':'boolean', 'int':'number', date:'date', number:'number'}, filterCls:Ext.baseCSSPrefix + 'grid-filters-filtered-column', menuFilterText:'Filters', showMenu:true, stateId:undefined, init:function(grid) {
+Ext.define('Admin.view.GridFilters.GridFilters', {extend:Ext.plugin.Abstract, local:false, mixins:[Ext.util.StoreHolder], alias:'plugin.gfilters', pluginId:'gfilters', defaultFilterTypes:{'boolean':'boolean', 'int':'number', date:'date', number:'number'}, filterCls:Ext.baseCSSPrefix + 'grid-filters-filtered-column', menuFilterText:'Filters', showMenu:true, stateId:undefined, init:function(grid) {
   var me = this, store, headerCt;
   Ext.Assert.falsey(me.grid);
   me.grid = grid;
@@ -107824,7 +107827,7 @@ Ext.define('Admin.view.GridFilters.GridFilters', {extend:Ext.plugin.Abstract, mi
     }
   }
   var tbar = grid.down('toolbar');
-  tbar.insert(0, {xtype:'splitbutton', text:'检索', iconCls:null, menu:its, handler:'onClearFilters', scope:me});
+  tbar.insert(0, {xtype:'splitbutton', text:'请选择搜索条件', iconCls:null, menu:its, handler:'onClearFilters', scope:me, id:'Admin_gridfilters', hidden:true});
   if (filterCollection) {
     filterCollection.endUpdate();
   }
@@ -108713,9 +108716,8 @@ Ext.define('Admin.view.calendar.CalendarViewController', {extend:Ext.app.ViewCon
 }});
 Ext.define('Admin.view.contract.Contract', {extend:Ext.container.Container, xtype:'contract', controller:'contractViewController', viewModel:{type:'contractViewModel'}, layout:'fit', items:[{xtype:'contractPanel'}]});
 Ext.define('Admin.view.contract.ContractEditWindow', {extend:Ext.window.Window, alias:'widget.contractEditWindow', height:200, minHeight:200, minWidth:300, width:500, scrollable:true, title:'合同修改窗口', closable:true, modal:true, layout:'fit'});
-Ext.define('Admin.view.contract.ContractPanel', {extend:Ext.panel.Panel, xtype:'contractPanel', layout:{type:'vbox', pack:'start', align:'stretch'}, items:[{title:'合同列表'}, {bodypadding:15, cls:'has-border', height:80, tbar:['-\x3e', {tooltip:'添加合同信息', fieldLabel:'添加合同信息', ui:'header', iconCls:'fa fa-plus-square', handler:'onAddClick'}, '-', {tooltip:'导入合同信息', ui:'header', iconCls:'fa fa-cloud-upload', handler:'uploadContract'}, '-', {tooltip:'合同模板下载', ui:'header', iconCls:'fa fa-cloud-download', 
-href:'/contract/downloadWord', hrefTarget:'_self'}]}, {xtype:'gridpanel', plugins:{rowexpander:{rowBodyTpl:new Ext.XTemplate('\x3cp\x3e\x3cb\x3eCompany:\x3c/b\x3e\x3c/p\x3e', '\x3cp\x3e\x3cb\x3eChange:\x3c/b\x3e\x3c/p\x3e\x3cbr\x3e', '\x3cp\x3e\x3cb\x3eSummary:\x3c/b\x3e\x3c/p\x3e')}, gfilters:true}, cls:'has-border', height:650, bind:'{contractLists}', scrollable:false, selModel:{type:'checkboxmodel', checkOnly:true}, columns:[{xtype:'gridcolumn', width:40, dataIndex:'id', text:'id', hidden:true}, 
-{header:'processStatus', dataIndex:'processStatus', width:60, sortable:true, renderer:function(val) {
+Ext.define('Admin.view.contract.ContractPanel', {extend:Ext.panel.Panel, xtype:'contractPanel', layout:'fit', items:[{xtype:'gridpanel', title:'合同信息表', plugins:{rowexpander:{rowBodyTpl:new Ext.XTemplate('\x3cp\x3e\x3cb\x3eCompany:\x3c/b\x3e${contractNumber}\x3c/p\x3e', '\x3cp\x3e\x3cb\x3eChange:\x3c/b\x3e\x3c/p\x3e\x3cbr\x3e', '\x3cp\x3e\x3cb\x3eSummary:\x3c/b\x3e\x3c/p\x3e')}, gfilters:true}, cls:'has-border', bind:'{contractLists}', selModel:{type:'checkboxmodel', checkOnly:true}, columns:[{xtype:'gridcolumn', 
+width:40, dataIndex:'id', text:'id', hidden:true}, {header:'processStatus', dataIndex:'processStatus', width:60, sortable:true, renderer:function(val) {
   if (val == 'NEW') {
     return '\x3cspan style\x3d"color:green;"\x3e新建\x3c/span\x3e';
   } else {
@@ -108730,10 +108732,11 @@ href:'/contract/downloadWord', hrefTarget:'_self'}]}, {xtype:'gridpanel', plugin
     }
   }
   return val;
-}}, {xtype:'gridcolumn', cls:'content-column', width:100, dataIndex:'contractNumber', text:'合同编号', editor:{xtype:'textfield', allowBlank:false}, filter:{type:'string', itemDefaults:{emptyText:'Search for...'}}}, {xtype:'gridcolumn', cls:'content-column', width:100, dataIndex:'customerName', text:'客户姓名', editor:{xtype:'textfield', allowBlank:false}}, {xtype:'gridcolumn', cls:'content-column', width:100, dataIndex:'hoseName', text:'房源名称'}, {xtype:'gridcolumn', cls:'content-column', width:120, dataIndex:'employeeName', 
-text:'房产经纪人姓名'}, {xtype:'datecolumn', cls:'content-column', width:150, dataIndex:'startTime', text:'签约时间', flex:1, formatter:'date("Y/m/d H:i:s")'}, {xtype:'datecolumn', cls:'content-column', width:150, dataIndex:'endTime', text:'失效时间', flex:1, formatter:'date("Y/m/d H:i:s")'}, {xtype:'gridcolumn', cls:'content-column', width:90, dataIndex:'contractType', text:'合同类型'}, {xtype:'gridcolumn', cls:'content-column', width:100, dataIndex:'total', text:'金额', renderer:function(val) {
+}}, {xtype:'gridcolumn', cls:'content-column', width:100, dataIndex:'contractNumber', text:'合同编号', editor:{xtype:'textfield', allowBlank:false}, filter:{type:'string', itemDefaults:{emptyText:'Search for...'}}}, {xtype:'gridcolumn', cls:'content-column', width:100, dataIndex:'customerName', text:'客户姓名', editor:{xtype:'textfield', allowBlank:false}, filter:{type:'string', itemDefaults:{emptyText:'Search for...'}}}, {xtype:'gridcolumn', cls:'content-column', width:100, dataIndex:'hoseName', text:'房源名称', 
+filter:{type:'string', itemDefaults:{emptyText:'Search for...'}}}, {xtype:'gridcolumn', cls:'content-column', width:120, dataIndex:'employeeName', text:'房产经纪人姓名', filter:{type:'string', itemDefaults:{emptyText:'Search for...'}}}, {xtype:'datecolumn', cls:'content-column', width:150, dataIndex:'startTime', text:'签约时间', flex:1, formatter:'date("Y/m/d H:i:s")', filter:true}, {xtype:'datecolumn', cls:'content-column', width:150, dataIndex:'endTime', text:'失效时间', flex:1, formatter:'date("Y/m/d H:i:s")', 
+filter:true}, {xtype:'gridcolumn', cls:'content-column', width:90, dataIndex:'contractType', text:'合同类型', filter:{type:'string', itemDefaults:{emptyText:'Search for...'}}}, {xtype:'gridcolumn', cls:'content-column', width:100, dataIndex:'total', text:'金额', renderer:function(val) {
   return '\x3cspan\x3e' + Ext.util.Format.number(val, '0,000.00') + '万\x3c/span\x3e';
-}}, {xtype:'gridcolumn', cls:'content-column', width:100, dataIndex:'area', text:'公司区域'}, {xtype:'actioncolumn', cls:'content-column', width:150, dataIndex:'bool', text:'操作', tooltip:'edit ', items:[{xtype:'button', iconCls:'x-fa fa-arrow-circle-o-down', tooltip:'合同下载'}, {xtype:'button', iconCls:'x-fa fa-close', tooltip:'删除合同', handler:'onDeleteButton'}, {xtype:'button', iconCls:'x-fa fa-star', tooltip:'发起请假', getClass:function(v, meta, rec) {
+}, filter:'number'}, {xtype:'gridcolumn', cls:'content-column', width:100, dataIndex:'area', text:'公司区域'}, {xtype:'actioncolumn', cls:'content-column', width:150, dataIndex:'bool', text:'操作', tooltip:'edit ', items:[{xtype:'button', iconCls:'x-fa fa-arrow-circle-o-down', tooltip:'合同下载'}, {xtype:'button', iconCls:'x-fa fa-close', tooltip:'删除合同', handler:'onDeleteButton'}, {xtype:'button', iconCls:'x-fa fa-star', tooltip:'发起请假', getClass:function(v, meta, rec) {
   if (rec.get('processInstanceId') != '') {
     return 'x-hidden';
   }
@@ -108748,7 +108751,8 @@ text:'房产经纪人姓名'}, {xtype:'datecolumn', cls:'content-column', width:
     return 'x-fa fa-file-text-o';
   }
   return 'x-hidden';
-}, handler:'LookContract'}]}], dockedItems:[{xtype:'pagingtoolbar', dock:'bottom', itemId:'userPaginationToolbar', displayInfo:true, bind:'{contractLists}'}]}]});
+}, handler:'LookContract'}]}], tbar:[{iconCls:'fa fa-search fa-5x', ui:'header', tooltip:'查找', id:'contract_search', handler:'searchContract'}, '-\x3e', {tooltip:'添加合同信息', ui:'header', iconCls:'fa fa-plus-square', handler:'onAddClick'}, '-', {tooltip:'导入合同信息', ui:'header', iconCls:'fa fa-cloud-upload', handler:'uploadContract'}, '-', {tooltip:'合同模板下载', ui:'header', iconCls:'fa fa-cloud-download', href:'/contract/downloadWord', hrefTarget:'_self'}], dockedItems:[{xtype:'pagingtoolbar', dock:'bottom', 
+itemId:'userPaginationToolbar', displayInfo:true, bind:'{contractLists}'}]}]});
 Ext.define('Admin.view.contract.ContractUploadWindow', {extend:Ext.window.Window, alias:'widget.contractUploadWindow', height:180, minHeight:100, minWidth:300, width:500, scrollable:true, title:'Contract Upload Window', closable:true, constrain:true, defaultFocus:'textfield', modal:true, layout:'fit', items:[{xtype:'form', layout:'form', padding:'10px', items:[{xtype:'filefield', width:400, labelWidth:80, name:'file', emptyText:'请选择.doc/.docx文件', fieldLabel:'上传文件:', labelSeparator:'', buttonConfig:{xtype:'filebutton', 
 glyph:'', iconCls:'x-fa fa-cloud-upload', text:'上传'}}]}], buttons:['-\x3e', {xtype:'button', text:'上传', handler:'onClickUploadFormSumbitButton'}, {xtype:'button', text:'取消', handler:function(btn) {
   btn.up('window').close();
@@ -108811,6 +108815,9 @@ Ext.define('Admin.view.contract.ContractViewController', {extend:Ext.app.ViewCon
   } else {
     Ext.Msg.alert('错误', '没有任何行被选中，无法进行删除操作！');
   }
+}, searchContract:function() {
+  Ext.getCmp('Admin_gridfilters').show();
+  Ext.getCmp('contract_search').hide();
 }, starLeaveProcess:function(grid, rowIndex, colIndex) {
   var record = grid.getStore().getAt(rowIndex);
   Ext.Ajax.request({url:'/contract/start', method:'post', params:{id:record.get('id')}, success:function(response, options) {
@@ -109038,23 +109045,6 @@ Ext.define('Admin.view.dashboard.Todos', {extend:Ext.panel.Panel, xtype:'todo', 
 Ext.define('Admin.view.dashboard.TopMovie', {extend:Ext.panel.Panel, xtype:'topmovies', title:'Top Movie', ui:'light', iconCls:'x-fa fa-video-camera', headerPosition:'bottom', cls:'quick-graph-panel shadow', height:130, layout:'fit', html:'Top Movie'});
 Ext.define('Admin.view.dashboard.Widgets', {extend:Ext.Panel, xtype:'dashboardwidgetspanel', cls:'dashboard-widget-block shadow', bodyPadding:15, title:'Widgets', layout:{type:'vbox', align:'stretch'}, items:[{xtype:'slider', width:400, fieldLabel:'Single Slider', value:40}, {xtype:'tbspacer', flex:0.3}, {xtype:'multislider', width:400, fieldLabel:'Range Slider', values:[10, 40]}, {xtype:'tbspacer', flex:0.3}, {xtype:'pagingtoolbar', width:360, displayInfo:false}, {xtype:'tbspacer', flex:0.3}, {xtype:'progressbar', 
 cls:'widget-progressbar', value:0.4}, {xtype:'tbspacer'}]});
-Ext.define('Admin.view.grid.Grid', {extend:Ext.grid.Panel, xtype:'grid', title:'Products', collapsible:true, iconCls:'icon-grid', frame:true, width:700, height:500, resizable:true, plugins:[Ext.create('Admin.view.GridFilters.GridFilters')], emptyText:'No Matching Records', loadMask:true, stateful:true, stateId:'stateful-filter-grid', defaultListenerScope:true, tbar:[{text:'Show Filters...', tooltip:'Show filter data for the store', handler:'onShowFilters'}, {text:'Clear Filters', tooltip:'Clear all filters', 
-handler:'onClearFilters'}], columns:[{dataIndex:'id', text:'Id', width:50, filter:'number'}, {dataIndex:'company', text:'Company', flex:1, filter:{type:'string', itemDefaults:{emptyText:'Search for...'}}}, {dataIndex:'price', text:'Price', width:90, formatter:'usMoney', filter:'number'}, {dataIndex:'size', text:'Size', width:120, filter:'list'}, {xtype:'datecolumn', dataIndex:'date', text:'Date', width:120, filter:true}, {dataIndex:'visible', text:'Visible', width:80, filter:'boolean'}], onClearFilters:function() {
-  this.filters.clearFilters();
-}, onShowFilters:function() {
-  var data = [];
-  this.store.getFilters().each(function(filter) {
-    data.push(filter.serialize());
-  });
-  data = Ext.JSON.encodeValue(data, '\n').replace(/^[ ]+/gm, function(s) {
-    for (var r = '', i = s.length; i--;) {
-      r += '\x26#160;';
-    }
-    return r;
-  });
-  data = data.replace(/\n/g, '\x3cbr\x3e');
-  Ext.Msg.alert('Filter Data', data);
-}});
 Ext.define('Admin.view.main.MainContainerWrap', {extend:Ext.container.Container, xtype:'maincontainerwrap', scrollable:'y', layout:{type:'hbox', align:'stretchmax', animate:true, animatePolicy:{x:true, width:true}}, beforeLayout:function() {
   var me = this, height = Ext.Element.getViewportHeight() - 64, navTree = me.getComponent('navigationTreeList');
   me.minHeight = height;
@@ -109244,10 +109234,18 @@ name:'createTime', format:'Y/m/d H:i:s'}]}], buttons:[{xtype:'button', text:'Sub
 }}]});
 Ext.define('Admin.view.user.UserPanel', {extend:Ext.panel.Panel, xtype:'userPanel', layout:'fit', items:[{xtype:'gridpanel', plugins:{gfilters:true}, cls:'user-grid', title:'UserGrid Results', bind:'{userLists}', scrollable:false, selModel:{type:'checkboxmodel', checkOnly:true}, listeners:{selectionchange:function(selModel, selections) {
   this.down('#userPanelRemove').setDisabled(selections.length === 0);
-}}, columns:[{xtype:'gridcolumn', width:40, dataIndex:'id', text:'id', hidden:true}, {xtype:'gridcolumn', cls:'content-column', width:320, dataIndex:'userName', text:'userName'}, {xtype:'datecolumn', cls:'content-column', width:120, dataIndex:'time', text:'createTime', flex:1, formatter:'date("Y/m/d H:i:s")'}, {xtype:'actioncolumn', cls:'content-column', width:250, dataIndex:'bool', text:'Actions', tooltip:'edit ', items:[{xtype:'button', iconCls:'x-fa fa-pencil', handler:'onEditButton'}, {xtype:'button', 
-iconCls:'x-fa fa-close', handler:'onDeleteButton'}, {xtype:'button', iconCls:'x-fa fa-ban', handler:'onDisableButton'}]}], tbar:[{xtype:'combobox', reference:'searchFieldName', hideLabel:true, store:Ext.create('Ext.data.Store', {fields:['name', 'value'], data:[{name:'用户名', value:'userName'}, {name:'创建时间', value:'createTime'}]}), displayField:'name', valueField:'value', value:'userName', editable:false, queryMode:'local', triggerAction:'all', width:135, listeners:{select:'searchComboboxSelectChange'}}, 
-'-', {xtype:'textfield', reference:'searchFieldValue', name:'userPanelSearchField'}, '-', {xtype:'datefield', hideLabel:true, hidden:true, format:'Y/m/d H:i:s', reference:'searchDataFieldValue', fieldLabel:'From', name:'from_date'}, {xtype:'datefield', hideLabel:true, hidden:true, format:'Y/m/d H:i:s', reference:'searchDataFieldValue2', fieldLabel:'To', name:'to_date'}, '-', {text:'Search', iconCls:'fa fa-search', handler:'quickSearch'}, '-', {text:'Search More', iconCls:'fa fa-search-plus', handler:'openSearchWindow'}, 
-'-\x3e', {text:'Add', tooltip:'Add a new row', iconCls:'fa fa-plus', handler:'openAddWindow'}, '-', {text:'Removes', itemId:'userPanelRemove', tooltip:'Remove the selected item', iconCls:'fa fa-trash', disabled:true, handler:'deleteMoreRows'}], dockedItems:[{xtype:'pagingtoolbar', dock:'bottom', itemId:'userPaginationToolbar', displayInfo:true, bind:'{userLists}'}]}]});
+}}, columns:[{xtype:'gridcolumn', width:40, dataIndex:'id', text:'id', hidden:true, filter:'number'}, {xtype:'gridcolumn', cls:'content-column', width:320, dataIndex:'userName', text:'userName', filter:{type:'string', itemDefaults:{emptyText:'Search for...'}}}, {xtype:'datecolumn', cls:'content-column', width:120, dataIndex:'time', text:'createTime', flex:1, formatter:'date("Y/m/d H:i:s")'}, {xtype:'actioncolumn', cls:'content-column', width:250, dataIndex:'bool', text:'Actions', tooltip:'edit ', 
+items:[{xtype:'button', iconCls:'x-fa fa-pencil', handler:'onEditButton'}, {xtype:'button', iconCls:'x-fa fa-close', handler:'onDeleteButton'}, {xtype:'button', iconCls:'x-fa fa-ban', handler:'onDisableButton'}]}], tbar:[{text:'Add Employee', iconCls:'employee-add', handler:function() {
+  var rowEditing = Ext.create('Ext.grid.plugin.RowEditing', {clicksToEdit:1});
+  var store = Ext.data.StoreManager.lookup('userGridStroe');
+  rowEditing.cancelEdit();
+  var r = Ext.create('Admin.model.user.UserModel');
+  var insertPosition = 0;
+  var lastRecord = store.insert(0, r);
+  rowEditing.startEdit(r, 0);
+}}, '-', {xtype:'combobox', reference:'searchFieldName', hideLabel:true, store:Ext.create('Ext.data.Store', {fields:['name', 'value'], data:[{name:'用户名', value:'userName'}, {name:'创建时间', value:'createTime'}]}), displayField:'name', valueField:'value', value:'userName', editable:false, queryMode:'local', triggerAction:'all', width:135, listeners:{select:'searchComboboxSelectChange'}}, '-', {xtype:'textfield', reference:'searchFieldValue', name:'userPanelSearchField'}, '-', {xtype:'datefield', hideLabel:true, 
+hidden:true, format:'Y/m/d H:i:s', reference:'searchDataFieldValue', fieldLabel:'From', name:'from_date'}, {xtype:'datefield', hideLabel:true, hidden:true, format:'Y/m/d H:i:s', reference:'searchDataFieldValue2', fieldLabel:'To', name:'to_date'}, '-', {text:'Search', iconCls:'fa fa-search', handler:'quickSearch'}, '-', {text:'Search More', iconCls:'fa fa-search-plus', handler:'openSearchWindow'}, '-\x3e', {text:'Add', tooltip:'Add a new row', iconCls:'fa fa-plus', handler:'openAddWindow'}, '-', {text:'Removes', 
+itemId:'userPanelRemove', tooltip:'Remove the selected item', iconCls:'fa fa-trash', disabled:true, handler:'deleteMoreRows'}], dockedItems:[{xtype:'pagingtoolbar', dock:'bottom', itemId:'userPaginationToolbar', displayInfo:true, bind:'{userLists}'}]}]});
 Ext.define('Aria.view.user.UserSearchWindow', {extend:Ext.window.Window, alias:'widget.userSearchWindow', height:200, minHeight:100, minWidth:300, width:500, scrollable:true, title:'User Search Window', closable:true, constrain:true, modal:true, layout:'fit', items:[{xtype:'form', layout:'form', padding:'10px', ariaLabel:'Enter your name', items:[{xtype:'textfield', fieldLabel:'UserName', name:'userName'}, {xtype:'datefield', fieldLabel:'Create Time', name:'createTime', format:'Y/m/d H:i:s'}]}], 
 buttons:[{xtype:'button', text:'Submit', handler:'submitSearchForm'}, {xtype:'button', text:'Close', handler:function(btn) {
   btn.up('window').close();

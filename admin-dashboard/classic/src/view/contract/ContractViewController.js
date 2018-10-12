@@ -118,6 +118,11 @@ Ext.define('Admin.view.contract.ContractViewController', {
 		
    },
 
+   searchContract:function(){
+     Ext.getCmp('Admin_gridfilters').show();
+     Ext.getCmp('contract_search').hide();
+   },
+
    /*Star Leave Process*/ 
   starLeaveProcess:function(grid, rowIndex, colIndex){
     var record = grid.getStore().getAt(rowIndex);

@@ -94,13 +94,7 @@ Ext.define('Admin.store.NavigationTree', {
                 iconCls: 'x-fa fa-check',
                 viewType: 'login',
                 leaf: true
-           },{
-                text: '模板',
-                iconCls: 'x-fa fa-address-card',
-                //rowCls: 'nav-tree-badge nav-tree-badge-new',
-                viewType: 'grid',
-                leaf: true
-            }
+           }
         ]
     }
 });
