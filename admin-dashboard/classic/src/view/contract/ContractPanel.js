@@ -16,7 +16,7 @@ Ext.define('Admin.view.contract.ContractPanel', {
         pack: 'start',
         align: 'stretch'
     },
-    //http://chen4w.iteye.com/blog/2210313
+    
     items: [
         {
             title: '合同列表'

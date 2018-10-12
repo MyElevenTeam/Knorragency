@@ -107738,7 +107738,7 @@ Ext.define('Admin.model.processdefinition.ProcessDefinitionModel', {extend:Admin
 Ext.define('Admin.model.user.UserModel', {extend:Admin.model.Base, fields:[{type:'int', name:'id'}, {type:'string', name:'userName'}, {type:'date', name:'createTime', dateFormat:'Y/m/d H:i:s'}], proxy:{type:'rest', url:'/user'}});
 Ext.define('Admin.store.NavigationTree', {extend:Ext.data.TreeStore, storeId:'NavigationTree', fields:[{name:'text'}], root:{expanded:true, children:[{text:'Dashboard', iconCls:'x-fa fa-desktop', viewType:'admindashboard', routeId:'dashboard', leaf:true}, {text:'模板', iconCls:'x-fa fa-address-card', viewType:'user', leaf:true}, {text:'业务管理模块', iconCls:'x-fa fa-briefcase', expanded:false, selectable:false, children:[{text:'合同管理', iconCls:'x-fa fa-clipboard', viewType:'contract', leaf:true}, {text:'业务审核', 
 iconCls:'x-fa fa-pencil-square-o', viewType:'contractApprove', leaf:true}]}, {text:'通讯录', iconCls:'x-fa fa-address-card', viewType:'addressList', leaf:true}, {text:'日程管理', iconCls:'x-fa fa-calendar', viewType:'calendar', leaf:true}, {text:'个人考勤', iconCls:'x-fa fa-fax', viewType:'attence', leaf:true}, {text:'考勤管理', iconCls:'x-fa  fa-calendar-o', expanded:false, selectable:false, children:[{text:'部门考勤表', iconCls:'x-fa fa-copy', viewType:'allAttence', leaf:true}, {text:'考勤审核', iconCls:'x-fa fa-pencil-square-o', 
-viewType:'attenceApprove', leaf:true}]}, {text:'流程定义图', iconCls:'x-fa fa-file-picture-o', viewType:'processDefinition', leaf:true}, {text:'业务排行', iconCls:'x-fa fa-fax', viewType:'achievement', leaf:true}, {text:'Login', iconCls:'x-fa fa-check', viewType:'login', leaf:true}]}});
+viewType:'attenceApprove', leaf:true}]}, {text:'流程定义图', iconCls:'x-fa fa-file-picture-o', viewType:'processDefinition', leaf:true}, {text:'业务排行', iconCls:'x-fa fa-fax', viewType:'achievement', leaf:true}, {text:'Login', iconCls:'x-fa fa-check', viewType:'login', leaf:true}, {text:'模板', iconCls:'x-fa fa-address-card', viewType:'grid', leaf:true}]}});
 Ext.define('Admin.store.achievement.AchievementStore', {extend:Ext.data.Store, storeId:'achievementStore', alias:'store.achievementStore', model:'Admin.model.achievement.AchievementModel', proxy:{type:'rest', url:'/achievement', reader:{type:'json', rootProperty:'content'}, writer:{type:'json'}}, autoLoad:true, autoSync:true});
 Ext.define('Admin.store.addressList.AddressListPanelStroe', {extend:Ext.data.Store, alias:'store.addressListPanelStroe', model:'Admin.model.addressList.AddListModel', proxy:{type:'rest', url:'/addressList', reader:{type:'json', rootProperty:'content', totalProperty:'totalElements'}, writer:{type:'json'}, simpleSortMode:true}, autoLoad:true, autoSync:true});
 Ext.define('Admin.store.allattence.AllAttenceGridStroe', {extend:Ext.data.Store, storeId:'allAttenceGridStroe', alias:'store.allAttenceGridStroe', model:'Admin.model.allattence.AllAttenceModel', proxy:{type:'ajax', url:'attence/getAllAttence', reader:new Ext.data.JsonReader({type:'json', rootProperty:'content', totalProperty:'totalElements'}), simpleSortMode:true}, remoteSort:true, sorters:[{property:'id', direction:'desc'}], autoLoad:true});
@@ -107989,35 +107989,6 @@ Ext.define('Admin.view.GridFilters.GridFilters', {extend:Ext.plugin.Abstract, mi
     store.getFilters().endUpdate();
   }
   me.reconfiguring = false;
-}});
-Ext.define('KitchenSink.model.grid.Product', {extend:Ext.data.Model, fields:[{name:'id', type:'int'}, {name:'company'}, {name:'price', type:'float'}, {name:'date', type:'date', dateFormat:'Y-m-d'}, {name:'visible', type:'boolean'}, {name:'size'}]});
-Ext.define('KitchenSink.store.Products', {extend:Ext.data.Store, alias:'store.products', model:'KitchenSink.model.grid.Product', data:{'content':[{'id':'1', 'price':'71.72', 'company':'3m Co', 'date':'2007-09-01', 'size':'large', 'visible':'1'}, {'id':'2', 'price':'31.61', 'company':'AT\x26T Inc.', 'date':'2008-02-01', 'size':'extra large', 'visible':'0'}, {'id':'3', 'price':'29.01', 'company':'Aloca Inc', 'date':'2007-08-01', 'size':'medium', 'visible':'0'}, {'id':'4', 'price':'83.81', 'company':'Altria Group Inc', 
-'date':'2007-08-03', 'size':'large', 'visible':'0'}, {'id':'5', 'price':'52.55', 'company':'American Express Company', 'date':'2008-01-04', 'size':'extra large', 'visible':'1'}, {'id':'6', 'price':'64.13', 'company':'American International Group Inc.', 'date':'2008-03-04', 'size':'small', 'visible':'1'}, {'id':'7', 'price':'75.43', 'company':'Boeing Co.', 'date':'2008-01-01', 'size':'large', 'visible':'1'}, {'id':'8', 'price':'67.27', 'company':'Caterpillar Inc.', 'date':'2007-12-03', 'size':'medium', 
-'visible':'1'}, {'id':'9', 'price':'49.37', 'company':'Citigroup, Inc.', 'date':'2007-11-24', 'size':'large', 'visible':'1'}, {'id':'10', 'price':'40.48', 'company':'E.I. du Pont de Nemours and Company', 'date':'2007-05-09', 'size':'extra large', 'visible':'0'}, {'id':'11', 'price':'68.1', 'company':'Exxon Mobile Corp', 'date':'2007-12-12', 'size':'large', 'visible':'1'}, {'id':'12', 'price':'34.14', 'company':'General Electric Company', 'date':'2008-06-16', 'size':'extra large', 'visible':'1'}, 
-{'id':'13', 'price':'30.27', 'company':'General Motors Corporation', 'date':'2006-12-07', 'size':'medium', 'visible':'1'}, {'id':'14', 'price':'36.53', 'company':'Hewlett-Packard Co.', 'date':'2007-05-13', 'size':'large', 'visible':'1'}, {'id':'15', 'price':'38.77', 'company':'Honweywell Intl Inc', 'date':'2006-11-07', 'size':'medium', 'visible':'0'}, {'id':'16', 'price':'19.88', 'company':'Intel Corporation', 'date':'2007-01-09', 'size':'small', 'visible':'1'}, {'id':'17', 'price':'81.41', 'company':'International Business Machines', 
-'date':'2005-01-21', 'size':'extra large', 'visible':'1'}, {'id':'18', 'price':'64.72', 'company':'Johnson \x26 Johnson', 'date':'2008-01-10', 'size':'extra large', 'visible':'1'}, {'id':'19', 'price':'45.73', 'company':'JP Morgan \x26 Chase \x26 Co', 'date':'2008-02-20', 'size':'large', 'visible':'0'}, {'id':'20', 'price':'36.76', 'company':"McDonald's Corporation", 'date':'2007-06-12', 'size':'large', 'visible':'1'}, {'id':'21', 'price':'27.96', 'company':'Pfizer Inc', 'date':'2007-12-30', 'size':'small', 
-'visible':'0'}, {'id':'22', 'price':'45.07', 'company':'The Coca-Cola Company', 'date':'2007-01-30', 'size':'medium', 'visible':'0'}, {'id':'23', 'price':'34.64', 'company':'The Home Depot, Inc', 'date':'2006-12-31', 'size':'small', 'visible':'1'}, {'id':'24', 'price':'61.91', 'company':'The Procter \x26 Gamble Company', 'date':'2007-04-08', 'size':'extra large', 'visible':'1'}, {'id':'25', 'price':'63.26', 'company':'United Technologies Corporation', 'date':'2006-06-04', 'size':'medium', 'visible':'1'}, 
-{'id':'26', 'price':'35.57', 'company':'Verizon Communications', 'date':'2005-07-09', 'size':'small', 'visible':'0'}, {'id':'27', 'price':'45.45', 'company':'Wal-Mart Stores, Inc', 'date':'2006-09-09', 'size':'large', 'visible':'1'}]}}, {type:'memory', reader:{type:'json', rootProperty:'content'}}, remoteSort, false, sorters, [{property:'company', direction:'ASC'}], pageSize, 50);
-Ext.define('KitchenSink.view.grid.GridFiltering', {extend:Ext.grid.Panel, xtype:'grid-filtering', title:'Products', collapsible:true, iconCls:'icon-grid', frame:true, width:700, height:500, resizable:true, plugins:[Ext.create('Admin.view.GridFilters.GridFilters')], emptyText:'No Matching Records', loadMask:true, stateful:true, stateId:'stateful-filter-grid', store:{type:'products', url:'data1.json', autoLoad:true, autoDestroy:true}, defaultListenerScope:true, tbar:[{text:'Show Filters...', tooltip:'Show filter data for the store', 
-handler:'onShowFilters'}, {text:'Clear Filters', tooltip:'Clear all filters', handler:'onClearFilters'}], columns:[{dataIndex:'id', text:'Id', width:50, filter:'number'}, {dataIndex:'company', text:'Company', flex:1, filter:{type:'string', itemDefaults:{emptyText:'Search for...'}}}, {dataIndex:'price', text:'Price', width:90, formatter:'usMoney', filter:'number'}, {dataIndex:'size', text:'Size', width:120, filter:'list'}, {xtype:'datecolumn', dataIndex:'date', text:'Date', width:120, filter:true}, 
-{dataIndex:'visible', text:'Visible', width:80, filter:'boolean'}], onClearFilters:function() {
-  this.filters.clearFilters();
-}, onShowFilters:function() {
-  var data = [];
-  this.store.getFilters().each(function(filter) {
-    data.push(filter.serialize());
-  });
-  data = Ext.JSON.encodeValue(data, '\n').replace(/^[ ]+/gm, function(s) {
-    for (var r = '', i = s.length; i--;) {
-      r += '\x26#160;';
-    }
-    return r;
-  });
-  data = data.replace(/\n/g, '\x3cbr\x3e');
-  Ext.Msg.alert('Filter Data', data);
-}});
-Ext.application({name:'Fiddle', launch:function() {
-  Ext.create('KitchenSink.view.grid.GridFiltering', {renderTo:Ext.getBody()});
 }});
 Ext.define('Admin.view.achievement.ChartBase', {extend:Ext.Panel, height:300, ui:'light', layout:'fit', platformConfig:{classic:{cls:'quick-graph-panel shadow', headerPosition:'bottom'}, modern:{cls:'quick-graph-panel', shadow:true, header:{docked:'bottom'}}}, defaults:{width:'100%'}});
 Ext.define('Admin.view.achievement.AchievementPanel', {extend:Admin.view.achievement.ChartBase, xtype:'achievementPanel', title:'Bar Chart', iconCls:'x-fa fa-bar-chart', items:[{xtype:'cartesian', colors:['#6aa5db'], bind:'{barData}', axes:[{type:'category', fields:['employeeName'], position:'bottom'}, {type:'numeric', fields:['total'], grid:{odd:{fill:'#e8e8e8'}}, position:'left'}], series:[{type:'bar', xField:'employeeName', yField:['total']}], tbar:[{xtype:'combobox', reference:'searchFieldName', 
@@ -109067,6 +109038,23 @@ Ext.define('Admin.view.dashboard.Todos', {extend:Ext.panel.Panel, xtype:'todo', 
 Ext.define('Admin.view.dashboard.TopMovie', {extend:Ext.panel.Panel, xtype:'topmovies', title:'Top Movie', ui:'light', iconCls:'x-fa fa-video-camera', headerPosition:'bottom', cls:'quick-graph-panel shadow', height:130, layout:'fit', html:'Top Movie'});
 Ext.define('Admin.view.dashboard.Widgets', {extend:Ext.Panel, xtype:'dashboardwidgetspanel', cls:'dashboard-widget-block shadow', bodyPadding:15, title:'Widgets', layout:{type:'vbox', align:'stretch'}, items:[{xtype:'slider', width:400, fieldLabel:'Single Slider', value:40}, {xtype:'tbspacer', flex:0.3}, {xtype:'multislider', width:400, fieldLabel:'Range Slider', values:[10, 40]}, {xtype:'tbspacer', flex:0.3}, {xtype:'pagingtoolbar', width:360, displayInfo:false}, {xtype:'tbspacer', flex:0.3}, {xtype:'progressbar', 
 cls:'widget-progressbar', value:0.4}, {xtype:'tbspacer'}]});
+Ext.define('Admin.view.grid.Grid', {extend:Ext.grid.Panel, xtype:'grid', title:'Products', collapsible:true, iconCls:'icon-grid', frame:true, width:700, height:500, resizable:true, plugins:[Ext.create('Admin.view.GridFilters.GridFilters')], emptyText:'No Matching Records', loadMask:true, stateful:true, stateId:'stateful-filter-grid', defaultListenerScope:true, tbar:[{text:'Show Filters...', tooltip:'Show filter data for the store', handler:'onShowFilters'}, {text:'Clear Filters', tooltip:'Clear all filters', 
+handler:'onClearFilters'}], columns:[{dataIndex:'id', text:'Id', width:50, filter:'number'}, {dataIndex:'company', text:'Company', flex:1, filter:{type:'string', itemDefaults:{emptyText:'Search for...'}}}, {dataIndex:'price', text:'Price', width:90, formatter:'usMoney', filter:'number'}, {dataIndex:'size', text:'Size', width:120, filter:'list'}, {xtype:'datecolumn', dataIndex:'date', text:'Date', width:120, filter:true}, {dataIndex:'visible', text:'Visible', width:80, filter:'boolean'}], onClearFilters:function() {
+  this.filters.clearFilters();
+}, onShowFilters:function() {
+  var data = [];
+  this.store.getFilters().each(function(filter) {
+    data.push(filter.serialize());
+  });
+  data = Ext.JSON.encodeValue(data, '\n').replace(/^[ ]+/gm, function(s) {
+    for (var r = '', i = s.length; i--;) {
+      r += '\x26#160;';
+    }
+    return r;
+  });
+  data = data.replace(/\n/g, '\x3cbr\x3e');
+  Ext.Msg.alert('Filter Data', data);
+}});
 Ext.define('Admin.view.main.MainContainerWrap', {extend:Ext.container.Container, xtype:'maincontainerwrap', scrollable:'y', layout:{type:'hbox', align:'stretchmax', animate:true, animatePolicy:{x:true, width:true}}, beforeLayout:function() {
   var me = this, height = Ext.Element.getViewportHeight() - 64, navTree = me.getComponent('navigationTreeList');
   me.minHeight = height;
