@@ -19,12 +19,22 @@ Ext.define('Admin.view.contract.ContractPanel', {
             plugins: {
 		        rowexpander: {
 		            rowBodyTpl: new Ext.XTemplate(
-		                '<p><b>Company:</b>{contractNumber}</p>',
-		                '<p><b>Change:</b></p><br>',
-		                '<p><b>Summary:</b></p>'
+		                '<p><b>合同编号:</b>{contractNumber}</p>',
+		                '<p><b>客户姓名:</b></p>{customerName}<br>',
+		                '<p><b>房源名称:</b>{hoseName}</p>',
+                        '<p><b>房产经纪人姓名:</b>{employeeName}</p>',
+                        '<p><b>签约时间:</b></p>{startTime}<br>',
+                        '<p><b>失效时间:</b>{endTime}</p>',
+                        '<p><b>金额:</b>{total}</p>'
 		            )
 		        },
-                gfilters: true
+                gfilters: true,
+                rowediting:{
+                    saveBtnText: '保存', 
+                    cancelBtnText: "取消", 
+                    autoCancel: false, 
+                    clicksToMoveEditor: 2
+                }
 		    },
             cls: 'has-border',
             bind: '{contractLists}',
@@ -147,6 +157,31 @@ Ext.define('Admin.view.contract.ContractPanel', {
                 }
             ],
             tbar: [{
+                        xtype:'splitbutton',
+                        text:'条件',
+                        iconCls: null,
+                        menu:[
+                        {
+                            xtype: 'menucheckitem',
+                            text: 'Menu 2',
+                            items:[
+                                {
+                                    xtype:'textfield'
+                                }
+                            ]
+                            
+                        },{
+                            xtype: 'menucheckitem',
+                            
+                            text: 'Menu 2'
+                        },{
+                            xtype: 'menucheckitem',
+                            
+                            text: 'Menu 2'
+                        }]
+                        
+                        
+                    },'-',{
                         iconCls:'fa fa-search fa-5x',
                         ui: 'header',
                         tooltip: '查找',
@@ -194,5 +229,8 @@ Ext.define('Admin.view.contract.ContractPanel', {
         }
     ]
 });
+
+
+
 
 

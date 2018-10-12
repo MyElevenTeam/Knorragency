@@ -257,7 +257,6 @@ Ext.define('Ext.grid.plugin.RowEditing', {
     },
 
     cancelEdit: function() {
-        alert("cancelEdit");
         var me = this;
 
         if (me.editing) {
@@ -271,7 +270,7 @@ Ext.define('Ext.grid.plugin.RowEditing', {
     },
 
     completeEdit: function() {
-        alert("completeEdit");
+        
         var me = this,
             context = me.context;
 
@@ -331,7 +330,7 @@ Ext.define('Ext.grid.plugin.RowEditing', {
             grid     = me.grid,
             view     = me.view,
             headerCt = grid.headerCt,
-            btns     = ['保存', 'cancelBtnText', 'errorsText', 'dirtyText'],
+            btns     = ['saveBtnText', 'cancelBtnText', 'errorsText', 'dirtyText'],
             b,
             bLen     = btns.length,
             cfg      = {
