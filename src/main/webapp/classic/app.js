@@ -108748,10 +108748,10 @@ width:150, dataIndex:'startTime', text:'签约时间', flex:1, formatter:'date("
     return 'x-fa fa-file-text-o';
   }
   return 'x-hidden';
-}, handler:'LookContract'}]}], tbar:[{xtype:'splitbutton', id:'contract_gridfilters', text:'请选择搜索条件', menu:[{xtype:'menucheckitem', text:'合同编号', menu:[{xtype:'textfield', id:'contract_contractNumber', emptyText:'请输入合同编号', listeners:{specialkey:'searchContract'}}]}, {xtype:'menucheckitem', text:'客户姓名', menu:[{xtype:'textfield', emptyText:'请输入客户姓名', listeners:{specialkey:'searchContract'}}]}, {xtype:'menucheckitem', text:'房源名称', menu:[{xtype:'textfield', emptyText:'请输入房源名称', listeners:{specialkey:'searchContract'}}]}, 
-{xtype:'menucheckitem', text:'签约时间', menu:[{xtype:'datefield', value:new Date, format:'Y/m/d H:i:s', listeners:{specialkey:'searchContract'}}]}, {xtype:'menucheckitem', text:'失效时间', menu:[{xtype:'datefield', value:new Date, format:'Y/m/d H:i:s', listeners:{specialkey:'searchContract'}}]}, {xtype:'menucheckitem', text:'合同类型', menu:[{xtype:'textfield', emptyText:'请输入合同类型', listeners:{specialkey:'searchContract'}}]}]}, '-', {iconCls:'fa fa-search fa-5x', ui:'header', tooltip:'查找', id:'contract_search', 
-handler:'searchContract'}, '-', {iconCls:'fa fa-search fa-5x', ui:'header', tooltip:'取消', handler:'searchContract'}, '-\x3e', {tooltip:'添加合同信息', ui:'header', iconCls:'fa fa-plus-square', handler:'onAddClick'}, '-', {tooltip:'导入合同信息', ui:'header', iconCls:'fa fa-cloud-upload', handler:'uploadContract'}, '-', {tooltip:'合同模板下载', ui:'header', iconCls:'fa fa-cloud-download', href:'/contract/downloadWord', hrefTarget:'_self'}], dockedItems:[{xtype:'pagingtoolbar', dock:'bottom', itemId:'userPaginationToolbar', 
-displayInfo:true, bind:'{contractLists}'}]}]});
+}, handler:'LookContract'}]}], tbar:[{xtype:'splitbutton', id:'contract_gridfilters', text:'请选择搜索条件', menu:[{xtype:'menucheckitem', text:'合同编号', menu:[{xtype:'textfield', id:'contract_contractNumber', emptyText:'请输入合同编号', listeners:{specialkey:'searchContract'}}]}, {xtype:'menucheckitem', text:'客户姓名', menu:[{xtype:'textfield', id:'contract_customerName', emptyText:'请输入客户姓名', listeners:{specialkey:'searchContract'}}]}, {xtype:'menucheckitem', text:'房源名称', menu:[{xtype:'textfield', id:'contract_hoseName', 
+emptyText:'请输入房源名称', listeners:{specialkey:'searchContract'}}]}, {xtype:'menucheckitem', text:'签约时间', menu:[{xtype:'datefield', id:'contract_startTime', value:new Date, format:'Y/m/d H:i:s', listeners:{specialkey:'searchContract'}}]}, {xtype:'menucheckitem', text:'失效时间', menu:[{xtype:'datefield', id:'contract_endTime', value:new Date, format:'Y/m/d H:i:s', listeners:{specialkey:'searchContract'}}]}, {xtype:'menucheckitem', text:'合同类型', menu:[{xtype:'textfield', id:'contract_contractType', emptyText:'请输入合同类型', 
+listeners:{specialkey:'searchContract'}}]}]}, '-', {iconCls:'fa fa-search fa-5x', ui:'header', tooltip:'查找', id:'contract_searchOpen', handler:'searchOpen'}, '-', {iconCls:'fa fa-close fa-5x', ui:'header', tooltip:'取消', id:'contract_searchClose', handler:'searchClose'}, '-\x3e', {tooltip:'添加合同信息', ui:'header', iconCls:'fa fa-plus-square', handler:'onAddClick'}, '-', {tooltip:'导入合同信息', ui:'header', iconCls:'fa fa-cloud-upload', handler:'uploadContract'}, '-', {tooltip:'合同模板下载', ui:'header', iconCls:'fa fa-cloud-download', 
+href:'/contract/downloadWord', hrefTarget:'_self'}], dockedItems:[{xtype:'pagingtoolbar', dock:'bottom', itemId:'userPaginationToolbar', displayInfo:true, bind:'{contractLists}'}]}]});
 Ext.define('Admin.view.contract.ContractUploadWindow', {extend:Ext.window.Window, alias:'widget.contractUploadWindow', height:180, minHeight:100, minWidth:300, width:500, scrollable:true, title:'Contract Upload Window', closable:true, constrain:true, defaultFocus:'textfield', modal:true, layout:'fit', items:[{xtype:'form', layout:'form', padding:'10px', items:[{xtype:'filefield', width:400, labelWidth:80, name:'file', emptyText:'请选择.doc/.docx文件', fieldLabel:'上传文件:', labelSeparator:'', buttonConfig:{xtype:'filebutton', 
 glyph:'', iconCls:'x-fa fa-cloud-upload', text:'上传'}}]}], buttons:['-\x3e', {xtype:'button', text:'上传', handler:'onClickUploadFormSumbitButton'}, {xtype:'button', text:'取消', handler:function(btn) {
   btn.up('window').close();
@@ -108814,12 +108814,25 @@ Ext.define('Admin.view.contract.ContractViewController', {extend:Ext.app.ViewCon
   } else {
     Ext.Msg.alert('错误', '没有任何行被选中，无法进行删除操作！');
   }
+}, searchOpen:function(btn) {
+  Ext.getCmp('contract_searchOpen').hide();
+  Ext.getCmp('contract_gridfilters').show();
 }, searchContract:function(textfield, e) {
   if (e.getKey() == Ext.EventObject.ENTER) {
-    var check = Ext.getCmp('contract_contractNumber').getValue();
-    alert(check);
-    alert('ss');
+    var contractNumber = Ext.getCmp('contract_contractNumber').getValue();
+    var customerName = Ext.getCmp('contract_customerName').getValue();
+    var employeeName = Ext.getCmp('contract_employeeName').getValue();
+    var contractType = Ext.getCmp('contract_contractType').getValue();
+    var timeStart = Ext.getCmp('contract_timeStart').getValue();
+    var timeEnd = Ext.getCmp('contract_timeEnd').getValue();
+    var store = Ext.data.StoreManager.lookup('contractGridStroe');
+    Ext.apply(store.proxy.extraParams, {contractNumber:'', customerName:'', employeeName:'', contractType:'', timeStart:'', timeEnd:''});
+    Ext.apply(store.proxy.extraParams, {contractNumber:contractNumber, customerName:customerName, employeeName:employeeName, contractType:contractType, timeStart:Ext.util.Format.date(timeStart, 'Y/m/d H:i:s'), timeEnd:Ext.util.Format.date(timeEnd, 'Y/m/d H:i:s')});
+    store.load({params:{start:0, limit:20, page:1}});
   }
+}, searchOpen:function(btn) {
+  Ext.getCmp('contract_searchClose').hide();
+  Ext.getCmp('contract_searchClose').show();
 }, starLeaveProcess:function(grid, rowIndex, colIndex) {
   var record = grid.getStore().getAt(rowIndex);
   Ext.Ajax.request({url:'/contract/start', method:'post', params:{id:record.get('id')}, success:function(response, options) {

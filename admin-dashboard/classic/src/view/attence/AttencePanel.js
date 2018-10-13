@@ -39,10 +39,52 @@ Ext.define('Admin.view.attence.AttencePanel', {
                 },
                 '->',
                 {
-                    iconCls:'fa fa-search fa-5x',
-                    ui: 'header',
-                    tooltip: '查找'
-                },
+                        xtype:'splitbutton',
+                        id:'attence_gridfilters',
+                        text:'请选择搜索条件',
+                        menu:[
+                        {
+                            xtype: 'menucheckitem',
+                            text: '上班时间',
+                            menu:[
+                                {
+                                    xtype: 'datefield',
+                                    id:'attence_workinTime',
+                                    value:new Date(),
+                                    format: 'Y/m/d H:i:s',
+                                    listeners:{
+                                        specialkey: 'searchAttence'
+                                    }
+                                }
+                            ]
+                        },{
+                            xtype: 'menucheckitem',                           
+                            text: '下班时间',
+                            menu:[
+                                {
+                                    xtype: 'datefield',
+                                    id:'attence_workoutTime',
+                                    value:new Date(),
+                                    format: 'Y/m/d H:i:s',
+                                    listeners:{
+                                        specialkey: 'searchAttence'
+                                    }
+                                }
+                            ]
+                        }]
+                    },'-',{
+                        iconCls:'fa fa-search fa-5x',
+                        ui: 'header',
+                        tooltip: '查找',
+                        id:'attence_searchOpen',
+                        handler:'searchOpen'   
+                    },'-',{
+                        iconCls:'fa fa-close fa-5x',
+                        ui: 'header',
+                        tooltip: '取消',
+                        id:'attence_searchClose',
+                        handler:'searchClose'   
+                    },
                 '-',
                 {
                     iconCls:'fa fa-download fa-5x',
@@ -57,14 +99,14 @@ Ext.define('Admin.view.attence.AttencePanel', {
             height:650,
             bind: '{attenceLists}',
             scrollable: false,
-            selModel: {type: 'checkboxmodel',checkOnly: true},     //多选框checkbox
-            //选中时才激活删除多条按钮
-            listeners: {                            
-                    selectionchange: function(selModel, selections){
-                        this.up('panel').down('#contractPanelRemove').setDisabled(selections.length === 0);
-                    },
-                    cellclick: 'onGridCellItemClick'
-            },
+            // selModel: {type: 'checkboxmodel',checkOnly: true},     //多选框checkbox
+            // //选中时才激活删除多条按钮
+            // listeners: {                            
+            //         selectionchange: function(selModel, selections){
+            //             this.up('panel').down('#contractPanelRemove').setDisabled(selections.length === 0);
+            //         },
+            //         cellclick: 'onGridCellItemClick'
+            // },
             columns: [
                 {xtype: 'gridcolumn',width: 40,dataIndex: 'id',text: 'id',hidden:true},
                 {header: '上班状态',dataIndex: 'attenceStatus',width: 120,sortable: true,

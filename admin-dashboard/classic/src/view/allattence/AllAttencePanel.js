@@ -26,9 +26,51 @@ Ext.define('Admin.view.allattence.AllAttencePanel', {
         	tbar: [
                 '->',
                 {
+                        xtype:'splitbutton',
+                        id:'allattence_gridfilters',
+                        text:'请选择搜索条件',
+                        menu:[
+                        {
+                            xtype: 'menucheckitem',
+                            text: '签约时间',
+                            menu:[
+                                {
+                                    xtype: 'datefield',
+                                    id:'allattence_workinTime',
+                                    value:new Date(),
+                                    format: 'Y/m/d H:i:s',
+                                    listeners:{
+                                        specialkey: 'searchAllAttence'
+                                    }
+                                }
+                            ]
+                        },{
+                            xtype: 'menucheckitem',                           
+                            text: '失效时间',
+                            menu:[
+                                {
+                                    xtype: 'datefield',
+                                    id:'allattence_workoutTime',
+                                    value:new Date(),
+                                    format: 'Y/m/d H:i:s',
+                                    listeners:{
+                                        specialkey: 'searchAllAttence'
+                                    }
+                                }
+                            ]
+                        }]
+                },'-',{
                     iconCls:'fa fa-search fa-5x',
                     ui: 'header',
-                    tooltip: '查找'
+                    tooltip: '查找',
+                    id:'allattence_searchOpen',
+                    handler:'searchOpen'   
+                },'-',{
+                    iconCls:'fa fa-close fa-5x',
+                    ui: 'header',
+                    tooltip: '取消',
+                    id:'allattence_searchClose',
+                    handler:'searchClose'   
                 },
                 '-',
                 {
@@ -44,14 +86,14 @@ Ext.define('Admin.view.allattence.AllAttencePanel', {
             height:650,
             bind: '{allAttenceLists}',
             scrollable: false,
-            selModel: {type: 'checkboxmodel',checkOnly: true},     //多选框checkbox
-            //选中时才激活删除多条按钮
-            listeners: {                            
-                    selectionchange: function(selModel, selections){
-                        this.up('panel').down('#contractPanelRemove').setDisabled(selections.length === 0);
-                    },
-                    cellclick: 'onGridCellItemClick'
-            },
+            // selModel: {type: 'checkboxmodel',checkOnly: true},     //多选框checkbox
+            // //选中时才激活删除多条按钮
+            // listeners: {                            
+            //         selectionchange: function(selModel, selections){
+            //             this.up('panel').down('#contractPanelRemove').setDisabled(selections.length === 0);
+            //         },
+            //         cellclick: 'onGridCellItemClick'
+            // },
             columns: [
                 {xtype: 'gridcolumn',width: 40,dataIndex: 'id',text: 'id',hidden:true},
                 {header: '上班状态',dataIndex: 'attenceStatus',width: 120,sortable: true,

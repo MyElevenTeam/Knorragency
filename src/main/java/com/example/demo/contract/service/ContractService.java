@@ -236,9 +236,9 @@ public class ContractService implements IContractService {
 	}
 
 	@Override
-	public List<Object> sum() {
+	public List<Object> sum(Date d,String employeeName) {
 		
-		return contractRepository.sum();
+		return contractRepository.sum(d,employeeName);
 	}
 	
 	
