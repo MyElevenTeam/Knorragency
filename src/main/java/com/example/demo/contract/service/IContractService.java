@@ -29,7 +29,7 @@ public interface IContractService {
 	/*上传word文档*/
 	public Contract readWord(String buffer);
 	
-	public double sum();
+	public List<Object> sum();
 	
 	
 	/*合同审核业务*/

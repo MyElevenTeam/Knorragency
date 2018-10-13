@@ -194,7 +194,7 @@ public class ContractServiceTest {
 	
 	@Test
 	public void sum() {
-		double a=contractService.sum();
+		List<Object> a=contractService.sum();
 		System.out.println(a);
 	}
 	

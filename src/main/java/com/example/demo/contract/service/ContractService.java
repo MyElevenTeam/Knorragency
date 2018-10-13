@@ -236,7 +236,7 @@ public class ContractService implements IContractService {
 	}
 
 	@Override
-	public double sum() {
+	public List<Object> sum() {
 		
 		return contractRepository.sum();
 	}
