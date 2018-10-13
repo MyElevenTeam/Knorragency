@@ -1,6 +1,6 @@
-Ext.define('Admin.view.achievement.AchievementPanel', {
-    extend: 'Admin.view.achievement.ChartBase',
-    xtype: 'achievementPanel',
+Ext.define('Admin.view.achievement.ChartPanel', {
+    extend: 'Ext.Panel',
+    xtype: 'chartPanel',
 
     requires: [
         'Ext.chart.CartesianChart',
@@ -8,9 +8,7 @@ Ext.define('Admin.view.achievement.AchievementPanel', {
         'Ext.chart.axis.Numeric',
         'Ext.chart.series.Bar'
     ],
-
-    title: 'Bar Chart',
-    iconCls: 'x-fa fa-bar-chart',
+    layout: 'fit',
 
     items: [{
         xtype: 'cartesian',  //笛卡尔坐标的图表
@@ -43,7 +41,7 @@ Ext.define('Admin.view.achievement.AchievementPanel', {
                 'total'
             ]
         }],
-        tbar:[{
+        tbar:['->',{
                 xtype: 'combobox',
                 reference:'searchFieldName',
                 hideLabel: true,
