@@ -29,6 +29,8 @@ public interface IContractService {
 	/*上传word文档*/
 	public Contract readWord(String buffer);
 	
+	public double sum();
+	
 	
 	/*合同审核业务*/
 	//1.启动流程

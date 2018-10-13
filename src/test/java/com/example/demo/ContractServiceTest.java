@@ -191,5 +191,12 @@ public class ContractServiceTest {
 		}
 	}
 	
+	
+	@Test
+	public void sum() {
+		double a=contractService.sum();
+		System.out.println(a);
+	}
+	
 
 }

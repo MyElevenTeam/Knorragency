@@ -118,10 +118,37 @@ Ext.define('Admin.view.contract.ContractViewController', {
 		
    },
 
-   searchContract:function(){
-     Ext.getCmp('Admin_gridfilters').show();
-     Ext.getCmp('contract_search').hide();
-   },
+  /* private String contractNumber;     //合同号
+  
+  private String customerName;       //客户姓名
+  
+  private String employeeName;      //房产经纪人姓名
+  
+  private String contractType;     //合同类型
+  
+  private String area;            //地方
+  
+  @DateTimeFormat(pattern="yyyy/MM/dd HH:mm:ss")  
+  private Date timeStart;
+
+  @DateTimeFormat(pattern="yyyy/MM/dd HH:mm:ss")  
+  private Date timeEnd;*/
+
+
+
+
+
+
+
+
+
+   searchContract:function(textfield,e){
+      if(e.getKey() == Ext.EventObject.ENTER){
+          var check=Ext.getCmp('contract_contractNumber').getValue();
+          alert(check);
+          alert("ss");
+      }
+  },
 
    /*Star Leave Process*/ 
   starLeaveProcess:function(grid, rowIndex, colIndex){
@@ -156,5 +183,6 @@ Ext.define('Admin.view.contract.ContractViewController', {
      win.show();
      win.down('form').getForm().loadRecord(record);
   }
+  
 
 });

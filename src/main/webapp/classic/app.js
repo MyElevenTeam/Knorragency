@@ -108714,8 +108714,8 @@ Ext.define('Admin.view.calendar.CalendarViewController', {extend:Ext.app.ViewCon
 }});
 Ext.define('Admin.view.contract.Contract', {extend:Ext.container.Container, xtype:'contract', controller:'contractViewController', viewModel:{type:'contractViewModel'}, layout:'fit', items:[{xtype:'contractPanel'}]});
 Ext.define('Admin.view.contract.ContractEditWindow', {extend:Ext.window.Window, alias:'widget.contractEditWindow', height:200, minHeight:200, minWidth:300, width:500, scrollable:true, title:'合同修改窗口', closable:true, modal:true, layout:'fit'});
-Ext.define('Admin.view.contract.ContractPanel', {extend:Ext.panel.Panel, xtype:'contractPanel', layout:'fit', items:[{xtype:'gridpanel', title:'合同信息表', plugins:{rowexpander:{rowBodyTpl:new Ext.XTemplate('\x3cp\x3e\x3cb\x3e合同编号:\x3c/b\x3e{contractNumber}\x3c/p\x3e', '\x3cp\x3e\x3cb\x3e客户姓名:\x3c/b\x3e\x3c/p\x3e{customerName}\x3cbr\x3e', '\x3cp\x3e\x3cb\x3e房源名称:\x3c/b\x3e{hoseName}\x3c/p\x3e', '\x3cp\x3e\x3cb\x3e房产经纪人姓名:\x3c/b\x3e{employeeName}\x3c/p\x3e', '\x3cp\x3e\x3cb\x3e签约时间:\x3c/b\x3e\x3c/p\x3e{startTime}\x3cbr\x3e', 
-'\x3cp\x3e\x3cb\x3e失效时间:\x3c/b\x3e{endTime}\x3c/p\x3e', '\x3cp\x3e\x3cb\x3e金额:\x3c/b\x3e{total}\x3c/p\x3e')}, gfilters:true, rowediting:{saveBtnText:'保存', cancelBtnText:'取消', autoCancel:false, clicksToMoveEditor:2}}, cls:'has-border', bind:'{contractLists}', selModel:{type:'checkboxmodel', checkOnly:true}, columns:[{xtype:'gridcolumn', width:40, dataIndex:'id', text:'id', hidden:true}, {header:'processStatus', dataIndex:'processStatus', width:60, sortable:true, renderer:function(val) {
+Ext.define('Admin.view.contract.ContractPanel', {extend:Ext.panel.Panel, xtype:'contractPanel', controller:'contractViewController', layout:'fit', items:[{xtype:'gridpanel', title:'合同信息表', plugins:{rowexpander:{rowBodyTpl:new Ext.XTemplate('\x3cp\x3e\x3cb\x3e合同编号:\x3c/b\x3e{contractNumber}\x3c/p\x3e', '\x3cp\x3e\x3cb\x3e客户姓名:\x3c/b\x3e\x3c/p\x3e{customerName}\x3cbr\x3e', '\x3cp\x3e\x3cb\x3e房源名称:\x3c/b\x3e{hoseName}\x3c/p\x3e', '\x3cp\x3e\x3cb\x3e房产经纪人姓名:\x3c/b\x3e{employeeName}\x3c/p\x3e', '\x3cp\x3e\x3cb\x3e签约时间:\x3c/b\x3e\x3c/p\x3e{startTime}\x3cbr\x3e', 
+'\x3cp\x3e\x3cb\x3e失效时间:\x3c/b\x3e{endTime}\x3c/p\x3e', '\x3cp\x3e\x3cb\x3e金额:\x3c/b\x3e{total}\x3c/p\x3e')}, rowediting:{saveBtnText:'保存', cancelBtnText:'取消', autoCancel:false, clicksToMoveEditor:2}}, cls:'has-border', bind:'{contractLists}', selModel:{type:'checkboxmodel', checkOnly:true}, columns:[{xtype:'gridcolumn', width:40, dataIndex:'id', text:'id', hidden:true}, {header:'processStatus', dataIndex:'processStatus', width:60, sortable:true, renderer:function(val) {
   if (val == 'NEW') {
     return '\x3cspan style\x3d"color:green;"\x3e新建\x3c/span\x3e';
   } else {
@@ -108730,11 +108730,10 @@ Ext.define('Admin.view.contract.ContractPanel', {extend:Ext.panel.Panel, xtype:'
     }
   }
   return val;
-}}, {xtype:'gridcolumn', cls:'content-column', width:100, dataIndex:'contractNumber', text:'合同编号', editor:{xtype:'textfield', allowBlank:false}, filter:{type:'string', itemDefaults:{emptyText:'Search for...'}}}, {xtype:'gridcolumn', cls:'content-column', width:100, dataIndex:'customerName', text:'客户姓名', editor:{xtype:'textfield', allowBlank:false}, filter:{type:'string', itemDefaults:{emptyText:'Search for...'}}}, {xtype:'gridcolumn', cls:'content-column', width:100, dataIndex:'hoseName', text:'房源名称', 
-filter:{type:'string', itemDefaults:{emptyText:'Search for...'}}}, {xtype:'gridcolumn', cls:'content-column', width:120, dataIndex:'employeeName', text:'房产经纪人姓名', filter:{type:'string', itemDefaults:{emptyText:'Search for...'}}}, {xtype:'datecolumn', cls:'content-column', width:150, dataIndex:'startTime', text:'签约时间', flex:1, formatter:'date("Y/m/d H:i:s")', filter:true}, {xtype:'datecolumn', cls:'content-column', width:150, dataIndex:'endTime', text:'失效时间', flex:1, formatter:'date("Y/m/d H:i:s")', 
-filter:true}, {xtype:'gridcolumn', cls:'content-column', width:90, dataIndex:'contractType', text:'合同类型', filter:{type:'string', itemDefaults:{emptyText:'Search for...'}}}, {xtype:'gridcolumn', cls:'content-column', width:100, dataIndex:'total', text:'金额', renderer:function(val) {
+}}, {xtype:'gridcolumn', cls:'content-column', width:100, dataIndex:'contractNumber', text:'合同编号', editor:{xtype:'textfield', allowBlank:false}}, {xtype:'gridcolumn', cls:'content-column', width:100, dataIndex:'customerName', text:'客户姓名', editor:{xtype:'textfield', allowBlank:false}}, {xtype:'gridcolumn', cls:'content-column', width:100, dataIndex:'hoseName', text:'房源名称'}, {xtype:'gridcolumn', cls:'content-column', width:120, dataIndex:'employeeName', text:'房产经纪人姓名'}, {xtype:'datecolumn', cls:'content-column', 
+width:150, dataIndex:'startTime', text:'签约时间', flex:1, formatter:'date("Y/m/d H:i:s")', filter:true}, {xtype:'datecolumn', cls:'content-column', width:150, dataIndex:'endTime', text:'失效时间', flex:1, formatter:'date("Y/m/d H:i:s")', filter:true}, {xtype:'gridcolumn', cls:'content-column', width:90, dataIndex:'contractType', text:'合同类型'}, {xtype:'gridcolumn', cls:'content-column', width:100, dataIndex:'total', text:'金额', renderer:function(val) {
   return '\x3cspan\x3e' + Ext.util.Format.number(val, '0,000.00') + '万\x3c/span\x3e';
-}, filter:'number'}, {xtype:'gridcolumn', cls:'content-column', width:100, dataIndex:'area', text:'公司区域'}, {xtype:'actioncolumn', cls:'content-column', width:150, dataIndex:'bool', text:'操作', tooltip:'edit ', items:[{xtype:'button', iconCls:'x-fa fa-arrow-circle-o-down', tooltip:'合同下载'}, {xtype:'button', iconCls:'x-fa fa-close', tooltip:'删除合同', handler:'onDeleteButton'}, {xtype:'button', iconCls:'x-fa fa-star', tooltip:'发起请假', getClass:function(v, meta, rec) {
+}}, {xtype:'gridcolumn', cls:'content-column', width:100, dataIndex:'area', text:'公司区域'}, {xtype:'actioncolumn', cls:'content-column', width:150, dataIndex:'bool', text:'操作', tooltip:'edit ', items:[{xtype:'button', iconCls:'x-fa fa-arrow-circle-o-down', tooltip:'合同下载'}, {xtype:'button', iconCls:'x-fa fa-close', tooltip:'删除合同', handler:'onDeleteButton'}, {xtype:'button', iconCls:'x-fa fa-star', tooltip:'发起请假', getClass:function(v, meta, rec) {
   if (rec.get('processInstanceId') != '') {
     return 'x-hidden';
   }
@@ -108749,8 +108748,10 @@ filter:true}, {xtype:'gridcolumn', cls:'content-column', width:90, dataIndex:'co
     return 'x-fa fa-file-text-o';
   }
   return 'x-hidden';
-}, handler:'LookContract'}]}], tbar:[{xtype:'splitbutton', text:'条件', iconCls:null, menu:[{xtype:'menucheckitem', text:'Menu 2', items:[{xtype:'textfield'}]}, {xtype:'menucheckitem', text:'Menu 2'}, {xtype:'menucheckitem', text:'Menu 2'}]}, '-', {iconCls:'fa fa-search fa-5x', ui:'header', tooltip:'查找', id:'contract_search', handler:'searchContract'}, '-\x3e', {tooltip:'添加合同信息', ui:'header', iconCls:'fa fa-plus-square', handler:'onAddClick'}, '-', {tooltip:'导入合同信息', ui:'header', iconCls:'fa fa-cloud-upload', 
-handler:'uploadContract'}, '-', {tooltip:'合同模板下载', ui:'header', iconCls:'fa fa-cloud-download', href:'/contract/downloadWord', hrefTarget:'_self'}], dockedItems:[{xtype:'pagingtoolbar', dock:'bottom', itemId:'userPaginationToolbar', displayInfo:true, bind:'{contractLists}'}]}]});
+}, handler:'LookContract'}]}], tbar:[{xtype:'splitbutton', id:'contract_gridfilters', text:'请选择搜索条件', menu:[{xtype:'menucheckitem', text:'合同编号', menu:[{xtype:'textfield', id:'contract_contractNumber', emptyText:'请输入合同编号', listeners:{specialkey:'searchContract'}}]}, {xtype:'menucheckitem', text:'客户姓名', menu:[{xtype:'textfield', emptyText:'请输入客户姓名', listeners:{specialkey:'searchContract'}}]}, {xtype:'menucheckitem', text:'房源名称', menu:[{xtype:'textfield', emptyText:'请输入房源名称', listeners:{specialkey:'searchContract'}}]}, 
+{xtype:'menucheckitem', text:'签约时间', menu:[{xtype:'datefield', value:new Date, format:'Y/m/d H:i:s', listeners:{specialkey:'searchContract'}}]}, {xtype:'menucheckitem', text:'失效时间', menu:[{xtype:'datefield', value:new Date, format:'Y/m/d H:i:s', listeners:{specialkey:'searchContract'}}]}, {xtype:'menucheckitem', text:'合同类型', menu:[{xtype:'textfield', emptyText:'请输入合同类型', listeners:{specialkey:'searchContract'}}]}]}, '-', {iconCls:'fa fa-search fa-5x', ui:'header', tooltip:'查找', id:'contract_search', 
+handler:'searchContract'}, '-', {iconCls:'fa fa-search fa-5x', ui:'header', tooltip:'取消', handler:'searchContract'}, '-\x3e', {tooltip:'添加合同信息', ui:'header', iconCls:'fa fa-plus-square', handler:'onAddClick'}, '-', {tooltip:'导入合同信息', ui:'header', iconCls:'fa fa-cloud-upload', handler:'uploadContract'}, '-', {tooltip:'合同模板下载', ui:'header', iconCls:'fa fa-cloud-download', href:'/contract/downloadWord', hrefTarget:'_self'}], dockedItems:[{xtype:'pagingtoolbar', dock:'bottom', itemId:'userPaginationToolbar', 
+displayInfo:true, bind:'{contractLists}'}]}]});
 Ext.define('Admin.view.contract.ContractUploadWindow', {extend:Ext.window.Window, alias:'widget.contractUploadWindow', height:180, minHeight:100, minWidth:300, width:500, scrollable:true, title:'Contract Upload Window', closable:true, constrain:true, defaultFocus:'textfield', modal:true, layout:'fit', items:[{xtype:'form', layout:'form', padding:'10px', items:[{xtype:'filefield', width:400, labelWidth:80, name:'file', emptyText:'请选择.doc/.docx文件', fieldLabel:'上传文件:', labelSeparator:'', buttonConfig:{xtype:'filebutton', 
 glyph:'', iconCls:'x-fa fa-cloud-upload', text:'上传'}}]}], buttons:['-\x3e', {xtype:'button', text:'上传', handler:'onClickUploadFormSumbitButton'}, {xtype:'button', text:'取消', handler:function(btn) {
   btn.up('window').close();
@@ -108813,9 +108814,12 @@ Ext.define('Admin.view.contract.ContractViewController', {extend:Ext.app.ViewCon
   } else {
     Ext.Msg.alert('错误', '没有任何行被选中，无法进行删除操作！');
   }
-}, searchContract:function() {
-  Ext.getCmp('Admin_gridfilters').show();
-  Ext.getCmp('contract_search').hide();
+}, searchContract:function(textfield, e) {
+  if (e.getKey() == Ext.EventObject.ENTER) {
+    var check = Ext.getCmp('contract_contractNumber').getValue();
+    alert(check);
+    alert('ss');
+  }
 }, starLeaveProcess:function(grid, rowIndex, colIndex) {
   var record = grid.getStore().getAt(rowIndex);
   Ext.Ajax.request({url:'/contract/start', method:'post', params:{id:record.get('id')}, success:function(response, options) {
@@ -109043,23 +109047,6 @@ Ext.define('Admin.view.dashboard.Todos', {extend:Ext.panel.Panel, xtype:'todo', 
 Ext.define('Admin.view.dashboard.TopMovie', {extend:Ext.panel.Panel, xtype:'topmovies', title:'Top Movie', ui:'light', iconCls:'x-fa fa-video-camera', headerPosition:'bottom', cls:'quick-graph-panel shadow', height:130, layout:'fit', html:'Top Movie'});
 Ext.define('Admin.view.dashboard.Widgets', {extend:Ext.Panel, xtype:'dashboardwidgetspanel', cls:'dashboard-widget-block shadow', bodyPadding:15, title:'Widgets', layout:{type:'vbox', align:'stretch'}, items:[{xtype:'slider', width:400, fieldLabel:'Single Slider', value:40}, {xtype:'tbspacer', flex:0.3}, {xtype:'multislider', width:400, fieldLabel:'Range Slider', values:[10, 40]}, {xtype:'tbspacer', flex:0.3}, {xtype:'pagingtoolbar', width:360, displayInfo:false}, {xtype:'tbspacer', flex:0.3}, {xtype:'progressbar', 
 cls:'widget-progressbar', value:0.4}, {xtype:'tbspacer'}]});
-Ext.define('Admin.view.grid.Grid', {extend:Ext.grid.Panel, xtype:'grid', title:'Products', collapsible:true, iconCls:'icon-grid', frame:true, width:700, height:500, resizable:true, plugins:[Ext.create('Admin.view.GridFilters.GridFilters')], emptyText:'No Matching Records', loadMask:true, stateful:true, stateId:'stateful-filter-grid', defaultListenerScope:true, tbar:[{text:'Show Filters...', tooltip:'Show filter data for the store', handler:'onShowFilters'}, {text:'Clear Filters', tooltip:'Clear all filters', 
-handler:'onClearFilters'}], columns:[{dataIndex:'id', text:'Id', width:50, filter:'number'}, {dataIndex:'company', text:'Company', flex:1, filter:{type:'string', itemDefaults:{emptyText:'Search for...'}}}, {dataIndex:'price', text:'Price', width:90, formatter:'usMoney', filter:'number'}, {dataIndex:'size', text:'Size', width:120, filter:'list'}, {xtype:'datecolumn', dataIndex:'date', text:'Date', width:120, filter:true}, {dataIndex:'visible', text:'Visible', width:80, filter:'boolean'}], onClearFilters:function() {
-  this.filters.clearFilters();
-}, onShowFilters:function() {
-  var data = [];
-  this.store.getFilters().each(function(filter) {
-    data.push(filter.serialize());
-  });
-  data = Ext.JSON.encodeValue(data, '\n').replace(/^[ ]+/gm, function(s) {
-    for (var r = '', i = s.length; i--;) {
-      r += '\x26#160;';
-    }
-    return r;
-  });
-  data = data.replace(/\n/g, '\x3cbr\x3e');
-  Ext.Msg.alert('Filter Data', data);
-}});
 Ext.define('Admin.view.main.MainContainerWrap', {extend:Ext.container.Container, xtype:'maincontainerwrap', scrollable:'y', layout:{type:'hbox', align:'stretchmax', animate:true, animatePolicy:{x:true, width:true}}, beforeLayout:function() {
   var me = this, height = Ext.Element.getViewportHeight() - 64, navTree = me.getComponent('navigationTreeList');
   me.minHeight = height;
