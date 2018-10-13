@@ -7,13 +7,18 @@ Ext.define('Admin.view.user.UserPanel', {
         'Ext.toolbar.Paging',
         'Ext.form.field.ComboBox',
         'Ext.grid.column.Date',
-        'Ext.selection.CheckboxModel'
+        'Ext.selection.CheckboxModel',
+        'Ext.grid.plugin.*',
+        'Admin.view.GridFilters.GridFilters'
     ],
     //controller: 'searchresults',
    // viewModel: {type: 'orderViewModel'},
     layout: 'fit',
     items: [{
             xtype: 'gridpanel',
+            plugins: {
+                gfilters: true
+            },
             cls: 'user-grid',
             title: 'UserGrid Results',
             //routeId: 'user',
@@ -27,8 +32,15 @@ Ext.define('Admin.view.user.UserPanel', {
                     }
             },
             columns: [
-                {xtype: 'gridcolumn',width: 40,dataIndex: 'id',text: 'id',hidden:true},
-                {xtype: 'gridcolumn', cls: 'content-column',width:320,dataIndex: 'userName',text: 'userName'},
+                {xtype: 'gridcolumn',width: 40,dataIndex: 'id',text: 'id',hidden:true,filter: 'number'},
+                {xtype: 'gridcolumn', cls: 'content-column',width:320,dataIndex: 'userName',text: 'userName',
+                    filter: {
+                        type: 'string',
+                        itemDefaults: {
+                            emptyText: 'Search for...'
+                        }
+                    }
+                },
                 {xtype: 'datecolumn',cls: 'content-column',width: 120,dataIndex: 'time',text: 'createTime',flex:1,formatter: 'date("Y/m/d H:i:s")'},
                 {xtype: 'actioncolumn',cls: 'content-column', width: 250,dataIndex: 'bool',text: 'Actions',tooltip: 'edit ',
                     items: [
@@ -38,7 +50,26 @@ Ext.define('Admin.view.user.UserPanel', {
                     ]
                 }
             ],
-            tbar: [{
+            tbar: [
+            {
+                text: 'Add Employee',
+                iconCls: 'employee-add',
+                handler: function () {
+                    var rowEditing = Ext.create('Ext.grid.plugin.RowEditing', {
+                        clicksToEdit: 1
+                    });
+                    var store = Ext.data.StoreManager.lookup('userGridStroe');
+
+                    rowEditing.cancelEdit();
+
+                    // Create a model instance
+                    var r = Ext.create('Admin.model.user.UserModel');
+                    var insertPosition = 0;
+                    //insertPosition = store.getCount();
+                    var lastRecord = store.insert(0, r);
+                       rowEditing.startEdit(r, 0);
+                    }
+            },'-',{
                 xtype: 'combobox',
                 reference:'searchFieldName',
                 hideLabel: true,

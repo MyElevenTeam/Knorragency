@@ -7,113 +7,44 @@ Ext.define('Admin.view.contract.ContractPanel', {
         'Ext.toolbar.Paging',
         'Ext.form.field.ComboBox',
         'Ext.grid.column.Date',
-        'Ext.selection.CheckboxModel'
+        'Ext.selection.CheckboxModel',
+        'Ext.grid.plugin.*'
     ],
-    layout: {
-        type: 'vbox',
-        pack: 'start',
-        align: 'stretch'
-    },
+    controller:'contractViewController',
+    layout:'fit',
     items: [
         {
-            title: '合同列表'
-        },
-        {
-        	//margin: '10 0 0 0',
-            bodypadding:15,
-            cls: 'has-border',
-        	height:80,
-        	tbar: [{
-                xtype: 'combobox',
-                reference:'searchFieldName',
-                hidden:true,
-                hideLabel: true,
-                store:Ext.create("Ext.data.Store", {
-                    fields: ["name", "value"],
-                    data: [
-                        { name: '用户名', value: 'userName' },
-                        { name: '创建时间', value: 'createTime' }
-                    ]
-                }),
-                displayField: 'name',
-                valueField:'value',
-                value:'userName',
-                editable: false,
-                queryMode: 'local',
-                triggerAction: 'all',
-                //emptyText: 'Select a state...',
-                width: 135,
-                listeners:{
-                    select: 'searchComboboxSelectChange'
-                }
-            }, '-',/*{
-                xtype:'textfield',
-                reference:'searchFieldValue',
-                name:'userPanelSearchField'
-            }, '-',{
-                xtype: 'datefield',
-                hideLabel: true,
-                hidden:true,
-                format: 'Y/m/d H:i:s',
-                reference:'searchDataFieldValue',
-                fieldLabel: 'From',
-                name: 'from_date'
-            },{
-                xtype: 'datefield',
-                hideLabel: true,
-                hidden:true,
-                format: 'Y/m/d H:i:s',
-                reference:'searchDataFieldValue2',
-                fieldLabel: 'To',
-                name: 'to_date'
-            },'-',{
-                text: 'Search',
-                iconCls: 'fa fa-search',
-                handler: 'quickSearch'
-            }, '-',*/{
-                //text: 'Search More',
-                cls:'has',
-                iconCls: 'fa fa-search-plus',
-               
-                //handler: 'openSearchWindow' 
-            }, '->',{
-                text: '导入合同',
-                tooltip: '导入合同信息',
-                iconCls: 'fa fa-cloud-upload',
-                handler: 'uploadContract' 
-                   
-            },'-',{
-            	text: '模板下载',
-                tooltip: '合同模板下载',
-                iconCls: 'fa fa-cloud-download',
-                href:'/contract/downloadWord',
-                hrefTarget: '_self'
-
-                    
-            },'-',{
-                text: '批量删除',
-                itemId: 'contractPanelRemove',
-                tooltip: '批量删除',
-                iconCls:'fa fa-trash',
-                disabled: true,
-                handler: 'deleteMoreRows'   
-            }]
-                
-        },
-        {
             xtype: 'gridpanel',
+            title:'合同信息表',
+            plugins: {
+		        rowexpander: {
+		            rowBodyTpl: new Ext.XTemplate(
+		                '<p><b>合同编号:</b>{contractNumber}</p>',
+		                '<p><b>客户姓名:</b></p>{customerName}<br>',
+		                '<p><b>房源名称:</b>{hoseName}</p>',
+                        '<p><b>房产经纪人姓名:</b>{employeeName}</p>',
+                        '<p><b>签约时间:</b></p>{startTime}<br>',
+                        '<p><b>失效时间:</b>{endTime}</p>',
+                        '<p><b>金额:</b>{total}</p>'
+		            )
+		        },
+                rowediting:{
+                    saveBtnText: '保存', 
+                    cancelBtnText: "取消", 
+                    autoCancel: false, 
+                    clicksToMoveEditor: 2
+                }
+		    },
             cls: 'has-border',
-            height:650,
             bind: '{contractLists}',
-            scrollable: false,
             selModel: {type: 'checkboxmodel',checkOnly: true},     //多选框checkbox
             //选中时才激活删除多条按钮
-            listeners: {                            
+           /* listeners: {                            
                     selectionchange: function(selModel, selections){
                         this.up('panel').down('#contractPanelRemove').setDisabled(selections.length === 0);
                     },
                     cellclick: 'onGridCellItemClick'
-            },
+            },*/
             columns: [
                 {xtype: 'gridcolumn',width: 40,dataIndex: 'id',text: 'id',hidden:true},
                 {header: 'processStatus',dataIndex: 'processStatus',width: 60,sortable: true,
@@ -130,12 +61,22 @@ Ext.define('Admin.view.contract.ContractPanel', {
                         return val;
                     }
                 },
-                {xtype: 'gridcolumn', cls: 'content-column',width:100,dataIndex: 'contractNumber',text: '合同编号'},
-                {xtype: 'gridcolumn', cls: 'content-column',width:100,dataIndex: 'customerName',text: '客户姓名'},
+                {xtype: 'gridcolumn', cls: 'content-column',width:100,dataIndex: 'contractNumber',text: '合同编号',
+	                editor: {
+	                	xtype: 'textfield',
+			            allowBlank: false
+			        }
+		    	},
+                {xtype: 'gridcolumn', cls: 'content-column',width:100,dataIndex: 'customerName',text: '客户姓名',
+                	editor: {
+                		xtype: 'textfield',
+			            allowBlank: false
+			        }
+            	},
                 {xtype: 'gridcolumn', cls: 'content-column',width:100,dataIndex: 'hoseName',text: '房源名称'},
                 {xtype: 'gridcolumn', cls: 'content-column',width:120,dataIndex: 'employeeName',text: '房产经纪人姓名'},
-                {xtype: 'datecolumn',cls: 'content-column',width: 150,dataIndex: 'startTime',text: '签约时间',flex:1,formatter: 'date("Y/m/d H:i:s")'},
-                {xtype: 'datecolumn',cls: 'content-column',width: 150,dataIndex: 'endTime',text: '失效时间',flex:1,formatter: 'date("Y/m/d H:i:s")'},
+                {xtype: 'datecolumn',cls: 'content-column',width: 150,dataIndex: 'startTime',text: '签约时间',flex:1,formatter: 'date("Y/m/d H:i:s")',filter: true },
+                {xtype: 'datecolumn',cls: 'content-column',width: 150,dataIndex: 'endTime',text: '失效时间',flex:1,formatter: 'date("Y/m/d H:i:s")',filter: true },
                 {xtype: 'gridcolumn', cls: 'content-column',width:90,dataIndex: 'contractType',text: '合同类型'},
                 {xtype: 'gridcolumn', cls: 'content-column',width:100,dataIndex: 'total',text: '金额',
                     renderer: function(val) {
@@ -180,6 +121,133 @@ Ext.define('Admin.view.contract.ContractPanel', {
                     ]
                 }
             ],
+            tbar: [{
+                        xtype:'splitbutton',
+                        id:'contract_gridfilters',
+                        
+                        text:'请选择搜索条件',
+                        menu:[
+                        {
+                            xtype: 'menucheckitem',
+                            text: '合同编号',
+                            menu:[
+                                {
+                                    xtype: 'textfield',
+                                    id:'contract_contractNumber',
+                                    emptyText:'请输入合同编号',
+                                    listeners:{
+                                         specialkey: 'searchContract'
+                                    }
+                                }
+                            ]
+                            
+                        },{
+                            xtype: 'menucheckitem',
+                            text: '客户姓名',
+                            menu:[
+                                {
+                                    xtype: 'textfield',
+                                    emptyText:'请输入客户姓名',
+                                    listeners:{
+                                        specialkey: 'searchContract'
+                                    }
+                                }
+                            ]
+                        },{
+                            xtype: 'menucheckitem',                           
+                            text: '房源名称',
+                            menu:[
+                                {
+                                    xtype: 'textfield',
+                                    emptyText:'请输入房源名称',
+                                    listeners:{
+                                        specialkey: 'searchContract'
+                                    }
+                                }
+                            ]
+                        },{
+                            xtype: 'menucheckitem',
+                            text: '签约时间',
+                            menu:[
+                                {
+                                    xtype: 'datefield',
+                                    value:new Date(),
+                                    format: 'Y/m/d H:i:s',
+                                    listeners:{
+                                        specialkey: 'searchContract'
+                                    }
+                                }
+                            ]
+                        },{
+                            xtype: 'menucheckitem',                           
+                            text: '失效时间',
+                            menu:[
+                                {
+                                    xtype: 'datefield',
+                                    value:new Date(),
+                                    format: 'Y/m/d H:i:s',
+                                    listeners:{
+                                        specialkey: 'searchContract'
+                                    }
+                                }
+                            ]
+                        },{
+                            xtype: 'menucheckitem',
+                            text: '合同类型',
+                            menu:[
+                                {
+                                    xtype: 'textfield',
+                                    emptyText:'请输入合同类型',
+                                    listeners:{
+                                        specialkey: 'searchContract'
+                                    }
+                                }
+                            ]
+                        }]
+                    },'-',{
+                        iconCls:'fa fa-search fa-5x',
+                        ui: 'header',
+                        tooltip: '查找',
+                        id:'contract_search',
+                        handler:'searchContract'   
+                    },'-',{
+                        iconCls:'fa fa-search fa-5x',
+                        ui: 'header',
+                        tooltip: '取消',
+                        //id:'contract_search',
+                        handler:'searchContract'   
+                    },
+                    '->',{
+                        tooltip: '添加合同信息',
+                        ui: 'header',
+                        iconCls: 'fa fa-plus-square',
+                        handler:'onAddClick'   
+                    },'-',{
+                        //text: '导入合同',
+                        tooltip: '导入合同信息',
+                        ui: 'header',
+                        iconCls: 'fa fa-cloud-upload',
+                        handler: 'uploadContract' 
+                           
+                    },'-',{
+                     //text: '模板下载',
+                        tooltip: '合同模板下载',
+                        ui: 'header',
+                        iconCls: 'fa fa-cloud-download',
+                        href:'/contract/downloadWord',
+                        hrefTarget: '_self'
+
+                            
+                    }/*,'-',{
+                        //text: '批量删除',
+                       // itemId: 'contractPanelRemove',
+                        ui: 'header',
+                        tooltip: '批量删除',
+                        iconCls:'fa fa-trash',
+                        disabled: true,
+                        handler: 'deleteMoreRows'   
+                    }*/
+             ],
             dockedItems: [{
                 xtype: 'pagingtoolbar',
                 dock: 'bottom',
@@ -190,5 +258,8 @@ Ext.define('Admin.view.contract.ContractPanel', {
         }
     ]
 });
+
+
+
 
 

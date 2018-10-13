@@ -1,11 +1,11 @@
 Sencha Cmd 6.6.0.13 - Crash report
 ================================================
-An error occurred while executing the following command: app watch
+An error occurred while executing the following command: app build testing
 
 Diagnostic information:
 =======================
                          app.archivePath : archive/${build.id}                               
-                      app.bootstrap.base : C:\Users\Administrator\git\Knorragency\admin-dashboard
+                      app.bootstrap.base : C:\Users\kinghou\git\Knorragency\admin-dashboard  
                        app.bootstrap.css : bootstrap.css                                     
                   app.bootstrap.manifest : ${build.id}.json                                  
                app.bootstrap.microloader : bootstrap.js                                      
@@ -15,43 +15,43 @@ Diagnostic information:
               app.builds.classic.toolkit : classic                                           
                         app.cache.deltas : ${build.id}/deltas                                
                         app.cache.enable : false                                             
-                   app.classic.js.0.path : C:\Users\Administrator\git\Knorragency\admin-dashboard\ext/build/ext-all-rtl-debug.js
+                   app.classic.js.0.path : C:\Users\kinghou\git\Knorragency\admin-dashboard\ext/build/ext-all-rtl-debug.js
                    app.classic.js.length : 1                                                 
                            app.classpath : app,${toolkit.name}/src                           
                          app.classpath.0 : app                                               
                          app.classpath.1 : ${toolkit.name}/src                               
                     app.classpath.length : 2                                                 
                           app.compressor : null                                              
-                          app.config.dir : D:\soft\Sencha\Cmd\6.6.0.13\ant\build\app         
+                          app.config.dir : D:\ProgramFile\Sencha\Cmd\6.6.0.13\ant\build\app  
                 app.cordova.cache.enable : false                                             
                    app.cordova.config.id : com.domain.Admin                                  
                  app.cordova.config.name : Admin                                             
-                 app.cordova.config.path : C:\Users\Administrator\git\Knorragency\admin-dashboard/cordova
+                 app.cordova.config.path : C:\Users\kinghou\git\Knorragency\admin-dashboard/cordova
                app.cordova.config.target :                                                   
               app.cordova.config.verbose : false                                             
                    app.cordova.js.0.path : cordova.js                                        
                app.cordova.js.0.priority : 1000                                              
                  app.cordova.js.0.remote : true                                              
                    app.cordova.js.length : 1                                                 
-                 app.cordova.microloader : D:\soft\Sencha\Cmd\6.6.0.13\ant\build\app/Microloader.js
+                 app.cordova.microloader : D:\ProgramFile\Sencha\Cmd\6.6.0.13\ant\build\app/Microloader.js
       app.cordova.output.appCache.enable : false                                             
-                 app.cordova.output.base : C:\Users\Administrator\git\Knorragency\admin-dashboard/cordova/www
+                 app.cordova.output.base : C:\Users\kinghou\git\Knorragency\admin-dashboard/cordova/www
              app.cordova.output.manifest : ${build.id}.json                                  
                  app.cordova.output.page : index.html                                        
              app.development.watch.delay : 250                                               
-                                 app.dir : C:\Users\Administrator\git\Knorragency\admin-dashboard
+                                 app.dir : C:\Users\kinghou\git\Knorragency\admin-dashboard  
               app.fashion.inliner.enable : false                                             
                            app.framework : ext                                               
                                   app.id : f21c2228-14e5-41ae-ae5c-9846eb1d57fd              
                        app.indexHtmlPath : index.html                                        
                         app.loader.cache : false                                             
                    app.loader.cacheParam : _dc                                               
-                    app.modern.js.0.path : C:\Users\Administrator\git\Knorragency\admin-dashboard\ext/build/ext-modern-all-debug.js
+                    app.modern.js.0.path : C:\Users\kinghou\git\Knorragency\admin-dashboard\ext/build/ext-modern-all-debug.js
                     app.modern.js.length : 1                                                 
                                 app.name : Admin                                             
                            app.namespace : Admin                                             
               app.output.appCache.enable : false                                             
-                         app.output.base : C:\Users\Administrator\git\Knorragency\admin-dashboard/build/${build.environment}/Admin
+                         app.output.base : C:\Users\kinghou\git\Knorragency\admin-dashboard/build/${build.environment}/Admin
                            app.output.js : ${build.id}/app.js                                
                      app.output.manifest : ${build.id}.json                                  
            app.output.microloader.enable : true                                              
@@ -65,16 +65,16 @@ Diagnostic information:
                app.phonegap.cache.enable : false                                             
                   app.phonegap.config.id : com.domain.Admin                                  
                 app.phonegap.config.name : Admin                                             
-                app.phonegap.config.path : C:\Users\Administrator\git\Knorragency\admin-dashboard/phonegap
+                app.phonegap.config.path : C:\Users\kinghou\git\Knorragency\admin-dashboard/phonegap
               app.phonegap.config.remote : false                                             
              app.phonegap.config.verbose : false                                             
                   app.phonegap.js.0.path : cordova.js                                        
               app.phonegap.js.0.priority : 1000                                              
                 app.phonegap.js.0.remote : true                                              
                   app.phonegap.js.length : 1                                                 
-                app.phonegap.microloader : D:\soft\Sencha\Cmd\6.6.0.13\ant\build\app/Microloader.js
+                app.phonegap.microloader : D:\ProgramFile\Sencha\Cmd\6.6.0.13\ant\build\app/Microloader.js
      app.phonegap.output.appCache.enable : false                                             
-                app.phonegap.output.base : C:\Users\Administrator\git\Knorragency\admin-dashboard/phonegap/www
+                app.phonegap.output.base : C:\Users\kinghou\git\Knorragency\admin-dashboard/phonegap/www
             app.phonegap.output.manifest : ${build.id}.json                                  
                 app.phonegap.output.page : index.html                                        
              app.production.cache.enable : true                                              
@@ -101,14 +101,14 @@ Diagnostic information:
                      app.sass.var.length : 4                                                 
                  app.slicer.cache.enable : false                                             
         app.slicer.js.0.isWidgetManifest : true                                              
-                    app.slicer.js.0.path : C:\Users\Administrator\git\Knorragency\admin-dashboard/sass/example/custom.js
+                    app.slicer.js.0.path : C:\Users\kinghou\git\Knorragency\admin-dashboard/sass/example/custom.js
                     app.slicer.js.length : 1                                                 
        app.slicer.output.appCache.enable : false                                             
                              app.version : 1.0.0.0                                           
-                    buildenvironment.dir : C:\Users\Administrator\git\Knorragency\admin-dashboard
-               buildenvironment.load.dir : C:\Users\Administrator\git\Knorragency\admin-dashboard
-                          cmd.config.dir : D:\soft\Sencha\Cmd\6.6.0.13                       
-                                 cmd.dir : D:\soft\Sencha\Cmd\6.6.0.13                       
+                    buildenvironment.dir : C:\Users\kinghou\git\Knorragency\admin-dashboard  
+               buildenvironment.load.dir : C:\Users\kinghou\git\Knorragency\admin-dashboard  
+                          cmd.config.dir : D:\ProgramFile\Sencha\Cmd\6.6.0.13                
+                                 cmd.dir : D:\ProgramFile\Sencha\Cmd\6.6.0.13                
                     cmd.framework.minver : 5.5.0                                             
                    cmd.framework.version : 99.99                                             
               cmd.merge.tool.args.araxis : -wait -merge -3 -a1 {base} {user} {generated} {out}
@@ -119,7 +119,7 @@ Diagnostic information:
             cmd.merge.tool.args.tortoise : -base:{base} -theirs:{generated} -mine:{user} -merged:{out}
                               cmd.minver : 3.0.0.0                                           
                             cmd.platform : windows                                           
-                     cmd.unicode.escapes : D:\soft\Sencha\Cmd\6.6.0.13/unicode-escapes.json  
+                     cmd.unicode.escapes : D:\ProgramFile\Sencha\Cmd\6.6.0.13/unicode-escapes.json
                              cmd.version : 6.6.0.13                                          
                             cmd.web.port : 1841                                              
                      config.skipDownload : true                                              
@@ -130,10 +130,10 @@ Diagnostic information:
                     framework.cmd.minver : 6.6.0.13                                          
                    framework.cmd.version : 6.6.0.13                                          
                  framework.compatVersion : 6.5.0                                             
-                    framework.config.dir : D:\soft\Sencha\Cmd\6.6.0.13\plugins\ext\current   
+                    framework.config.dir : D:\ProgramFile\Sencha\Cmd\6.6.0.13\plugins\ext\current
                        framework.creator : Sencha                                            
            framework.detailedDescription : Sencha Ext JS JavaScript Framework                
-                           framework.dir : C:\Users\Administrator\git\Knorragency\admin-dashboard\ext
+                           framework.dir : C:\Users\kinghou\git\Knorragency\admin-dashboard\ext
                   framework.example.apps : admin-dashboard,executive-dashboard,feed-viewer,kitchensink,calendar,classic/desktop,classic/ticket-app,classic/portal,classic/simple-tasks,classic/responsive-app,classic/aria,modern/addressbook,modern/blackberry,modern/energy,modern/stockapp,modern/states,modern/geocongress,modern/oreilly
                 framework.example.apps.0 : admin-dashboard                                   
                 framework.example.apps.1 : executive-dashboard                               
@@ -168,7 +168,7 @@ Diagnostic information:
                      framework.namespace : Ext                                               
                         framework.output : ${package.dir}/build                              
                      framework.overrides : ${package.dir}/overrides                          
-                  framework.packages.dir : C:\Users\Administrator\git\Knorragency\admin-dashboard\ext/packages/,C:\Users\Administrator\git\Knorragency\admin-dashboard\ext/${toolkit.name}
+                  framework.packages.dir : C:\Users\kinghou\git\Knorragency\admin-dashboard\ext/packages/,C:\Users\kinghou\git\Knorragency\admin-dashboard\ext/${toolkit.name}
                 framework.resource.paths : resources                                         
               framework.resource.paths.0 : resources                                         
          framework.resource.paths.length : 1                                                 
@@ -204,24 +204,22 @@ Diagnostic information:
                        inspector.address : http://localhost:1839/                            
                             minimal.mode : true                                              
                     package.sass.dynamic : true                                              
-                          repo.local.dir : D:\soft\Sencha\Cmd\repo                           
+                          repo.local.dir : D:\ProgramFile\Sencha\Cmd\repo                    
                        shared.sencha.dir : true                                              
         system.java.net.useSystemProxies : true                                              
-                     workspace.build.dir : C:\Users\Administrator\git\Knorragency\admin-dashboard/build
-                    workspace.config.dir : D:\soft\Sencha\Cmd\6.6.0.13\ant\build\workspace   
-                           workspace.dir : C:\Users\Administrator\git\Knorragency\admin-dashboard
-           workspace.frameworks.ext.path : C:\Users\Administrator\git\Knorragency\admin-dashboard\ext
+                     workspace.build.dir : C:\Users\kinghou\git\Knorragency\admin-dashboard/build
+                    workspace.config.dir : D:\ProgramFile\Sencha\Cmd\6.6.0.13\ant\build\workspace
+                           workspace.dir : C:\Users\kinghou\git\Knorragency\admin-dashboard  
+           workspace.frameworks.ext.path : C:\Users\kinghou\git\Knorragency\admin-dashboard\ext
         workspace.frameworks.ext.version : 6.6.0.258                                         
-                  workspace.packages.dir : C:\Users\Administrator\git\Knorragency\admin-dashboard/packages/local,C:\Users\Administrator\git\Knorragency\admin-dashboard/packages
-              workspace.packages.extract : C:\Users\Administrator\git\Knorragency\admin-dashboard/packages/remote
+                  workspace.packages.dir : C:\Users\kinghou\git\Knorragency\admin-dashboard/packages/local,C:\Users\kinghou\git\Knorragency\admin-dashboard/packages
+              workspace.packages.extract : C:\Users\kinghou\git\Knorragency\admin-dashboard/packages/remote
 
 Exception information:
 =======================
-D:\soft\Sencha\Cmd\6.6.0.13\plugin.xml:378: The following error occurred while executing this line:
-D:\soft\Sencha\Cmd\6.6.0.13\ant\build\app\build-impl.xml:253: The following error occurred while executing this line:
-D:\soft\Sencha\Cmd\6.6.0.13\ant\build\app\watch-impl.xml:87: The following error occurred while executing this line:
-D:\soft\Sencha\Cmd\6.6.0.13\ant\build\app\build-impl.xml:387: The following error occurred while executing this line:
-D:\soft\Sencha\Cmd\6.6.0.13\ant\build\app\init-impl.xml:436: com.sencha.exceptions.ExBuild: Failed to find any files for C:\Users\Administrator\git\Knorragency\admin-dashboard\classic\src\view\charts\Charts.js::ClassRequire::Admin.view.charts.ChartsModel
+D:\ProgramFile\Sencha\Cmd\6.6.0.13\plugin.xml:333: The following error occurred while executing this line:
+D:\ProgramFile\Sencha\Cmd\6.6.0.13\ant\build\app\build-impl.xml:274: The following error occurred while executing this line:
+D:\ProgramFile\Sencha\Cmd\6.6.0.13\ant\build\app\js-impl.xml:186: java.lang.NullPointerException
      at com.sencha.ant.AntScript.execute(AntScript.java:121)
      at com.sencha.command.plugin.PluginManager.execute(PluginManager.java:104)
      at com.sencha.command.plugin.PluginManager.executeReverseFirst(PluginManager.java:145)
@@ -229,7 +227,6 @@ D:\soft\Sencha\Cmd\6.6.0.13\ant\build\app\init-impl.xml:436: com.sencha.exceptio
      at com.sencha.command.environment.AppOrPackageEnvironment.execute(AppOrPackageEnvironment.java:729)
      at com.sencha.command.BasePluginCommands$BasePluginCommand.doExecute(BasePluginCommands.java:125)
      at com.sencha.command.app.AppCommands$BuildCommand.execute(AppCommands.java:470)
-     at com.sencha.command.app.AppCommands$WatchCommand.execute(AppCommands.java:909)
      at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
      at sun.reflect.NativeMethodAccessorImpl.invoke(Unknown Source)
      at sun.reflect.DelegatingMethodAccessorImpl.invoke(Unknown Source)
@@ -249,10 +246,8 @@ D:\soft\Sencha\Cmd\6.6.0.13\ant\build\app\init-impl.xml:436: com.sencha.exceptio
      at com.exe4j.runtime.WinLauncher.main(WinLauncher.java:101)
      at com.install4j.runtime.launcher.WinLauncher.main(WinLauncher.java:26)
    Caused by: The following error occurred while executing this line:
-D:\soft\Sencha\Cmd\6.6.0.13\ant\build\app\build-impl.xml:253: The following error occurred while executing this line:
-D:\soft\Sencha\Cmd\6.6.0.13\ant\build\app\watch-impl.xml:87: The following error occurred while executing this line:
-D:\soft\Sencha\Cmd\6.6.0.13\ant\build\app\build-impl.xml:387: The following error occurred while executing this line:
-D:\soft\Sencha\Cmd\6.6.0.13\ant\build\app\init-impl.xml:436: com.sencha.exceptions.ExBuild: Failed to find any files for C:\Users\Administrator\git\Knorragency\admin-dashboard\classic\src\view\charts\Charts.js::ClassRequire::Admin.view.charts.ChartsModel
+D:\ProgramFile\Sencha\Cmd\6.6.0.13\ant\build\app\build-impl.xml:274: The following error occurred while executing this line:
+D:\ProgramFile\Sencha\Cmd\6.6.0.13\ant\build\app\js-impl.xml:186: java.lang.NullPointerException
      at org.apache.tools.ant.ProjectHelper.addLocationToBuildException(ProjectHelper.java:551)
      at org.apache.tools.ant.taskdefs.Ant.execute(Ant.java:444)
      at org.apache.tools.ant.UnknownElement.execute(UnknownElement.java:291)
@@ -289,7 +284,6 @@ D:\soft\Sencha\Cmd\6.6.0.13\ant\build\app\init-impl.xml:436: com.sencha.exceptio
      at com.sencha.command.environment.AppOrPackageEnvironment.execute(AppOrPackageEnvironment.java:729)
      at com.sencha.command.BasePluginCommands$BasePluginCommand.doExecute(BasePluginCommands.java:125)
      at com.sencha.command.app.AppCommands$BuildCommand.execute(AppCommands.java:470)
-     at com.sencha.command.app.AppCommands$WatchCommand.execute(AppCommands.java:909)
      at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
      at sun.reflect.NativeMethodAccessorImpl.invoke(Unknown Source)
      at sun.reflect.DelegatingMethodAccessorImpl.invoke(Unknown Source)
@@ -309,9 +303,7 @@ D:\soft\Sencha\Cmd\6.6.0.13\ant\build\app\init-impl.xml:436: com.sencha.exceptio
      at com.exe4j.runtime.WinLauncher.main(WinLauncher.java:101)
      at com.install4j.runtime.launcher.WinLauncher.main(WinLauncher.java:26)
    Caused by: The following error occurred while executing this line:
-D:\soft\Sencha\Cmd\6.6.0.13\ant\build\app\watch-impl.xml:87: The following error occurred while executing this line:
-D:\soft\Sencha\Cmd\6.6.0.13\ant\build\app\build-impl.xml:387: The following error occurred while executing this line:
-D:\soft\Sencha\Cmd\6.6.0.13\ant\build\app\init-impl.xml:436: com.sencha.exceptions.ExBuild: Failed to find any files for C:\Users\Administrator\git\Knorragency\admin-dashboard\classic\src\view\charts\Charts.js::ClassRequire::Admin.view.charts.ChartsModel
+D:\ProgramFile\Sencha\Cmd\6.6.0.13\ant\build\app\js-impl.xml:186: java.lang.NullPointerException
      at org.apache.tools.ant.ProjectHelper.addLocationToBuildException(ProjectHelper.java:551)
      at org.apache.tools.ant.taskdefs.Ant.execute(Ant.java:444)
      at org.apache.tools.ant.taskdefs.CallTarget.execute(CallTarget.java:105)
@@ -362,7 +354,6 @@ D:\soft\Sencha\Cmd\6.6.0.13\ant\build\app\init-impl.xml:436: com.sencha.exceptio
      at com.sencha.command.environment.AppOrPackageEnvironment.execute(AppOrPackageEnvironment.java:729)
      at com.sencha.command.BasePluginCommands$BasePluginCommand.doExecute(BasePluginCommands.java:125)
      at com.sencha.command.app.AppCommands$BuildCommand.execute(AppCommands.java:470)
-     at com.sencha.command.app.AppCommands$WatchCommand.execute(AppCommands.java:909)
      at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
      at sun.reflect.NativeMethodAccessorImpl.invoke(Unknown Source)
      at sun.reflect.DelegatingMethodAccessorImpl.invoke(Unknown Source)
@@ -381,254 +372,12 @@ D:\soft\Sencha\Cmd\6.6.0.13\ant\build\app\init-impl.xml:436: com.sencha.exceptio
      at com.exe4j.runtime.LauncherEngine.launch(LauncherEngine.java:65)
      at com.exe4j.runtime.WinLauncher.main(WinLauncher.java:101)
      at com.install4j.runtime.launcher.WinLauncher.main(WinLauncher.java:26)
-   Caused by: The following error occurred while executing this line:
-D:\soft\Sencha\Cmd\6.6.0.13\ant\build\app\build-impl.xml:387: The following error occurred while executing this line:
-D:\soft\Sencha\Cmd\6.6.0.13\ant\build\app\init-impl.xml:436: com.sencha.exceptions.ExBuild: Failed to find any files for C:\Users\Administrator\git\Knorragency\admin-dashboard\classic\src\view\charts\Charts.js::ClassRequire::Admin.view.charts.ChartsModel
-     at org.apache.tools.ant.ProjectHelper.addLocationToBuildException(ProjectHelper.java:551)
-     at org.apache.tools.ant.taskdefs.Ant.execute(Ant.java:444)
-     at org.apache.tools.ant.taskdefs.CallTarget.execute(CallTarget.java:105)
-     at com.sencha.ant.CallTask.execute(CallTask.java:137)
-     at org.apache.tools.ant.UnknownElement.execute(UnknownElement.java:291)
-     at sun.reflect.GeneratedMethodAccessor32.invoke(Unknown Source)
-     at sun.reflect.DelegatingMethodAccessorImpl.invoke(Unknown Source)
-     at java.lang.reflect.Method.invoke(Unknown Source)
-     at org.apache.tools.ant.dispatch.DispatchUtils.execute(DispatchUtils.java:106)
-     at org.apache.tools.ant.Task.perform(Task.java:348)
-     at org.apache.tools.ant.taskdefs.Sequential.execute(Sequential.java:68)
-     at net.sf.antcontrib.logic.IfTask.execute(IfTask.java:197)
-     at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
-     at sun.reflect.NativeMethodAccessorImpl.invoke(Unknown Source)
-     at sun.reflect.DelegatingMethodAccessorImpl.invoke(Unknown Source)
-     at java.lang.reflect.Method.invoke(Unknown Source)
-     at org.apache.tools.ant.dispatch.DispatchUtils.execute(DispatchUtils.java:106)
-     at org.apache.tools.ant.TaskAdapter.execute(TaskAdapter.java:154)
-     at org.apache.tools.ant.UnknownElement.execute(UnknownElement.java:291)
-     at sun.reflect.GeneratedMethodAccessor32.invoke(Unknown Source)
-     at sun.reflect.DelegatingMethodAccessorImpl.invoke(Unknown Source)
-     at java.lang.reflect.Method.invoke(Unknown Source)
-     at org.apache.tools.ant.dispatch.DispatchUtils.execute(DispatchUtils.java:106)
-     at org.apache.tools.ant.Task.perform(Task.java:348)
-     at org.apache.tools.ant.Target.execute(Target.java:392)
-     at org.apache.tools.ant.Target.performTasks(Target.java:413)
-     at org.apache.tools.ant.Project.executeSortedTargets(Project.java:1399)
-     at org.apache.tools.ant.helper.SingleCheckExecutor.executeTargets(SingleCheckExecutor.java:38)
-     at org.apache.tools.ant.Project.executeTargets(Project.java:1251)
-     at org.apache.tools.ant.taskdefs.Ant.execute(Ant.java:442)
-     at org.apache.tools.ant.taskdefs.CallTarget.execute(CallTarget.java:105)
-     at com.sencha.ant.CallTask.execute(CallTask.java:137)
-     at org.apache.tools.ant.UnknownElement.execute(UnknownElement.java:291)
-     at sun.reflect.GeneratedMethodAccessor32.invoke(Unknown Source)
-     at sun.reflect.DelegatingMethodAccessorImpl.invoke(Unknown Source)
-     at java.lang.reflect.Method.invoke(Unknown Source)
-     at org.apache.tools.ant.dispatch.DispatchUtils.execute(DispatchUtils.java:106)
-     at org.apache.tools.ant.Task.perform(Task.java:348)
-     at org.apache.tools.ant.Target.execute(Target.java:392)
-     at org.apache.tools.ant.Target.performTasks(Target.java:413)
-     at org.apache.tools.ant.Project.executeSortedTargets(Project.java:1399)
-     at org.apache.tools.ant.helper.SingleCheckExecutor.executeTargets(SingleCheckExecutor.java:38)
-     at org.apache.tools.ant.Project.executeTargets(Project.java:1251)
-     at org.apache.tools.ant.taskdefs.Ant.execute(Ant.java:442)
-     at org.apache.tools.ant.UnknownElement.execute(UnknownElement.java:291)
-     at sun.reflect.GeneratedMethodAccessor32.invoke(Unknown Source)
-     at sun.reflect.DelegatingMethodAccessorImpl.invoke(Unknown Source)
-     at java.lang.reflect.Method.invoke(Unknown Source)
-     at org.apache.tools.ant.dispatch.DispatchUtils.execute(DispatchUtils.java:106)
-     at org.apache.tools.ant.Task.perform(Task.java:348)
-     at org.apache.tools.ant.taskdefs.Sequential.execute(Sequential.java:68)
-     at net.sf.antcontrib.logic.IfTask.execute(IfTask.java:217)
-     at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
-     at sun.reflect.NativeMethodAccessorImpl.invoke(Unknown Source)
-     at sun.reflect.DelegatingMethodAccessorImpl.invoke(Unknown Source)
-     at java.lang.reflect.Method.invoke(Unknown Source)
-     at org.apache.tools.ant.dispatch.DispatchUtils.execute(DispatchUtils.java:106)
-     at org.apache.tools.ant.TaskAdapter.execute(TaskAdapter.java:154)
-     at org.apache.tools.ant.UnknownElement.execute(UnknownElement.java:291)
-     at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
-     at sun.reflect.NativeMethodAccessorImpl.invoke(Unknown Source)
-     at sun.reflect.DelegatingMethodAccessorImpl.invoke(Unknown Source)
-     at java.lang.reflect.Method.invoke(Unknown Source)
-     at org.apache.tools.ant.dispatch.DispatchUtils.execute(DispatchUtils.java:106)
-     at org.apache.tools.ant.Task.perform(Task.java:348)
-     at org.apache.tools.ant.Target.execute(Target.java:392)
-     at org.apache.tools.ant.Target.performTasks(Target.java:413)
-     at org.apache.tools.ant.Project.executeSortedTargets(Project.java:1399)
-     at org.apache.tools.ant.Project.executeTarget(Project.java:1368)
-     at org.apache.tools.ant.helper.DefaultExecutor.executeTargets(DefaultExecutor.java:41)
-     at org.apache.tools.ant.Project.executeTargets(Project.java:1251)
-     at com.sencha.ant.AntScript.execute(AntScript.java:117)
-     at com.sencha.command.plugin.PluginManager.execute(PluginManager.java:104)
-     at com.sencha.command.plugin.PluginManager.executeReverseFirst(PluginManager.java:145)
-     at com.sencha.command.environment.BuildEnvironment.execute(BuildEnvironment.java:309)
-     at com.sencha.command.environment.AppOrPackageEnvironment.execute(AppOrPackageEnvironment.java:729)
-     at com.sencha.command.BasePluginCommands$BasePluginCommand.doExecute(BasePluginCommands.java:125)
-     at com.sencha.command.app.AppCommands$BuildCommand.execute(AppCommands.java:470)
-     at com.sencha.command.app.AppCommands$WatchCommand.execute(AppCommands.java:909)
-     at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
-     at sun.reflect.NativeMethodAccessorImpl.invoke(Unknown Source)
-     at sun.reflect.DelegatingMethodAccessorImpl.invoke(Unknown Source)
-     at java.lang.reflect.Method.invoke(Unknown Source)
-     at com.sencha.util.MethodInvoker$Arguments.invoke(MethodInvoker.java:175)
-     at com.sencha.cli.Command.dispatch(Command.java:43)
-     at com.sencha.command.BasePluginCommands$BasePluginCommand.dispatch(BasePluginCommands.java:289)
-     at com.sencha.cli.Commands.dispatch(Commands.java:64)
-     at com.sencha.cli.Commands.dispatch(Commands.java:64)
-     at com.sencha.command.Sencha.dispatch(Sencha.java:80)
-     at com.sencha.command.Sencha.main(Sencha.java:147)
-     at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
-     at sun.reflect.NativeMethodAccessorImpl.invoke(Unknown Source)
-     at sun.reflect.DelegatingMethodAccessorImpl.invoke(Unknown Source)
-     at java.lang.reflect.Method.invoke(Unknown Source)
-     at com.exe4j.runtime.LauncherEngine.launch(LauncherEngine.java:65)
-     at com.exe4j.runtime.WinLauncher.main(WinLauncher.java:101)
-     at com.install4j.runtime.launcher.WinLauncher.main(WinLauncher.java:26)
-   Caused by: The following error occurred while executing this line:
-D:\soft\Sencha\Cmd\6.6.0.13\ant\build\app\init-impl.xml:436: com.sencha.exceptions.ExBuild: Failed to find any files for C:\Users\Administrator\git\Knorragency\admin-dashboard\classic\src\view\charts\Charts.js::ClassRequire::Admin.view.charts.ChartsModel
-     at org.apache.tools.ant.ProjectHelper.addLocationToBuildException(ProjectHelper.java:551)
-     at org.apache.tools.ant.taskdefs.Ant.execute(Ant.java:444)
-     at org.apache.tools.ant.taskdefs.CallTarget.execute(CallTarget.java:105)
-     at com.sencha.ant.CallTask.execute(CallTask.java:137)
-     at org.apache.tools.ant.UnknownElement.execute(UnknownElement.java:291)
-     at sun.reflect.GeneratedMethodAccessor32.invoke(Unknown Source)
-     at sun.reflect.DelegatingMethodAccessorImpl.invoke(Unknown Source)
-     at java.lang.reflect.Method.invoke(Unknown Source)
-     at org.apache.tools.ant.dispatch.DispatchUtils.execute(DispatchUtils.java:106)
-     at org.apache.tools.ant.Task.perform(Task.java:348)
-     at org.apache.tools.ant.Target.execute(Target.java:392)
-     at org.apache.tools.ant.Target.performTasks(Target.java:413)
-     at org.apache.tools.ant.Project.executeSortedTargets(Project.java:1399)
-     at org.apache.tools.ant.helper.SingleCheckExecutor.executeTargets(SingleCheckExecutor.java:38)
-     at org.apache.tools.ant.Project.executeTargets(Project.java:1251)
-     at org.apache.tools.ant.taskdefs.Ant.execute(Ant.java:442)
-     at org.apache.tools.ant.taskdefs.CallTarget.execute(CallTarget.java:105)
-     at com.sencha.ant.CallTask.execute(CallTask.java:137)
-     at org.apache.tools.ant.UnknownElement.execute(UnknownElement.java:291)
-     at sun.reflect.GeneratedMethodAccessor32.invoke(Unknown Source)
-     at sun.reflect.DelegatingMethodAccessorImpl.invoke(Unknown Source)
-     at java.lang.reflect.Method.invoke(Unknown Source)
-     at org.apache.tools.ant.dispatch.DispatchUtils.execute(DispatchUtils.java:106)
-     at org.apache.tools.ant.Task.perform(Task.java:348)
-     at org.apache.tools.ant.taskdefs.Sequential.execute(Sequential.java:68)
-     at net.sf.antcontrib.logic.IfTask.execute(IfTask.java:197)
-     at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
-     at sun.reflect.NativeMethodAccessorImpl.invoke(Unknown Source)
-     at sun.reflect.DelegatingMethodAccessorImpl.invoke(Unknown Source)
-     at java.lang.reflect.Method.invoke(Unknown Source)
-     at org.apache.tools.ant.dispatch.DispatchUtils.execute(DispatchUtils.java:106)
-     at org.apache.tools.ant.TaskAdapter.execute(TaskAdapter.java:154)
-     at org.apache.tools.ant.UnknownElement.execute(UnknownElement.java:291)
-     at sun.reflect.GeneratedMethodAccessor32.invoke(Unknown Source)
-     at sun.reflect.DelegatingMethodAccessorImpl.invoke(Unknown Source)
-     at java.lang.reflect.Method.invoke(Unknown Source)
-     at org.apache.tools.ant.dispatch.DispatchUtils.execute(DispatchUtils.java:106)
-     at org.apache.tools.ant.Task.perform(Task.java:348)
-     at org.apache.tools.ant.Target.execute(Target.java:392)
-     at org.apache.tools.ant.Target.performTasks(Target.java:413)
-     at org.apache.tools.ant.Project.executeSortedTargets(Project.java:1399)
-     at org.apache.tools.ant.helper.SingleCheckExecutor.executeTargets(SingleCheckExecutor.java:38)
-     at org.apache.tools.ant.Project.executeTargets(Project.java:1251)
-     at org.apache.tools.ant.taskdefs.Ant.execute(Ant.java:442)
-     at org.apache.tools.ant.taskdefs.CallTarget.execute(CallTarget.java:105)
-     at com.sencha.ant.CallTask.execute(CallTask.java:137)
-     at org.apache.tools.ant.UnknownElement.execute(UnknownElement.java:291)
-     at sun.reflect.GeneratedMethodAccessor32.invoke(Unknown Source)
-     at sun.reflect.DelegatingMethodAccessorImpl.invoke(Unknown Source)
-     at java.lang.reflect.Method.invoke(Unknown Source)
-     at org.apache.tools.ant.dispatch.DispatchUtils.execute(DispatchUtils.java:106)
-     at org.apache.tools.ant.Task.perform(Task.java:348)
-     at org.apache.tools.ant.Target.execute(Target.java:392)
-     at org.apache.tools.ant.Target.performTasks(Target.java:413)
-     at org.apache.tools.ant.Project.executeSortedTargets(Project.java:1399)
-     at org.apache.tools.ant.helper.SingleCheckExecutor.executeTargets(SingleCheckExecutor.java:38)
-     at org.apache.tools.ant.Project.executeTargets(Project.java:1251)
-     at org.apache.tools.ant.taskdefs.Ant.execute(Ant.java:442)
-     at org.apache.tools.ant.UnknownElement.execute(UnknownElement.java:291)
-     at sun.reflect.GeneratedMethodAccessor32.invoke(Unknown Source)
-     at sun.reflect.DelegatingMethodAccessorImpl.invoke(Unknown Source)
-     at java.lang.reflect.Method.invoke(Unknown Source)
-     at org.apache.tools.ant.dispatch.DispatchUtils.execute(DispatchUtils.java:106)
-     at org.apache.tools.ant.Task.perform(Task.java:348)
-     at org.apache.tools.ant.taskdefs.Sequential.execute(Sequential.java:68)
-     at net.sf.antcontrib.logic.IfTask.execute(IfTask.java:217)
-     at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
-     at sun.reflect.NativeMethodAccessorImpl.invoke(Unknown Source)
-     at sun.reflect.DelegatingMethodAccessorImpl.invoke(Unknown Source)
-     at java.lang.reflect.Method.invoke(Unknown Source)
-     at org.apache.tools.ant.dispatch.DispatchUtils.execute(DispatchUtils.java:106)
-     at org.apache.tools.ant.TaskAdapter.execute(TaskAdapter.java:154)
-     at org.apache.tools.ant.UnknownElement.execute(UnknownElement.java:291)
-     at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
-     at sun.reflect.NativeMethodAccessorImpl.invoke(Unknown Source)
-     at sun.reflect.DelegatingMethodAccessorImpl.invoke(Unknown Source)
-     at java.lang.reflect.Method.invoke(Unknown Source)
-     at org.apache.tools.ant.dispatch.DispatchUtils.execute(DispatchUtils.java:106)
-     at org.apache.tools.ant.Task.perform(Task.java:348)
-     at org.apache.tools.ant.Target.execute(Target.java:392)
-     at org.apache.tools.ant.Target.performTasks(Target.java:413)
-     at org.apache.tools.ant.Project.executeSortedTargets(Project.java:1399)
-     at org.apache.tools.ant.Project.executeTarget(Project.java:1368)
-     at org.apache.tools.ant.helper.DefaultExecutor.executeTargets(DefaultExecutor.java:41)
-     at org.apache.tools.ant.Project.executeTargets(Project.java:1251)
-     at com.sencha.ant.AntScript.execute(AntScript.java:117)
-     at com.sencha.command.plugin.PluginManager.execute(PluginManager.java:104)
-     at com.sencha.command.plugin.PluginManager.executeReverseFirst(PluginManager.java:145)
-     at com.sencha.command.environment.BuildEnvironment.execute(BuildEnvironment.java:309)
-     at com.sencha.command.environment.AppOrPackageEnvironment.execute(AppOrPackageEnvironment.java:729)
-     at com.sencha.command.BasePluginCommands$BasePluginCommand.doExecute(BasePluginCommands.java:125)
-     at com.sencha.command.app.AppCommands$BuildCommand.execute(AppCommands.java:470)
-     at com.sencha.command.app.AppCommands$WatchCommand.execute(AppCommands.java:909)
-     at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
-     at sun.reflect.NativeMethodAccessorImpl.invoke(Unknown Source)
-     at sun.reflect.DelegatingMethodAccessorImpl.invoke(Unknown Source)
-     at java.lang.reflect.Method.invoke(Unknown Source)
-     at com.sencha.util.MethodInvoker$Arguments.invoke(MethodInvoker.java:175)
-     at com.sencha.cli.Command.dispatch(Command.java:43)
-     at com.sencha.command.BasePluginCommands$BasePluginCommand.dispatch(BasePluginCommands.java:289)
-     at com.sencha.cli.Commands.dispatch(Commands.java:64)
-     at com.sencha.cli.Commands.dispatch(Commands.java:64)
-     at com.sencha.command.Sencha.dispatch(Sencha.java:80)
-     at com.sencha.command.Sencha.main(Sencha.java:147)
-     at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
-     at sun.reflect.NativeMethodAccessorImpl.invoke(Unknown Source)
-     at sun.reflect.DelegatingMethodAccessorImpl.invoke(Unknown Source)
-     at java.lang.reflect.Method.invoke(Unknown Source)
-     at com.exe4j.runtime.LauncherEngine.launch(LauncherEngine.java:65)
-     at com.exe4j.runtime.WinLauncher.main(WinLauncher.java:101)
-     at com.install4j.runtime.launcher.WinLauncher.main(WinLauncher.java:26)
-   Caused by: com.sencha.exceptions.ExBuild: Failed to find any files for C:\Users\Administrator\git\Knorragency\admin-dashboard\classic\src\view\charts\Charts.js::ClassRequire::Admin.view.charts.ChartsModel
+   Caused by: java.lang.NullPointerException
      at org.apache.tools.ant.dispatch.DispatchUtils.execute(DispatchUtils.java:116)
      at org.apache.tools.ant.Task.perform(Task.java:348)
-     at org.apache.tools.ant.Target.execute(Target.java:392)
-     at org.apache.tools.ant.Target.performTasks(Target.java:413)
-     at org.apache.tools.ant.Project.executeSortedTargets(Project.java:1399)
-     at org.apache.tools.ant.helper.SingleCheckExecutor.executeTargets(SingleCheckExecutor.java:38)
-     at org.apache.tools.ant.Project.executeTargets(Project.java:1251)
-     at org.apache.tools.ant.taskdefs.Ant.execute(Ant.java:442)
-     at org.apache.tools.ant.taskdefs.CallTarget.execute(CallTarget.java:105)
-     at com.sencha.ant.CallTask.execute(CallTask.java:137)
-     at org.apache.tools.ant.UnknownElement.execute(UnknownElement.java:291)
-     at sun.reflect.GeneratedMethodAccessor32.invoke(Unknown Source)
-     at sun.reflect.DelegatingMethodAccessorImpl.invoke(Unknown Source)
-     at java.lang.reflect.Method.invoke(Unknown Source)
-     at org.apache.tools.ant.dispatch.DispatchUtils.execute(DispatchUtils.java:106)
-     at org.apache.tools.ant.Task.perform(Task.java:348)
-     at org.apache.tools.ant.Target.execute(Target.java:392)
-     at org.apache.tools.ant.Target.performTasks(Target.java:413)
-     at org.apache.tools.ant.Project.executeSortedTargets(Project.java:1399)
-     at org.apache.tools.ant.helper.SingleCheckExecutor.executeTargets(SingleCheckExecutor.java:38)
-     at org.apache.tools.ant.Project.executeTargets(Project.java:1251)
-     at org.apache.tools.ant.taskdefs.Ant.execute(Ant.java:442)
-     at org.apache.tools.ant.taskdefs.CallTarget.execute(CallTarget.java:105)
-     at com.sencha.ant.CallTask.execute(CallTask.java:137)
-     at org.apache.tools.ant.UnknownElement.execute(UnknownElement.java:291)
-     at sun.reflect.GeneratedMethodAccessor32.invoke(Unknown Source)
-     at sun.reflect.DelegatingMethodAccessorImpl.invoke(Unknown Source)
-     at java.lang.reflect.Method.invoke(Unknown Source)
-     at org.apache.tools.ant.dispatch.DispatchUtils.execute(DispatchUtils.java:106)
-     at org.apache.tools.ant.Task.perform(Task.java:348)
      at org.apache.tools.ant.taskdefs.Sequential.execute(Sequential.java:68)
-     at net.sf.antcontrib.logic.IfTask.execute(IfTask.java:197)
-     at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
-     at sun.reflect.NativeMethodAccessorImpl.invoke(Unknown Source)
+     at net.sf.antcontrib.logic.IfTask.execute(IfTask.java:217)
+     at sun.reflect.GeneratedMethodAccessor46.invoke(Unknown Source)
      at sun.reflect.DelegatingMethodAccessorImpl.invoke(Unknown Source)
      at java.lang.reflect.Method.invoke(Unknown Source)
      at org.apache.tools.ant.dispatch.DispatchUtils.execute(DispatchUtils.java:106)
@@ -693,7 +442,6 @@ D:\soft\Sencha\Cmd\6.6.0.13\ant\build\app\init-impl.xml:436: com.sencha.exceptio
      at com.sencha.command.environment.AppOrPackageEnvironment.execute(AppOrPackageEnvironment.java:729)
      at com.sencha.command.BasePluginCommands$BasePluginCommand.doExecute(BasePluginCommands.java:125)
      at com.sencha.command.app.AppCommands$BuildCommand.execute(AppCommands.java:470)
-     at com.sencha.command.app.AppCommands$WatchCommand.execute(AppCommands.java:909)
      at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
      at sun.reflect.NativeMethodAccessorImpl.invoke(Unknown Source)
      at sun.reflect.DelegatingMethodAccessorImpl.invoke(Unknown Source)
@@ -712,19 +460,19 @@ D:\soft\Sencha\Cmd\6.6.0.13\ant\build\app\init-impl.xml:436: com.sencha.exceptio
      at com.exe4j.runtime.LauncherEngine.launch(LauncherEngine.java:65)
      at com.exe4j.runtime.WinLauncher.main(WinLauncher.java:101)
      at com.install4j.runtime.launcher.WinLauncher.main(WinLauncher.java:26)
-   Caused by: Failed to find any files for C:\Users\Administrator\git\Knorragency\admin-dashboard\classic\src\view\charts\Charts.js::ClassRequire::Admin.view.charts.ChartsModel
-     at com.sencha.tools.compiler.sources.SymbolCache.resolveDependencies(SymbolCache.java:714)
-     at com.sencha.tools.compiler.sources.SymbolCache.resolveDependencies(SymbolCache.java:653)
-     at com.sencha.tools.compiler.sources.SymbolCache.resolveDependencies(SymbolCache.java:648)
-     at com.sencha.tools.compiler.sources.SymbolCache.processSymbols(SymbolCache.java:383)
-     at com.sencha.tools.compiler.sources.ClassPathScope.getScopeSymbols(ClassPathScope.java:417)
-     at com.sencha.tools.compiler.sources.ClassPathScope.getScopeSymbols(ClassPathScope.java:408)
-     at com.sencha.tools.compiler.sources.TransitiveEnabler.enableTransitiveDependencies(TransitiveEnabler.java:48)
-     at com.sencha.tools.compiler.sources.ClassPathScope.processTransitiveDependencies(ClassPathScope.java:589)
-     at com.sencha.tools.compiler.sources.ClassPathScope.enableTransitiveDependencies(ClassPathScope.java:600)
-     at com.sencha.tools.compiler.sources.ClassPathScope.enableTransitiveDependencies(ClassPathScope.java:604)
-     at com.sencha.tools.page.AppJsonBuilder.load(AppJsonBuilder.java:224)
-     at com.sencha.command.compile.app.LoadAppCommand.execute(LoadAppCommand.java:60)
+   Caused by: null
+     at com.google.javascript.jscomp.Es6RewriteBlockScopedDeclaration.process(Es6RewriteBlockScopedDeclaration.java:136)
+     at com.google.javascript.jscomp.Compiler.transpileAndDontCheck(Compiler.java:1046)
+     at com.google.javascript.jscomp.Compiler.performChecksAndTranspilation(Compiler.java:871)
+     at com.google.javascript.jscomp.Compiler.access$000(Compiler.java:102)
+     at com.google.javascript.jscomp.Compiler$2.call(Compiler.java:808)
+     at com.google.javascript.jscomp.Compiler$2.call(Compiler.java:805)
+     at com.google.javascript.jscomp.CompilerExecutor.runInCompilerThread(CompilerExecutor.java:128)
+     at com.google.javascript.jscomp.Compiler.runInCompilerThread(Compiler.java:862)
+     at com.google.javascript.jscomp.Compiler.stage1Passes(Compiler.java:804)
+     at com.sencha.tools.compressors.closure.ClosureCompressor.compress(ClosureCompressor.java:285)
+     at com.sencha.tools.compressors.closure.ClosureCompressor.compress(ClosureCompressor.java:48)
+     at com.sencha.command.compile.ConcatenateCommand.execute(ConcatenateCommand.java:309)
      at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
      at sun.reflect.NativeMethodAccessorImpl.invoke(Unknown Source)
      at sun.reflect.DelegatingMethodAccessorImpl.invoke(Unknown Source)
@@ -734,8 +482,7 @@ D:\soft\Sencha\Cmd\6.6.0.13\ant\build\app\init-impl.xml:436: com.sencha.exceptio
      at com.sencha.cli.Commands.dispatch(Commands.java:64)
      at com.sencha.command.compile.CompileCommands.dispatch(CompileCommands.java:332)
      at com.sencha.cli.AbstractCommand.dispatch(AbstractCommand.java:124)
-     at com.sencha.ant.CompileTask$CompileToken.initialize(CompileTask.java:156)
-     at com.sencha.ant.CompileTask$CompileToken.dispatchCommand(CompileTask.java:163)
+     at com.sencha.ant.CompileTask$CompileToken.dispatchCommand(CompileTask.java:164)
      at com.sencha.ant.CompileTask.doExecute(CompileTask.java:123)
      at com.sencha.ant.BaseAntTask.execute(BaseAntTask.java:34)
      at com.sencha.ant.CompileTask.execute(CompileTask.java:36)
@@ -745,38 +492,9 @@ D:\soft\Sencha\Cmd\6.6.0.13\ant\build\app\init-impl.xml:436: com.sencha.exceptio
      at java.lang.reflect.Method.invoke(Unknown Source)
      at org.apache.tools.ant.dispatch.DispatchUtils.execute(DispatchUtils.java:106)
      at org.apache.tools.ant.Task.perform(Task.java:348)
-     at org.apache.tools.ant.Target.execute(Target.java:392)
-     at org.apache.tools.ant.Target.performTasks(Target.java:413)
-     at org.apache.tools.ant.Project.executeSortedTargets(Project.java:1399)
-     at org.apache.tools.ant.helper.SingleCheckExecutor.executeTargets(SingleCheckExecutor.java:38)
-     at org.apache.tools.ant.Project.executeTargets(Project.java:1251)
-     at org.apache.tools.ant.taskdefs.Ant.execute(Ant.java:442)
-     at org.apache.tools.ant.taskdefs.CallTarget.execute(CallTarget.java:105)
-     at com.sencha.ant.CallTask.execute(CallTask.java:137)
-     at org.apache.tools.ant.UnknownElement.execute(UnknownElement.java:291)
-     at sun.reflect.GeneratedMethodAccessor32.invoke(Unknown Source)
-     at sun.reflect.DelegatingMethodAccessorImpl.invoke(Unknown Source)
-     at java.lang.reflect.Method.invoke(Unknown Source)
-     at org.apache.tools.ant.dispatch.DispatchUtils.execute(DispatchUtils.java:106)
-     at org.apache.tools.ant.Task.perform(Task.java:348)
-     at org.apache.tools.ant.Target.execute(Target.java:392)
-     at org.apache.tools.ant.Target.performTasks(Target.java:413)
-     at org.apache.tools.ant.Project.executeSortedTargets(Project.java:1399)
-     at org.apache.tools.ant.helper.SingleCheckExecutor.executeTargets(SingleCheckExecutor.java:38)
-     at org.apache.tools.ant.Project.executeTargets(Project.java:1251)
-     at org.apache.tools.ant.taskdefs.Ant.execute(Ant.java:442)
-     at org.apache.tools.ant.taskdefs.CallTarget.execute(CallTarget.java:105)
-     at com.sencha.ant.CallTask.execute(CallTask.java:137)
-     at org.apache.tools.ant.UnknownElement.execute(UnknownElement.java:291)
-     at sun.reflect.GeneratedMethodAccessor32.invoke(Unknown Source)
-     at sun.reflect.DelegatingMethodAccessorImpl.invoke(Unknown Source)
-     at java.lang.reflect.Method.invoke(Unknown Source)
-     at org.apache.tools.ant.dispatch.DispatchUtils.execute(DispatchUtils.java:106)
-     at org.apache.tools.ant.Task.perform(Task.java:348)
      at org.apache.tools.ant.taskdefs.Sequential.execute(Sequential.java:68)
-     at net.sf.antcontrib.logic.IfTask.execute(IfTask.java:197)
-     at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
-     at sun.reflect.NativeMethodAccessorImpl.invoke(Unknown Source)
+     at net.sf.antcontrib.logic.IfTask.execute(IfTask.java:217)
+     at sun.reflect.GeneratedMethodAccessor46.invoke(Unknown Source)
      at sun.reflect.DelegatingMethodAccessorImpl.invoke(Unknown Source)
      at java.lang.reflect.Method.invoke(Unknown Source)
      at org.apache.tools.ant.dispatch.DispatchUtils.execute(DispatchUtils.java:106)
@@ -841,7 +559,6 @@ D:\soft\Sencha\Cmd\6.6.0.13\ant\build\app\init-impl.xml:436: com.sencha.exceptio
      at com.sencha.command.environment.AppOrPackageEnvironment.execute(AppOrPackageEnvironment.java:729)
      at com.sencha.command.BasePluginCommands$BasePluginCommand.doExecute(BasePluginCommands.java:125)
      at com.sencha.command.app.AppCommands$BuildCommand.execute(AppCommands.java:470)
-     at com.sencha.command.app.AppCommands$WatchCommand.execute(AppCommands.java:909)
      at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
      at sun.reflect.NativeMethodAccessorImpl.invoke(Unknown Source)
      at sun.reflect.DelegatingMethodAccessorImpl.invoke(Unknown Source)

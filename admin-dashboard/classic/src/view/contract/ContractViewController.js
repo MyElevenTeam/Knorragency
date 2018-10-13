@@ -1,7 +1,22 @@
 Ext.define('Admin.view.contract.ContractViewController', {
     extend: 'Ext.app.ViewController',
     alias: 'controller.contractViewController',
-    
+
+    /*增加合同信息*/
+    // onAddClick:function(toolbar){
+    //   var view = this.getView();
+    //   var grid=toolbar.up('panel').down('grid');
+    //   rec = new Admin.model.contract.ContractModel({
+    //       contractNumber: '',
+    //       customerName: '',
+    //       hoseName: '',
+    //       employeeName:'',
+    //       startTime: Ext.Date.clearTime(new Date()),
+    //       endTime: Ext.Date.clearTime(new Date())      
+    //   });
+    //   grid.getStore().insert(0, rec);
+    //   view.findPlugin('cellediting').startEdit(rec, 0);
+    // },
     /*上传合同信息*/
     uploadContract:function(btn){
     	btn.up('panel').up('container').add(Ext.widget('contractUploadWindow')).show();
@@ -103,6 +118,38 @@ Ext.define('Admin.view.contract.ContractViewController', {
 		
    },
 
+  /* private String contractNumber;     //合同号
+  
+  private String customerName;       //客户姓名
+  
+  private String employeeName;      //房产经纪人姓名
+  
+  private String contractType;     //合同类型
+  
+  private String area;            //地方
+  
+  @DateTimeFormat(pattern="yyyy/MM/dd HH:mm:ss")  
+  private Date timeStart;
+
+  @DateTimeFormat(pattern="yyyy/MM/dd HH:mm:ss")  
+  private Date timeEnd;*/
+
+
+
+
+
+
+
+
+
+   searchContract:function(textfield,e){
+      if(e.getKey() == Ext.EventObject.ENTER){
+          var check=Ext.getCmp('contract_contractNumber').getValue();
+          alert(check);
+          alert("ss");
+      }
+  },
+
    /*Star Leave Process*/ 
   starLeaveProcess:function(grid, rowIndex, colIndex){
     var record = grid.getStore().getAt(rowIndex);
@@ -130,11 +177,12 @@ Ext.define('Admin.view.contract.ContractViewController', {
     Ext.Msg.alert("Title","Cancel Leave Process");
   },
   /*查看审批结果*/
-  LookAppeal:function(grid,rowIndex, colIndex){
+  LookContract:function(grid,rowIndex, colIndex){
      var record = grid.getStore().getAt(rowIndex);
      var win = grid.up('panel').up('container').add(Ext.widget('lookContractWindow'));
      win.show();
      win.down('form').getForm().loadRecord(record);
   }
+  
 
 });

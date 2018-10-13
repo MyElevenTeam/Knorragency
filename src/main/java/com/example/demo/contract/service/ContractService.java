@@ -234,6 +234,12 @@ public class ContractService implements IContractService {
 		}
 		workflowService.complete(taskId, variables);
 	}
+
+	@Override
+	public List<Object> sum() {
+		
+		return contractRepository.sum();
+	}
 	
 	
 }
