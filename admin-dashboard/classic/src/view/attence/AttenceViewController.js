@@ -2,6 +2,33 @@ Ext.define('Admin.view.attence.AttenceViewController', {
     extend: 'Ext.app.ViewController',
     alias: 'controller.attenceViewController',
 
+     /***********************************************个人考勤业务***********************************************************/
+    searchOpen:function(btn){
+      Ext.getCmp('attence_searchOpen').hide();
+      Ext.getCmp('attence_gridfilters').show();
+    },
+    /*查询*/
+    searchContract:function(textfield,e){
+        if(e.getKey() == Ext.EventObject.ENTER){
+           
+            var workinTime=Ext.getCmp('attence_workinTime').getValue();
+            var workoutTime=Ext.getCmp('attence_workoutTime').getValue();
+
+            var store = Ext.data.StoreManager.lookup('attenceGridStroe');
+            Ext.apply(store.proxy.extraParams, {workinTime:"",workoutTime:""});
+            Ext.apply(store.proxy.extraParams,{
+              
+              workinTime:Ext.util.Format.date(workinTime, 'Y/m/d H:i:s'),
+              workoutTime:Ext.util.Format.date(workoutTime, 'Y/m/d H:i:s')
+            });
+            store.load({params:{start:0, limit:20, page:1}});
+        }
+    },
+    searchClose:function(btn){
+      Ext.getCmp('attence_gridfilters').hide();
+      Ext.getCmp('attence_searchOpen').show();
+    },
+
     /***********************************************请假的增删改查***********************************************************/
     /*Find All Leave*/
     openLeaveWindow:function(toolbar, rowIndex, colIndex){

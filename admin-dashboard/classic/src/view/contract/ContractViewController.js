@@ -23,43 +23,27 @@ Ext.define('Admin.view.contract.ContractViewController', {
     },
     onClickUploadFormSumbitButton: function (btn) {
 
-		var form = btn.up('window').down('form');;
-		form.getForm().submit({       
-  			url:'/contract/uploadWord',
-  			method : 'POST',
-  			waitMsg: '正在上传，请耐心等待....',
-  			success: function(form, action){    
-  				Ext.Msg.alert('Success', action.result.msg,function(){
-  					btn.up('window').close();
-  					Ext.data.StoreManager.lookup('contractGridStroe').load();
-  					//form.getViewModel().getStore('processDefinitionStroe').load();
-  				});       
-  			}, 
-  			failure: function(form, action){
-  				Ext.Msg.alert('Error', '上传失败');
-  			}
-		});
-    },
-
-    /*查看合同信息*/
-    onGridCellItemClick:function(view, td, cellIndex, record){
-    	if (cellIndex === 1){
-	    		var win = new Ext.window.Window({
-					title:'合同细节',
-					width:780,
-					height:470,
-					layout:'fit',
-					html:"<h1 style='text-align:center;'>家乐房产中介合同</h1>"+"<br>"+
-						 "<h5 style='text-align:right;'>合同编号:"+record.get('contractNumber')+"</h5>"+"<br><hr>"+
-						 "<p>甲方于"+record.get('startTime')+"正式购入"+record.get('hoseName')+"一套,总价为"+record.get('total')+",失效时间为"+record.get('endTime')+"<p>"+"<br>"+
-						 "<h3>甲方:"+record.get('customerName')+"&nbsp;&nbsp;乙方:"+record.get('employeeName')+"<br>"+
-						 "<h5 style='text-align:right;'>签约时间:"+record.get('startTime')+"</h5>"
-				});
-			    win.show();
-    	}
-
-
-    	
+  		var form = btn.up('window').down('form');
+      if(form.isValid()){
+          form.getForm().submit({       
+              url:'/contract/uploadWord',
+              method : 'POST',
+              waitMsg: '正在上传，请耐心等待....',
+              success: function(form, action){    
+                Ext.Msg.alert('Success', action.result.msg,function(){
+                  btn.up('window').close();
+                  Ext.data.StoreManager.lookup('contractGridStroe').load();
+                  //form.getViewModel().getStore('processDefinitionStroe').load();
+                });       
+              }, 
+              failure: function(form, action){
+                Ext.Msg.alert('Error', '上传失败');
+              }
+          });
+      }else{
+          Ext.Msg.alert('Error', '请选择文件');
+      }
+    		
     },
 
     /*删除合同信息*/
@@ -118,36 +102,57 @@ Ext.define('Admin.view.contract.ContractViewController', {
 		
    },
 
-  /* private String contractNumber;     //合同号
-  
-  private String customerName;       //客户姓名
-  
-  private String employeeName;      //房产经纪人姓名
-  
-  private String contractType;     //合同类型
-  
-  private String area;            //地方
-  
-  @DateTimeFormat(pattern="yyyy/MM/dd HH:mm:ss")  
-  private Date timeStart;
-
-  @DateTimeFormat(pattern="yyyy/MM/dd HH:mm:ss")  
-  private Date timeEnd;*/
-
-
-
-
-
-
-
-
-
-   searchContract:function(textfield,e){
-      if(e.getKey() == Ext.EventObject.ENTER){
-          var check=Ext.getCmp('contract_contractNumber').getValue();
-          alert(check);
-          alert("ss");
+   /*合同编辑*/
+  onEditButton:function(grid, rowIndex, colIndex){
+      /*打开窗口*/
+      var record = grid.getStore().getAt(rowIndex);
+        //获取选中数据的字段值：console.log(record.get('id')); 或者 console.log(record.data.id);
+      if (record ) {
+        var win = grid.up('container').add(Ext.widget('contractEditWindow'));
+        win.show();
+        win.down('form').getForm().loadRecord(record);
       }
+  },
+  submitContractEditFormButton:function(btn){
+    var win = btn.up('window');
+    var store = Ext.data.StoreManager.lookup('contractGridStroe');
+      var values  = win.down('form').getValues();//获取form数据
+      var record = store.getById(values.id);//获取id获取store中的数据
+        record.set(values);
+      /*store.load();*/
+        win.close();
+  },
+
+  searchOpen:function(btn){
+    Ext.getCmp('contract_searchOpen').hide();
+    Ext.getCmp('contract_gridfilters').show();
+  },
+  /*查询*/
+  searchContract:function(textfield,e){
+      if(e.getKey() == Ext.EventObject.ENTER){
+          var contractNumber=Ext.getCmp('contract_contractNumber').getValue();
+          var customerName=Ext.getCmp('contract_customerName').getValue();
+          var employeeName=Ext.getCmp('contract_employeeName').getValue();
+          var contractType=Ext.getCmp('contract_contractType').getValue();
+          var timeStart=Ext.getCmp('contract_timeStart').getValue();
+          var timeEnd=Ext.getCmp('contract_timeEnd').getValue();
+
+          var store = Ext.data.StoreManager.lookup('contractGridStroe');
+          Ext.apply(store.proxy.extraParams, {contractNumber:"",customerName:"",employeeName:"",contractType:"",timeStart:"",timeEnd:""});
+          Ext.apply(store.proxy.extraParams,{
+            contractNumber:contractNumber,
+            customerName:customerName,
+            employeeName:employeeName,
+            contractType:contractType,
+            timeStart:Ext.util.Format.date(timeStart, 'Y/m/d H:i:s'),
+            timeEnd:Ext.util.Format.date(timeEnd, 'Y/m/d H:i:s')
+          });
+          store.load({params:{start:0, limit:20, page:1}});
+      }
+  },
+  searchClose:function(btn){
+    Ext.getCmp('contract_searchClose').hide();
+    Ext.getCmp('contract_searchClose').show();
   },
 
    /*Star Leave Process*/ 

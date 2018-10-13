@@ -10,7 +10,7 @@ Ext.define('Admin.view.contract.ContractEditWindow', {
     closable: true,
     modal:true,
     layout: 'fit',
-    /*items: [{
+    items: [{
         xtype: 'form',
         layout: 'form',
         padding: '10px',
@@ -22,15 +22,32 @@ Ext.define('Admin.view.contract.ContractEditWindow', {
             readOnly: true
         }, {
             xtype: 'textfield',
-            fieldLabel: 'UserName',
-            name:'userName'
+            fieldLabel: '客户姓名',
+            name:'customerName'
         }, {
+            xtype: 'textfield',
+            fieldLabel: '房源名称',
+            name:'hoseName'
+        },{
             xtype: 'datefield',
-            fieldLabel: 'Create Time',
-            name:'createTime',
+            fieldLabel: '签约时间',
+            name:'startTime',
             format: 'Y/m/d H:i:s'
+        },{
+            xtype: 'datefield',
+            fieldLabel: '失效时间',
+            name:'endTime',
+            format: 'Y/m/d H:i:s'
+        }, {
+            xtype: 'textfield',
+            fieldLabel: '合同类型',
+            name:'contractType'
+        }, {
+            xtype: 'textfield',
+            fieldLabel: '金额',
+            name:'total'
         }]
-    }]*//*,
+    }],
     buttons:  [{
         xtype: 'button',
         text: 'Submit',
@@ -41,5 +58,5 @@ Ext.define('Admin.view.contract.ContractEditWindow', {
         handler: function(btn) {
             btn.up('window').close();
         }
-    }]*/
+    }]
 });

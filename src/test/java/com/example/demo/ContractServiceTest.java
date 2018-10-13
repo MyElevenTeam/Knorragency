@@ -39,6 +39,7 @@ import com.example.demo.attence.service.AttenceService;
 import com.example.demo.attence.utils.AttenceUtil;
 import com.example.demo.contract.entity.Contract;
 import com.example.demo.contract.service.IContractService;
+import com.example.demo.contract.util.ContractUtil;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -193,10 +194,15 @@ public class ContractServiceTest {
 	
 	
 	@Test
-	public void sum() {
-		List<Object> a=contractService.sum();
+	public void sum() throws ParseException {
+		Date d=ContractUtil.toDate("十月");
+		List<Object> a=contractService.sum(d,"admin");
 		System.out.println(a);
+		
 	}
+	
+	
+	
 	
 
 }

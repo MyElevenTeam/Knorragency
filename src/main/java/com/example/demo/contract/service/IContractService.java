@@ -1,5 +1,6 @@
 package com.example.demo.contract.service;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -29,7 +30,7 @@ public interface IContractService {
 	/*上传word文档*/
 	public Contract readWord(String buffer);
 	
-	public List<Object> sum();
+	public List<Object> sum(Date d,String employeeName);
 	
 	
 	/*合同审核业务*/
