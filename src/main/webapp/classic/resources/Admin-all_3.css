@@ -4519,6 +4519,10 @@
     color: #32a3a7;
     background-color: #f5f5f5;
 }
+/* C:/Users/Administrator/git/Knorragency/admin-dashboard/classic/src/view/contract/LookContractWindow.scss:1 */
+.lookcontract .x-form-trigger-wrap {
+    border: none;
+}
 /* C:/Users/Administrator/git/Knorragency/admin-dashboard/classic/src/view/contractapprove/ContractApprovePanel.scss:1 */
 .process-definition-grid {
     border: solid 8px #dfdfdf;
