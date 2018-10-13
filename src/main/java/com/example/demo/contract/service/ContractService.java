@@ -181,6 +181,8 @@ public class ContractService implements IContractService {
 	            	
 	            	contractDTO.setDepreason(depreason);
 	            	contractDTO.setManreason(manreason);
+	            	contract.setDepreason(depreason);
+	            	contract.setManreason(manreason);
 	            	
 	            	BeanUtils.copyProperties(contract, contractDTO);
 	            	BeanUtils.copyProperties(workflow, contractDTO);
@@ -231,6 +233,12 @@ public class ContractService implements IContractService {
 			manreason=(String) variables.get("managerBackReason");
 		}
 		workflowService.complete(taskId, variables);
+	}
+
+	@Override
+	public List<Object> sum(Date d,String employeeName) {
+		
+		return contractRepository.sum(d,employeeName);
 	}
 	
 	

@@ -40,6 +40,11 @@ public class AttenceController {
 	@Autowired
 	private AttenceService attenceService;
 	
+	@RequestMapping("/getAllAttence")
+	//查看所有的考勤记录
+	public Page<Attence> getAllAttence(ExtjsPageRequest pageRequest) {
+		return attenceService.findAll(null,pageRequest.getPageable());
+	}
 	
 	/*----------------------------------------------考勤业务--------------------------------------------*/
 	//查看个人的考勤记录

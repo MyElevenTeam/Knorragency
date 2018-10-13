@@ -1,4 +1,4 @@
-Ext.define('Admin.view.attenceapprove.task.DeptLeaderAudit', {
+Ext.define('Admin.view.attenceapprove.task.AppealDeptLeaderAudit', {
     extend: 'Ext.form.Panel',
     alias: 'widget.appealdeptLeaderAudit',
     requires: [
@@ -54,15 +54,12 @@ Ext.define('Admin.view.attenceapprove.task.DeptLeaderAudit', {
         xtype: 'textfield',
         fieldLabel: '原上班状态',
         readOnly: true,
-        name:'attenceStatus',
-        style:{'color':'red',
-        },
+        name:'attenceStatus'
     },{
         xtype: 'textareafield',
         grow: true,
         name: 'appealreason',
         fieldLabel: '申诉原因',
-        anchor: '100%'
     },{
 		xtype: 'radiogroup',
 		fieldLabel: '部门经理审批',

@@ -68,7 +68,7 @@ Ext.define('Admin.store.NavigationTree', {
                     {
                         text: '部门考勤表',
                         iconCls: 'x-fa fa-copy',
-                        //viewType: 'contract',
+                        viewType: 'allAttence',
                         leaf: true
                     },
                     {

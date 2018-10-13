@@ -2,6 +2,33 @@ Ext.define('Admin.view.attence.AttenceViewController', {
     extend: 'Ext.app.ViewController',
     alias: 'controller.attenceViewController',
 
+     /***********************************************个人考勤业务***********************************************************/
+    searchOpen:function(btn){
+      Ext.getCmp('attence_searchOpen').hide();
+      Ext.getCmp('attence_gridfilters').show();
+    },
+    /*查询*/
+    searchContract:function(textfield,e){
+        if(e.getKey() == Ext.EventObject.ENTER){
+           
+            var workinTime=Ext.getCmp('attence_workinTime').getValue();
+            var workoutTime=Ext.getCmp('attence_workoutTime').getValue();
+
+            var store = Ext.data.StoreManager.lookup('attenceGridStroe');
+            Ext.apply(store.proxy.extraParams, {workinTime:"",workoutTime:""});
+            Ext.apply(store.proxy.extraParams,{
+              
+              workinTime:Ext.util.Format.date(workinTime, 'Y/m/d H:i:s'),
+              workoutTime:Ext.util.Format.date(workoutTime, 'Y/m/d H:i:s')
+            });
+            store.load({params:{start:0, limit:20, page:1}});
+        }
+    },
+    searchClose:function(btn){
+      Ext.getCmp('attence_gridfilters').hide();
+      Ext.getCmp('attence_searchOpen').show();
+    },
+
     /***********************************************请假的增删改查***********************************************************/
     /*Find All Leave*/
     openLeaveWindow:function(toolbar, rowIndex, colIndex){
@@ -104,7 +131,12 @@ Ext.define('Admin.view.attence.AttenceViewController', {
         }
       });
     },
-
+    /*查看审批结果*/
+    LookLeave:function(grid,rowIndex, colIndex){
+       var record = grid.getStore().getAt(rowIndex);
+       var win=grid.up('window').up('panel').up('container').add(Ext.widget('lookLeaveWindow')).show();
+       win.down('form').getForm().loadRecord(record);
+    },
     /***********************************************申诉业务***********************************************************/
     openAppealWindow:function(grid,rowIndex, colIndex){
       var record = grid.getStore().getAt(rowIndex);
@@ -143,8 +175,6 @@ Ext.define('Admin.view.attence.AttenceViewController', {
               var json = Ext.util.JSON.decode(response.responseText);
               if(json.success){
                 Ext.Msg.alert('操作成功', json.msg, function() {
-                Ext.getCmp('appeal_processStatus').show();
-                Ext.getCmp('appeal_appealreason').show();
                 btn.up('window').close();
                 Ext.data.StoreManager.lookup('attenceGridStroe').load();
               });
@@ -153,6 +183,13 @@ Ext.define('Admin.view.attence.AttenceViewController', {
               }
             }
         });
+    },
+    /*查看申诉结果*/
+    LookAppeal:function(grid,rowIndex, colIndex){
+       var record = grid.getStore().getAt(rowIndex);
+       var win = grid.up('panel').up('container').add(Ext.widget('lookAppealWindow'));
+       win.show();
+       win.down('form').getForm().loadRecord(record);
     }
   
      

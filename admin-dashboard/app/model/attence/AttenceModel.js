@@ -13,7 +13,9 @@ requires: [
 		{type:'string',name:'processInstanceId'},
 		{type:'string',name:'processStatus'},
 		{type:'string',name:'userId'},
-		{type:'string',name:'appealreason'}
+		{type:'string',name:'appealreason'},
+		{type:'string',name:'deptLeaderBackReason'},
+		{type:'string',name:'hrBackReason'}
 	],
 	proxy: {
 		type: 'rest',

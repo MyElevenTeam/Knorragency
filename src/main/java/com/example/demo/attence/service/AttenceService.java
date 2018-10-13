@@ -161,6 +161,8 @@ public class AttenceService implements IAttenceService {
 	            	
 	            	attenceDTO.setDepreason(depreason);
 	            	attenceDTO.setHrreason(hrreason);
+	            	attence.setDeptLeaderBackReason(depreason);
+	            	attence.setHrBackReason(hrreason);
 	            	
 	            	BeanUtils.copyProperties(attence, attenceDTO);
 	            	BeanUtils.copyProperties(workflow, attenceDTO);
@@ -193,6 +195,23 @@ public class AttenceService implements IAttenceService {
      */
 	@Override
 	public void complete(String taskId, Map<String, Object> variables) {
+		//流程变量的处理
+		if(variables.containsKey("confirmName")) {
+			depreason=null;
+			hrreason=null;
+		}
+		if(variables.containsKey("deptLeaderPass")&&(boolean) variables.get("deptLeaderPass")) {
+			depreason="同意";
+		}
+		if(variables.containsKey("hrPass")&&(boolean) variables.get("hrPass")) {
+			hrreason="同意";
+		}
+		if(variables.containsKey("deptLeaderBackReason")) {
+			depreason=(String) variables.get("deptLeaderBackReason");
+		}
+		if(variables.containsKey("hrBackReason")) {
+			hrreason=(String) variables.get("hrBackReason");
+		}
 		workflowService.complete(taskId, variables);
 	}
 

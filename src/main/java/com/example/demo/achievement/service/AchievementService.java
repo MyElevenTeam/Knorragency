@@ -10,7 +10,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.example.demo.achievement.entity.AchievementDTO;
+import com.example.demo.achievement.entity.ResponseDTO;
 import com.example.demo.contract.entity.Contract;
 import com.example.demo.contract.service.IContractService;
 @Service
@@ -22,8 +22,8 @@ public class AchievementService implements IAchievementService {
 	 * 一个月份中员工业绩排行
 	 */
 	@Override
-	public List<AchievementDTO> findByMonth(String month) {
-		List<AchievementDTO> achieveList=new ArrayList<AchievementDTO>();
+	public List<ResponseDTO> findByMonth(String month) {
+		List<ResponseDTO> achieveList=new ArrayList<ResponseDTO>();
 		List<Contract> contracts=contractService.findAllContract(null);
 		String[] monthArray= {"一月","二月","三月","四月","五月","六月","七月","八月","九月","十月","十一月","十二月"};
 		Calendar calendar=Calendar.getInstance();
@@ -40,7 +40,7 @@ public class AchievementService implements IAchievementService {
 					}
 				}
 				if(i==achieveList.size()) {
-					AchievementDTO achieveTmp=new AchievementDTO();
+					ResponseDTO achieveTmp=new ResponseDTO();
 					BeanUtils.copyProperties(contract, achieveTmp);
 					achieveList.add(achieveTmp);
 				}

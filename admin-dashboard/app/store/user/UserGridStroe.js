@@ -12,6 +12,87 @@ Ext.define('Admin.store.user.UserGridStroe', {
 	        "id": 2,
 			"userName": "No002",
 			"createTime": "2018/09/08 19:40:52"
+    	},{
+	        "id": 3,
+			"userName": "No003",
+			"createTime": "2018/09/08 19:40:52"
+
+	    },{
+	        "id": 4,
+			"userName": "No004",
+			"createTime": "2018/09/08 19:40:52"
+    	},{
+	        "id": 5,
+			"userName": "No004",
+			"createTime": "2018/09/08 19:40:52"
+
+	    },{
+	        "id": 6,
+			"userName": "No006",
+			"createTime": "2018/09/08 19:40:52"
+    	},{
+	        "id": 7,
+			"userName": "No001",
+			"createTime": "2018/09/08 19:40:52"
+
+	    },{
+	        "id": 8,
+			"userName": "No002",
+			"createTime": "2018/09/08 19:40:52"
+    	},{
+	        "id": 9,
+			"userName": "No001",
+			"createTime": "2018/09/08 19:40:52"
+
+	    },{
+	        "id": 10,
+			"userName": "No0021",
+			"createTime": "2018/09/08 19:40:52"
+    	},{
+	        "id": 11,
+			"userName": "No0011",
+			"createTime": "2018/09/08 19:40:52"
+
+	    },{
+	        "id": 12,
+			"userName": "No0012",
+			"createTime": "2018/09/08 19:40:52"
+    	},{
+	        "id": 13,
+			"userName": "No0013",
+			"createTime": "2018/09/08 19:40:52"
+
+	    },{
+	        "id": 14,
+			"userName": "No0014",
+			"createTime": "2018/09/08 19:40:52"
+    	},{
+	        "id": 15,
+			"userName": "No001",
+			"createTime": "2018/09/08 19:40:52"
+
+	    },{
+	        "id": 16,
+			"userName": "No0021",
+			"createTime": "2018/09/08 19:40:52"
+    	},{
+	        "id": 17,
+			"userName": "No0011",
+			"createTime": "2018/09/08 19:40:52"
+
+	    },{
+	        "id": 18,
+			"userName": "No0012",
+			"createTime": "2018/09/08 19:40:52"
+    	},{
+	        "id": 19,
+			"userName": "No0013",
+			"createTime": "2018/09/08 19:40:52"
+
+	    },{
+	        "id": 20,
+			"userName": "No0014",
+			"createTime": "2018/09/08 19:40:52"
     	}]
     },
     proxy: {
@@ -24,7 +105,7 @@ Ext.define('Admin.store.user.UserGridStroe', {
     },
 
     autoLoad: 'true',
-
+     pageSize:10,
     sorters: {
         direction: 'ASC',
         property: 'userName'

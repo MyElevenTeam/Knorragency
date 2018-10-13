@@ -50884,6 +50884,16 @@ Ext.define('Ext.mixin.Responsive', function(Responsive) {
     this.setConfig(config);
   }}};
 });
+Ext.define('Ext.mixin.StyleCacher', {extend:Ext.Mixin, mixinConfig:{id:'stylecacher'}, getCachedStyle:function(el, style) {
+  var cache = this.$styleCache;
+  if (!cache) {
+    cache = this.$styleCache = {};
+  }
+  if (!(style in cache)) {
+    cache[style] = Ext.fly(el).getStyle(style);
+  }
+  return cache[style];
+}});
 Ext.define('Ext.perf.Accumulator', function() {
   var currentFrame = null, khrome = Ext.global['chrome'], formatTpl, getTimestamp = function() {
     getTimestamp = Ext.now;
@@ -51141,6 +51151,203 @@ Ext.define('Ext.perf.Monitor', {singleton:true, alternateClassName:'Ext.Perf', c
     }
   }
 }});
+Ext.define('Ext.plugin.AbstractClipboard', {extend:Ext.plugin.Abstract, cachedConfig:{formats:{text:{get:'getTextData', put:'putTextData'}}}, config:{memory:null, source:'system', system:'text', gridListeners:null}, destroy:function() {
+  var me = this, keyMap = me.keyMap, shared = me.shared;
+  Ext.destroy(me.destroyListener);
+  if (keyMap) {
+    me.keyMap = Ext.destroy(keyMap);
+    if (!--shared.counter) {
+      shared.textArea = Ext.destroy(shared.textArea);
+    }
+  } else {
+    me.renderListener = Ext.destroy(me.renderListener);
+  }
+  me.callParent();
+}, init:function(comp) {
+  var me = this, listeners = me.getGridListeners();
+  if (comp.rendered) {
+    me.finishInit(comp);
+  } else {
+    if (listeners) {
+      me.renderListener = comp.on(Ext.apply({scope:me, destroyable:true, single:true}, listeners));
+    }
+  }
+}, onCmpReady:function() {
+  this.renderListener = null;
+  this.finishInit(this.getCmp());
+}, getTarget:function(comp) {
+  return comp.el;
+}, privates:{shared:{counter:0, data:null, textArea:null}, applyMemory:function(value) {
+  value = this.applySource(value);
+  if (value) {
+    for (var i = value.length; i-- > 0;) {
+      if (value[i] === 'system') {
+        Ext.raise('Invalid clipboard format "' + value[i] + '"');
+      }
+    }
+  }
+  return value;
+}, applySource:function(value) {
+  if (value) {
+    if (Ext.isString(value)) {
+      value = [value];
+    } else {
+      if (value.length === 0) {
+        value = null;
+      }
+    }
+  }
+  if (value) {
+    var formats = this.getFormats();
+    for (var i = value.length; i-- > 0;) {
+      if (value[i] !== 'system' && !formats[value[i]]) {
+        Ext.raise('Invalid clipboard format "' + value[i] + '"');
+      }
+    }
+  }
+  return value || null;
+}, applySystem:function(value) {
+  var formats = this.getFormats();
+  if (!formats[value]) {
+    Ext.raise('Invalid clipboard format "' + value + '"');
+  }
+  return value;
+}, doCutCopy:function(event, erase) {
+  var me = this, formats = me.allFormats || me.syncFormats(), data = me.getData(erase, formats), memory = me.getMemory(), system = me.getSystem(), sys;
+  if (me.validateAction(event) === false) {
+    return;
+  }
+  me.shared.data = memory && data;
+  if (system) {
+    sys = data[system];
+    if (formats[system] < 3) {
+      delete data[system];
+    }
+    me.setClipboardData(sys);
+  }
+}, doPaste:function(format, data) {
+  var formats = this.getFormats();
+  this[formats[format].put](data, format);
+}, finishInit:function(comp) {
+  var me = this;
+  me.keyMap = new Ext.util.KeyMap({target:me.getTarget(comp), ignoreInputFields:true, binding:[{ctrl:true, key:'x', fn:me.onCut, scope:me}, {ctrl:true, key:'c', fn:me.onCopy, scope:me}, {ctrl:true, key:'v', fn:me.onPaste, scope:me}]});
+  ++me.shared.counter;
+  me.destroyListener = comp.on({destroyable:true, destroy:'destroy', scope:me});
+}, getData:function(erase, format) {
+  var me = this, formats = me.getFormats(), data, i, name, names;
+  if (Ext.isString(format)) {
+    if (!formats[format]) {
+      Ext.raise('Invalid clipboard format "' + format + '"');
+    }
+    data = me[formats[format].get](format, erase);
+  } else {
+    data = {};
+    names = [];
+    if (format) {
+      for (name in format) {
+        if (!formats[name]) {
+          Ext.raise('Invalid clipboard format "' + name + '"');
+        }
+        names.push(name);
+      }
+    } else {
+      names = Ext.Object.getAllKeys(formats);
+    }
+    for (i = names.length; i-- > 0;) {
+      data[name] = me[formats[name].get](name, erase && !i);
+    }
+  }
+  return data;
+}, getHiddenTextArea:function() {
+  var shared = this.shared, el;
+  el = shared.textArea;
+  if (!el) {
+    el = shared.textArea = Ext.getBody().createChild({tag:'textarea', tabIndex:-1, style:{position:'absolute', top:'-1000px', width:'1px', height:'1px'}});
+    el.suspendFocusEvents();
+  }
+  return el;
+}, onCopy:function(keyCode, event) {
+  this.doCutCopy(event, false);
+}, onCut:function(keyCode, event) {
+  this.doCutCopy(event, true);
+}, onPaste:function(keyCode, event) {
+  var me = this, sharedData = me.shared.data, source = me.getSource(), i, n, s;
+  if (me.validateAction(event) === false) {
+    return;
+  }
+  if (source) {
+    for (i = 0, n = source.length; i < n; ++i) {
+      s = source[i];
+      if (s === 'system') {
+        s = me.getSystem();
+        me.pasteClipboardData(s);
+        break;
+      } else {
+        if (sharedData && s in sharedData) {
+          me.doPaste(s, sharedData[s]);
+          break;
+        }
+      }
+    }
+  }
+}, pasteClipboardData:function(format) {
+  var me = this, clippy = window.clipboardData, area, focusEl;
+  if (clippy && clippy.getData) {
+    me.doPaste(format, clippy.getData('text'));
+  } else {
+    focusEl = Ext.Element.getActiveElement(true);
+    area = me.getHiddenTextArea().dom;
+    area.value = '';
+    if (focusEl) {
+      focusEl.suspendFocusEvents();
+    }
+    area.focus();
+    Ext.defer(function() {
+      if (focusEl) {
+        focusEl.focus();
+        focusEl.resumeFocusEvents();
+      }
+      me.doPaste(format, area.value);
+      area.value = '';
+    }, 100, me);
+  }
+}, setClipboardData:function(data) {
+  var clippy = window.clipboardData;
+  if (clippy && clippy.setData) {
+    clippy.setData('text', data);
+  } else {
+    var me = this, area = me.getHiddenTextArea().dom, focusEl = Ext.Element.getActiveElement(true);
+    area.value = data;
+    if (focusEl) {
+      focusEl.suspendFocusEvents();
+    }
+    area.focus();
+    area.select();
+    Ext.defer(function() {
+      area.value = '';
+      if (focusEl) {
+        focusEl.focus();
+        focusEl.resumeFocusEvents();
+      }
+    }, 50);
+  }
+}, syncFormats:function() {
+  var me = this, map = {}, memory = me.getMemory(), system = me.getSystem(), i, s;
+  if (system) {
+    map[system] = 1;
+  }
+  if (memory) {
+    for (i = memory.length; i-- > 0;) {
+      s = memory[i];
+      map[s] = map[s] ? 3 : 2;
+    }
+  }
+  return me.allFormats = map;
+}, updateMemory:function() {
+  this.allFormats = null;
+}, updateSystem:function() {
+  this.allFormats = null;
+}, validateAction:Ext.privateFn}});
 Ext.define('Ext.plugin.MouseEnter', {extend:Ext.plugin.Abstract, alias:'plugin.mouseenter', element:'el', init:function(component) {
   if (!this.delegate) {
     Ext.raise('mouseenter plugin must be configured with a delegate selector');
@@ -51446,6 +51653,74 @@ Ext.define('Ext.util.Color', {alternateClassName:'Ext.draw.Color', statics:{colo
     }
   }});
 });
+Ext.define('Ext.util.DelimitedValue', {dateFormat:'C', delimiter:'\t', lineBreak:'\n', quote:'"', lineBreakRe:/\r?\n/g, lastLineBreakRe:/(\r?\n|\r)$/, constructor:function(config) {
+  if (config) {
+    Ext.apply(this, config);
+  }
+  this.parseREs = {};
+  this.quoteREs = {};
+}, decode:function(input, delimiter, quoteChar) {
+  if (!input) {
+    return [];
+  }
+  var me = this, delim = delimiter || me.delimiter, row = [], result = [row], quote = quoteChar !== undefined ? quoteChar : me.quote, quoteREs = me.quoteREs, parseREs = me.parseREs, parseRE, dblQuoteRE, arrMatches, strMatchedDelimiter, strMatchedValue;
+  parseRE = quote === me.quote ? parseREs[delim] : null;
+  parseRE = parseRE || new RegExp('(\\' + delim + '|\\r?\\n|\\r|^)' + '(?:' + (quote === null ? '()' : '\\' + quote + '([^\\' + quote + ']*(?:\\' + quote + '\\' + quote + '[^\\' + quote + ']*)*)\\' + quote + '|') + '([^' + (quote === null ? '' : quote) + delim + '\\r\\n]*))', 'gi');
+  dblQuoteRE = quote === me.quote ? quoteREs[quote] : null;
+  dblQuoteRE = dblQuoteRE || new RegExp('\\' + quote + '\\' + quote, 'g');
+  input = input.replace(me.lastLineBreakRe, '');
+  while (arrMatches = parseRE.exec(input)) {
+    strMatchedDelimiter = arrMatches[1];
+    if (strMatchedDelimiter.length && strMatchedDelimiter !== delim) {
+      result.push(row = []);
+    }
+    if (!arrMatches.index && arrMatches[0].charAt(0) === delim) {
+      row.push('');
+    }
+    if (arrMatches[2]) {
+      strMatchedValue = arrMatches[2].replace(dblQuoteRE, quote);
+    } else {
+      strMatchedValue = arrMatches[3];
+    }
+    row.push(strMatchedValue);
+  }
+  return result;
+}, encode:function(input, delimiter, quoteChar) {
+  var me = this, delim = delimiter || me.delimiter, dateFormat = me.dateFormat, quote = quoteChar !== undefined ? quoteChar : me.quote, twoQuotes = quote + quote, rowIndex = input.length, lineBreakRe = me.lineBreakRe, result = [], outputRow = [], col, columnIndex, inputRow;
+  while (rowIndex-- > 0) {
+    inputRow = input[rowIndex];
+    outputRow.length = columnIndex = inputRow.length;
+    while (columnIndex-- > 0) {
+      col = inputRow[columnIndex];
+      if (col == null) {
+        col = '';
+      } else {
+        if (typeof col === 'string') {
+          if (col && quote !== null) {
+            if (col.indexOf(quote) > -1) {
+              col = quote + col.split(quote).join(twoQuotes) + quote;
+            } else {
+              if (col.indexOf(delim) > -1 || lineBreakRe.test(col)) {
+                col = quote + col + quote;
+              }
+            }
+          }
+        } else {
+          if (Ext.isDate(col)) {
+            col = Ext.Date.format(col, dateFormat);
+          } else {
+            if (col && (isNaN(col) || Ext.isArray(col))) {
+              Ext.raise('Cannot serialize ' + Ext.typeOf(col) + ' into CSV');
+            }
+          }
+        }
+      }
+      outputRow[columnIndex] = col;
+    }
+    result[rowIndex] = outputRow.join(delim);
+  }
+  return result.join(me.lineBreak);
+}});
 Ext.define('Ext.util.ClickRepeater', {alternateClassName:'Ext.util.TapRepeater', mixins:[Ext.mixin.Observable], config:{el:null, target:null, disabled:null}, interval:20, delay:250, preventDefault:true, stopDefault:false, timer:0, handler:null, scope:null, constructor:function(config) {
   var me = this;
   if (arguments.length === 2) {
@@ -51557,6 +51832,9 @@ Ext.define('Ext.util.ItemCollection', {extend:Ext.util.MixedCollection, alternat
 }, has:function(item) {
   return this.map.hasOwnProperty(item.getId());
 }});
+Ext.define('Ext.util.TsvDecoder', {extend:Ext.util.DelimitedValue, alternateClassName:'Ext.util.TSV', delimiter:'\t'}, function(TSVClass) {
+  Ext.util.TSV = new TSVClass;
+});
 Ext.define('Ext.util.TaskManager', {extend:Ext.util.TaskRunner, alternateClassName:['Ext.TaskManager'], singleton:true});
 Ext.define('Ext.util.TextMetrics', {statics:{shared:null, measure:function(el, text, fixedWidth) {
   var me = this, shared = me.shared || (me.shared = new me(el, fixedWidth));
@@ -53620,6 +53898,200 @@ Ext.define('Admin.override.container.Container', {override:'Ext.container.Contai
   if (Ext.os.deviceType === 'Desktop') {
     return this.callParent();
   }
+}});
+Ext.define('Ext.layout.container.Editor', {alias:'layout.editor', extend:Ext.layout.container.Container, autoSizeDefault:{width:'field', height:'field'}, sizePolicies:{$:{$:{readsWidth:1, readsHeight:1, setsWidth:0, setsHeight:0}, boundEl:{readsWidth:1, readsHeight:0, setsWidth:0, setsHeight:1}}, boundEl:{$:{readsWidth:0, readsHeight:1, setsWidth:1, setsHeight:0}, boundEl:{readsWidth:0, readsHeight:0, setsWidth:1, setsHeight:1}}}, getItemSizePolicy:function(item) {
+  var me = this, autoSize = me.owner.autoSize, key = autoSize && autoSize.width, policy = me.sizePolicies;
+  policy = policy[key] || policy.$;
+  key = autoSize && autoSize.height;
+  policy = policy[key] || policy.$;
+  return policy;
+}, calculate:function(ownerContext) {
+  var me = this, owner = me.owner, autoSize = owner.autoSize, fieldWidth, fieldHeight;
+  if (autoSize === true) {
+    autoSize = me.autoSizeDefault;
+  }
+  if (autoSize) {
+    fieldWidth = me.getDimension(owner, autoSize.width, 'getWidth', owner.width);
+    fieldHeight = me.getDimension(owner, autoSize.height, 'getHeight', owner.height);
+  }
+  ownerContext.childItems[0].setSize(fieldWidth, fieldHeight);
+  ownerContext.setWidth(fieldWidth);
+  ownerContext.setHeight(fieldHeight);
+  ownerContext.setContentSize(fieldWidth || owner.field.getWidth(), fieldHeight || owner.field.getHeight());
+}, getDimension:function(owner, type, getMethod, ownerSize) {
+  switch(type) {
+    case 'boundEl':
+      return owner.boundEl[getMethod]();
+    case 'field':
+      return undefined;
+    default:
+      return ownerSize;
+  }
+}});
+Ext.define('Ext.Editor', {extend:Ext.container.Container, xtype:'editor', layout:'editor', allowBlur:true, revertInvalid:true, value:'', alignment:'c-c?', offsets:[0, 0], shadow:'frame', constrain:false, swallowKeys:true, completeOnEnter:true, cancelOnEsc:true, updateEl:false, focusOnToFront:false, baseCls:Ext.baseCSSPrefix + 'editor', editing:false, preventDefaultAlign:true, useBoundValue:true, specialKeyDelay:1, initComponent:function() {
+  var me = this, field = me.field = Ext.ComponentManager.create(me.field || {}, 'textfield');
+  field.msgTarget = field.msgTarget || 'qtip';
+  me.mon(field, {scope:me, specialkey:me.onSpecialKey});
+  if (field.grow) {
+    me.mon(field, 'autosize', me.onFieldAutosize, me, {delay:1});
+  }
+  me.floating = {constrain:me.constrain};
+  me.items = field;
+  me.callParent();
+}, onAdded:function(container) {
+  this.ownerCmp = container;
+}, onFieldAutosize:function() {
+  this.updateLayout();
+}, afterRender:function(ct, position) {
+  var me = this, field = me.field, inputEl = field.inputEl;
+  me.callParent(arguments);
+  if (inputEl) {
+    inputEl.dom.name = '';
+    if (me.swallowKeys) {
+      inputEl.swallowEvent(['keypress', 'keydown']);
+    }
+  }
+}, onSpecialKey:function(field, event) {
+  var me = this, key = event.getKey(), complete = me.completeOnEnter && key === event.ENTER, cancel = me.cancelOnEsc && key === event.ESC, task = me.specialKeyTask;
+  if (complete || cancel) {
+    event.stopEvent();
+    if (!task) {
+      me.specialKeyTask = task = new Ext.util.DelayedTask;
+    }
+    task.delay(me.specialKeyDelay, complete ? me.completeEdit : me.cancelEdit, me);
+    if (me.specialKeyDelay === 0) {
+      task.cancel();
+      if (complete) {
+        me.completeEdit();
+      } else {
+        me.cancelEdit();
+      }
+    }
+  }
+  me.fireEvent('specialkey', me, field, event);
+}, startEdit:function(el, value, doFocus) {
+  var me = this, field = me.field, dom, ownerCt, renderTo;
+  me.completeEdit(true);
+  me.boundEl = Ext.get(el);
+  dom = me.boundEl.dom;
+  if (me.useBoundValue && !Ext.isDefined(value)) {
+    value = Ext.String.trim(dom.textContent || dom.innerText || dom.innerHTML);
+  }
+  if (me.fireEvent('beforestartedit', me, me.boundEl, value) !== false) {
+    if (me.context) {
+      value = me.context.value;
+    }
+    Ext.suspendLayouts();
+    if (!me.rendered) {
+      ownerCt = me.ownerCt;
+      renderTo = me.renderTo || ownerCt && ownerCt.getEl() || Ext.getBody();
+      Ext.fly(renderTo).position();
+      me.renderTo = renderTo;
+    }
+    me.startValue = value;
+    me.show();
+    me.realign(true);
+    field.suspendEvents();
+    field.setValue(value);
+    field.resetOriginalValue();
+    field.resumeEvents();
+    if (doFocus !== false) {
+      field.focus(field.selectOnFocus ? true : [Ext.Number.MAX_SAFE_INTEGER]);
+    }
+    if (field.autoSize) {
+      field.autoSize();
+    }
+    Ext.resumeLayouts(true);
+    me.toggleBoundEl(false);
+    me.editing = true;
+  }
+}, realign:function(autoSize) {
+  var me = this;
+  if (autoSize === true) {
+    me.updateLayout();
+  }
+  me.alignTo(me.boundEl, me.alignment, me.offsets);
+}, completeEdit:function(remainVisible) {
+  var me = this, field = me.field, startValue = me.startValue, cancel = me.context && me.context.cancel, value;
+  if (!me.editing) {
+    return;
+  }
+  if (field.assertValue) {
+    field.assertValue();
+  }
+  value = me.getValue();
+  if (!field.isValid()) {
+    if (me.revertInvalid !== false) {
+      me.cancelEdit(remainVisible);
+    }
+    return;
+  }
+  if (me.ignoreNoChange && !field.didValueChange(value, startValue)) {
+    me.onEditComplete(remainVisible);
+    return;
+  }
+  if (me.fireEvent('beforecomplete', me, value, startValue) !== false) {
+    value = me.getValue();
+    if (me.updateEl && me.boundEl) {
+      me.boundEl.setHtml(value);
+    }
+    me.onEditComplete(remainVisible, cancel);
+    me.fireEvent('complete', me, value, startValue);
+  }
+}, onShow:function() {
+  var me = this;
+  me.callParent(arguments);
+  me.fireEvent('startedit', me, me.boundEl, me.startValue);
+}, cancelEdit:function(remainVisible) {
+  var me = this, startValue = me.startValue, field = me.field, value;
+  if (me.editing) {
+    if (field) {
+      value = me.editedValue = me.getValue();
+      field.suspendEvents();
+      me.setValue(startValue);
+      field.resumeEvents();
+    }
+    me.onEditComplete(remainVisible, true);
+    me.fireEvent('canceledit', me, value, startValue);
+    delete me.editedValue;
+  }
+}, onEditComplete:function(remainVisible, canceling) {
+  this.editing = false;
+  if (remainVisible !== true) {
+    this.hide();
+    this.toggleBoundEl(true);
+  }
+}, onFocusLeave:function(e) {
+  var me = this;
+  if (me.allowBlur === true && me.editing) {
+    me.completeEdit();
+  }
+  me.callParent([e]);
+}, onHide:function() {
+  var me = this, field = me.field;
+  if (me.editing) {
+    me.completeEdit();
+  } else {
+    if (field.collapse) {
+      field.collapse();
+    }
+  }
+  me.callParent(arguments);
+}, getValue:function() {
+  return this.field.getValue();
+}, setValue:function(value) {
+  this.field.setValue(value);
+}, toggleBoundEl:function(visible) {
+  if (this.hideEl !== false) {
+    this.boundEl.setVisible(visible);
+  }
+}, doDestroy:function() {
+  var me = this, task = me.specialKeyTask;
+  if (task) {
+    task.cancel();
+  }
+  Ext.destroy(me.field);
+  me.callParent();
 }});
 Ext.define('Ext.Img', {extend:Ext.Component, alias:['widget.image', 'widget.imagecomponent'], autoEl:'img', baseCls:Ext.baseCSSPrefix + 'img', config:{src:null, glyph:null}, alt:'', title:'', imgCls:'', maskOnDisable:false, applySrc:function(src) {
   return src && Ext.resolveResource(src);
@@ -74278,6 +74750,136 @@ Ext.define('Ext.grid.CellContext', {isCellContext:true, generation:0, constructo
 }}, statics:{compare:function(c1, c2) {
   return c1.rowIdx - c2.rowIdx || c1.colIdx - c2.colIdx;
 }}});
+Ext.define('Ext.grid.CellEditor', {extend:Ext.Editor, alias:'widget.celleditor', isCellEditor:true, alignment:'l-l!', hideEl:false, cls:Ext.baseCSSPrefix + 'small-editor ' + Ext.baseCSSPrefix + 'grid-editor ' + Ext.baseCSSPrefix + 'grid-cell-editor', treeNodeSelector:'.' + Ext.baseCSSPrefix + 'tree-node-text', shim:false, shadow:false, floating:true, alignOnScroll:false, useBoundValue:false, focusLeaveAction:'completeEdit', setGrid:function(grid) {
+  this.grid = grid;
+}, startEdit:function(boundEl, value, doFocus) {
+  this.context = this.editingPlugin.context;
+  this.callParent([boundEl, value, doFocus]);
+}, onShow:function() {
+  var me = this, innerCell = me.boundEl.dom.querySelector(me.context.view.innerSelector);
+  if (innerCell) {
+    if (me.isForTree) {
+      innerCell = innerCell.querySelector(me.treeNodeSelector);
+    }
+    Ext.fly(innerCell).hide();
+  }
+  me.callParent(arguments);
+}, onFocusEnter:function() {
+  var me = this, context = me.context, view = context.view;
+  me.reattachToBody();
+  context.node = view.getNode(context.record);
+  context.row = view.getRow(context.record);
+  context.cell = context.getCell(true);
+  context.rowIdx = view.indexOf(context.row);
+  me.realign(true);
+  me.callParent(arguments);
+  me.focusEnterEvent = null;
+}, onFocusLeave:function(e) {
+  var me = this, view = me.context.view, related = Ext.fly(e.relatedTarget);
+  if (me[me.focusLeaveAction]() === false) {
+    e.event.stopEvent();
+    return;
+  }
+  delete me.focusLeaveAction;
+  if (!view.destroyed && view.el.contains(related) && (!related.isAncestor(e.target) || related === view.el) && !related.up(view.getCellSelector(), view.el, true)) {
+    me.context.grid.setActionableMode(false, view.actionPosition);
+  }
+  me.cacheElement();
+  Ext.container.Container.prototype.onFocusLeave.apply(me, arguments);
+}, completeEdit:function(remainVisible) {
+  var me = this, context = me.context;
+  if (me.editing) {
+    context.value = me.field.value;
+    if (me.editingPlugin.validateEdit(context) === false) {
+      if (context.cancel) {
+        context.value = me.originalValue;
+        me.editingPlugin.cancelEdit();
+      }
+      return !!context.cancel;
+    }
+  }
+  me.callParent([remainVisible]);
+}, onEditComplete:function(remainVisible, canceling) {
+  var me = this, activeElement = Ext.Element.getActiveElement(), ctx = me.context, store = ctx && ctx.store, boundEl;
+  me.editing = false;
+  boundEl = me.boundEl = me.context.getCell();
+  if (boundEl) {
+    me.restoreCell();
+    if (boundEl.contains(activeElement) && boundEl.dom !== activeElement) {
+      boundEl.focus();
+    }
+  }
+  me.callParent(arguments);
+  if (canceling) {
+    me.editingPlugin.cancelEdit(me);
+    if (remainVisible && store && store.isExpandingOrCollapsing) {
+      me.cacheElement();
+    }
+  } else {
+    me.editingPlugin.onEditComplete(me, me.getValue(), me.startValue);
+  }
+}, cacheElement:function(force) {
+  if ((!this.editing || force) && !this.destroyed && !this.isDetaching) {
+    this.isDetaching = true;
+    this.detachFromBody();
+    this.isDetaching = false;
+  }
+}, onHide:function() {
+  this.cacheElement(true);
+  Ext.Editor.superclass.onHide.apply(this, arguments);
+}, onSpecialKey:function(field, event, eOpts) {
+  var me = this, key = event.getKey(), complete = me.completeOnEnter && key === event.ENTER && (!eOpts || !eOpts.fromBoundList), cancel = me.cancelOnEsc && key === event.ESC, view = me.editingPlugin.view;
+  if (complete || cancel) {
+    event.stopEvent();
+    if (cancel) {
+      me.focusLeaveAction = 'cancelEdit';
+    }
+    view.ownerGrid.setActionableMode(false);
+  }
+}, getRefOwner:function() {
+  return this.column && this.column.getView();
+}, restoreCell:function() {
+  var me = this, innerCell = me.boundEl.dom.querySelector(me.context.view.innerSelector);
+  if (innerCell) {
+    if (me.isForTree) {
+      innerCell = innerCell.querySelector(me.treeNodeSelector);
+    }
+    Ext.fly(innerCell).show();
+  }
+}, afterRender:function() {
+  var me = this, field = me.field;
+  me.callParent(arguments);
+  if (field.isCheckbox) {
+    field.mon(field.inputEl, {mousedown:me.onCheckBoxMouseDown, click:me.onCheckBoxClick, scope:me});
+  }
+}, onCheckBoxMouseDown:function() {
+  this.completeEdit = Ext.emptyFn;
+}, onCheckBoxClick:function() {
+  delete this.completeEdit;
+  this.field.focus(false, 10);
+}, realign:function(autoSize) {
+  var me = this, boundEl = me.boundEl, innerCell = boundEl.dom.querySelector(me.context.view.innerSelector), innerCellTextNode = innerCell.firstChild, width = boundEl.getWidth(), offsets = Ext.Array.clone(me.offsets), grid = me.grid, xOffset, v = '', isEmpty = !innerCellTextNode || innerCellTextNode.nodeType === 3 && !Ext.String.trim(v = innerCellTextNode.data).length;
+  if (me.isForTree) {
+    xOffset = me.getTreeNodeOffset(innerCell);
+    width -= Math.abs(xOffset);
+    offsets[0] += xOffset;
+  }
+  if (grid.columnLines) {
+    width -= boundEl.getBorderWidth('rl');
+  }
+  if (autoSize === true) {
+    me.field.setWidth(width);
+  }
+  if (isEmpty) {
+    innerCell.innerHTML = 'X';
+  }
+  me.alignTo(boundEl, me.alignment, offsets);
+  if (isEmpty) {
+    innerCell.firstChild.data = v;
+  }
+}, getTreeNodeOffset:function(innerCell) {
+  return Ext.fly(innerCell.querySelector(this.treeNodeSelector)).getOffsetsTo(innerCell)[0];
+}});
 Ext.define('Ext.grid.ColumnComponentLayout', {extend:Ext.layout.component.Auto, alias:'layout.columncomponent', type:'columncomponent', setWidthInDom:true, _paddingReset:{paddingTop:'', paddingBottom:''}, columnAutoCls:Ext.baseCSSPrefix + 'column-header-text-container-auto', beginLayout:function(ownerContext) {
   this.callParent(arguments);
   ownerContext.titleContext = ownerContext.getEl('titleEl');
@@ -79228,6 +79830,155 @@ initComponent:function() {
   me.callParent();
 }});
 Ext.define('Ext.theme.neptune.grid.RowEditor', {override:'Ext.grid.RowEditor', buttonUI:'default-toolbar'});
+Ext.define('Ext.view.DropZone', {extend:Ext.dd.DropZone, indicatorCls:Ext.baseCSSPrefix + 'grid-drop-indicator', indicatorHtml:['\x3cdiv class\x3d"', Ext.baseCSSPrefix, 'grid-drop-indicator-left" role\x3d"presentation"\x3e\x3c/div\x3e', '\x3cdiv class\x3d"' + Ext.baseCSSPrefix + 'grid-drop-indicator-right" role\x3d"presentation"\x3e\x3c/div\x3e'].join(''), constructor:function(config) {
+  var me = this;
+  Ext.apply(me, config);
+  if (!me.ddGroup) {
+    me.ddGroup = 'view-dd-zone-' + me.view.id;
+  }
+  me.callParent([me.view.el]);
+}, fireViewEvent:function() {
+  var me = this, result;
+  me.lock();
+  result = me.view.fireEvent.apply(me.view, arguments);
+  me.unlock();
+  return result;
+}, getTargetFromEvent:function(e) {
+  var node = e.getTarget(this.view.getItemSelector()), mouseY, nodeList, testNode, i, len, box;
+  if (!node) {
+    mouseY = e.getY();
+    for (i = 0, nodeList = this.view.getNodes(), len = nodeList.length; i < len; i++) {
+      testNode = nodeList[i];
+      box = Ext.fly(testNode).getBox();
+      if (mouseY <= box.bottom) {
+        return testNode;
+      }
+    }
+  }
+  return node;
+}, getIndicator:function() {
+  var me = this;
+  if (!me.indicator) {
+    me.indicator = new Ext.Component({ariaRole:'presentation', html:me.indicatorHtml, cls:me.indicatorCls, ownerCt:me.view, floating:true, alignOnScroll:false, shadow:false});
+  }
+  return me.indicator;
+}, getPosition:function(e, node) {
+  var y = e.getXY()[1], region = Ext.fly(node).getRegion(), pos;
+  if (region.bottom - y >= (region.bottom - region.top) / 2) {
+    pos = 'before';
+  } else {
+    pos = 'after';
+  }
+  return pos;
+}, containsRecordAtOffset:function(records, record, offset) {
+  if (!record) {
+    return false;
+  }
+  var view = this.view, recordIndex = view.indexOf(record), nodeBefore = view.getNode(recordIndex + offset), recordBefore = nodeBefore ? view.getRecord(nodeBefore) : null;
+  return recordBefore && Ext.Array.contains(records, recordBefore);
+}, positionIndicator:function(node, data, e) {
+  var me = this, view = me.view, pos = me.getPosition(e, node), overRecord = view.getRecord(node), draggingRecords = data.records, indicatorY, scrollable, scrollableEl, container, containerY;
+  if (!Ext.Array.contains(draggingRecords, overRecord) && (pos === 'before' && !me.containsRecordAtOffset(draggingRecords, overRecord, -1) || pos === 'after' && !me.containsRecordAtOffset(draggingRecords, overRecord, 1))) {
+    me.valid = true;
+    if (me.overRecord !== overRecord || me.currentPosition !== pos) {
+      scrollable = me.view.getScrollable();
+      scrollableEl = scrollable && scrollable.getElement();
+      container = scrollableEl && scrollableEl.isScrollable() ? scrollableEl : Ext.fly(view.getNodeContainer());
+      containerY = container.getY();
+      indicatorY = Ext.fly(node).getY() - containerY - 1;
+      if (pos === 'after') {
+        indicatorY += Ext.fly(node).getHeight();
+      }
+      me.getIndicator().setWidth(Ext.fly(view.el).getWidth()).showAt(0, indicatorY);
+      me.overRecord = overRecord;
+      me.currentPosition = pos;
+    }
+  } else {
+    me.invalidateDrop();
+  }
+}, invalidateDrop:function() {
+  if (this.valid) {
+    this.valid = false;
+    this.getIndicator().hide();
+  }
+}, onNodeOver:function(node, dragZone, e, data) {
+  var me = this;
+  if (!Ext.Array.contains(data.records, me.view.getRecord(node))) {
+    me.positionIndicator(node, data, e);
+  }
+  return me.valid ? me.dropAllowed : me.dropNotAllowed;
+}, notifyOut:function(node, dragZone, e, data) {
+  var me = this;
+  me.callParent([node, dragZone, e, data]);
+  me.overRecord = me.currentPosition = null;
+  me.valid = false;
+  if (me.indicator) {
+    me.indicator.hide();
+  }
+}, onContainerOver:function(dd, e, data) {
+  var me = this, view = me.view, count = view.dataSource.getCount();
+  if (count) {
+    me.positionIndicator(view.all.last(), data, e);
+  } else {
+    me.overRecord = me.currentPosition = null;
+    me.getIndicator().setWidth(Ext.fly(view.el).getWidth()).showAt(0, 0);
+    me.valid = true;
+  }
+  return me.dropAllowed;
+}, onContainerDrop:function(dd, e, data) {
+  return this.onNodeDrop(dd, null, e, data);
+}, onNodeDrop:function(targetNode, dragZone, e, data) {
+  var me = this, dropHandled = false, overRecord = me.overRecord, currentPosition = me.currentPosition, dropHandlers = {wait:false, processDrop:function() {
+    me.invalidateDrop();
+    me.handleNodeDrop(data, overRecord, currentPosition);
+    dropHandled = true;
+    me.fireViewEvent('drop', targetNode, data, overRecord, currentPosition);
+  }, cancelDrop:function() {
+    me.invalidateDrop();
+    dropHandled = true;
+  }}, performOperation = false;
+  if (me.valid) {
+    performOperation = me.fireViewEvent('beforedrop', targetNode, data, overRecord, currentPosition, dropHandlers);
+    if (dropHandlers.wait) {
+      return;
+    }
+    if (performOperation !== false) {
+      if (!dropHandled) {
+        dropHandlers.processDrop();
+      }
+    }
+  }
+  return performOperation;
+}, destroy:function() {
+  this.indicator = Ext.destroy(this.indicator);
+  this.callParent();
+}});
+Ext.define('Ext.grid.ViewDropZone', {extend:Ext.view.DropZone, indicatorHtml:'\x3cdiv class\x3d"' + Ext.baseCSSPrefix + 'grid-drop-indicator-left" role\x3d"presentation"\x3e\x3c/div\x3e\x3cdiv class\x3d"' + Ext.baseCSSPrefix + 'grid-drop-indicator-right" role\x3d"presentation"\x3e\x3c/div\x3e', indicatorCls:Ext.baseCSSPrefix + 'grid-drop-indicator', handleNodeDrop:function(data, record, position) {
+  var view = this.view, store = view.getStore(), crossView = view !== data.view, selectAfter = crossView || data.records.length > 1, index, records, i, len;
+  if (data.copy) {
+    records = data.records;
+    for (i = 0, len = records.length; i < len; i++) {
+      records[i] = records[i].copy();
+    }
+  } else {
+    if (selectAfter) {
+      data.view.store.remove(data.records);
+    }
+  }
+  if (record && position) {
+    index = store.indexOf(record);
+    if (position !== 'before') {
+      index++;
+    }
+    store.insert(index, data.records);
+  } else {
+    store.add(data.records);
+  }
+  if (selectAfter) {
+    view.getSelectionModel().select(data.records);
+  }
+  view.getNavigationModel().setPosition(data.records[0]);
+}});
 Ext.define('Ext.grid.plugin.HeaderResizer', {extend:Ext.plugin.Abstract, alias:'plugin.gridheaderresizer', disabled:false, config:{dynamic:false}, colHeaderCls:Ext.baseCSSPrefix + 'column-header', minColWidth:40, maxColWidth:1000, eResizeCursor:'col-resize', init:function(headerCt) {
   var me = this;
   me.headerCt = headerCt;
@@ -81490,6 +82241,78 @@ Ext.define('Ext.grid.column.Date', {extend:Ext.grid.column.Column, alias:['widge
 }, updater:function(cell, value) {
   Ext.fly(cell).down(this.getView().innerSelector, true).innerHTML = Ext.grid.column.Date.prototype.defaultRenderer.call(this, value);
 }});
+Ext.define('Ext.grid.feature.Feature', {extend:Ext.util.Observable, alias:'feature.feature', wrapsItem:false, isFeature:true, disabled:false, hasFeatureEvent:true, eventPrefix:null, eventSelector:null, view:null, grid:null, columnSizer:null, constructor:function(config) {
+  this.initialConfig = config;
+  this.callParent(arguments);
+}, clone:function() {
+  return new this.self(this.initialConfig);
+}, init:Ext.emptyFn, getFireEventArgs:function(eventName, view, featureTarget, e) {
+  return [eventName, view, featureTarget, e];
+}, vetoEvent:Ext.emptyFn, enable:function() {
+  this.disabled = false;
+}, disable:function() {
+  this.disabled = true;
+}});
+Ext.define('Ext.grid.feature.RowBody', {extend:Ext.grid.feature.Feature, alias:'feature.rowbody', rowBodyCls:Ext.baseCSSPrefix + 'grid-row-body', innerSelector:'.' + Ext.baseCSSPrefix + 'grid-rowbody', rowBodyHiddenCls:Ext.baseCSSPrefix + 'grid-row-body-hidden', rowBodyTdSelector:'td.' + Ext.baseCSSPrefix + 'grid-cell-rowbody', eventPrefix:'rowbody', eventSelector:'tr.' + Ext.baseCSSPrefix + 'grid-rowbody-tr', bodyBefore:false, outerTpl:{fn:function(out, values, parent) {
+  var me = this.rowBody, view = values.view, columns = view.getVisibleColumnManager().getColumns(), rowValues = view.rowValues, rowExpanderCol = me.rowExpander && me.rowExpander.expanderColumn;
+  rowValues.rowBodyColspan = columns.length;
+  rowValues.rowBodyCls = me.rowBodyCls;
+  rowValues.rowIdCls = me.rowIdCls;
+  if (rowExpanderCol && rowExpanderCol.getView() === view) {
+    view.grid.removeCls(Ext.baseCSSPrefix + 'grid-hide-row-expander-spacer');
+    rowValues.addSpacerCell = true;
+    rowValues.rowBodyColspan -= 1;
+    rowValues.spacerCellCls = Ext.baseCSSPrefix + 'grid-cell ' + Ext.baseCSSPrefix + 'grid-row-expander-spacer ' + Ext.baseCSSPrefix + 'grid-cell-special';
+  } else {
+    view.grid.addCls(Ext.baseCSSPrefix + 'grid-hide-row-expander-spacer');
+    rowValues.addSpacerCell = false;
+  }
+  this.nextTpl.applyOut(values, out, parent);
+  rowValues.rowBodyCls = rowValues.rowBodyColspan = rowValues.rowBody = null;
+}, priority:100}, extraRowTpl:['{%', 'if(this.rowBody.bodyBefore) {', 'values.view.renderColumnSizer(values, out);', '} else {', 'this.nextTpl.applyOut(values, out, parent);', '}', 'values.view.rowBodyFeature.setupRowData(values.record, values.recordIndex, values);', '%}', '\x3ctr class\x3d"' + Ext.baseCSSPrefix + 'grid-rowbody-tr {rowBodyCls} {rowIdCls}" {ariaRowAttr}\x3e', '\x3ctpl if\x3d"addSpacerCell"\x3e', '\x3ctd class\x3d"{spacerCellCls}"\x3e\x3c/td\x3e', '\x3c/tpl\x3e', '\x3ctd class\x3d"' + 
+Ext.baseCSSPrefix + 'grid-td ' + Ext.baseCSSPrefix + 'grid-cell-rowbody" colspan\x3d"{rowBodyColspan}" {ariaCellAttr}\x3e', '\x3cdiv class\x3d"' + Ext.baseCSSPrefix + 'grid-rowbody {rowBodyDivCls}" {ariaCellInnerAttr}\x3e{rowBody}\x3c/div\x3e', '\x3c/td\x3e', '\x3c/tr\x3e', '{%', 'if(this.rowBody.bodyBefore) {', 'this.nextTpl.applyOut(values, out, parent);', '}', '%}', {priority:100, beginRowSync:function(rowSync) {
+  rowSync.add('rowBody', this.owner.eventSelector);
+}, syncContent:function(destRow, sourceRow, columnsToUpdate) {
+  var rowBody = this.rowBody, destRowBody, sourceRowBody;
+  if (rowBody.doSync) {
+    destRowBody = Ext.fly(destRow).down(rowBody.eventSelector, true);
+    if (destRowBody && (sourceRowBody = Ext.fly(sourceRow).down(rowBody.eventSelector, true))) {
+      Ext.fly(destRowBody).syncContent(sourceRowBody);
+    }
+  }
+}}], doSync:true, init:function(grid) {
+  var me = this, view = me.view = grid.getView();
+  if (!me.rowExpander && grid.findPlugin('rowexpander')) {
+    Ext.raise("The RowBody feature shouldn't be manually added when the grid has a RowExpander.");
+  }
+  grid.variableRowHeight = view.variableRowHeight = true;
+  view.rowBodyFeature = me;
+  view.headerCt.on({columnschanged:me.onColumnsChanged, scope:me});
+  view.addTpl(me.outerTpl).rowBody = me;
+  view.addRowTpl(Ext.XTemplate.getTpl(this, 'extraRowTpl')).rowBody = me;
+  me.callParent(arguments);
+}, getSelectedRow:function(view, rowIndex) {
+  var selectedRow = view.getNode(rowIndex);
+  if (selectedRow) {
+    return Ext.fly(selectedRow).down(this.eventSelector);
+  }
+  return null;
+}, onColumnsChanged:function(headerCt) {
+  var view = this.view, items, colspan, len, i;
+  if (!view.rendered) {
+    return;
+  }
+  items = view.el.query(this.rowBodyTdSelector);
+  colspan = headerCt.getVisibleGridColumns().length;
+  len = items.length;
+  for (i = 0; i < len; ++i) {
+    items[i].setAttribute('colSpan', colspan);
+  }
+}, setupRowData:function(record, rowIndex, rowValues) {
+  if (this.getAdditionalData) {
+    Ext.apply(rowValues, this.getAdditionalData(record.data, rowIndex, record, rowValues));
+  }
+}});
 Ext.define('Ext.menu.Item', {extend:Ext.Component, alias:'widget.menuitem', alternateClassName:'Ext.menu.TextItem', isMenuItem:true, mixins:[Ext.mixin.Queryable], config:{glyph:null}, activated:false, activeCls:Ext.baseCSSPrefix + 'menu-item-active', clickHideDelay:0, destroyMenu:true, disabledCls:Ext.baseCSSPrefix + 'menu-item-disabled', hideOnClick:true, menuAlign:'tl-tr?', menuExpandDelay:200, menuHideDelay:200, tooltipType:'qtip', focusable:true, ariaRole:'menuitem', ariaEl:'itemEl', baseCls:Ext.baseCSSPrefix + 
 'menu-item', arrowCls:Ext.baseCSSPrefix + 'menu-item-arrow', baseIconCls:Ext.baseCSSPrefix + 'menu-item-icon', textCls:Ext.baseCSSPrefix + 'menu-item-text', indentCls:Ext.baseCSSPrefix + 'menu-item-indent', indentNoSeparatorCls:Ext.baseCSSPrefix + 'menu-item-indent-no-separator', indentRightIconCls:Ext.baseCSSPrefix + 'menu-item-indent-right-icon', indentRightArrowCls:Ext.baseCSSPrefix + 'menu-item-indent-right-arrow', linkCls:Ext.baseCSSPrefix + 'menu-item-link', linkHrefCls:Ext.baseCSSPrefix + 
 'menu-item-link-href', childEls:['itemEl', 'iconEl', 'textEl', 'arrowEl'], renderTpl:'\x3ctpl if\x3d"plain"\x3e' + '{text}' + '\x3ctpl else\x3e' + '\x3ca id\x3d"{id}-itemEl" data-ref\x3d"itemEl"' + ' class\x3d"{linkCls}\x3ctpl if\x3d"hasHref"\x3e {linkHrefCls}\x3c/tpl\x3e{childElCls}"' + ' href\x3d"{href}" ' + '\x3ctpl if\x3d"hrefTarget"\x3e target\x3d"{hrefTarget}"\x3c/tpl\x3e' + ' hidefocus\x3d"true"' + ' unselectable\x3d"on"' + '\x3ctpl if\x3d"tabIndex !\x3d null"\x3e' + ' tabindex\x3d"{tabIndex}"' + 
@@ -82320,6 +83143,737 @@ Ext.define('Ext.theme.triton.menu.Menu', {override:'Ext.menu.Menu', compatibilit
     if (item && item.repaintIcons) {
       item.repaintIcons();
     }
+  }
+}});
+Ext.define('Ext.grid.filters.filter.Base', {mixins:[Ext.mixin.Factoryable], factoryConfig:{type:'grid.filter'}, $configPrefixed:false, $configStrict:false, config:{itemDefaults:null, menuDefaults:{xtype:'menu'}, updateBuffer:500, serializer:null}, active:false, type:'string', dataIndex:null, menu:null, isGridFilter:true, defaultRoot:'data', filterIdPrefix:Ext.baseCSSPrefix + 'gridfilter', constructor:function(config) {
+  var me = this, column;
+  me.callParent([config]);
+  me.initConfig(config);
+  column = me.column;
+  me.columnListeners = column.on('destroy', me.destroy, me, {destroyable:true});
+  me.dataIndex = me.dataIndex || column.dataIndex;
+  me.task = new Ext.util.DelayedTask(me.setValue, me);
+}, destroy:function() {
+  var me = this;
+  if (me.task) {
+    me.task.cancel();
+    me.task = null;
+  }
+  me.columnListeners = me.columnListeners.destroy();
+  me.grid = me.menu = Ext.destroy(me.menu);
+  me.callParent();
+}, addStoreFilter:function(filter) {
+  var filters = this.getGridStore().getFilters(), idx = filters.indexOf(filter), existing = idx !== -1 ? filters.getAt(idx) : null;
+  if (!existing || !Ext.util.Filter.isEqual(existing, filter)) {
+    filters.add(filter);
+  }
+}, createFilter:function(config, key) {
+  var filter = new Ext.util.Filter(this.getFilterConfig(config, key));
+  filter.isGridFilter = true;
+  return filter;
+}, getFilterConfig:function(config, key) {
+  config.id = this.getBaseIdPrefix();
+  if (!config.property) {
+    config.property = this.dataIndex;
+  }
+  if (!config.root) {
+    config.root = this.defaultRoot;
+  }
+  if (key) {
+    config.id += '-' + key;
+  }
+  config.serializer = this.getSerializer();
+  return config;
+}, createMenu:function() {
+  this.menu = Ext.widget(this.getMenuConfig());
+}, getActiveState:function(config, value) {
+  var active = config.active;
+  return active !== undefined ? active : value !== undefined;
+}, getBaseIdPrefix:function() {
+  return this.filterIdPrefix + '-' + this.dataIndex;
+}, getMenuConfig:function() {
+  return Ext.apply({}, this.getMenuDefaults());
+}, getGridStore:function() {
+  return this.grid.getStore();
+}, getStoreFilter:function(key) {
+  var id = this.getBaseIdPrefix();
+  if (key) {
+    id += '-' + key;
+  }
+  return this.getGridStore().getFilters().get(id);
+}, onValueChange:function(field, e) {
+  var me = this, keyCode = e.getKey(), updateBuffer = me.updateBuffer, value;
+  if (keyCode === e.TAB) {
+    return;
+  }
+  if (!field.isFormField) {
+    Ext.raise('`field` should be a form field instance.');
+  }
+  if (field.isValid()) {
+    if (keyCode === e.RETURN) {
+      me.menu.hide();
+      return;
+    }
+    value = me.getValue(field);
+    if (value === me.value) {
+      return;
+    }
+    if (updateBuffer) {
+      me.task.delay(updateBuffer, null, null, [value]);
+    } else {
+      me.setValue(value);
+    }
+  }
+}, preprocess:Ext.emptyFn, removeStoreFilter:function(filter) {
+  this.getGridStore().getFilters().remove(filter);
+}, getValue:Ext.emptyFn, setActive:function(active) {
+  var me = this, menuItem = me.owner.activeFilterMenuItem, filterCollection;
+  if (me.active !== active) {
+    me.active = active;
+    filterCollection = me.getGridStore().getFilters();
+    filterCollection.beginUpdate();
+    if (active) {
+      me.activate();
+    } else {
+      me.deactivate();
+    }
+    filterCollection.endUpdate();
+    if (menuItem && menuItem.activeFilter === me) {
+      menuItem.setChecked(active);
+    }
+    me.setColumnActive(active);
+    me.grid.fireEventArgs(active ? 'filteractivate' : 'filterdeactivate', [me, me.column]);
+  }
+}, setColumnActive:function(active) {
+  this.column[active ? 'addCls' : 'removeCls'](this.owner.filterCls);
+}, showMenu:function(menuItem) {
+  var me = this;
+  if (!me.menu) {
+    me.createMenu();
+  }
+  menuItem.activeFilter = me;
+  menuItem.setMenu(me.menu, false);
+  menuItem.setChecked(me.active);
+  menuItem.setDisabled(me.disabled === true);
+  me.activate(true);
+}, updateStoreFilter:function() {
+  this.getGridStore().getFilters().notify('endupdate');
+}});
+Ext.define('Ext.grid.filters.filter.SingleFilter', {extend:Ext.grid.filters.filter.Base, constructor:function(config) {
+  var me = this, filter, value;
+  me.callParent([config]);
+  value = me.value;
+  filter = me.getStoreFilter();
+  if (filter) {
+    me.active = true;
+  } else {
+    if (me.grid.stateful && me.getGridStore().saveStatefulFilters) {
+      value = undefined;
+    }
+    me.active = me.getActiveState(config, value);
+    filter = me.createFilter({operator:me.operator, value:value});
+    if (me.active) {
+      me.addStoreFilter(filter);
+    }
+  }
+  if (me.active) {
+    me.setColumnActive(true);
+  }
+  me.filter = filter;
+}, activate:function(showingMenu) {
+  if (showingMenu) {
+    this.activateMenu();
+  } else {
+    this.addStoreFilter(this.filter);
+  }
+}, deactivate:function() {
+  this.removeStoreFilter(this.filter);
+}, getValue:function(field) {
+  return field.getValue();
+}, onFilterRemove:function() {
+  if (!this.menu || this.active) {
+    this.active = false;
+  }
+}});
+Ext.define('Ext.grid.filters.filter.Boolean', {extend:Ext.grid.filters.filter.SingleFilter, alias:'grid.filter.boolean', type:'boolean', operator:'\x3d\x3d', defaultValue:false, yesText:'Yes', noText:'No', updateBuffer:0, constructor:function(config) {
+  var me = this, filterValue;
+  me.callParent([config]);
+  if (me.filter) {
+    filterValue = me.filter.getValue();
+    if (Ext.isEmpty(filterValue, true) && me.defaultValue !== null) {
+      me.filter.setValue(!!me.defaultValue);
+    }
+  }
+}, createMenu:function(config) {
+  var me = this, gId = Ext.id(), listeners = {scope:me, click:me.onClick}, itemDefaults = me.getItemDefaults();
+  me.callParent(arguments);
+  me.menu.add([Ext.apply({text:me.yesText, filterKey:1, group:gId, checked:!!me.defaultValue, hideOnClick:false, listeners:listeners}, itemDefaults), Ext.apply({text:me.noText, filterKey:0, group:gId, checked:!me.defaultValue && me.defaultValue !== null, hideOnClick:false, listeners:listeners}, itemDefaults)]);
+}, onClick:function(field) {
+  this.setValue(!!field.filterKey);
+}, setValue:function(value) {
+  var me = this;
+  me.filter.setValue(value);
+  if (value !== undefined && me.active) {
+    me.value = value;
+    me.updateStoreFilter();
+  } else {
+    me.setActive(true);
+  }
+}, activateMenu:Ext.emptyFn});
+Ext.define('Ext.grid.filters.filter.TriFilter', {extend:Ext.grid.filters.filter.Base, menuItems:['lt', 'gt', '-', 'eq'], constructor:function(config) {
+  var me = this, stateful = false, filter = {}, filterGt, filterLt, filterEq, value, operator;
+  me.callParent([config]);
+  value = me.value;
+  filterLt = me.getStoreFilter('lt');
+  filterGt = me.getStoreFilter('gt');
+  filterEq = me.getStoreFilter('eq');
+  if (filterLt || filterGt || filterEq) {
+    stateful = me.active = true;
+    if (filterLt) {
+      me.onStateRestore(filterLt);
+    }
+    if (filterGt) {
+      me.onStateRestore(filterGt);
+    }
+    if (filterEq) {
+      me.onStateRestore(filterEq);
+    }
+  } else {
+    if (me.grid.stateful && me.getGridStore().saveStatefulFilters) {
+      value = undefined;
+    }
+    me.active = me.getActiveState(config, value);
+  }
+  filter.lt = filterLt || me.createFilter({operator:'lt', value:!stateful && value && Ext.isDefined(value.lt) ? value.lt : null}, 'lt');
+  filter.gt = filterGt || me.createFilter({operator:'gt', value:!stateful && value && Ext.isDefined(value.gt) ? value.gt : null}, 'gt');
+  filter.eq = filterEq || me.createFilter({operator:'eq', value:!stateful && value && Ext.isDefined(value.eq) ? value.eq : null}, 'eq');
+  me.filter = filter;
+  if (me.active) {
+    me.setColumnActive(true);
+    if (!stateful) {
+      for (operator in value) {
+        me.addStoreFilter(me.filter[operator]);
+      }
+    }
+  }
+}, activate:function(showingMenu) {
+  var me = this, filters = me.filter, fields = me.fields, filter, field, operator, value, isRootMenuItem;
+  if (me.preventFilterRemoval) {
+    return;
+  }
+  for (operator in filters) {
+    filter = filters[operator];
+    field = fields[operator];
+    value = filter.getValue();
+    if (value || value === 0) {
+      if (field.isComponent) {
+        field.setValue(value);
+        if (isRootMenuItem === undefined) {
+          isRootMenuItem = me.owner.activeFilterMenuItem === field.up('menuitem');
+        }
+        if (!isRootMenuItem) {
+          field.up('menuitem').setChecked(true, true);
+        }
+      } else {
+        field.value = value;
+      }
+      if (!showingMenu) {
+        me.addStoreFilter(filter);
+      }
+    }
+  }
+}, deactivate:function() {
+  var me = this, filters = me.filter, f, filter, value;
+  if (!me.countActiveFilters() || me.preventFilterRemoval) {
+    return;
+  }
+  me.preventFilterRemoval = true;
+  for (f in filters) {
+    filter = filters[f];
+    value = filter.getValue();
+    if (value || value === 0) {
+      me.removeStoreFilter(filter);
+    }
+  }
+  me.preventFilterRemoval = false;
+}, countActiveFilters:function() {
+  var filters = this.filter, filterCollection = this.getGridStore().getFilters(), prefix = this.getBaseIdPrefix(), i = 0, filter;
+  if (filterCollection.length) {
+    for (filter in filters) {
+      if (filterCollection.get(prefix + '-' + filter)) {
+        i++;
+      }
+    }
+  }
+  return i;
+}, onFilterRemove:function(operator) {
+  var me = this, value;
+  if (!me.menu && me.countActiveFilters()) {
+    me.active = false;
+  } else {
+    if (me.menu) {
+      value = {};
+      value[operator] = null;
+      me.setValue(value);
+    }
+  }
+}, onStateRestore:Ext.emptyFn, setValue:function(value) {
+  var me = this, filters = me.filter, add = [], remove = [], active = false, filterCollection = me.getGridStore().getFilters(), filter, v, i, rLen, aLen;
+  if (me.preventFilterRemoval) {
+    return;
+  }
+  me.preventFilterRemoval = true;
+  if ('eq' in value) {
+    v = filters.lt.getValue();
+    if (v || v === 0) {
+      remove.push(filters.lt);
+    }
+    v = filters.gt.getValue();
+    if (v || v === 0) {
+      remove.push(filters.gt);
+    }
+    v = value.eq;
+    if (v || v === 0) {
+      add.push(filters.eq);
+      filters.eq.setValue(v);
+    } else {
+      remove.push(filters.eq);
+    }
+  } else {
+    v = filters.eq.getValue();
+    if (v || v === 0) {
+      remove.push(filters.eq);
+    }
+    if ('lt' in value) {
+      v = value.lt;
+      if (v || v === 0) {
+        add.push(filters.lt);
+        filters.lt.setValue(v);
+      } else {
+        remove.push(filters.lt);
+      }
+    }
+    if ('gt' in value) {
+      v = value.gt;
+      if (v || v === 0) {
+        add.push(filters.gt);
+        filters.gt.setValue(v);
+      } else {
+        remove.push(filters.gt);
+      }
+    }
+  }
+  rLen = remove.length;
+  aLen = add.length;
+  active = !!(me.countActiveFilters() + aLen - rLen);
+  if (rLen || aLen || active !== me.active) {
+    filterCollection.beginUpdate();
+    if (rLen) {
+      for (i = 0; i < rLen; i++) {
+        filter = remove[i];
+        me.fields[filter.getOperator()].setValue(null);
+        filter.setValue(null);
+        me.removeStoreFilter(filter);
+      }
+    }
+    if (aLen) {
+      for (i = 0; i < aLen; i++) {
+        me.addStoreFilter(add[i]);
+      }
+    }
+    me.setActive(active);
+    filterCollection.endUpdate();
+  }
+  me.preventFilterRemoval = false;
+}});
+Ext.define('Ext.grid.filters.filter.Date', {extend:Ext.grid.filters.filter.TriFilter, alias:'grid.filter.date', type:'date', config:{fields:{lt:{text:'Before'}, gt:{text:'After'}, eq:{text:'On'}}, pickerDefaults:{xtype:'datepicker', border:0}, updateBuffer:0, dateFormat:undefined}, itemDefaults:{xtype:'menucheckitem', selectOnFocus:true, width:125, menu:{layout:'auto', plain:true}}, applyDateFormat:function(dateFormat) {
+  return dateFormat || Ext.Date.defaultFormat;
+}, createMenu:function(config) {
+  var me = this, listeners = {scope:me, checkchange:me.onCheckChange}, menuItems = me.menuItems, fields, itemDefaults, pickerCfg, i, len, key, item, cfg, field;
+  me.callParent(arguments);
+  itemDefaults = me.getItemDefaults();
+  fields = me.getFields();
+  pickerCfg = Ext.apply({minDate:me.minDate, maxDate:me.maxDate, format:me.dateFormat, listeners:{scope:me, select:me.onMenuSelect}}, me.getPickerDefaults());
+  me.fields = {};
+  for (i = 0, len = menuItems.length; i < len; i++) {
+    key = menuItems[i];
+    if (key !== '-') {
+      cfg = {menu:{xtype:'datemenu', hideOnClick:false, pickerCfg:Ext.apply({itemId:key}, pickerCfg)}};
+      if (itemDefaults) {
+        Ext.merge(cfg, itemDefaults);
+      }
+      if (fields) {
+        Ext.merge(cfg, fields[key]);
+      }
+      item = me.menu.add(cfg);
+      field = me.fields[key] = item.down('datepicker');
+      field.filter = me.filter[key];
+      field.filterKey = key;
+      item.on(listeners);
+    } else {
+      me.menu.add(key);
+    }
+  }
+}, getPicker:function(item) {
+  return this.fields[item];
+}, onCheckChange:function(field, checked) {
+  var filter = field.down('datepicker').filter, v;
+  if (!checked && filter.getValue()) {
+    v = {};
+    v[filter.getOperator()] = null;
+    this.setValue(v);
+  }
+}, onFilterRemove:function(operator) {
+  var v = {};
+  v[operator] = null;
+  this.setValue(v);
+  this.fields[operator].up('menuitem').setChecked(false, true);
+}, onStateRestore:function(filter) {
+  filter.setSerializer(this.getSerializer());
+  filter.setConvert(this.convertDateOnly);
+}, getFilterConfig:function(config, key) {
+  config = this.callParent([config, key]);
+  config.serializer = this.getSerializer();
+  config.convert = this.convertDateOnly;
+  return config;
+}, convertDateOnly:function(v) {
+  var result = null;
+  if (v) {
+    result = Ext.Date.clearTime(v, true).getTime();
+  }
+  return result;
+}, getSerializer:function() {
+  var me = this;
+  return function(data) {
+    var value = data.value;
+    if (value) {
+      data.value = Ext.Date.format(value, me.getDateFormat());
+    }
+  };
+}, onMenuSelect:function(picker, date) {
+  var me = this, fields = me.fields, filters = me.filter, field = fields[picker.itemId], gt = fields.gt, lt = fields.lt, eq = fields.eq, v = {};
+  field.up('menuitem').setChecked(true, true);
+  if (field === eq) {
+    lt.up('menuitem').setChecked(false, true);
+    gt.up('menuitem').setChecked(false, true);
+  } else {
+    eq.up('menuitem').setChecked(false, true);
+    if (field === gt && +lt.value < +date) {
+      lt.up('menuitem').setChecked(false, true);
+      if (filters.lt.getValue() != null) {
+        v.lt = null;
+      }
+    } else {
+      if (field === lt && +gt.value > +date) {
+        gt.up('menuitem').setChecked(false, true);
+        if (filters.gt.getValue() != null) {
+          v.gt = null;
+        }
+      }
+    }
+  }
+  v[field.filterKey] = date;
+  me.setValue(v);
+  picker.up('menu').hide();
+}});
+Ext.define('Ext.grid.filters.filter.List', {extend:Ext.grid.filters.filter.SingleFilter, alias:'grid.filter.list', type:'list', operator:'in', itemDefaults:{checked:false, hideOnClick:false}, idField:'id', labelField:'text', labelIndex:null, loadingText:'Loading...', loadOnShow:true, single:false, plain:true, gridStoreListenersCfg:{add:'onDataChanged', refresh:'onDataChanged', remove:'onDataChanged', update:'onDataChanged'}, constructor:function(config) {
+  var me = this, gridStore;
+  me.callParent([config]);
+  if (me.itemDefaults.checked) {
+    Ext.raise('The itemDefaults.checked config is not supported, use the value config instead.');
+  }
+  me.labelIndex = me.labelIndex || me.column.dataIndex;
+  if (me.store) {
+    me.store = Ext.StoreManager.lookup(me.store);
+  }
+  if (!me.store && !me.options) {
+    gridStore = me.getGridStore();
+    if (me.value != null && me.active) {
+      me.gridStoreListeners = gridStore.on(Ext.apply({scope:me, destroyable:true}, me.gridStoreListenersCfg));
+    }
+    me.gridListeners = me.grid.on({reconfigure:me.onReconfigure, scope:me, destroyable:true});
+    me.inferOptionsFromGridStore = true;
+  }
+}, destroy:function() {
+  var me = this, store = me.store, autoStore = me.autoStore;
+  if (store && store.isStore) {
+    if (autoStore || store.autoDestroy) {
+      store.destroy();
+    } else {
+      store.un('load', me.bindMenuStore, me);
+    }
+    me.store = null;
+  }
+  Ext.destroy(me.gridStoreListeners, me.gridListeners);
+  me.callParent();
+}, activateMenu:function() {
+  var me = this, value = me.filter.getValue(), items, i, len, checkItem;
+  if (!value || !value.length) {
+    return;
+  }
+  items = me.menu.items;
+  for (i = 0, len = items.length; i < len; i++) {
+    checkItem = items.getAt(i);
+    if (Ext.Array.indexOf(value, checkItem.value) > -1) {
+      checkItem.setChecked(true, true);
+    }
+  }
+}, bindMenuStore:function(options) {
+  var me = this;
+  if (me.grid.destroyed || me.preventFilterRemoval) {
+    return;
+  }
+  me.createListStore(options);
+  me.createMenuItems(me.store);
+  me.loaded = true;
+}, createListStore:function(options) {
+  var me = this, store = me.store, isStore = options.isStore, idField = me.idField, labelField = me.labelField, optionsStore = false, storeData, o, i, len, value;
+  if (isStore) {
+    if (options !== me.getGridStore()) {
+      optionsStore = true;
+      store = me.store = options;
+    } else {
+      me.autoStore = true;
+      storeData = me.getOptionsFromStore(options);
+    }
+  } else {
+    storeData = [];
+    for (i = 0, len = options.length; i < len; i++) {
+      value = options[i];
+      switch(Ext.typeOf(value)) {
+        case 'array':
+          storeData.push(value);
+          break;
+        case 'object':
+          storeData.push(value);
+          break;
+        default:
+          if (value != null) {
+            o = {};
+            o[idField] = value;
+            o[labelField] = value;
+            storeData.push(o);
+          }
+      }
+    }
+  }
+  if (!optionsStore) {
+    if (store) {
+      store.destroy();
+    }
+    store = me.store = new Ext.data.Store({fields:[idField, labelField], data:storeData});
+    if (me.inferOptionsFromGridStore & !me.gridStoreListeners) {
+      me.gridStoreListeners = me.getGridStore().on(Ext.apply({scope:me, destroyable:true}, me.gridStoreListenersCfg));
+    }
+    me.loaded = true;
+  }
+  me.setStoreFilter(store);
+}, createMenu:function(config) {
+  var me = this, gridStore = me.getGridStore(), store = me.store, options = me.options, menu;
+  if (store) {
+    me.store = store = Ext.StoreManager.lookup(store);
+  }
+  me.callParent([config]);
+  menu = me.menu;
+  if (store) {
+    if (!store.getCount()) {
+      menu.add({text:me.loadingText, iconCls:Ext.baseCSSPrefix + 'mask-msg-text'});
+      menu.on({show:me.show, scope:me});
+      store.on('load', me.bindMenuStore, me, {single:true});
+    } else {
+      me.createMenuItems(store);
+    }
+  } else {
+    if (options) {
+      me.bindMenuStore(options);
+    } else {
+      if (gridStore.getCount() || gridStore.isFiltered()) {
+        me.bindMenuStore(gridStore);
+      } else {
+        gridStore.on('load', me.bindMenuStore, me, {single:true});
+      }
+    }
+  }
+}, createMenuItems:function(store) {
+  var me = this, menu = me.menu, len = store.getCount(), contains = Ext.Array.contains, listeners, itemDefaults, record, gid, idValue, idField, labelValue, labelField, i, item, processed;
+  if (len && menu) {
+    itemDefaults = me.getItemDefaults();
+    menu.suspendLayouts();
+    menu.removeAll(true);
+    gid = me.single ? Ext.id() : null;
+    idField = me.idField;
+    labelField = me.labelField;
+    processed = [];
+    for (i = 0; i < len; i++) {
+      record = store.getAt(i);
+      idValue = record.get(idField);
+      labelValue = record.get(labelField);
+      if (labelValue == null || contains(processed, idValue)) {
+        continue;
+      }
+      processed.push(labelValue);
+      item = menu.add(Ext.apply({text:labelValue, group:gid, value:idValue, checkHandler:me.onCheckChange, scope:me}, itemDefaults));
+    }
+    menu.resumeLayouts(true);
+  }
+}, getFilterConfig:function(config, key) {
+  var value = config.value;
+  if (Ext.isEmpty(value)) {
+    value = [];
+  } else {
+    if (!Ext.isArray(value)) {
+      value = [value];
+    }
+  }
+  config.value = value;
+  return this.callParent([config, key]);
+}, getOptionsFromStore:function(store) {
+  var me = this, data = store.getData(), map = {}, ret = [], dataIndex = me.dataIndex, labelIndex = me.labelIndex, recData, idValue, labelValue;
+  if (store.isFiltered() && !store.remoteFilter) {
+    data = data.getSource();
+  }
+  store.each(function(record) {
+    recData = record.data;
+    idValue = recData[dataIndex];
+    labelValue = recData[labelIndex];
+    if (labelValue === undefined) {
+      labelValue = idValue;
+    }
+    if (!map[idValue]) {
+      map[idValue] = 1;
+      ret.push([idValue, labelValue]);
+    }
+  }, null, {filtered:true, collapsed:true});
+  return ret;
+}, onCheckChange:function() {
+  var me = this, updateBuffer = me.updateBuffer;
+  if (updateBuffer) {
+    me.task.delay(updateBuffer);
+  } else {
+    me.setValue();
+  }
+}, onDataChanged:function(store) {
+  if (this.preventDefault) {
+    this.preventDefault = false;
+  } else {
+    this.bindMenuStore(store);
+  }
+}, onReconfigure:function(grid, store) {
+  if (store) {
+    this.bindMenuStore(store);
+  }
+}, setActive:function(active) {
+  if (this.active !== active) {
+    this.preventDefault = true;
+    this.callParent([active]);
+  }
+}, setStoreFilter:function(options) {
+  var me = this, value = me.value, filter = me.filter;
+  if (value) {
+    if (!Ext.isArray(value)) {
+      value = [value];
+    }
+    filter.setValue(value);
+  }
+  if (me.active) {
+    me.preventFilterRemoval = true;
+    me.addStoreFilter(filter);
+    me.preventFilterRemoval = false;
+  }
+}, setValue:function() {
+  var me = this, items = me.menu.items, value = [], i, len, checkItem;
+  me.preventDefault = true;
+  for (i = 0, len = items.length; i < len; i++) {
+    checkItem = items.getAt(i);
+    if (checkItem.checked) {
+      value.push(checkItem.value);
+    }
+  }
+  if (!Ext.Array.equals(value, me.filter.getValue())) {
+    me.filter.setValue(value);
+    len = value.length;
+    if (len && me.active) {
+      me.updateStoreFilter();
+    } else {
+      me.setActive(!!len);
+    }
+  }
+}, show:function() {
+  var store = this.store;
+  if (this.loadOnShow && !this.loaded && !store.hasPendingLoad()) {
+    store.load();
+  }
+}});
+Ext.define('Ext.grid.filters.filter.Number', {extend:Ext.grid.filters.filter.TriFilter, alias:['grid.filter.number', 'grid.filter.numeric'], type:'number', config:{fields:{gt:{iconCls:Ext.baseCSSPrefix + 'grid-filters-gt', margin:'0 0 3px 0'}, lt:{iconCls:Ext.baseCSSPrefix + 'grid-filters-lt', margin:'0 0 3px 0'}, eq:{iconCls:Ext.baseCSSPrefix + 'grid-filters-eq', margin:0}}}, emptyText:'Enter Number...', itemDefaults:{xtype:'numberfield', enableKeyEvents:true, hideEmptyLabel:false, labelSeparator:'', 
+labelWidth:29, selectOnFocus:false}, menuDefaults:{bodyPadding:3, showSeparator:false}, createMenu:function() {
+  var me = this, listeners = {scope:me, keyup:me.onValueChange, spin:{fn:me.onInputSpin, buffer:200}, el:{click:me.stopFn}}, itemDefaults = me.getItemDefaults(), menuItems = me.menuItems, fields = me.getFields(), field, i, len, key, item, cfg;
+  me.callParent();
+  me.fields = {};
+  for (i = 0, len = menuItems.length; i < len; i++) {
+    key = menuItems[i];
+    if (key !== '-') {
+      field = fields[key];
+      cfg = {labelClsExtra:Ext.baseCSSPrefix + 'grid-filters-icon ' + field.iconCls};
+      if (itemDefaults) {
+        Ext.merge(cfg, itemDefaults);
+      }
+      Ext.merge(cfg, field);
+      cfg.emptyText = cfg.emptyText || me.emptyText;
+      delete cfg.iconCls;
+      me.fields[key] = item = me.menu.add(cfg);
+      item.filter = me.filter[key];
+      item.filterKey = key;
+      item.on(listeners);
+    } else {
+      me.menu.add(key);
+    }
+  }
+}, getValue:function(field) {
+  var value = {};
+  value[field.filterKey] = field.getValue();
+  return value;
+}, onInputSpin:function(field, direction) {
+  var value = {};
+  value[field.filterKey] = field.getValue();
+  this.setValue(value);
+}, stopFn:function(e) {
+  e.stopPropagation();
+}});
+Ext.define('Ext.grid.filters.filter.String', {extend:Ext.grid.filters.filter.SingleFilter, alias:'grid.filter.string', type:'string', operator:'like', emptyText:'Enter Filter Text...', itemDefaults:{xtype:'textfield', enableKeyEvents:true, hideEmptyLabel:false, iconCls:Ext.baseCSSPrefix + 'grid-filters-find', labelSeparator:'', labelWidth:29, margin:0, selectOnFocus:true}, menuDefaults:{bodyPadding:3, showSeparator:false}, createMenu:function() {
+  var me = this, config;
+  me.callParent();
+  config = Ext.apply({}, me.getItemDefaults());
+  if (config.iconCls && !('labelClsExtra' in config)) {
+    config.labelClsExtra = Ext.baseCSSPrefix + 'grid-filters-icon ' + config.iconCls;
+  }
+  delete config.iconCls;
+  config.emptyText = config.emptyText || me.emptyText;
+  me.inputItem = me.menu.add(config);
+  me.inputItem.on({scope:me, keyup:me.onValueChange, el:{click:function(e) {
+    e.stopPropagation();
+  }}});
+}, setValue:function(value) {
+  var me = this;
+  if (me.inputItem) {
+    me.inputItem.setValue(value);
+  }
+  me.filter.setValue(value);
+  if (value && me.active) {
+    me.value = value;
+    me.updateStoreFilter();
+  } else {
+    me.setActive(!!value);
+  }
+}, activateMenu:function() {
+  this.inputItem.setValue(this.filter.getValue());
+}, createFilter:function(config, key) {
+  var me = this;
+  if (me.filterFn) {
+    return new Ext.util.Filter({filterFn:function(rec) {
+      return Ext.callback(me.filterFn, me.scope, [rec, me.inputItem.getValue()]);
+    }});
+  } else {
+    return me.callParent([config, key]);
   }
 }});
 Ext.define('Ext.grid.locking.HeaderContainer', {extend:Ext.grid.header.Container, headerCtRelayEvents:['blur', 'focus', 'move', 'resize', 'destroy', 'beforedestroy', 'boxready', 'afterrender', 'render', 'beforerender', 'removed', 'hide', 'beforehide', 'show', 'beforeshow', 'enable', 'disable', 'added', 'deactivate', 'beforedeactivate', 'activate', 'beforeactivate', 'remove', 'add', 'beforeremove', 'beforeadd', 'afterlayout', 'menucreate', 'sortchange', 'columnschanged', 'columnshow', 'columnhide', 
@@ -84563,6 +86117,417 @@ Ext.define('Ext.grid.plugin.Editing', {extend:Ext.plugin.Abstract, alias:'editin
   var me = this;
   return me.fireEvent('validateedit', me, context) !== false && !context.cancel;
 }});
+Ext.define('Ext.grid.plugin.CellEditing', {alias:'plugin.cellediting', extend:Ext.grid.plugin.Editing, init:function(grid) {
+  var me = this;
+  grid.registerActionable(me);
+  me.callParent(arguments);
+  me.editors = new Ext.util.MixedCollection(false, function(editor) {
+    return editor.editorId;
+  });
+}, beforeGridHeaderDestroy:function(headerCt) {
+  var me = this, columns = me.grid.getColumnManager().getColumns(), len = columns.length, i, column, editor;
+  for (i = 0; i < len; i++) {
+    column = columns[i];
+    editor = me.editors.getByKey(column.getItemId());
+    if (!editor) {
+      editor = column.editor || column.field;
+    }
+    Ext.destroy(editor);
+    me.removeFieldAccessors(column);
+  }
+}, onReconfigure:function(grid, store, columns) {
+  if (columns) {
+    this.editors.clear();
+  }
+  this.callParent();
+}, destroy:function() {
+  var me = this;
+  if (me.editors) {
+    me.editors.each(Ext.destroy, Ext);
+    me.editors.clear();
+  }
+  me.callParent();
+}, initCancelTriggers:function() {
+  var me = this, grid = me.grid;
+  me.mon(grid, {columnresize:me.cancelEdit, columnmove:me.cancelEdit, scope:me});
+}, isCellEditable:function(record, columnHeader) {
+  var me = this, context = me.getEditingContext(record, columnHeader);
+  if (context.view.isVisible(true) && context) {
+    columnHeader = context.column;
+    record = context.record;
+    if (columnHeader && me.getEditor(record, columnHeader)) {
+      return true;
+    }
+  }
+}, activateCell:function(position, skipBeforeCheck, doFocus) {
+  var me = this, record = position.record, column = position.column, prevEditor = me.getActiveEditor(), view = me.view, context, contextGeneration, cell, editor, p, editValue, abortEdit;
+  context = me.getEditingContext(record, column);
+  if (!context || !column.getEditor(record)) {
+    return;
+  }
+  if (prevEditor && prevEditor.editing) {
+    view.actionPosition = null;
+    contextGeneration = context.generation;
+    if (prevEditor.completeEdit() === false) {
+      return;
+    }
+    if (context.generation === contextGeneration) {
+      context.refresh();
+    }
+  }
+  if (!skipBeforeCheck) {
+    contextGeneration = context.generation;
+    if (view.actionableMode) {
+      view.skipSaveFocusState = true;
+    }
+    abortEdit = me.beforeEdit(context) === false || me.fireEvent('beforeedit', me, context) === false || context.cancel;
+    view.skipSaveFocusState = false;
+    if (abortEdit) {
+      return;
+    }
+    if (context.generation === contextGeneration) {
+      context.refresh();
+    }
+  }
+  editor = me.getEditor(record, column);
+  if (context.cell !== context.getCell(true)) {
+    context = me.getEditingContext(context.rowIdx, context.colIdx, null, context.view);
+    position.setPosition(context);
+  }
+  if (editor) {
+    cell = Ext.get(context.cell);
+    if (!editor.rendered) {
+      editor.hidden = true;
+      editor.render(cell);
+    } else {
+      p = editor.el.dom.parentNode;
+      if (p !== cell.dom) {
+        try {
+          p.removeChild(editor.el.dom);
+        } catch (e$43) {
+        }
+        if (editor.container && editor.container.dom !== cell.dom) {
+          editor.container.collect();
+        }
+        editor.container = cell;
+        cell.dom.appendChild(editor.el.dom, cell.dom.firstChild);
+      }
+    }
+    editValue = context.record.get(context.column.dataIndex);
+    if (editValue !== context.originalValue) {
+      context.value = context.originalValue = editValue;
+    }
+    me.setEditingContext(context);
+    editor.startEdit(cell, context.value, doFocus || false);
+    if (editor.editing) {
+      me.setActiveEditor(editor);
+      me.setActiveRecord(context.record);
+      me.setActiveColumn(context.column);
+      me.editing = true;
+      me.scroll = position.view.el.getScroll();
+    }
+    return editor.editing;
+  }
+}, activateRow:Ext.emptyFn, deactivate:function() {
+  var me = this, context = me.context, editors = me.editors.items, len = editors.length, editor, i;
+  for (i = 0; i < len; i++) {
+    editor = editors[i];
+    if (context.view.renderingRows) {
+      if (editor.editing) {
+        me.cancelEdit();
+      }
+      editor.cacheElement();
+    }
+  }
+}, suspend:function() {
+  var me = this, editor = me.activeEditor;
+  if (editor && editor.editing) {
+    me.suspendedEditor = editor;
+    me.suspendEvents();
+    editor.suspendEvents();
+    editor.cancelEdit(true);
+    editor.resumeEvents();
+    me.resumeEvents();
+  }
+}, resume:function(position) {
+  var me = this, editor = me.activeEditor = me.suspendedEditor, result;
+  if (editor) {
+    me.suspendEvents();
+    editor.suspendEvents();
+    result = me.activateCell(position, true, true);
+    editor.resumeEvents();
+    me.resumeEvents();
+  }
+  return result;
+}, startEdit:function(record, columnHeader) {
+  this.startEditByPosition((new Ext.grid.CellContext(this.view)).setPosition(record, columnHeader));
+}, completeEdit:function(remainVisible) {
+  var activeEd = this.getActiveEditor();
+  if (activeEd) {
+    activeEd.completeEdit(remainVisible);
+  }
+}, setEditingContext:function(context) {
+  this.context = context;
+}, setActiveEditor:function(ed) {
+  this.activeEditor = ed;
+}, getActiveEditor:function() {
+  return this.activeEditor;
+}, setActiveColumn:function(column) {
+  this.activeColumn = column;
+}, getActiveColumn:function() {
+  return this.activeColumn;
+}, setActiveRecord:function(record) {
+  this.activeRecord = record;
+}, getActiveRecord:function() {
+  return this.activeRecord;
+}, getEditor:function(record, column) {
+  return this.getCachedEditor(column.getItemId(), record, column);
+}, getCachedEditor:function(editorId, record, column) {
+  var me = this, editors = me.editors, editor = editors.getByKey(editorId);
+  if (!editor) {
+    editor = column.getEditor(record);
+    if (!editor) {
+      return false;
+    }
+    if (!(editor instanceof Ext.grid.CellEditor)) {
+      editor = Ext.widget(Ext.apply({xtype:'celleditor', floating:true, editorId:editorId, field:editor}, editor.editorCfg));
+    }
+    editor.field.excludeForm = true;
+    if (editor.column !== column) {
+      editor.column = column;
+      column.on('removed', me.onColumnRemoved, me);
+    }
+    editors.add(editor);
+  }
+  editor.ownerCmp = me.grid.ownerGrid;
+  if (column.isTreeColumn) {
+    editor.isForTree = column.isTreeColumn;
+    editor.addCls(Ext.baseCSSPrefix + 'tree-cell-editor');
+  }
+  editor.setGrid(me.grid);
+  editor.editingPlugin = me;
+  editor.collectContainerElement = true;
+  return editor;
+}, onColumnRemoved:function(column) {
+  var me = this, context = me.context;
+  if (context && context.column === column) {
+    me.cancelEdit();
+  }
+  column.un('removed', me.onColumnRemoved, me);
+}, setColumnField:function(column, field) {
+  var ed = this.editors.getByKey(column.getItemId());
+  Ext.destroy(ed, column.field);
+  this.editors.removeAtKey(column.getItemId());
+  this.callParent(arguments);
+}, getCell:function(record, column, returnElement) {
+  return this.grid.getView().getCell(record, column, returnElement);
+}, onEditComplete:function(ed, value, startValue) {
+  var me = this, context = ed.context, view, record;
+  view = context.view;
+  record = context.record;
+  context.value = value;
+  if (!record.isEqual(value, startValue)) {
+    view.skipSaveFocusState = true;
+    record.set(context.column.dataIndex, value);
+    view.skipSaveFocusState = false;
+    context.rowIdx = view.indexOf(record);
+  }
+  if (me.context === context) {
+    me.setActiveEditor(null);
+    me.setActiveColumn(null);
+    me.setActiveRecord(null);
+    me.editing = false;
+  }
+  me.fireEvent('edit', me, context);
+}, cancelEdit:function(activeEd) {
+  var me = this, context = me.context;
+  if (activeEd && activeEd.isCellEditor) {
+    me.context.value = 'editedValue' in activeEd ? activeEd.editedValue : activeEd.getValue();
+    me.callParent(arguments);
+    if (activeEd.context === context) {
+      me.setActiveEditor(null);
+      me.setActiveColumn(null);
+      me.setActiveRecord(null);
+    } else {
+      me.editing = true;
+    }
+  } else {
+    activeEd = me.getActiveEditor();
+    if (activeEd && activeEd.field) {
+      activeEd.cancelEdit();
+    }
+  }
+}, startEditByPosition:function(position) {
+  var me = this, cm = me.grid.getColumnManager(), index, activeEditor = me.getActiveEditor();
+  if (!position.isCellContext) {
+    position = (new Ext.grid.CellContext(me.view)).setPosition(position.row, me.grid.getColumnManager().getColumns()[position.column]);
+  }
+  index = cm.getHeaderIndex(position.column);
+  position.column = cm.getVisibleHeaderClosestToIndex(index);
+  if (me.grid.actionableMode) {
+    if (me.editing && position.isEqual(me.context)) {
+      return;
+    }
+    if (activeEditor) {
+      activeEditor.completeEdit();
+    }
+  }
+  if (me.grid.actionableMode) {
+    if (me.activateCell(position)) {
+      me.activateRow(me.view.all.item(position.rowIdx, true));
+      activeEditor = me.getEditor(position.record, position.column);
+      if (activeEditor) {
+        activeEditor.field.focus();
+      }
+    }
+  } else {
+    return me.grid.setActionableMode(true, position);
+  }
+}});
+Ext.define('Ext.grid.plugin.Clipboard', {extend:Ext.plugin.AbstractClipboard, alias:'plugin.clipboard', formats:{cell:{get:'getCells'}, html:{get:'getCellData'}, raw:{get:'getCellData', put:'putCellData'}}, gridListeners:{render:'onCmpReady'}, getCellData:function(format, erase) {
+  var cmp = this.getCmp(), selection = cmp.getSelectionModel().getSelected(), ret = [], isRaw = format === 'raw', isText = format === 'text', viewNode, cell, data, dataIndex, lastRecord, column, record, row, view;
+  if (selection) {
+    selection.eachCell(function(cellContext) {
+      column = cellContext.column, view = cellContext.column.getView();
+      record = cellContext.record;
+      if (column.ignoreExport) {
+        return;
+      }
+      if (lastRecord !== record) {
+        lastRecord = record;
+        ret.push(row = []);
+      }
+      dataIndex = column.dataIndex;
+      if (isRaw) {
+        data = record.data[dataIndex];
+      } else {
+        viewNode = view.all.item(cellContext.rowIdx);
+        if (!viewNode) {
+          viewNode = Ext.fly(view.createRowElement(record, cellContext.rowIdx));
+        }
+        cell = viewNode.dom.querySelector(column.getCellInnerSelector());
+        data = cell.innerHTML;
+        if (isText) {
+          data = Ext.util.Format.stripTags(data);
+        }
+      }
+      row.push(data);
+      if (erase && dataIndex) {
+        record.set(dataIndex, null);
+      }
+    });
+  }
+  return Ext.util.TSV.encode(ret, undefined, null);
+}, getCells:function(format, erase) {
+  var cmp = this.getCmp(), selection = cmp.getSelectionModel().getSelected(), ret = [], dataIndex, lastRecord, record, row;
+  if (selection) {
+    selection.eachCell(function(cellContext) {
+      record = cellContext.record;
+      if (lastRecord !== record) {
+        lastRecord = record;
+        ret.push(row = {model:record.self, fields:[]});
+      }
+      dataIndex = cellContext.column.dataIndex;
+      row.fields.push({name:dataIndex, value:record.data[dataIndex]});
+      if (erase && dataIndex) {
+        record.set(dataIndex, null);
+      }
+    });
+  }
+  return ret;
+}, getTextData:function(format, erase) {
+  return this.getCellData(format, erase);
+}, putCellData:function(data, format) {
+  var values = Ext.util.TSV.decode(data, undefined, null), row, recCount = values.length, colCount = recCount ? values[0].length : 0, sourceRowIdx, sourceColIdx, view = this.getCmp().getView(), maxRowIdx = view.dataSource.getCount() - 1, maxColIdx = view.getVisibleColumnManager().getColumns().length - 1, selModel = view.getSelectionModel(), selected = selModel.getSelected(), navModel = view.getNavigationModel(), destination = selected.startCell || navModel.getPosition(), dataIndex, destinationStartColumn, 
+  dataObject = {};
+  if (!destination && selected) {
+    selected.eachCell(function(c) {
+      destination = c;
+      return false;
+    });
+  }
+  if (destination) {
+    destination = (new Ext.grid.CellContext(view)).setPosition(destination.record, destination.column);
+  } else {
+    destination = (new Ext.grid.CellContext(view)).setPosition(0, 0);
+  }
+  destinationStartColumn = destination.colIdx;
+  for (sourceRowIdx = 0; sourceRowIdx < recCount; sourceRowIdx++) {
+    row = values[sourceRowIdx];
+    for (sourceColIdx = 0; sourceColIdx < colCount; sourceColIdx++) {
+      dataIndex = destination.column.dataIndex;
+      if (dataIndex) {
+        switch(format) {
+          case 'raw':
+            dataObject[dataIndex] = row[sourceColIdx];
+            break;
+          case 'text':
+            dataObject[dataIndex] = row[sourceColIdx];
+            break;
+          case 'html':
+            break;
+        }
+      }
+      if (destination.colIdx === maxColIdx) {
+        break;
+      }
+      destination.setColumn(destination.colIdx + 1);
+    }
+    destination.record.set(dataObject);
+    if (destination.rowIdx === maxRowIdx) {
+      break;
+    }
+    destination.setPosition(destination.rowIdx + 1, destinationStartColumn);
+  }
+}, putTextData:function(data, format) {
+  this.putCellData(data, format);
+}, getTarget:function(comp) {
+  return comp.body;
+}, privates:{validateAction:function(event) {
+  var view = this.getCmp().getView();
+  if (view.actionableMode) {
+    return false;
+  }
+}}});
+Ext.define('Ext.grid.plugin.DragDrop', {extend:Ext.plugin.Abstract, alias:'plugin.gridviewdragdrop', dragText:'{0} selected row{1}', ddGroup:'GridDD', enableDrop:true, enableDrag:true, containerScroll:false, init:function(view) {
+  Ext.applyIf(view, {copy:this.copy, allowCopy:this.allowCopy});
+  view.on('render', this.onViewRender, this, {single:true});
+}, destroy:function() {
+  var me = this;
+  me.dragZone = me.dropZone = Ext.destroy(me.dragZone, me.dropZone);
+  me.callParent();
+}, enable:function() {
+  var me = this;
+  if (me.dragZone) {
+    me.dragZone.unlock();
+  }
+  if (me.dropZone) {
+    me.dropZone.unlock();
+  }
+  me.callParent();
+}, disable:function() {
+  var me = this;
+  if (me.dragZone) {
+    me.dragZone.lock();
+  }
+  if (me.dropZone) {
+    me.dropZone.lock();
+  }
+  me.callParent();
+}, onViewRender:function(view) {
+  var me = this, ownerGrid = view.ownerCt.ownerGrid || view.ownerCt, dragZone = me.dragZone || {};
+  ownerGrid.relayEvents(view, ['beforedrop', 'drop']);
+  if (me.enableDrag) {
+    if (me.containerScroll) {
+      dragZone.scrollEl = view.getEl();
+      dragZone.containerScroll = true;
+    }
+    me.dragZone = new Ext.view.DragZone(Ext.apply({view:view, ddGroup:me.dragGroup || me.ddGroup, dragText:me.dragText}, dragZone));
+  }
+  if (me.enableDrop) {
+    me.dropZone = new Ext.grid.ViewDropZone(Ext.apply({view:view, ddGroup:me.dropGroup || me.ddGroup}, me.dropZone));
+  }
+}});
 Ext.define('Ext.grid.plugin.RowEditing', {extend:Ext.grid.plugin.Editing, alias:'plugin.rowediting', lockableScope:'top', editStyle:'row', autoCancel:true, autoUpdate:false, errorSummary:true, formAriaLabel:'Editing row {0}', formAriaLabelRowBase:2, constructor:function() {
   var me = this;
   me.callParent(arguments);
@@ -84637,7 +86602,6 @@ Ext.define('Ext.grid.plugin.RowEditing', {extend:Ext.grid.plugin.Editing, alias:
   }
   return true;
 }, completeEdit:function() {
-  alert('sss');
   var me = this, context = me.context;
   if (me.editing && me.validateEdit(context)) {
     me.editing = false;
@@ -84664,7 +86628,7 @@ Ext.define('Ext.grid.plugin.RowEditing', {extend:Ext.grid.plugin.Editing, alias:
 }, initEditor:function() {
   return new Ext.grid.RowEditor(this.initEditorConfig());
 }, initEditorConfig:function() {
-  var me = this, grid = me.grid, view = me.view, headerCt = grid.headerCt, btns = ['保存', 'cancelBtnText', 'errorsText', 'dirtyText'], b, bLen = btns.length, cfg = {autoCancel:me.autoCancel, autoUpdate:me.autoUpdate, removeUnmodified:me.removeUnmodified, errorSummary:me.errorSummary, formAriaLabel:me.formAriaLabel, formAriaLabelRowBase:me.formAriaLabelRowBase + (grid.hideHeaders ? -1 : 0), fields:headerCt.getGridColumns(), hidden:true, view:view, editingPlugin:me}, item;
+  var me = this, grid = me.grid, view = me.view, headerCt = grid.headerCt, btns = ['saveBtnText', 'cancelBtnText', 'errorsText', 'dirtyText'], b, bLen = btns.length, cfg = {autoCancel:me.autoCancel, autoUpdate:me.autoUpdate, removeUnmodified:me.removeUnmodified, errorSummary:me.errorSummary, formAriaLabel:me.formAriaLabel, formAriaLabelRowBase:me.formAriaLabelRowBase + (grid.hideHeaders ? -1 : 0), fields:headerCt.getGridColumns(), hidden:true, view:view, editingPlugin:me}, item;
   for (b = 0; b < bLen; b++) {
     item = btns[b];
     if (Ext.isDefined(me[item])) {
@@ -84755,6 +86719,389 @@ Ext.define('Ext.grid.plugin.RowEditing', {extend:Ext.grid.plugin.Editing, alias:
   }
   return field;
 }});
+Ext.define('Ext.grid.plugin.RowExpander', {extend:Ext.plugin.Abstract, lockableScope:'top', alias:'plugin.rowexpander', columnWidth:24, rowBodyTpl:null, lockedTpl:null, expandOnDblClick:true, selectRowOnExpand:false, scrollIntoViewOnExpand:true, headerWidth:24, bodyBefore:false, rowBodyTrSelector:'.' + Ext.baseCSSPrefix + 'grid-rowbody-tr', rowBodyHiddenCls:Ext.baseCSSPrefix + 'grid-row-body-hidden', rowCollapsedCls:Ext.baseCSSPrefix + 'grid-row-collapsed', addCollapsedCls:{fn:function(out, values, 
+parent) {
+  var me = this.rowExpander;
+  if (!me.recordsExpanded[values.record.internalId]) {
+    values.itemClasses.push(me.rowCollapsedCls);
+  }
+  this.nextTpl.applyOut(values, out, parent);
+}, syncRowHeights:function(lockedItem, normalItem) {
+  this.rowExpander.syncRowHeights(lockedItem, normalItem);
+}, priority:20000}, setCmp:function(grid) {
+  var me = this, features;
+  me.callParent([grid]);
+  me.recordsExpanded = {};
+  if (!me.rowBodyTpl) {
+    Ext.raise("The 'rowBodyTpl' config is required and is not defined.");
+  }
+  me.rowBodyTpl = Ext.XTemplate.getTpl(me, 'rowBodyTpl');
+  features = me.getFeatureConfig(grid);
+  if (grid.features) {
+    grid.features = Ext.Array.push(features, grid.features);
+  } else {
+    grid.features = features;
+  }
+}, getFeatureConfig:function(grid) {
+  var me = this, features = [], featuresCfg = {ftype:'rowbody', rowExpander:me, rowIdCls:me.rowIdCls, bodyBefore:me.bodyBefore, recordsExpanded:me.recordsExpanded, rowBodyHiddenCls:me.rowBodyHiddenCls, rowCollapsedCls:me.rowCollapsedCls, setupRowData:me.getRowBodyFeatureData, setup:me.setup};
+  features.push(Ext.apply({lockableScope:'normal', getRowBodyContents:me.getRowBodyContentsFn(me.rowBodyTpl)}, featuresCfg));
+  if (grid.enableLocking) {
+    features.push(Ext.apply({lockableScope:'locked', getRowBodyContents:me.lockedTpl ? me.getRowBodyContentsFn(me.lockedTpl) : function() {
+      return '';
+    }}, featuresCfg));
+  }
+  return features;
+}, getRowBodyContentsFn:function(rowBodyTpl) {
+  var me = this;
+  return function(rowValues) {
+    rowBodyTpl.owner = me;
+    return rowBodyTpl.applyTemplate(rowValues.record.getData());
+  };
+}, init:function(grid) {
+  var me = this, ownerLockable = grid.lockable && grid, view, lockedView, normalView;
+  if (ownerLockable) {
+    me.lockedGrid = ownerLockable.lockedGrid;
+    me.normalGrid = ownerLockable.normalGrid;
+    lockedView = me.lockedView = me.lockedGrid.getView();
+    normalView = me.normalView = me.normalGrid.getView();
+  }
+  me.callParent([grid]);
+  me.grid = grid;
+  view = me.view = grid.getView();
+  if (ownerLockable) {
+    me.bindView(lockedView);
+    me.bindView(normalView);
+    me.addExpander(me.lockedGrid.headerCt.items.getCount() ? me.lockedGrid : me.normalGrid);
+    lockedView.addRowTpl(me.addCollapsedCls).rowExpander = normalView.addRowTpl(me.addCollapsedCls).rowExpander = lockedView.rowExpander = normalView.rowExpander = me;
+    ownerLockable.mon(ownerLockable, {processcolumns:me.onLockableProcessColumns, lockcolumn:me.onColumnLock, unlockcolumn:me.onColumnUnlock, scope:me});
+  } else {
+    me.bindView(view);
+    view.addRowTpl(me.addCollapsedCls).rowExpander = view.rowExpander = me;
+    me.addExpander(grid);
+    grid.on('beforereconfigure', me.beforeReconfigure, me);
+  }
+}, onItemAdd:function(newRecords, startIndex, newItems) {
+  var me = this, ownerLockable = me.grid.lockable, len = newItems.length, record, i;
+  for (i = 0; i < len; i++) {
+    record = newRecords[i];
+    if (!record.isNonData && me.recordsExpanded[record.internalId]) {
+      ownerLockable && (me.grid.syncRowHeightOnNextLayout = true);
+      return;
+    }
+  }
+}, beforeReconfigure:function(grid, store, columns, oldStore, oldColumns) {
+  var me = this;
+  if (columns) {
+    me.expanderColumn = new Ext.grid.column.Column(me.getHeaderConfig());
+    columns.unshift(me.expanderColumn);
+  }
+}, onLockableProcessColumns:function(lockable, lockedHeaders, normalHeaders) {
+  this.addExpander(lockedHeaders.length ? lockable.lockedGrid : lockable.normalGrid);
+}, addExpander:function(expanderGrid) {
+  var me = this, selModel = expanderGrid.getSelectionModel(), checkBoxPosition = selModel.injectCheckbox;
+  me.expanderColumn = expanderGrid.headerCt.insert(0, me.getHeaderConfig());
+  if (checkBoxPosition === 0 || checkBoxPosition === 'first') {
+    checkBoxPosition = 1;
+  }
+  selModel.injectCheckbox = checkBoxPosition;
+}, getRowBodyFeatureData:function(record, idx, rowValues) {
+  var me = this;
+  me.self.prototype.setupRowData.apply(me, arguments);
+  rowValues.rowBody = me.getRowBodyContents(rowValues);
+  rowValues.rowBodyCls = me.recordsExpanded[record.internalId] ? '' : me.rowBodyHiddenCls;
+}, bindView:function(view) {
+  var me = this, listeners = {itemkeydown:me.onKeyDown, scope:me};
+  if (me.expandOnDblClick) {
+    listeners.itemdblclick = me.onDblClick;
+  }
+  if (me.grid.lockable) {
+    listeners.itemadd = me.onItemAdd;
+  }
+  view.on(listeners);
+}, onKeyDown:function(view, record, row, rowIdx, e) {
+  var me = this, key = e.getKey(), pos = view.getNavigationModel().getPosition(), isCollapsed;
+  if (pos) {
+    row = Ext.fly(row);
+    isCollapsed = row.hasCls(me.rowCollapsedCls);
+    if ((key === 107 || key === 187 && e.shiftKey) && isCollapsed || (key === 109 || key === 189) && !isCollapsed) {
+      me.toggleRow(rowIdx, record);
+    }
+  }
+}, onDblClick:function(view, record, row, rowIdx, e) {
+  this.toggleRow(rowIdx, record);
+}, toggleRow:function(rowIdx, record) {
+  var me = this, view = me.normalView || me.view, fireView = view, rowNode = view.getNode(rowIdx), normalRow = Ext.fly(rowNode), lockedRow, nextBd = normalRow.down(me.rowBodyTrSelector, true), wasCollapsed = normalRow.hasCls(me.rowCollapsedCls), addOrRemoveCls = wasCollapsed ? 'removeCls' : 'addCls', ownerLockable = me.grid.lockable && me.grid;
+  normalRow[addOrRemoveCls](me.rowCollapsedCls);
+  Ext.fly(nextBd)[addOrRemoveCls](me.rowBodyHiddenCls);
+  me.recordsExpanded[record.internalId] = wasCollapsed;
+  Ext.suspendLayouts();
+  if (ownerLockable) {
+    fireView = ownerLockable.getView();
+    if (me.lockedGrid.isVisible()) {
+      view = me.lockedView;
+      view.lockingPartner.updateLayout();
+      lockedRow = Ext.fly(view.getNode(rowIdx));
+      if (lockedRow) {
+        lockedRow[addOrRemoveCls](me.rowCollapsedCls);
+        nextBd = lockedRow.down(me.rowBodyTrSelector, true);
+        Ext.fly(nextBd)[addOrRemoveCls](me.rowBodyHiddenCls);
+      }
+    }
+    ownerLockable.syncRowHeightOnNextLayout = true;
+  }
+  fireView.fireEvent(wasCollapsed ? 'expandbody' : 'collapsebody', rowNode, record, nextBd);
+  view.refreshSize(true);
+  Ext.resumeLayouts(true);
+  if (me.scrollIntoViewOnExpand && wasCollapsed) {
+    me.grid.ensureVisible(rowIdx);
+  }
+}, syncRowHeights:function(lockedItem, normalItem) {
+  var me = this, lockedBd = Ext.fly(lockedItem).down(me.rowBodyTrSelector), normalBd = Ext.fly(normalItem).down(me.rowBodyTrSelector), lockedHeight, normalHeight;
+  if (normalBd.isVisible()) {
+    if ((lockedHeight = lockedBd.getHeight()) !== (normalHeight = normalBd.getHeight())) {
+      if (lockedHeight > normalHeight) {
+        normalBd.setHeight(lockedHeight);
+      } else {
+        lockedBd.setHeight(normalHeight);
+      }
+    }
+  } else {
+    lockedBd.dom.style.height = normalBd.dom.style.height = '';
+  }
+}, onColumnUnlock:function(lockable, column) {
+  var me = this, lockedColumns;
+  lockable = lockable || me.grid;
+  lockedColumns = lockable.lockedGrid.visibleColumnManager.getColumns();
+  if (lockedColumns.length === 1) {
+    lockable.normalGrid.removeCls(Ext.baseCSSPrefix + 'grid-hide-row-expander-spacer');
+    lockable.lockedGrid.addCls(Ext.baseCSSPrefix + 'grid-hide-row-expander-spacer');
+    if (lockedColumns[0] === me.expanderColumn) {
+      lockable.unlock(me.expanderColumn);
+    } else {
+      lockable.lock(me.expanderColumn, 0);
+    }
+  }
+}, onColumnLock:function(lockable, column) {
+  var me = this, lockedColumns;
+  lockable = lockable || me.grid;
+  lockedColumns = me.lockedGrid.visibleColumnManager.getColumns();
+  if (lockedColumns.length === 1) {
+    me.lockedGrid.headerCt.insert(0, me.expanderColumn);
+    lockable.normalGrid.addCls(Ext.baseCSSPrefix + 'grid-hide-row-expander-spacer');
+    lockable.lockedGrid.removeCls(Ext.baseCSSPrefix + 'grid-hide-row-expander-spacer');
+  }
+}, getHeaderConfig:function() {
+  var me = this, lockable = me.grid.lockable && me.grid;
+  return {width:me.headerWidth, ignoreExport:true, lockable:false, autoLock:true, sortable:false, resizable:false, draggable:false, hideable:false, menuDisabled:true, tdCls:Ext.baseCSSPrefix + 'grid-cell-special', innerCls:Ext.baseCSSPrefix + 'grid-cell-inner-row-expander', renderer:function() {
+    return '\x3cdiv class\x3d"' + Ext.baseCSSPrefix + 'grid-row-expander" role\x3d"presentation" tabIndex\x3d"0"\x3e\x3c/div\x3e';
+  }, processEvent:function(type, view, cell, rowIndex, cellIndex, e, record) {
+    var isTouch = e.pointerType === 'touch', isExpanderClick = !!e.getTarget('.' + Ext.baseCSSPrefix + 'grid-row-expander');
+    if (type === 'click' && isExpanderClick || type === 'keydown' && e.getKey() === e.SPACE) {
+      if (isTouch) {
+        cell.focus();
+      }
+      me.toggleRow(rowIndex, record, e);
+      e.stopSelection = !me.selectRowOnExpand;
+    } else {
+      if (e.type === 'mousedown' && !isTouch && isExpanderClick) {
+        e.preventDefault();
+      }
+    }
+  }, isLocked:function() {
+    return lockable && (lockable.lockedGrid.isVisible() || this.locked);
+  }, editRenderer:function() {
+    return '\x26#160;';
+  }};
+}});
+Ext.define('Ext.theme.triton.grid.plugin.RowExpander', {override:'Ext.grid.plugin.RowExpander', headerWidth:32});
+Ext.define('Ext.grid.plugin.RowWidget', {extend:Ext.grid.plugin.RowExpander, mixins:[Ext.mixin.Identifiable, Ext.mixin.StyleCacher], lockableScope:'top', alias:'plugin.rowwidget', config:{defaultWidgetUI:{}}, widget:null, lockedWidget:null, addCollapsedCls:{fn:function(out, values, parent) {
+  var me = this.rowExpander;
+  if (!me.recordsExpanded[values.record.internalId]) {
+    values.itemClasses.push(me.rowCollapsedCls);
+  }
+  this.nextTpl.applyOut(values, out, parent);
+}, priority:20000}, setCmp:function(grid) {
+  var me = this, features, widget;
+  me.rowIdCls = Ext.id(null, Ext.baseCSSPrefix + 'rowwidget-');
+  me.recordsExpanded = {};
+  Ext.plugin.Abstract.prototype.setCmp.apply(me, arguments);
+  widget = me.widget;
+  if (!widget || widget.isComponent) {
+    Ext.raise('RowWidget requires a widget configuration.');
+  }
+  me.widget = widget = Ext.apply({}, widget);
+  if (!widget.ui) {
+    widget.ui = me.getDefaultWidgetUI()[widget.xtype] || 'default';
+  }
+  if (grid.enableLocking && me.lockedWidget) {
+    me.lockedWidget = widget = Ext.apply({}, me.lockedWidget);
+    if (!widget.ui) {
+      widget.ui = me.getDefaultWidgetUI()[widget.xtype] || 'default';
+    }
+  }
+  features = me.getFeatureConfig(grid);
+  if (grid.features) {
+    grid.features = Ext.Array.push(features, grid.features);
+  } else {
+    grid.features = features;
+  }
+}, getFeatureConfig:function(grid) {
+  var me = this, features = [], featuresCfg = {ftype:'rowbody', rowExpander:me, doSync:false, rowIdCls:me.rowIdCls, bodyBefore:me.bodyBefore, recordsExpanded:me.recordsExpanded, rowBodyHiddenCls:me.rowBodyHiddenCls, rowCollapsedCls:me.rowCollapsedCls, setupRowData:me.setupRowData, setup:me.setup, onClick:Ext.emptyFn};
+  features.push(Ext.apply({lockableScope:'normal'}, featuresCfg));
+  if (grid.enableLocking) {
+    features.push(Ext.apply({lockableScope:'locked'}, featuresCfg));
+  }
+  return features;
+}, setupRowData:function(record, rowIndex, rowValues) {
+  var me = this.rowExpander;
+  me.rowBodyFeature = this;
+  rowValues.rowBodyCls = me.recordsExpanded[record.internalId] ? '' : me.rowBodyHiddenCls;
+}, bindView:function(view) {
+  var me = this;
+  me.viewListeners = view.on({refresh:me.onViewRefresh, itemadd:me.onItemAdd, scope:me, destroyable:true});
+  Ext.override(view, me.viewOverrides);
+}, destroy:function() {
+  var me = this, id = me.getId();
+  me.viewListeners.destroy();
+  if (me.grid.lockable) {
+    me.grid.destroyManagedWidgets(id + '-' + me.lockedView.getId());
+    me.grid.destroyManagedWidgets(id + '-' + me.normalView.getId());
+  } else {
+    me.grid.destroyManagedWidgets(id + '-' + me.view.getId());
+  }
+  me.callParent();
+}, privates:{viewOverrides:{handleEvent:function(e) {
+  if (e.getTarget('.' + this.rowExpander.rowIdCls, this.body)) {
+    return;
+  }
+  this.callParent([e]);
+}, onFocusEnter:function(e) {
+  if (e.event.getTarget('.' + this.rowExpander.rowIdCls, this.body)) {
+    return;
+  }
+  this.callParent([e]);
+}, toggleChildrenTabbability:function(enableTabbing) {
+  var focusEl = this.getTargetEl(), rows = this.all, restoreOptions = {skipSelf:true}, saveOptions = {skipSelf:true, includeSaved:false}, i;
+  for (i = rows.startIndex; i <= rows.endIndex; i++) {
+    focusEl = Ext.fly(this.getRow(rows.item(i)));
+    if (!focusEl) {
+      continue;
+    }
+    if (enableTabbing) {
+      focusEl.restoreTabbableState(restoreOptions);
+    } else {
+      focusEl.saveTabbableState(saveOptions);
+    }
+  }
+}}, destroyLiveWidget:function(recId, widget) {
+  widget.destroy();
+}, destroyFreeWidget:function(widget) {
+  widget.destroy();
+}, onItemAdd:function(newRecords, startIndex, newItems, view) {
+  var me = this, len = newItems.length, i, record, ownerLockable = me.grid.lockable;
+  Ext.suspendLayouts();
+  for (i = 0; i < len; i++) {
+    record = newRecords[i];
+    if (!record.isNonData && me.recordsExpanded[record.internalId]) {
+      if (ownerLockable) {
+        me.grid.syncRowHeightOnNextLayout = true;
+      }
+      me.addWidget(view, record);
+    }
+  }
+  Ext.resumeLayouts(true);
+}, onViewRefresh:function(view, records) {
+  var me = this, rows = view.all, itemIndex, recordIndex;
+  Ext.suspendLayouts();
+  for (itemIndex = rows.startIndex, recordIndex = 0; itemIndex <= rows.endIndex; itemIndex++, recordIndex++) {
+    if (me.recordsExpanded[records[recordIndex].internalId]) {
+      me.addWidget(view, records[recordIndex]);
+    }
+  }
+  Ext.resumeLayouts(true);
+}, returnFalse:function() {
+  return false;
+}, getWidget:function(view, record) {
+  var me = this, result, widget;
+  if (record) {
+    widget = me.grid.lockable && view === me.lockedView ? me.lockedWidget : me.widget;
+    if (widget) {
+      result = me.grid.createManagedWidget(view, me.getId() + '-' + view.getId(), widget, record);
+      result.measurer = me;
+      result.ownerLayout = view.componentLayout;
+    }
+  }
+  return result;
+}, addWidget:function(view, record) {
+  var me = this, target, width, widget, hasAttach = !!me.onWidgetAttach, isFixedSize = me.isFixedSize, el;
+  if (record.isNonData || !me.recordsExpanded[record.internalId]) {
+    return;
+  }
+  target = Ext.fly(view.getNode(record).querySelector(me.rowBodyFeature.innerSelector));
+  width = target.getWidth(true) - target.getPadding('lr');
+  widget = me.getWidget(view, record);
+  if (widget) {
+    if (hasAttach) {
+      Ext.callback(me.onWidgetAttach, me.scope, [me, widget, record], 0, me);
+    }
+    el = widget.el || widget.element;
+    if (el) {
+      target.dom.appendChild(el.dom);
+      if (!isFixedSize && widget.width !== width) {
+        widget.setWidth(width);
+      } else {
+        widget.updateLayout();
+      }
+      widget.reattachToBody();
+    } else {
+      if (!isFixedSize) {
+        widget.width = width;
+      }
+      widget.render(target);
+    }
+    widget.updateLayout();
+  }
+  return widget;
+}, toggleRow:function(rowIdx, record) {
+  var me = this, view = me.normalView || me.view, rowNode = view.getNode(rowIdx), normalRow = Ext.fly(rowNode), lockedRow, nextBd = normalRow.down(me.rowBodyTrSelector, true), wasCollapsed = normalRow.hasCls(me.rowCollapsedCls), addOrRemoveCls = wasCollapsed ? 'removeCls' : 'addCls', ownerLockable = me.grid.lockable && me.grid, widget, vm;
+  normalRow[addOrRemoveCls](me.rowCollapsedCls);
+  Ext.fly(nextBd)[addOrRemoveCls](me.rowBodyHiddenCls);
+  Ext.suspendLayouts();
+  if (wasCollapsed) {
+    me.recordsExpanded[record.internalId] = true;
+    widget = me.addWidget(view, record);
+    vm = widget.lookupViewModel();
+  } else {
+    delete me.recordsExpanded[record.internalId];
+    widget = me.getWidget(view, record);
+  }
+  if (ownerLockable) {
+    if (ownerLockable.lockedGrid.isVisible()) {
+      view = me.lockedView;
+      lockedRow = Ext.fly(view.getNode(rowIdx));
+      if (lockedRow) {
+        lockedRow[addOrRemoveCls](me.rowCollapsedCls);
+        nextBd = lockedRow.down(me.rowBodyTrSelector, true);
+        Ext.fly(nextBd)[addOrRemoveCls](me.rowBodyHiddenCls);
+        if (wasCollapsed && me.lockedWidget) {
+          widget = [widget, me.addWidget(view, record)];
+        } else {
+          widget = [widget, me.getWidget(view, record)];
+        }
+      }
+      ownerLockable.syncRowHeightOnNextLayout = true;
+    }
+  }
+  me.view.fireEvent(wasCollapsed ? 'expandbody' : 'collapsebody', rowNode, record, nextBd, widget);
+  view.updateLayout();
+  if (vm) {
+    vm.notify();
+  }
+  Ext.resumeLayouts(true);
+  if (me.scrollIntoViewOnExpand && wasCollapsed) {
+    me.grid.ensureVisible(rowIdx);
+  }
+}}});
 Ext.define('Ext.util.Queue', {constructor:function() {
   this.clear();
 }, add:function(obj, replace) {
@@ -87191,6 +89538,35 @@ childEls:['formWrap', 'labelColumn'], beforeBodyTpl:'\x3cdiv id\x3d"{ownerId}-fo
 }, getRenderTarget:function() {
   return this.formWrap;
 }});
+Ext.define('Ext.menu.DatePicker', {extend:Ext.menu.Menu, alias:'widget.datemenu', ariaRole:'dialog', ariaLabel:'Date picker', hideOnClick:true, pickerId:null, focusableContainer:false, initComponent:function() {
+  var me = this, cfg, pickerConfig;
+  if (me.pickerCfg) {
+    pickerConfig = Ext.apply({cls:Ext.baseCSSPrefix + 'menu-date-item', margin:0, border:false, xtype:'datepicker'}, me.pickerCfg);
+  } else {
+    cfg = Ext.apply({}, me.initialConfig);
+    delete cfg.listeners;
+    pickerConfig = Ext.applyIf({cls:Ext.baseCSSPrefix + 'menu-date-item', margin:0, border:false, xtype:'datepicker'}, cfg);
+  }
+  if (me.pickerId != null && pickerConfig.id == null) {
+    pickerConfig.id = me.pickerId;
+  }
+  delete pickerConfig.ownerCmp;
+  Ext.apply(me, {showSeparator:false, plain:true, bodyPadding:0, items:[pickerConfig]});
+  me.callParent();
+  me.picker = me.down('datepicker');
+  me.relayEvents(me.picker, ['select']);
+  if (me.hideOnClick) {
+    me.on('select', me.hidePickerOnSelect, me);
+  }
+}, onEscapeKey:function(e) {
+  var me = this;
+  if (me.floating && me.ownerCmp && me.ownerCmp.focus) {
+    me.ownerCmp.focus();
+    me.hide();
+  }
+}, hidePickerOnSelect:function() {
+  Ext.menu.Manager.hideAll();
+}});
 Ext.define('Ext.resizer.BorderSplitterTracker', {extend:Ext.resizer.SplitterTracker, getPrevCmp:null, getNextCmp:null, calculateConstrainRegion:function() {
   var me = this, splitter = me.splitter, collapseTarget = splitter.collapseTarget, defaultSplitMin = splitter.defaultSplitMin, sizePropCap = splitter.vertical ? 'Width' : 'Height', minSizeProp = 'min' + sizePropCap, maxSizeProp = 'max' + sizePropCap, getSizeMethod = 'get' + sizePropCap, neighbors = splitter.neighbors, length = neighbors.length, box = collapseTarget.el.getBox(), left = box.x, top = box.y, right = box.right, bottom = box.bottom, size = splitter.vertical ? right - left : bottom - top, 
   i, neighbor, neighborMaxSize, minRange, maxRange, maxGrowth, maxShrink, targetSize;
@@ -88842,6 +91218,85 @@ Ext.define('Ext.tab.Panel', {extend:Ext.panel.Panel, alias:'widget.tabpanel', al
 }}});
 Ext.define('Ext.toolbar.Fill', {extend:Ext.Component, alias:'widget.tbfill', alternateClassName:'Ext.Toolbar.Fill', ariaRole:'presentation', isFill:true, flex:1});
 Ext.define('Ext.toolbar.Spacer', {extend:Ext.Component, alias:'widget.tbspacer', alternateClassName:'Ext.Toolbar.Spacer', baseCls:Ext.baseCSSPrefix + 'toolbar-spacer', ariaRole:'presentation'});
+Ext.define('Ext.view.DragZone', {extend:Ext.dd.DragZone, containerScroll:false, constructor:function(config) {
+  var me = this, view, ownerCt, el;
+  Ext.apply(me, config);
+  if (!me.ddGroup) {
+    me.ddGroup = 'view-dd-zone-' + me.view.id;
+  }
+  view = me.view;
+  view.setItemsDraggable(true);
+  ownerCt = view.ownerCt;
+  if (ownerCt) {
+    el = ownerCt.getTargetEl().dom;
+  } else {
+    el = view.el.dom.parentNode;
+  }
+  me.callParent([el]);
+  me.ddel = document.createElement('div');
+  me.ddel.className = Ext.baseCSSPrefix + 'grid-dd-wrap';
+}, init:function(id, sGroup, config) {
+  var me = this, eventSpec = {itemmousedown:me.onItemMouseDown, scope:me};
+  if (Ext.supports.Touch) {
+    eventSpec.itemlongpress = me.onItemLongPress;
+    eventSpec.contextmenu = {element:'el', fn:me.onViewContextMenu};
+  }
+  me.initTarget(id, sGroup, config);
+  me.view.mon(me.view, eventSpec);
+}, onValidDrop:function(target, e, id) {
+  this.callParent([target, e, id]);
+  if (!target.el.contains(Ext.Element.getActiveElement())) {
+    target.el.focus();
+  }
+}, onViewContextMenu:function(e) {
+  if (e.pointerType !== 'mouse') {
+    e.preventDefault();
+  }
+}, onItemMouseDown:function(view, record, item, index, e) {
+  if (e.pointerType === 'mouse') {
+    this.onTriggerGesture(view, record, item, index, e);
+  }
+}, onItemLongPress:function(view, record, item, index, e) {
+  if (e.pointerType !== 'mouse') {
+    this.onTriggerGesture(view, record, item, index, e);
+  }
+}, onTriggerGesture:function(view, record, item, index, e) {
+  var navModel;
+  if (e.pointerType === 'touch' && e.type !== 'longpress' || e.position && e.position.isEqual(e.view.actionPosition)) {
+    return;
+  }
+  if (!this.isPreventDrag(e, record, item, index)) {
+    navModel = view.getNavigationModel();
+    if (e.position) {
+      navModel.setPosition(e.position);
+    } else {
+      navModel.setPosition(index);
+    }
+    this.handleMouseDown(e);
+  }
+}, isPreventDrag:function(e, record, item, index) {
+  return !!e.isInputFieldEvent;
+}, getDragData:function(e) {
+  var view = this.view, item = e.getTarget(view.getItemSelector());
+  if (item) {
+    return {copy:view.copy || view.allowCopy && e.ctrlKey, event:e, view:view, ddel:this.ddel, item:item, records:view.getSelectionModel().getSelection(), fromPosition:Ext.fly(item).getXY()};
+  }
+}, onInitDrag:function(x, y) {
+  var me = this, data = me.dragData, view = data.view, selectionModel = view.getSelectionModel(), record = view.getRecord(data.item);
+  if (!selectionModel.isSelected(record)) {
+    selectionModel.selectWithEvent(record, me.DDMInstance.mousedownEvent);
+  }
+  data.records = selectionModel.getSelection();
+  Ext.fly(me.ddel).setHtml(me.getDragText());
+  me.proxy.update(me.ddel);
+  me.onStartDrag(x, y);
+  return true;
+}, getDragText:function() {
+  var count = this.dragData.records.length;
+  return Ext.String.format(this.dragText, count, count === 1 ? '' : 's');
+}, getRepairXY:function(e, data) {
+  return data ? data.fromPosition : false;
+}});
 Ext.define('Ext.draw.ContainerBase', {extend:Ext.panel.Panel, previewTitleText:'Chart Preview', previewAltText:'Chart preview', layout:'container', addElementListener:function() {
   var me = this, args = arguments;
   if (me.rendered) {
@@ -105261,9 +107716,11 @@ text:'Today', margin:'0 10 0 0'}, value:undefined, views:{day:{xtype:'calendar-d
   return a.weight - b.weight;
 }}});
 Ext.define('Admin.model.Base', {extend:Ext.data.Model, schema:{namespace:'Admin.model'}});
+Ext.define('Admin.model.achievement.AchievementModel', {extend:Admin.model.Base, fields:[{name:'total'}, {name:'employeeName'}]});
 Ext.define('Admin.model.addressList.AddListModel', {extend:Admin.model.Base, fields:[{type:'int', name:'id'}, {type:'string', name:'employeeName'}, {type:'string', name:'employeeNumber'}, {type:'string', name:'employeeArea'}, {type:'string', name:'post'}, {type:'string', name:'email'}], proxy:{type:'rest', url:'/addressList'}});
-Ext.define('Admin.model.attence.AttenceModel', {extend:Admin.model.Base, fields:[{type:'int', name:'id'}, {type:'string', name:'employeeName'}, {type:'string', name:'location'}, {type:'date', name:'workinTime', dateFormat:'Y/m/d H:i:s'}, {type:'date', name:'workoutTime', dateFormat:'Y/m/d H:i:s'}, {type:'string', name:'attenceStatus'}, {type:'string', name:'processInstanceId'}, {type:'string', name:'processStatus'}, {type:'string', name:'userId'}, {type:'string', name:'appealreason'}], proxy:{type:'rest', 
-url:'/attence'}});
+Ext.define('Admin.model.allattence.AllAttenceModel', {extend:Admin.model.Base, fields:[{type:'int', name:'id'}, {type:'string', name:'employeeName'}, {type:'string', name:'location'}, {type:'date', name:'workinTime', dateFormat:'Y/m/d H:i:s'}, {type:'date', name:'workoutTime', dateFormat:'Y/m/d H:i:s'}, {type:'string', name:'attenceStatus'}]});
+Ext.define('Admin.model.attence.AttenceModel', {extend:Admin.model.Base, fields:[{type:'int', name:'id'}, {type:'string', name:'employeeName'}, {type:'string', name:'location'}, {type:'date', name:'workinTime', dateFormat:'Y/m/d H:i:s'}, {type:'date', name:'workoutTime', dateFormat:'Y/m/d H:i:s'}, {type:'string', name:'attenceStatus'}, {type:'string', name:'processInstanceId'}, {type:'string', name:'processStatus'}, {type:'string', name:'userId'}, {type:'string', name:'appealreason'}, {type:'string', 
+name:'deptLeaderBackReason'}, {type:'string', name:'hrBackReason'}], proxy:{type:'rest', url:'/attence'}});
 Ext.define('Admin.model.attenceapprove.AppealApproveModel', {extend:Admin.model.Base, fields:[{type:'int', name:'id'}, {type:'string', name:'employeeName'}, {type:'string', name:'location'}, {type:'date', name:'workinTime'}, {type:'date', name:'workoutTime'}, {type:'string', name:'attenceStatus'}, {type:'string', name:'processStatus'}, {type:'string', name:'appealreason'}, {type:'date', name:'applyTime'}, {type:'string', name:'taskId'}, {type:'string', name:'taskName'}, {type:'date', name:'taskCreateTime'}, 
 {type:'string', name:'assignee'}, {type:'string', name:'taskDefinitionKey'}, {type:'string', name:'processInstanceId'}, {type:'string', name:'processDefinitionId'}, {type:'boolean', name:'suspended'}, {type:'int', name:'version'}, {type:'string', name:'depreason'}, {type:'string', name:'hrreason'}]});
 Ext.define('Admin.model.attenceapprove.LeaveApproveModel', {extend:Admin.model.Base, fields:[{type:'int', name:'id'}, {type:'string', name:'userId'}, {type:'date', name:'startTime'}, {type:'date', name:'endTime'}, {type:'date', name:'realityStartTime'}, {type:'date', name:'realityEndTime'}, {type:'date', name:'applyTime'}, {type:'string', name:'leaveType'}, {type:'string', name:'processStatus'}, {type:'string', name:'reason'}, {type:'string', name:'processInstanceId'}, {type:'string', name:'taskId'}, 
@@ -105278,9 +107735,11 @@ Ext.define('Admin.model.processdefinition.ProcessDefinitionModel', {extend:Admin
 {type:'boolean', name:'suspended'}]});
 Ext.define('Admin.model.user.UserModel', {extend:Admin.model.Base, fields:[{type:'int', name:'id'}, {type:'string', name:'userName'}, {type:'date', name:'createTime', dateFormat:'Y/m/d H:i:s'}], proxy:{type:'rest', url:'/user'}});
 Ext.define('Admin.store.NavigationTree', {extend:Ext.data.TreeStore, storeId:'NavigationTree', fields:[{name:'text'}], root:{expanded:true, children:[{text:'Dashboard', iconCls:'x-fa fa-desktop', viewType:'admindashboard', routeId:'dashboard', leaf:true}, {text:'模板', iconCls:'x-fa fa-address-card', viewType:'user', leaf:true}, {text:'业务管理模块', iconCls:'x-fa fa-briefcase', expanded:false, selectable:false, children:[{text:'合同管理', iconCls:'x-fa fa-clipboard', viewType:'contract', leaf:true}, {text:'业务审核', 
-iconCls:'x-fa fa-pencil-square-o', viewType:'contractApprove', leaf:true}]}, {text:'通讯录', iconCls:'x-fa fa-address-card', viewType:'addressList', leaf:true}, {text:'日程管理', iconCls:'x-fa fa-calendar', viewType:'calendar', leaf:true}, {text:'个人考勤', iconCls:'x-fa fa-fax', viewType:'attence', leaf:true}, {text:'考勤管理', iconCls:'x-fa  fa-calendar-o', expanded:false, selectable:false, children:[{text:'部门考勤表', iconCls:'x-fa fa-copy', leaf:true}, {text:'考勤审核', iconCls:'x-fa fa-pencil-square-o', viewType:'attenceApprove', 
-leaf:true}]}, {text:'流程定义图', iconCls:'x-fa fa-file-picture-o', viewType:'processDefinition', leaf:true}, {text:'Charts', iconCls:'x-fa fa-fax', viewType:'charts', leaf:true}, {text:'Login', iconCls:'x-fa fa-check', viewType:'login', leaf:true}]}});
-Ext.define('Admin.store.addressList.AddressListPanelStroe', {extend:Ext.data.Store, alias:'store.addressListPanelStroe', model:'Admin.model.addressList.AddListModel', proxy:{type:'rest', url:'/addressList', reader:{type:'json', rootProperty:'content', totalProperty:'totalElements'}, writer:{type:'json'}, simpleSortMode:true}, autoLoad:'true', autoSync:true, remoteSort:true, pageSize:20, sorters:{direction:'ASC', property:'id'}});
+iconCls:'x-fa fa-pencil-square-o', viewType:'contractApprove', leaf:true}]}, {text:'通讯录', iconCls:'x-fa fa-address-card', viewType:'addressList', leaf:true}, {text:'日程管理', iconCls:'x-fa fa-calendar', viewType:'calendar', leaf:true}, {text:'个人考勤', iconCls:'x-fa fa-fax', viewType:'attence', leaf:true}, {text:'考勤管理', iconCls:'x-fa  fa-calendar-o', expanded:false, selectable:false, children:[{text:'部门考勤表', iconCls:'x-fa fa-copy', viewType:'allAttence', leaf:true}, {text:'考勤审核', iconCls:'x-fa fa-pencil-square-o', 
+viewType:'attenceApprove', leaf:true}]}, {text:'流程定义图', iconCls:'x-fa fa-file-picture-o', viewType:'processDefinition', leaf:true}, {text:'业务排行', iconCls:'x-fa fa-fax', viewType:'achievement', leaf:true}, {text:'Login', iconCls:'x-fa fa-check', viewType:'login', leaf:true}]}});
+Ext.define('Admin.store.achievement.AchievementStore', {extend:Ext.data.Store, storeId:'achievementStore', alias:'store.achievementStore', model:'Admin.model.achievement.AchievementModel', proxy:{type:'rest', url:'/achievement', reader:{type:'json', rootProperty:'content'}, writer:{type:'json'}}, autoLoad:true, autoSync:true});
+Ext.define('Admin.store.addressList.AddressListPanelStroe', {extend:Ext.data.Store, alias:'store.addressListPanelStroe', model:'Admin.model.addressList.AddListModel', proxy:{type:'rest', url:'/addressList', reader:{type:'json', rootProperty:'content', totalProperty:'totalElements'}, writer:{type:'json'}, simpleSortMode:true}, autoLoad:true, autoSync:true});
+Ext.define('Admin.store.allattence.AllAttenceGridStroe', {extend:Ext.data.Store, storeId:'allAttenceGridStroe', alias:'store.allAttenceGridStroe', model:'Admin.model.allattence.AllAttenceModel', proxy:{type:'ajax', url:'attence/getAllAttence', reader:new Ext.data.JsonReader({type:'json', rootProperty:'content', totalProperty:'totalElements'}), simpleSortMode:true}, remoteSort:true, sorters:[{property:'id', direction:'desc'}], autoLoad:true});
 Ext.define('Admin.store.attence.AttenceGridStroe', {extend:Ext.data.Store, storeId:'attenceGridStroe', alias:'store.attenceGridStroe', model:'Admin.model.attence.AttenceModel', proxy:{type:'rest', url:'/attence', reader:{type:'json', rootProperty:'content', totalProperty:'totalElements'}, writer:{type:'json'}, simpleSortMode:true}, autoLoad:'true', autoSync:true, remoteSort:true, pageSize:20, sorters:{direction:'ASC', property:'id'}});
 Ext.define('Admin.store.attenceapprove.AppealApproveStore', {extend:Ext.data.Store, storeId:'appealApproveStore', alias:'store.appealApproveStore', model:'Admin.model.attenceapprove.AppealApproveModel', proxy:{type:'ajax', url:'attence/tasks', reader:new Ext.data.JsonReader({type:'json', rootProperty:'content', totalProperty:'totalElements'}), simpleSortMode:true}, remoteSort:true, sorters:[{property:'id', direction:'desc'}], autoLoad:true});
 Ext.define('Admin.store.attenceapprove.LeaveApproveStore', {extend:Ext.data.Store, storeId:'leaveApproveStore', alias:'store.leaveApproveStore', model:'Admin.model.attenceapprove.LeaveApproveModel', proxy:{type:'ajax', url:'leave/tasks', reader:new Ext.data.JsonReader({type:'json', rootProperty:'content', totalProperty:'totalElements'}), simpleSortMode:true}, remoteSort:true, sorters:[{property:'id', direction:'desc'}], autoLoad:true});
@@ -105288,7 +107747,10 @@ Ext.define('Admin.store.contract.ContractGridStroe', {extend:Ext.data.Store, sto
 Ext.define('Admin.store.contractapprove.ContractApproveStore', {extend:Ext.data.Store, storeId:'contractApproveStore', alias:'store.contractApproveStore', model:'Admin.model.contractapprove.ContractApproveModel', proxy:{type:'ajax', url:'contract/tasks', reader:new Ext.data.JsonReader({type:'json', rootProperty:'content', totalProperty:'totalElements'}), simpleSortMode:true}, remoteSort:true, sorters:[{property:'id', direction:'desc'}], autoLoad:true});
 Ext.define('Admin.store.leave.LeaveStroe', {extend:Ext.data.Store, storeId:'leaveStroe', alias:'store.leaveStroe', model:'Admin.model.leave.LeaveModel', proxy:{type:'rest', url:'/leave', reader:{type:'json', rootProperty:'content', totalProperty:'totalElements'}, writer:{type:'json'}, simpleSortMode:true}, autoLoad:true, autoSync:true, remoteSort:true, pageSize:15, sorters:{direction:'DESC', property:'id'}, listeners:{}});
 Ext.define('Admin.store.processdefinition.ProcessDefinitionStroe', {extend:Ext.data.Store, storeId:'processDefinitionStroe', alias:'store.processDefinitionStroe', model:'Admin.model.processdefinition.ProcessDefinitionModel', pageSize:15, proxy:{type:'ajax', url:'/process-definition', reader:{type:'json', rootProperty:'content', totalProperty:'totalElements'}, simpleSortMode:true}, remoteSort:true, sorters:[{property:'id', direction:'desc'}], autoLoad:true, listeners:{}});
-Ext.define('Admin.store.user.UserGridStroe', {extend:Ext.data.Store, alias:'store.userGridStroe', model:'Admin.model.user.UserModel', data:{'content':[{'id':1, 'userName':'No001', 'createTime':'2018/09/08 19:40:52'}, {'id':2, 'userName':'No002', 'createTime':'2018/09/08 19:40:52'}]}, proxy:{type:'memory', reader:{type:'json', rootProperty:'content'}}, autoLoad:'true', sorters:{direction:'ASC', property:'userName'}});
+Ext.define('Admin.store.user.UserGridStroe', {extend:Ext.data.Store, alias:'store.userGridStroe', model:'Admin.model.user.UserModel', data:{'content':[{'id':1, 'userName':'No001', 'createTime':'2018/09/08 19:40:52'}, {'id':2, 'userName':'No002', 'createTime':'2018/09/08 19:40:52'}, {'id':3, 'userName':'No003', 'createTime':'2018/09/08 19:40:52'}, {'id':4, 'userName':'No004', 'createTime':'2018/09/08 19:40:52'}, {'id':5, 'userName':'No004', 'createTime':'2018/09/08 19:40:52'}, {'id':6, 'userName':'No006', 
+'createTime':'2018/09/08 19:40:52'}, {'id':7, 'userName':'No001', 'createTime':'2018/09/08 19:40:52'}, {'id':8, 'userName':'No002', 'createTime':'2018/09/08 19:40:52'}, {'id':9, 'userName':'No001', 'createTime':'2018/09/08 19:40:52'}, {'id':10, 'userName':'No0021', 'createTime':'2018/09/08 19:40:52'}, {'id':11, 'userName':'No0011', 'createTime':'2018/09/08 19:40:52'}, {'id':12, 'userName':'No0012', 'createTime':'2018/09/08 19:40:52'}, {'id':13, 'userName':'No0013', 'createTime':'2018/09/08 19:40:52'}, 
+{'id':14, 'userName':'No0014', 'createTime':'2018/09/08 19:40:52'}, {'id':15, 'userName':'No001', 'createTime':'2018/09/08 19:40:52'}, {'id':16, 'userName':'No0021', 'createTime':'2018/09/08 19:40:52'}, {'id':17, 'userName':'No0011', 'createTime':'2018/09/08 19:40:52'}, {'id':18, 'userName':'No0012', 'createTime':'2018/09/08 19:40:52'}, {'id':19, 'userName':'No0013', 'createTime':'2018/09/08 19:40:52'}, {'id':20, 'userName':'No0014', 'createTime':'2018/09/08 19:40:52'}]}, proxy:{type:'memory', reader:{type:'json', 
+rootProperty:'content'}}, autoLoad:'true', pageSize:10, sorters:{direction:'ASC', property:'userName'}});
 Ext.define('Admin.view.dashboard.DashboardController', {extend:Ext.app.ViewController, alias:'controller.dashboard', onRefreshToggle:function(tool, e, owner) {
   var store, runner;
   if (tool.toggleValue) {
@@ -105328,6 +107790,219 @@ Ext.define('Admin.Application', {extend:Ext.app.Application, name:'Admin', store
     }
   });
 }});
+Ext.define('Admin.view.GridFilters.GridFilters', {extend:Ext.plugin.Abstract, local:false, mixins:[Ext.util.StoreHolder], alias:'plugin.gfilters', pluginId:'gfilters', defaultFilterTypes:{'boolean':'boolean', 'int':'number', date:'date', number:'number'}, filterCls:Ext.baseCSSPrefix + 'grid-filters-filtered-column', menuFilterText:'Filters', showMenu:true, stateId:undefined, init:function(grid) {
+  var me = this, store, headerCt;
+  Ext.Assert.falsey(me.grid);
+  me.grid = grid;
+  grid.filters = me;
+  if (me.grid.normalGrid) {
+    me.isLocked = true;
+  }
+  grid.clearFilters = me.clearFilters.bind(me);
+  store = grid.store;
+  headerCt = grid.headerCt;
+  grid.on({scope:me, destroy:me.onGridDestroy, beforereconfigure:me.onBeforeReconfigure, reconfigure:me.onReconfigure});
+  me.bindStore(store);
+  if (grid.stateful) {
+    store.statefulFilters = true;
+  }
+  me.initColumns();
+}, initColumns:function() {
+  var grid = this.grid, store = grid.getStore(), columns = grid.columnManager.getColumns(), len = columns.length, i, column, filter, filterCollection, block;
+  var me = this;
+  var its = [];
+  for (i = 0; i < len; i++) {
+    column = columns[i];
+    filter = column.filter;
+    if (filter && !filter.isGridFilter) {
+      if (!filterCollection) {
+        filterCollection = store.getFilters();
+        filterCollection.beginUpdate();
+      }
+      this.createColumnFilter(column);
+      column.filter.createMenu();
+      its.push({text:column.text, checked:false, menu:column.filter.menu, filter:column.filter, listeners:{scope:me, checkchange:me.onCheckChange, activate:me.onBeforeActivate}});
+    }
+  }
+  var tbar = grid.down('toolbar');
+  tbar.insert(0, {xtype:'splitbutton', text:'请选择搜索条件', iconCls:null, menu:its, handler:'onClearFilters', scope:me, id:'Admin_gridfilters', hidden:true});
+  if (filterCollection) {
+    filterCollection.endUpdate();
+  }
+}, onClearFilters:function() {
+  this.clearFilters();
+}, createColumnFilter:function(column) {
+  var me = this, columnFilter = column.filter, filter = {column:column, grid:me.grid, owner:me}, field, model, type;
+  if (Ext.isString(columnFilter)) {
+    filter.type = columnFilter;
+  } else {
+    Ext.apply(filter, columnFilter);
+  }
+  if (!filter.type) {
+    model = me.store.getModel();
+    field = model && model.getField(column.dataIndex);
+    type = field && field.type;
+    filter.type = type && me.defaultFilterTypes[type] || column.defaultFilterType || 'string';
+  }
+  column.filter = Ext.Factory.gridFilter(filter);
+}, onAdd:function(headerCt, column, index) {
+  var filter = column.filter;
+  if (filter && !filter.isGridFilter) {
+    this.createColumnFilter(column);
+  }
+}, onMenuCreate:function(headerCt, menu) {
+  menu.on({beforeshow:this.onMenuBeforeShow, scope:this});
+}, onMenuBeforeShow:function(menu) {
+  var me = this, menuItem, filter, ownerGrid, ownerGridId;
+  if (me.showMenu) {
+    if (!me.menuItems) {
+      me.menuItems = {};
+    }
+    ownerGrid = menu.up('grid');
+    ownerGridId = ownerGrid.id;
+    menuItem = me.menuItems[ownerGridId];
+    if (!menuItem || menuItem.isDestroyed) {
+      menuItem = me.createMenuItem(menu, ownerGridId);
+    }
+    me.activeFilterMenuItem = menuItem;
+    filter = me.getMenuFilter(ownerGrid.headerCt);
+    if (filter) {
+      filter.showMenu(menuItem);
+    }
+    menuItem.setVisible(!!filter);
+    me.sep.setVisible(!!filter);
+  }
+}, createMenuItem:function(menu, ownerGridId) {
+  var me = this, item;
+  me.sep = menu.add('-');
+  item = menu.add({checked:false, itemId:'filters', text:me.menuFilterText, listeners:{scope:me, checkchange:me.onCheckChange}});
+  return me.menuItems[ownerGridId] = item;
+}, onGridDestroy:function() {
+  var me = this, menuItems = me.menuItems, item;
+  me.bindStore(null);
+  me.sep = Ext.destroy(me.sep);
+  for (item in menuItems) {
+    menuItems[item].destroy();
+  }
+  me.grid = null;
+}, onUnbindStore:function(store) {
+  store.getFilters().un('remove', this.onFilterRemove, this);
+}, onBindStore:function(store, initial, propName) {
+  this.local = !store.getRemoteFilter();
+  store.getFilters().on('remove', this.onFilterRemove, this);
+}, onFilterRemove:function(filterCollection, list) {
+  var len = list.items.length, columnManager = this.grid.columnManager, i, item, header, filter;
+  for (i = 0; i < len; i++) {
+    item = list.items[i];
+    header = columnManager.getHeaderByDataIndex(item.getProperty());
+    if (header) {
+      filter = header.filter;
+      if (!filter || !filter.menu || item.getId().indexOf(filter.getBaseIdPrefix()) === -1) {
+        continue;
+      }
+      if (!filter.preventFilterRemoval) {
+        filter.onFilterRemove(item.getOperator());
+      }
+    }
+  }
+}, getMenuFilter:function(headerCt) {
+  return headerCt.getMenu().activeHeader.filter;
+}, onBeforeActivate:function(item, value) {
+  this.activeFilterMenuItem = item;
+  this.activeFilterMenuItem.activeFilter = item.filter;
+}, onCheckChange:function(item, value) {
+  var grid = this.isLocked ? item.up('grid') : this.grid, filter = item.filter;
+  filter.setActive(value);
+}, getHeaders:function() {
+  return this.grid.view.headerCt.columnManager.getColumns();
+}, isStateful:function() {
+  return this.grid.stateful;
+}, addFilter:function(filters) {
+  var me = this, grid = me.grid, store = me.store, hasNewColumns = false, suppressNextFilter = true, dataIndex, column, i, len, filter, columnFilter;
+  if (!Ext.isArray(filters)) {
+    filters = [filters];
+  }
+  for (i = 0, len = filters.length; i < len; i++) {
+    filter = filters[i];
+    dataIndex = filter.dataIndex;
+    column = grid.columnManager.getHeaderByDataIndex(dataIndex);
+    if (column) {
+      hasNewColumns = true;
+      if (filter.value) {
+        suppressNextFilter = false;
+      }
+      columnFilter = column.filter;
+      if (columnFilter && columnFilter.isGridFilter) {
+        columnFilter.deactivate();
+        columnFilter.destroy();
+        if (me.activeFilterMenuItem) {
+          me.activeFilterMenuItem.menu = null;
+        }
+      }
+      column.filter = filter;
+    }
+  }
+  if (hasNewColumns) {
+    store.suppressNextFilter = suppressNextFilter;
+    me.initColumns();
+    store.suppressNextFilter = false;
+  }
+}, addFilters:function(filters) {
+  if (filters) {
+    this.addFilter(filters);
+  }
+}, clearFilters:function(autoFilter) {
+  var grid = this.grid, columns = grid.columnManager.getColumns(), store = grid.store, oldAutoFilter = store.getAutoFilter(), column, filter, i, len, filterCollection;
+  if (autoFilter !== undefined) {
+    store.setAutoFilter(autoFilter);
+  }
+  for (i = 0, len = columns.length; i < len; i++) {
+    column = columns[i];
+    filter = column.filter;
+    if (filter && filter.isGridFilter) {
+      if (!filterCollection) {
+        filterCollection = store.getFilters();
+        filterCollection.beginUpdate();
+      }
+      filter.setActive(false);
+    }
+  }
+  if (filterCollection) {
+    filterCollection.endUpdate();
+  }
+  if (autoFilter !== undefined) {
+    store.setAutoFilter(oldAutoFilter);
+  }
+}, onBeforeReconfigure:function(grid, store, columns) {
+  if (store) {
+    store.getFilters().beginUpdate();
+  }
+  this.reconfiguring = true;
+}, onReconfigure:function(grid, store, columns, oldStore) {
+  var me = this;
+  if (store && oldStore !== store) {
+    me.bindStore(store);
+  }
+  if (columns) {
+    me.initColumns();
+  }
+  if (store) {
+    store.getFilters().endUpdate();
+  }
+  me.reconfiguring = false;
+}});
+Ext.define('Admin.view.achievement.ChartBase', {extend:Ext.Panel, height:300, ui:'light', layout:'fit', platformConfig:{classic:{cls:'quick-graph-panel shadow', headerPosition:'bottom'}, modern:{cls:'quick-graph-panel', shadow:true, header:{docked:'bottom'}}}, defaults:{width:'100%'}});
+Ext.define('Admin.view.achievement.AchievementPanel', {extend:Admin.view.achievement.ChartBase, xtype:'achievementPanel', title:'Bar Chart', iconCls:'x-fa fa-bar-chart', items:[{xtype:'cartesian', colors:['#6aa5db'], bind:'{barData}', axes:[{type:'category', fields:['employeeName'], position:'bottom'}, {type:'numeric', fields:['total'], grid:{odd:{fill:'#e8e8e8'}}, position:'left'}], series:[{type:'bar', xField:'employeeName', yField:['total']}], tbar:[{xtype:'combobox', reference:'searchFieldName', 
+hideLabel:true, store:Ext.create('Ext.data.Store', {fields:['name', 'value'], data:[{name:'一月', value:'一月'}, {name:'二月', value:'二月'}, {name:'三月', value:'三月'}, {name:'四月', value:'四月'}, {name:'五月', value:'五月'}, {name:'六月', value:'六月'}, {name:'七月', value:'七月'}, {name:'八月', value:'八月'}, {name:'九月', value:'九月'}, {name:'十月', value:'十月'}, {name:'十一月', value:'十一月'}, {name:'十二月', value:'十二月'}]}), displayField:'name', valueField:'value', value:'一月', editable:false, queryMode:'local', triggerAction:'all', emptyText:'Select a state...', 
+width:135, listeners:{select:'searchCombobox'}}]}]});
+Ext.define('Admin.view.achievement.AchievementViewModel', {extend:Ext.app.ViewModel, alias:'viewmodel.achievementViewModel', stores:{barData:{type:'achievementStore'}}});
+Ext.define('Admin.view.achievement.Achievement', {extend:Ext.container.Container, xtype:'achievement', controller:'achievementController', viewModel:{type:'achievementViewModel'}, layout:'responsivecolumn', defaults:{defaults:{animation:!Ext.isIE9m && Ext.os.is.Desktop}}, items:[{xtype:'achievementPanel', userCls:'big-50 small-100'}]});
+Ext.define('Admin.view.achievement.AchievementController', {extend:Ext.app.ViewController, alias:'controller.achievementController', searchCombobox:function(combo, record, index) {
+  var searchField = this.lookupReference('searchFieldName').getValue();
+  var store = combo.up('cartesian').getStore();
+  Ext.apply(store.proxy.extraParams, {month:searchField, area:''});
+  store.load();
+}});
 Ext.define('Admin.view.addressList.AddressList', {extend:Ext.container.Container, xtype:'addressList', controller:'addressListViewController', viewModel:{type:'addressListViewModel'}, layout:'fit', items:[{xtype:'addressListPanel'}]});
 Ext.define('Admin.view.addressList.AddressListPanel', {extend:Ext.panel.Panel, xtype:'addressListPanel', layout:'fit', items:[{xtype:'gridpanel', cls:'user-grid', title:'AddressList Results', bind:'{addressListLists}', scrollable:false, columns:[{xtype:'gridcolumn', width:40, dataIndex:'id', text:'#', hidden:true}, {xtype:'gridcolumn', cls:'content-column', dataIndex:'employeeName', text:'Name', flex:1}, {xtype:'gridcolumn', cls:'content-column', dataIndex:'employeeNumber', text:'Number', flex:1}, 
 {xtype:'gridcolumn', cls:'content-column', dataIndex:'employeeArea', text:'Area', flex:1}, {xtype:'gridcolumn', cls:'content-column', dataIndex:'post', text:'post', flex:1}, {xtype:'gridcolumn', cls:'content-column', dataIndex:'email', text:'email', flex:1}, {xtype:'actioncolumn', cls:'content-column', width:120, dataIndex:'bool', text:'Actions', tooltip:'edit ', items:[{xtype:'button', iconCls:'x-fa fa-pencil', handler:'onEditButton'}, {xtype:'button', iconCls:'x-fa fa-close', handler:'onDeleteButton'}, 
@@ -105356,14 +108031,9 @@ Ext.define('Admin.view.addressList.AddressListViewController', {extend:Ext.app.V
   store.load({params:{start:0, limit:20, page:1}});
 }});
 Ext.define('Admin.view.addressList.AddressListViewModel', {extend:Ext.app.ViewModel, alias:'viewmodel.addressListViewModel', stores:{addressListLists:{type:'addressListPanelStroe'}}});
-Ext.define('Admin.view.attence.AppealWindow', {extend:Ext.window.Window, alias:'widget.appealWindow', height:420, width:550, scrollable:true, title:'申诉表', closable:true, modal:true, layout:'fit', items:[{xtype:'form', layout:'form', padding:'10px', ariaLabel:'Enter your name', items:[{xtype:'textfield', fieldLabel:'id', name:'id', hidden:true, readOnly:true}, {xtype:'textfield', fieldLabel:'申诉人', cls:'appeal', readOnly:true, name:'employeeName'}, {xtype:'textfield', fieldLabel:'打卡地点', cls:'appeal', 
-readOnly:true, name:'location'}, {xtype:'datefield', fieldLabel:'上班时间', cls:'appeal', readOnly:true, name:'workinTime', format:'Y/m/d H:i:s'}, {xtype:'datefield', fieldLabel:'下班时间', cls:'appeal', readOnly:true, name:'workoutTime', format:'Y/m/d H:i:s'}, {xtype:'textfield', fieldLabel:'原上班状态', cls:'appeal', readOnly:true, name:'attenceStatus', style:{'color':'red'}}, {xtype:'textareafield', grow:true, name:'appealreason', emptyText:'此处填写申诉原因', fieldLabel:'申诉原因', allowBlank:false, anchor:'100%'}]}], 
-buttons:[{xtype:'button', text:'发起申诉', style:{'background-color':'dynamic(#fc8999)', 'border-color':'dynamic(#fc8999)'}, handler:'starAppealProcess'}, {xtype:'button', text:'取消', handler:function(btn) {
-  btn.up('window').close();
-}}]});
-Ext.define('Admin.view.attence.Attence', {extend:Ext.container.Container, xtype:'attence', controller:'attenceViewController', viewModel:{type:'attenceViewModel'}, layout:'fit', items:[{xtype:'attencePanel'}]});
-Ext.define('Admin.view.attence.AttencePanel', {extend:Ext.panel.Panel, xtype:'attencePanel', layout:{type:'vbox', pack:'start', align:'stretch'}, items:[{title:'个人考勤列表'}, {bodypadding:15, cls:'has-border', height:60, tbar:[{iconCls:'fa fa-folder-o fa-5x', ui:'header', tooltip:'我的请假单', handler:'openLeaveWindow'}, '-', {iconCls:'fa fa-edit fa-5x', ui:'header', tooltip:'填写请假单', handler:'openAddWindow'}, '-\x3e', {xtype:'textfield', id:'attence_searchFieldValue', name:'userPanelSearchField', hidden:true}, 
-'-', {iconCls:'fa fa-search fa-5x', id:'attence_search', ui:'header', tooltip:'查找', handler:'search'}, '-', {iconCls:'fa fa-download fa-5x', ui:'header', tooltip:'导出个人考勤表'}]}, {xtype:'gridpanel', cls:'has-border', height:650, bind:'{attenceLists}', scrollable:false, selModel:{type:'checkboxmodel', checkOnly:true}, listeners:{selectionchange:function(selModel, selections) {
+Ext.define('Admin.view.allattence.AllAttence', {extend:Ext.container.Container, xtype:'allAttence', controller:'allAttenceViewController', viewModel:{type:'allAttenceViewModel'}, layout:'fit', items:[{xtype:'allAttencePanel'}]});
+Ext.define('Admin.view.allattence.AllAttencePanel', {extend:Ext.panel.Panel, xtype:'allAttencePanel', layout:{type:'vbox', pack:'start', align:'stretch'}, items:[{title:'考勤列表'}, {bodypadding:15, cls:'has-border', height:60, tbar:['-\x3e', {iconCls:'fa fa-search fa-5x', ui:'header', tooltip:'查找'}, '-', {iconCls:'fa fa-download fa-5x', ui:'header', tooltip:'导出考勤表'}]}, {xtype:'gridpanel', cls:'has-border', height:650, bind:'{allAttenceLists}', scrollable:false, selModel:{type:'checkboxmodel', checkOnly:true}, 
+listeners:{selectionchange:function(selModel, selections) {
   this.up('panel').down('#contractPanelRemove').setDisabled(selections.length === 0);
 }, cellclick:'onGridCellItemClick'}, columns:[{xtype:'gridcolumn', width:40, dataIndex:'id', text:'id', hidden:true}, {header:'上班状态', dataIndex:'attenceStatus', width:120, sortable:true, renderer:function(val) {
   if (val == 'NORMAL') {
@@ -105382,7 +108052,37 @@ Ext.define('Admin.view.attence.AttencePanel', {extend:Ext.panel.Panel, xtype:'at
     }
   }
   return val;
-}}, {header:'申诉状态', dataIndex:'processStatus', width:120, sortable:true, hidden:true, id:'appeal_processStatus', renderer:function(val) {
+}}, {xtype:'gridcolumn', cls:'content-column', width:150, dataIndex:'employeeName', text:'员工姓名'}, {xtype:'gridcolumn', cls:'content-column', width:150, dataIndex:'location', text:'打卡地点'}, {xtype:'datecolumn', cls:'content-column', width:180, dataIndex:'workinTime', text:'上班时间', flex:1, formatter:'date("Y/m/d H:i:s")'}, {xtype:'datecolumn', cls:'content-column', width:180, dataIndex:'workoutTime', text:'下班时间', flex:1, formatter:'date("Y/m/d H:i:s")'}, {xtype:'actioncolumn', cls:'content-column', width:80, 
+dataIndex:'bool', text:'操作', tooltip:'edit '}], dockedItems:[{xtype:'pagingtoolbar', dock:'bottom', itemId:'userPaginationToolbar', displayInfo:true, bind:'{allAttenceLists}'}]}]});
+Ext.define('Admin.view.allattence.AllAttenceViewController', {extend:Ext.app.ViewController, alias:'controller.allAttenceViewController'});
+Ext.define('Admin.view.allattence.AllAttenceViewModel', {extend:Ext.app.ViewModel, alias:'viewmodel.allAttenceViewModel', stores:{allAttenceLists:{type:'allAttenceGridStroe'}}});
+Ext.define('Admin.view.attence.AppealWindow', {extend:Ext.window.Window, alias:'widget.appealWindow', height:420, width:550, scrollable:true, title:'申诉表', closable:true, modal:true, layout:'fit', items:[{xtype:'form', layout:'form', padding:'10px', ariaLabel:'Enter your name', items:[{xtype:'textfield', fieldLabel:'id', name:'id', hidden:true, readOnly:true}, {xtype:'textfield', fieldLabel:'申诉人', cls:'appeal', readOnly:true, name:'employeeName'}, {xtype:'textfield', fieldLabel:'打卡地点', cls:'appeal', 
+readOnly:true, name:'location'}, {xtype:'datefield', fieldLabel:'上班时间', cls:'appeal', readOnly:true, name:'workinTime', format:'Y/m/d H:i:s'}, {xtype:'datefield', fieldLabel:'下班时间', cls:'appeal', readOnly:true, name:'workoutTime', format:'Y/m/d H:i:s'}, {xtype:'textfield', fieldLabel:'原上班状态', cls:'appeal', readOnly:true, name:'attenceStatus', style:{'color':'red'}}, {xtype:'textareafield', grow:true, name:'appealreason', emptyText:'此处填写申诉原因', fieldLabel:'申诉原因', allowBlank:false, anchor:'100%'}]}], 
+buttons:[{xtype:'button', text:'发起申诉', style:{'background-color':'dynamic(#fc8999)', 'border-color':'dynamic(#fc8999)'}, handler:'starAppealProcess'}, {xtype:'button', text:'取消', handler:function(btn) {
+  btn.up('window').close();
+}}]});
+Ext.define('Admin.view.attence.Attence', {extend:Ext.container.Container, xtype:'attence', controller:'attenceViewController', viewModel:{type:'attenceViewModel'}, layout:'fit', items:[{xtype:'attencePanel'}]});
+Ext.define('Admin.view.attence.AttencePanel', {extend:Ext.panel.Panel, xtype:'attencePanel', layout:{type:'vbox', pack:'start', align:'stretch'}, items:[{title:'个人考勤列表'}, {bodypadding:15, cls:'has-border', height:60, tbar:[{iconCls:'fa fa-folder-o fa-5x', ui:'header', tooltip:'我的请假单', handler:'openLeaveWindow'}, '-', {iconCls:'fa fa-edit fa-5x', ui:'header', tooltip:'填写请假单', handler:'openAddWindow'}, '-\x3e', {iconCls:'fa fa-search fa-5x', ui:'header', tooltip:'查找'}, '-', {iconCls:'fa fa-download fa-5x', 
+ui:'header', tooltip:'导出个人考勤表'}]}, {xtype:'gridpanel', cls:'has-border', height:650, bind:'{attenceLists}', scrollable:false, selModel:{type:'checkboxmodel', checkOnly:true}, listeners:{selectionchange:function(selModel, selections) {
+  this.up('panel').down('#contractPanelRemove').setDisabled(selections.length === 0);
+}, cellclick:'onGridCellItemClick'}, columns:[{xtype:'gridcolumn', width:40, dataIndex:'id', text:'id', hidden:true}, {header:'上班状态', dataIndex:'attenceStatus', width:120, sortable:true, renderer:function(val) {
+  if (val == 'NORMAL') {
+    return '\x3cspan style\x3d"color:green;"\x3e正常\x3c/span\x3e';
+  } else {
+    if (val == 'LEAVE') {
+      return '\x3cspan style\x3d"color:blue;"\x3e请假\x3c/span\x3e';
+    } else {
+      if (val == 'LATER') {
+        return '\x3cspan style\x3d"color:red;"\x3e迟到\x3c/span\x3e';
+      } else {
+        if (val == 'EARLY') {
+          return '\x3cspan style\x3d"color:red;"\x3e早退\x3c/span\x3e';
+        }
+      }
+    }
+  }
+  return val;
+}}, {header:'申诉状态', dataIndex:'processStatus', width:120, sortable:true, renderer:function(val) {
   if (val == 'NEW') {
     return '\x3cspan style\x3d"color:green;"\x3e未发起申诉\x3c/span\x3e';
   } else {
@@ -105399,8 +108099,8 @@ Ext.define('Admin.view.attence.AttencePanel', {extend:Ext.panel.Panel, xtype:'at
     }
   }
   return val;
-}}, {xtype:'gridcolumn', cls:'content-column', width:150, dataIndex:'appealreason', text:'申诉原因', hidden:true, id:'appeal_appealreason'}, {xtype:'gridcolumn', cls:'content-column', width:150, dataIndex:'userId', text:'申诉人', hidden:true}, {xtype:'gridcolumn', cls:'content-column', width:150, dataIndex:'employeeName', text:'员工姓名'}, {xtype:'gridcolumn', cls:'content-column', width:150, dataIndex:'location', text:'打卡地点'}, {xtype:'datecolumn', cls:'content-column', width:180, dataIndex:'workinTime', text:'上班时间', 
-flex:1, formatter:'date("Y/m/d H:i:s")'}, {xtype:'datecolumn', cls:'content-column', width:180, dataIndex:'workoutTime', text:'下班时间', flex:1, formatter:'date("Y/m/d H:i:s")'}, {xtype:'actioncolumn', cls:'content-column', width:80, dataIndex:'bool', text:'操作', tooltip:'edit ', items:[{xtype:'button', iconCls:'x-fa fa-hand-paper-o', tooltip:'发起申诉', getClass:function(v, meta, rec) {
+}}, {xtype:'gridcolumn', cls:'content-column', width:50, dataIndex:'appealreason', text:'申诉原因', hidden:true}, {xtype:'gridcolumn', cls:'content-column', width:50, dataIndex:'deptLeaderBackReason', text:'经理意见', hidden:true}, {xtype:'gridcolumn', cls:'content-column', width:50, dataIndex:'hrBackReason', text:'人事经理意见', hidden:true}, {xtype:'gridcolumn', cls:'content-column', width:150, dataIndex:'employeeName', text:'员工姓名'}, {xtype:'gridcolumn', cls:'content-column', width:150, dataIndex:'location', 
+text:'打卡地点'}, {xtype:'datecolumn', cls:'content-column', width:180, dataIndex:'workinTime', text:'上班时间', flex:1, formatter:'date("Y/m/d H:i:s")'}, {xtype:'datecolumn', cls:'content-column', width:180, dataIndex:'workoutTime', text:'下班时间', flex:1, formatter:'date("Y/m/d H:i:s")'}, {xtype:'actioncolumn', cls:'content-column', width:80, dataIndex:'bool', text:'操作', tooltip:'edit ', items:[{xtype:'button', iconCls:'x-fa fa-hand-paper-o', tooltip:'发起申诉', getClass:function(v, meta, rec) {
   if (rec.get('processInstanceId') != '') {
     return 'x-hidden';
   }
@@ -105410,7 +108110,12 @@ flex:1, formatter:'date("Y/m/d H:i:s")'}, {xtype:'datecolumn', cls:'content-colu
     return 'x-hidden';
   }
   return 'x-fa fa-ban';
-}, handler:'cancelLeaveProcess'}]}], dockedItems:[{xtype:'pagingtoolbar', dock:'bottom', itemId:'userPaginationToolbar', displayInfo:true, bind:'{attenceLists}'}]}]});
+}, handler:'cancelLeaveProcess'}, {xtype:'button', iconCls:'x-fa fa-file-text-o', tooltip:'查看申诉结果', getClass:function(v, meta, rec) {
+  if (rec.get('processStatus') == 'COMPLETE') {
+    return 'x-fa fa-file-text-o';
+  }
+  return 'x-hidden';
+}, handler:'LookAppeal'}]}], dockedItems:[{xtype:'pagingtoolbar', dock:'bottom', itemId:'userPaginationToolbar', displayInfo:true, bind:'{attenceLists}'}]}]});
 Ext.define('Admin.view.attence.AttenceViewController', {extend:Ext.app.ViewController, alias:'controller.attenceViewController', openLeaveWindow:function(toolbar, rowIndex, colIndex) {
   toolbar.up('panel').up('container').add(Ext.widget('leaveGridWindow')).show();
 }, openAddWindow:function(toolbar, rowIndex, colIndex) {
@@ -105481,6 +108186,10 @@ Ext.define('Admin.view.attence.AttenceViewController', {extend:Ext.app.ViewContr
       Ext.Msg.alert('操作失败', json.msg);
     }
   }});
+}, LookLeave:function(grid, rowIndex, colIndex) {
+  var record = grid.getStore().getAt(rowIndex);
+  var win = grid.up('window').up('panel').up('container').add(Ext.widget('lookLeaveWindow')).show();
+  win.down('form').getForm().loadRecord(record);
 }, openAppealWindow:function(grid, rowIndex, colIndex) {
   var record = grid.getStore().getAt(rowIndex);
   if (record.data.attenceStatus != 'NORMAL') {
@@ -105511,8 +108220,6 @@ Ext.define('Admin.view.attence.AttenceViewController', {extend:Ext.app.ViewContr
     var json = Ext.util.JSON.decode(response.responseText);
     if (json.success) {
       Ext.Msg.alert('操作成功', json.msg, function() {
-        Ext.getCmp('appeal_processStatus').show();
-        Ext.getCmp('appeal_appealreason').show();
         btn.up('window').close();
         Ext.data.StoreManager.lookup('attenceGridStroe').load();
       });
@@ -105520,6 +108227,11 @@ Ext.define('Admin.view.attence.AttenceViewController', {extend:Ext.app.ViewContr
       Ext.Msg.alert('操作失败', json.msg);
     }
   }});
+}, LookAppeal:function(grid, rowIndex, colIndex) {
+  var record = grid.getStore().getAt(rowIndex);
+  var win = grid.up('panel').up('container').add(Ext.widget('lookAppealWindow'));
+  win.show();
+  win.down('form').getForm().loadRecord(record);
 }});
 Ext.define('Admin.view.attence.AttenceViewModel', {extend:Ext.app.ViewModel, alias:'viewmodel.attenceViewModel', stores:{attenceLists:{type:'attenceGridStroe'}, leaveLists:{type:'leaveStroe'}}});
 Ext.define('Admin.view.attence.LeaveAddWindow', {extend:Ext.window.Window, alias:'widget.leaveAddWindow', height:350, minHeight:350, minWidth:300, width:500, scrollable:true, title:'请假单', closable:true, constrain:true, defaultFocus:'textfield', modal:true, layout:'fit', items:[{xtype:'form', layout:'form', padding:'10px', ariaLabel:'Enter your name', items:[{xtype:'textfield', fieldLabel:'id', name:'id', hidden:true, readOnly:true}, {xtype:'textfield', fieldLabel:'processStatus', name:'processStatus', 
@@ -105561,8 +108273,8 @@ Ext.define('Admin.view.attence.LeaveGridWindow', {extend:Ext.window.Window, alia
     }
   }
   return val;
-}, editor:{xtype:'combobox', store:Ext.create('Ext.data.Store', {fields:['value', 'name'], data:[{'value':'A', 'name':'带薪假期'}, {'value':'B', 'name':'无薪假期'}, {'value':'C', 'name':'病假'}]}), queryMode:'local', displayField:'name', valueField:'value'}}, {header:'请假原因', dataIndex:'reason', width:220, sortable:true, editor:'textfield'}, {header:'经理意见', dataIndex:'depReason', width:120, sortable:true}, {header:'人事经理意见', dataIndex:'hrReason', width:120, sortable:true}, {xtype:'actioncolumn', cls:'content-column', 
-width:120, text:'操作', tooltip:'edit ', items:[{xtype:'button', iconCls:'x-fa fa-close', handler:'deleteOneRow'}, {xtype:'button', iconCls:'x-fa fa-star', tooltip:'发起请假', getClass:function(v, meta, rec) {
+}, editor:{xtype:'combobox', store:Ext.create('Ext.data.Store', {fields:['value', 'name'], data:[{'value':'A', 'name':'带薪假期'}, {'value':'B', 'name':'无薪假期'}, {'value':'C', 'name':'病假'}]}), queryMode:'local', displayField:'name', valueField:'value'}}, {header:'请假原因', dataIndex:'reason', width:220, sortable:true, editor:'textfield'}, {header:'部门经理审批意见', dataIndex:'depReason', width:220, sortable:true, hidden:true}, {header:'人事经理审批意见', dataIndex:'hrReason', width:220, sortable:true, hidden:true}, {xtype:'actioncolumn', 
+cls:'content-column', width:120, text:'操作', tooltip:'edit ', items:[{xtype:'button', iconCls:'x-fa fa-close', handler:'deleteOneRow'}, {xtype:'button', iconCls:'x-fa fa-star', tooltip:'发起请假', getClass:function(v, meta, rec) {
   if (rec.get('processInstanceId') != '') {
     return 'x-hidden';
   }
@@ -105572,7 +108284,18 @@ width:120, text:'操作', tooltip:'edit ', items:[{xtype:'button', iconCls:'x-fa
     return 'x-hidden';
   }
   return 'x-fa fa-ban';
-}, handler:'cancelLeaveProcess'}]}], dockedItems:[{xtype:'pagingtoolbar', dock:'bottom', displayInfo:true, bind:'{leaveLists}'}]}]});
+}, handler:'cancelLeaveProcess'}, {xtype:'button', iconCls:'x-fa fa-file-text-o', tooltip:'查看审批结果', getClass:function(v, meta, rec) {
+  if (rec.get('processStatus') == 'COMPLETE') {
+    return 'x-fa fa-file-text-o';
+  }
+  return 'x-hidden';
+}, handler:'LookLeave'}]}], dockedItems:[{xtype:'pagingtoolbar', dock:'bottom', displayInfo:true, bind:'{leaveLists}'}]}]});
+Ext.define('Admin.view.attence.LookAppealWindow', {extend:Ext.window.Window, alias:'widget.lookAppealWindow', height:600, width:550, title:'申诉结果', bodyPadding:5, bodyBorder:true, defaults:{anchor:'100%'}, fieldDefaults:{labelAlign:'left', msgTarget:'none', invalidCls:''}, items:[{xtype:'form', layout:'form', padding:'10px', items:[{xtype:'textfield', name:'taskId', fieldLabel:'任务ID', hidden:true, readOnly:true}, {xtype:'textfield', fieldLabel:'申诉人', cls:'lookqppeal', readOnly:true, name:'employeeName'}, 
+{xtype:'textfield', fieldLabel:'打卡地点', cls:'lookqppeal', readOnly:true, name:'location'}, {xtype:'datefield', fieldLabel:'上班时间', cls:'lookqppeal', readOnly:true, name:'workinTime', format:'Y/m/d H:i:s'}, {xtype:'datefield', fieldLabel:'下班时间', cls:'lookqppeal', readOnly:true, name:'workoutTime', format:'Y/m/d H:i:s'}, {xtype:'textfield', fieldLabel:'申诉后上班状态', cls:'lookqppeal', readOnly:true, name:'attenceStatus'}, {xtype:'textareafield', grow:true, name:'appealreason', fieldLabel:'申诉原因', anchor:'100%'}, 
+{xtype:'textareafield', name:'deptLeaderBackReason', fieldLabel:'部门经理审批意见', emptyText:'部门经理还未审批', readOnly:true}, {xtype:'textareafield', name:'hrBackReason', fieldLabel:'人事文员审批意见', emptyText:'人事文员还未审批', readOnly:true}]}]});
+Ext.define('Admin.view.attence.LookLeaveWindow', {extend:Ext.window.Window, alias:'widget.lookLeaveWindow', height:600, width:550, title:'审批结果', bodyPadding:5, bodyBorder:true, defaults:{anchor:'100%'}, fieldDefaults:{labelAlign:'left', msgTarget:'none', invalidCls:''}, items:[{xtype:'form', layout:'form', padding:'10px', items:[{xtype:'textfield', name:'taskId', fieldLabel:'任务ID', hidden:true, readOnly:true}, {xtype:'textfield', name:'userId', cls:'lookLeave', fieldLabel:'申请人', hidden:true, readOnly:true}, 
+{xtype:'combobox', name:'leaveType', cls:'lookLeave', fieldLabel:'请假类型', store:Ext.create('Ext.data.Store', {fields:['value', 'name'], data:[{'value':'A', 'name':'带薪假期'}, {'value':'B', 'name':'无薪假期'}, {'value':'C', 'name':'病假'}]}), queryMode:'local', displayField:'name', valueField:'value', allowBlank:false}, {xtype:'datefield', fieldLabel:'请假开始时间', cls:'lookLeave', format:'Y/m/d H:i:s', name:'startTime'}, {xtype:'datefield', fieldLabel:'请假结束时间', cls:'lookLeave', format:'Y/m/d H:i:s', name:'endTime'}, 
+{xtype:'textareafield', grow:true, name:'reason', fieldLabel:'请假原因', anchor:'100%'}, {xtype:'textareafield', name:'depReason', fieldLabel:'部门经理审批意见', emptyText:'部门经理还未审批', readOnly:true}, {xtype:'textareafield', name:'hrReason', fieldLabel:'人事文员审批意见', emptyText:'人事文员还未审批', readOnly:true}]}]});
 Ext.define('Admin.view.attenceapprove.AttenceApprovePanel', {extend:Ext.tab.Panel, xtype:'attenceApprovePanel', layout:'fit', items:[{title:'请假审核', xtype:'gridpanel', cls:'process-definition-grid', bind:'{leaveApproveList}', layout:'fit', columns:[{xtype:'actioncolumn', items:[{xtype:'button', iconCls:'x-fa fa-pencil', tooltip:'签收任务', getClass:function(v, meta, rec) {
   if (rec.get('assignee') != '') {
     return 'x-hidden';
@@ -105624,7 +108347,7 @@ dock:'bottom', bind:'{leaveApproveList}', displayInfo:true}]}, {title:'申诉审
     return 'x-hidden';
   }
   return 'x-fa fa-edit';
-}, handler:'onClickAppealApproveCompleteWindowButton'}, {xtype:'button', iconCls:'x-fa fa-object-group', tooltip:'任务跟踪', handler:'onClickGraphTraceButton'}], cls:'content-column', width:60, dataIndex:'bool', text:'操作', tooltip:'edit '}, {header:'id', dataIndex:'id', width:60, sortable:true, hidden:true}, {header:'审核状态', dataIndex:'processStatus', width:120, sortable:true, renderer:function(val) {
+}, handler:'onClickAppealApproveCompleteWindowButton'}, {xtype:'button', iconCls:'x-fa fa-object-group', tooltip:'任务跟踪', handler:'onClickGraphTraceButton'}], cls:'content-column', width:120, dataIndex:'bool', text:'操作', tooltip:'edit '}, {header:'id', dataIndex:'id', width:60, sortable:true, hidden:true}, {header:'审核状态', dataIndex:'processStatus', width:120, sortable:true, renderer:function(val) {
   if (val == 'NEW') {
     return '\x3cspan style\x3d"color:green;"\x3e未发起申诉\x3c/span\x3e';
   } else {
@@ -105800,9 +108523,14 @@ Ext.define('Admin.view.attenceapprove.AttenceApproveViewController', {extend:Ext
       var win = this.setCurrentView(view, 'appealhrAudit', '人事审批表单');
       win.down('form').getForm().loadRecord(record);
     } else {
-      if (taskDefinitionKey == 'modifyAppeal') {
+      if (taskDefinitionKey == 'modify') {
         var win = this.setCurrentView(view, 'appealmodifyApply', '调整申诉表单');
         win.down('form').getForm().loadRecord(record);
+      } else {
+        if (taskDefinitionKey == 'confirm') {
+          var win = this.setCurrentView(view, 'appealConfirm', '申诉结果确认');
+          win.down('form').getForm().loadRecord(record);
+        }
       }
     }
   }
@@ -105824,6 +108552,16 @@ Ext.define('Admin.view.attenceapprove.AttenceApproveViewController', {extend:Ext
   var url = 'attence/complete/' + values.taskId;
   var variables = [{key:'appealreason', value:values.appealreason, type:'S'}];
   this.complete(url, variables, form);
+}, onClickAppealConfirmFormSubmitButton:function(btn) {
+  var form = btn.up('form');
+  if (form.isValid()) {
+    var values = form.getValues();
+    var url = 'attence/complete/' + values.taskId;
+    var variables = [{key:'confirmName', value:values.confirmName, type:'S'}];
+    this.complete(url, variables, form);
+  } else {
+    Ext.Msg.alert('提示', '不允许为空');
+  }
 }});
 Ext.define('Admin.view.attenceapprove.AttenceApproveViewModel', {extend:Ext.app.ViewModel, alias:'viewmodel.attenceApproveViewModel', stores:{leaveApproveList:{type:'leaveApproveStore'}, appealApproveList:{type:'appealApproveStore'}}});
 Ext.define('Admin.view.attenceapprove.AttenceApproveWindow', {extend:Ext.window.Window, alias:'widget.attenceApproveWindow', autoShow:true, modal:true, layout:'fit', width:520, height:600, afterRender:function() {
@@ -105841,15 +108579,23 @@ Ext.define('Admin.view.attenceapprove.AttenceApproveWindow', {extend:Ext.window.
   this.setXY([Math.floor(width * 0.05), Math.floor(height * 0.05)]);
 }});
 Ext.define('Admin.view.attenceapprove.AttenceApprove', {extend:Ext.panel.Panel, xtype:'attenceApprove', controller:'attenceApproveViewController', viewModel:{type:'attenceApproveViewModel'}, layout:'fit', items:[{xtype:'attenceApprovePanel'}]});
-Ext.define('Admin.view.attenceapprove.task.DeptLeaderAudit', {extend:Ext.form.Panel, alias:'widget.appealdeptLeaderAudit', bodyPadding:10, bodyBorder:true, defaults:{anchor:'100%'}, fieldDefaults:{labelAlign:'left', msgTarget:'none', invalidCls:''}, items:[{xtype:'textfield', name:'taskId', fieldLabel:'任务ID', hidden:true, readOnly:true}, {xtype:'textfield', fieldLabel:'申诉人', readOnly:true, name:'employeeName'}, {xtype:'textfield', fieldLabel:'打卡地点', readOnly:true, name:'location'}, {xtype:'datefield', 
-fieldLabel:'上班时间', readOnly:true, name:'workinTime', format:'Y/m/d H:i:s'}, {xtype:'datefield', fieldLabel:'下班时间', readOnly:true, name:'workoutTime', format:'Y/m/d H:i:s'}, {xtype:'textfield', fieldLabel:'原上班状态', readOnly:true, name:'attenceStatus', style:{'color':'red'}}, {xtype:'textareafield', grow:true, name:'appealreason', fieldLabel:'申诉原因', anchor:'100%'}, {xtype:'radiogroup', fieldLabel:'部门经理审批', defaults:{flex:1}, items:[{name:'deptLeaderPass', inputValue:true, boxLabel:'同意', checked:true}, 
-{name:'deptLeaderPass', inputValue:false, boxLabel:'不同意'}]}, {xtype:'textareafield', grow:true, name:'deptLeaderBackReason', emptyText:'此处可填写意见', fieldLabel:'意见', anchor:'100%'}], bbar:[{xtype:'button', ui:'soft-green', text:'提交', handler:'onClickAppealDeptleaderAuditFormSubmitButton'}, {xtype:'button', ui:'gray', text:'取消', handler:function(btn) {
+Ext.define('Admin.view.attenceapprove.task.AppealConfirm', {extend:Ext.form.Panel, alias:'widget.appealConfirm', bodyPadding:10, bodyBorder:true, defaults:{anchor:'100%'}, fieldDefaults:{labelAlign:'left', msgTarget:'none', invalidCls:''}, items:[{xtype:'textfield', name:'taskId', fieldLabel:'任务ID', hidden:true, readOnly:true}, {xtype:'textfield', name:'taskId', fieldLabel:'任务ID', hidden:true, readOnly:true}, {xtype:'textfield', fieldLabel:'申诉人', readOnly:true, name:'employeeName'}, {xtype:'textfield', 
+fieldLabel:'打卡地点', readOnly:true, name:'location'}, {xtype:'datefield', fieldLabel:'上班时间', readOnly:true, name:'workinTime', format:'Y/m/d H:i:s'}, {xtype:'datefield', fieldLabel:'下班时间', readOnly:true, name:'workoutTime', format:'Y/m/d H:i:s'}, {xtype:'textfield', fieldLabel:'原上班状态', readOnly:true, name:'attenceStatus', style:{'color':'red'}}, {xtype:'textareafield', grow:true, name:'appealreason', fieldLabel:'申诉原因', anchor:'100%'}, {xtype:'textareafield', name:'depreason', fieldLabel:'部门经理审批意见', 
+readOnly:true}, {xtype:'textareafield', name:'hrreason', fieldLabel:'人事文员审批意见', readOnly:true}, {xtype:'textfield', name:'confirmName', fieldLabel:'请签名确认', allowBlank:false}], bbar:[{xtype:'button', ui:'soft-green', text:'提交', handler:'onClickAppealConfirmFormSubmitButton'}, {xtype:'button', ui:'gray', text:'取消', handler:function(btn) {
   var win = btn.up('window');
   if (win) {
     win.close();
   }
 }}]});
-Ext.define('Admin.view.attenceapprove.task.HrAudit', {extend:Ext.form.Panel, alias:'widget.appealhrAudit', bodyPadding:10, bodyBorder:true, defaults:{anchor:'100%'}, fieldDefaults:{labelAlign:'left', msgTarget:'none', invalidCls:''}, items:[{xtype:'textfield', name:'taskId', fieldLabel:'任务ID', hidden:true, readOnly:true}, {xtype:'textfield', fieldLabel:'申诉人', readOnly:true, name:'employeeName'}, {xtype:'textfield', fieldLabel:'打卡地点', readOnly:true, name:'location'}, {xtype:'datefield', fieldLabel:'上班时间', 
+Ext.define('Admin.view.attenceapprove.task.AppealDeptLeaderAudit', {extend:Ext.form.Panel, alias:'widget.appealdeptLeaderAudit', bodyPadding:10, bodyBorder:true, defaults:{anchor:'100%'}, fieldDefaults:{labelAlign:'left', msgTarget:'none', invalidCls:''}, items:[{xtype:'textfield', name:'taskId', fieldLabel:'任务ID', hidden:true, readOnly:true}, {xtype:'textfield', fieldLabel:'申诉人', readOnly:true, name:'employeeName'}, {xtype:'textfield', fieldLabel:'打卡地点', readOnly:true, name:'location'}, {xtype:'datefield', 
+fieldLabel:'上班时间', readOnly:true, name:'workinTime', format:'Y/m/d H:i:s'}, {xtype:'datefield', fieldLabel:'下班时间', readOnly:true, name:'workoutTime', format:'Y/m/d H:i:s'}, {xtype:'textfield', fieldLabel:'原上班状态', readOnly:true, name:'attenceStatus'}, {xtype:'textareafield', grow:true, name:'appealreason', fieldLabel:'申诉原因'}, {xtype:'radiogroup', fieldLabel:'部门经理审批', defaults:{flex:1}, items:[{name:'deptLeaderPass', inputValue:true, boxLabel:'同意', checked:true}, {name:'deptLeaderPass', inputValue:false, 
+boxLabel:'不同意'}]}, {xtype:'textareafield', grow:true, name:'deptLeaderBackReason', emptyText:'此处可填写意见', fieldLabel:'意见', anchor:'100%'}], bbar:[{xtype:'button', ui:'soft-green', text:'提交', handler:'onClickAppealDeptleaderAuditFormSubmitButton'}, {xtype:'button', ui:'gray', text:'取消', handler:function(btn) {
+  var win = btn.up('window');
+  if (win) {
+    win.close();
+  }
+}}]});
+Ext.define('Admin.view.attenceapprove.task.AppealHrAudit', {extend:Ext.form.Panel, alias:'widget.appealhrAudit', bodyPadding:10, bodyBorder:true, defaults:{anchor:'100%'}, fieldDefaults:{labelAlign:'left', msgTarget:'none', invalidCls:''}, items:[{xtype:'textfield', name:'taskId', fieldLabel:'任务ID', hidden:true, readOnly:true}, {xtype:'textfield', fieldLabel:'申诉人', readOnly:true, name:'employeeName'}, {xtype:'textfield', fieldLabel:'打卡地点', readOnly:true, name:'location'}, {xtype:'datefield', fieldLabel:'上班时间', 
 readOnly:true, name:'workinTime', format:'Y/m/d H:i:s'}, {xtype:'datefield', fieldLabel:'下班时间', readOnly:true, name:'workoutTime', format:'Y/m/d H:i:s'}, {xtype:'textfield', fieldLabel:'原上班状态', readOnly:true, name:'attenceStatus', style:{'color':'red'}}, {xtype:'textareafield', grow:true, readOnly:true, name:'appealreason', fieldLabel:'申诉原因', anchor:'100%'}, {xtype:'textareafield', name:'depreason', fieldLabel:'部门经理审批意见', readOnly:true}, {xtype:'radiogroup', fieldLabel:'人事文员审批', defaults:{flex:1}, 
 items:[{name:'hrPass', inputValue:true, boxLabel:'同意', checked:true}, {name:'hrPass', inputValue:false, boxLabel:'不同意'}]}, {xtype:'textareafield', grow:true, name:'hrBackReason', fieldLabel:'人事文员审批意见', emptyText:'此处可填写意见', anchor:'100%'}], bbar:[{xtype:'button', ui:'soft-green', text:'提交', handler:'onClickAppealHrAuditFormSubmitButton'}, {xtype:'button', ui:'gray', text:'取消', handler:function(btn) {
   var win = btn.up('window');
@@ -105857,7 +108603,7 @@ items:[{name:'hrPass', inputValue:true, boxLabel:'同意', checked:true}, {name:
     win.close();
   }
 }}]});
-Ext.define('Admin.view.attenceapprove.task.ModifyApply', {extend:Ext.form.Panel, alias:'widget.appealmodifyApply', bodyPadding:5, bodyBorder:true, defaults:{anchor:'100%'}, fieldDefaults:{labelAlign:'left', msgTarget:'none', invalidCls:''}, items:[{xtype:'radiogroup', fieldLabel:'重新申请', items:[{name:'reApply', inputValue:true, boxLabel:'是', checked:true}, {name:'reApply', inputValue:false, boxLabel:'否'}]}, {xtype:'textfield', name:'taskId', fieldLabel:'任务ID', hidden:true, readOnly:true}, {xtype:'textfield', 
+Ext.define('Admin.view.attenceapprove.task.AppealModifyApply', {extend:Ext.form.Panel, alias:'widget.appealmodifyApply', bodyPadding:5, bodyBorder:true, defaults:{anchor:'100%'}, fieldDefaults:{labelAlign:'left', msgTarget:'none', invalidCls:''}, items:[{xtype:'radiogroup', fieldLabel:'重新申请', items:[{name:'reApply', inputValue:true, boxLabel:'是', checked:true}, {name:'reApply', inputValue:false, boxLabel:'否'}]}, {xtype:'textfield', name:'taskId', fieldLabel:'任务ID', hidden:true, readOnly:true}, {xtype:'textfield', 
 fieldLabel:'申诉人', readOnly:true, name:'employeeName'}, {xtype:'textfield', fieldLabel:'打卡地点', readOnly:true, name:'location'}, {xtype:'datefield', fieldLabel:'上班时间', readOnly:true, name:'workinTime', format:'Y/m/d H:i:s'}, {xtype:'datefield', fieldLabel:'下班时间', readOnly:true, name:'workoutTime', format:'Y/m/d H:i:s'}, {xtype:'textfield', fieldLabel:'原上班状态', readOnly:true, name:'attenceStatus', style:{'color':'red'}}, {xtype:'textareafield', grow:true, name:'appealreason', fieldLabel:'申诉原因', anchor:'100%'}, 
 {xtype:'textareafield', name:'depreason', fieldLabel:'部门经理审批意见', emptyText:'部门经理还未审批', readOnly:true}, {xtype:'textareafield', name:'hrreason', fieldLabel:'人事文员审批意见', emptyText:'人事文员还未审批', readOnly:true}], bbar:[{xtype:'button', ui:'soft-green', text:'提交', handler:'onClickAppealModifyApplyFormSubmitButton'}, {xtype:'button', ui:'gray', text:'取消', handler:function(btn) {
   var win = btn.up('window');
@@ -105968,11 +108714,8 @@ Ext.define('Admin.view.calendar.CalendarViewController', {extend:Ext.app.ViewCon
 }});
 Ext.define('Admin.view.contract.Contract', {extend:Ext.container.Container, xtype:'contract', controller:'contractViewController', viewModel:{type:'contractViewModel'}, layout:'fit', items:[{xtype:'contractPanel'}]});
 Ext.define('Admin.view.contract.ContractEditWindow', {extend:Ext.window.Window, alias:'widget.contractEditWindow', height:200, minHeight:200, minWidth:300, width:500, scrollable:true, title:'合同修改窗口', closable:true, modal:true, layout:'fit'});
-Ext.define('Admin.view.contract.ContractPanel', {extend:Ext.panel.Panel, xtype:'contractPanel', layout:{type:'vbox', pack:'start', align:'stretch'}, items:[{title:'合同列表'}, {bodypadding:15, cls:'has-border', height:80, tbar:[{xtype:'combobox', reference:'searchFieldName', hidden:true, hideLabel:true, store:Ext.create('Ext.data.Store', {fields:['name', 'value'], data:[{name:'用户名', value:'userName'}, {name:'创建时间', value:'createTime'}]}), displayField:'name', valueField:'value', value:'userName', editable:false, 
-queryMode:'local', triggerAction:'all', width:135, listeners:{select:'searchComboboxSelectChange'}}, '-', {cls:'has', iconCls:'fa fa-search-plus'}, '-\x3e', {text:'导入合同', tooltip:'导入合同信息', iconCls:'fa fa-cloud-upload', handler:'uploadContract'}, '-', {text:'模板下载', tooltip:'合同模板下载', iconCls:'fa fa-cloud-download', href:'/contract/downloadWord', hrefTarget:'_self'}, '-', {text:'批量删除', itemId:'contractPanelRemove', tooltip:'批量删除', iconCls:'fa fa-trash', disabled:true, handler:'deleteMoreRows'}]}, {xtype:'gridpanel', 
-cls:'has-border', height:650, bind:'{contractLists}', scrollable:false, selModel:{type:'checkboxmodel', checkOnly:true}, listeners:{selectionchange:function(selModel, selections) {
-  this.up('panel').down('#contractPanelRemove').setDisabled(selections.length === 0);
-}, cellclick:'onGridCellItemClick'}, columns:[{xtype:'gridcolumn', width:40, dataIndex:'id', text:'id', hidden:true}, {header:'processStatus', dataIndex:'processStatus', width:60, sortable:true, renderer:function(val) {
+Ext.define('Admin.view.contract.ContractPanel', {extend:Ext.panel.Panel, xtype:'contractPanel', controller:'contractViewController', layout:'fit', items:[{xtype:'gridpanel', title:'合同信息表', plugins:{rowexpander:{rowBodyTpl:new Ext.XTemplate('\x3cp\x3e\x3cb\x3e合同编号:\x3c/b\x3e{contractNumber}\x3c/p\x3e', '\x3cp\x3e\x3cb\x3e客户姓名:\x3c/b\x3e\x3c/p\x3e{customerName}\x3cbr\x3e', '\x3cp\x3e\x3cb\x3e房源名称:\x3c/b\x3e{hoseName}\x3c/p\x3e', '\x3cp\x3e\x3cb\x3e房产经纪人姓名:\x3c/b\x3e{employeeName}\x3c/p\x3e', '\x3cp\x3e\x3cb\x3e签约时间:\x3c/b\x3e\x3c/p\x3e{startTime}\x3cbr\x3e', 
+'\x3cp\x3e\x3cb\x3e失效时间:\x3c/b\x3e{endTime}\x3c/p\x3e', '\x3cp\x3e\x3cb\x3e金额:\x3c/b\x3e{total}\x3c/p\x3e')}, rowediting:{saveBtnText:'保存', cancelBtnText:'取消', autoCancel:false, clicksToMoveEditor:2}}, cls:'has-border', bind:'{contractLists}', selModel:{type:'checkboxmodel', checkOnly:true}, columns:[{xtype:'gridcolumn', width:40, dataIndex:'id', text:'id', hidden:true}, {header:'processStatus', dataIndex:'processStatus', width:60, sortable:true, renderer:function(val) {
   if (val == 'NEW') {
     return '\x3cspan style\x3d"color:green;"\x3e新建\x3c/span\x3e';
   } else {
@@ -105987,8 +108730,8 @@ cls:'has-border', height:650, bind:'{contractLists}', scrollable:false, selModel
     }
   }
   return val;
-}}, {xtype:'gridcolumn', cls:'content-column', width:100, dataIndex:'contractNumber', text:'合同编号'}, {xtype:'gridcolumn', cls:'content-column', width:100, dataIndex:'customerName', text:'客户姓名'}, {xtype:'gridcolumn', cls:'content-column', width:100, dataIndex:'hoseName', text:'房源名称'}, {xtype:'gridcolumn', cls:'content-column', width:120, dataIndex:'employeeName', text:'房产经纪人姓名'}, {xtype:'datecolumn', cls:'content-column', width:150, dataIndex:'startTime', text:'签约时间', flex:1, formatter:'date("Y/m/d H:i:s")'}, 
-{xtype:'datecolumn', cls:'content-column', width:150, dataIndex:'endTime', text:'失效时间', flex:1, formatter:'date("Y/m/d H:i:s")'}, {xtype:'gridcolumn', cls:'content-column', width:90, dataIndex:'contractType', text:'合同类型'}, {xtype:'gridcolumn', cls:'content-column', width:100, dataIndex:'total', text:'金额', renderer:function(val) {
+}}, {xtype:'gridcolumn', cls:'content-column', width:100, dataIndex:'contractNumber', text:'合同编号', editor:{xtype:'textfield', allowBlank:false}}, {xtype:'gridcolumn', cls:'content-column', width:100, dataIndex:'customerName', text:'客户姓名', editor:{xtype:'textfield', allowBlank:false}}, {xtype:'gridcolumn', cls:'content-column', width:100, dataIndex:'hoseName', text:'房源名称'}, {xtype:'gridcolumn', cls:'content-column', width:120, dataIndex:'employeeName', text:'房产经纪人姓名'}, {xtype:'datecolumn', cls:'content-column', 
+width:150, dataIndex:'startTime', text:'签约时间', flex:1, formatter:'date("Y/m/d H:i:s")', filter:true}, {xtype:'datecolumn', cls:'content-column', width:150, dataIndex:'endTime', text:'失效时间', flex:1, formatter:'date("Y/m/d H:i:s")', filter:true}, {xtype:'gridcolumn', cls:'content-column', width:90, dataIndex:'contractType', text:'合同类型'}, {xtype:'gridcolumn', cls:'content-column', width:100, dataIndex:'total', text:'金额', renderer:function(val) {
   return '\x3cspan\x3e' + Ext.util.Format.number(val, '0,000.00') + '万\x3c/span\x3e';
 }}, {xtype:'gridcolumn', cls:'content-column', width:100, dataIndex:'area', text:'公司区域'}, {xtype:'actioncolumn', cls:'content-column', width:150, dataIndex:'bool', text:'操作', tooltip:'edit ', items:[{xtype:'button', iconCls:'x-fa fa-arrow-circle-o-down', tooltip:'合同下载'}, {xtype:'button', iconCls:'x-fa fa-close', tooltip:'删除合同', handler:'onDeleteButton'}, {xtype:'button', iconCls:'x-fa fa-star', tooltip:'发起请假', getClass:function(v, meta, rec) {
   if (rec.get('processInstanceId') != '') {
@@ -106000,7 +108743,26 @@ cls:'has-border', height:650, bind:'{contractLists}', scrollable:false, selModel
     return 'x-hidden';
   }
   return 'x-fa fa-ban';
-}, handler:'cancelLeaveProcess'}]}], dockedItems:[{xtype:'pagingtoolbar', dock:'bottom', itemId:'userPaginationToolbar', displayInfo:true, bind:'{contractLists}'}]}]});
+}, handler:'cancelLeaveProcess'}, {xtype:'button', iconCls:'x-fa fa-file-text-o', tooltip:'查看审批结果', getClass:function(v, meta, rec) {
+  if (rec.get('processStatus') == 'COMPLETE') {
+    return 'x-fa fa-file-text-o';
+  }
+  return 'x-hidden';
+<<<<<<< HEAD
+<<<<<<< HEAD
+}, handler:'LookContract'}]}], dockedItems:[{xtype:'pagingtoolbar', dock:'bottom', itemId:'userPaginationToolbar', displayInfo:true, bind:'{contractLists}'}]}]});
+=======
+}, handler:'LookContract'}]}], tbar:[{xtype:'splitbutton', id:'contract_gridfilters', text:'请选择搜索条件', menu:[{xtype:'menucheckitem', text:'合同编号', menu:[{xtype:'textfield', id:'contract_contractNumber', emptyText:'请输入合同编号', listeners:{specialkey:'searchContract'}}]}, {xtype:'menucheckitem', text:'客户姓名', menu:[{xtype:'textfield', emptyText:'请输入客户姓名', listeners:{specialkey:'searchContract'}}]}, {xtype:'menucheckitem', text:'房源名称', menu:[{xtype:'textfield', emptyText:'请输入房源名称', listeners:{specialkey:'searchContract'}}]}, 
+{xtype:'menucheckitem', text:'签约时间', menu:[{xtype:'datefield', value:new Date, format:'Y/m/d H:i:s', listeners:{specialkey:'searchContract'}}]}, {xtype:'menucheckitem', text:'失效时间', menu:[{xtype:'datefield', value:new Date, format:'Y/m/d H:i:s', listeners:{specialkey:'searchContract'}}]}, {xtype:'menucheckitem', text:'合同类型', menu:[{xtype:'textfield', emptyText:'请输入合同类型', listeners:{specialkey:'searchContract'}}]}]}, '-', {iconCls:'fa fa-search fa-5x', ui:'header', tooltip:'查找', id:'contract_search', 
+handler:'searchContract'}, '-', {iconCls:'fa fa-search fa-5x', ui:'header', tooltip:'取消', handler:'searchContract'}, '-\x3e', {tooltip:'添加合同信息', ui:'header', iconCls:'fa fa-plus-square', handler:'onAddClick'}, '-', {tooltip:'导入合同信息', ui:'header', iconCls:'fa fa-cloud-upload', handler:'uploadContract'}, '-', {tooltip:'合同模板下载', ui:'header', iconCls:'fa fa-cloud-download', href:'/contract/downloadWord', hrefTarget:'_self'}], dockedItems:[{xtype:'pagingtoolbar', dock:'bottom', itemId:'userPaginationToolbar', 
+displayInfo:true, bind:'{contractLists}'}]}]});
+>>>>>>> branch 'master' of https://github.com/MyElevenTeam/Knorragency.git
+=======
+}, handler:'LookContract'}]}], tbar:[{xtype:'splitbutton', id:'contract_gridfilters', text:'请选择搜索条件', menu:[{xtype:'menucheckitem', text:'合同编号', menu:[{xtype:'textfield', id:'contract_contractNumber', emptyText:'请输入合同编号', listeners:{specialkey:'searchContract'}}]}, {xtype:'menucheckitem', text:'客户姓名', menu:[{xtype:'textfield', id:'contract_customerName', emptyText:'请输入客户姓名', listeners:{specialkey:'searchContract'}}]}, {xtype:'menucheckitem', text:'房源名称', menu:[{xtype:'textfield', id:'contract_hoseName', 
+emptyText:'请输入房源名称', listeners:{specialkey:'searchContract'}}]}, {xtype:'menucheckitem', text:'签约时间', menu:[{xtype:'datefield', id:'contract_startTime', value:new Date, format:'Y/m/d H:i:s', listeners:{specialkey:'searchContract'}}]}, {xtype:'menucheckitem', text:'失效时间', menu:[{xtype:'datefield', id:'contract_endTime', value:new Date, format:'Y/m/d H:i:s', listeners:{specialkey:'searchContract'}}]}, {xtype:'menucheckitem', text:'合同类型', menu:[{xtype:'textfield', id:'contract_contractType', emptyText:'请输入合同类型', 
+listeners:{specialkey:'searchContract'}}]}]}, '-', {iconCls:'fa fa-search fa-5x', ui:'header', tooltip:'查找', id:'contract_searchOpen', handler:'searchOpen'}, '-', {iconCls:'fa fa-close fa-5x', ui:'header', tooltip:'取消', id:'contract_searchClose', handler:'searchClose'}, '-\x3e', {tooltip:'添加合同信息', ui:'header', iconCls:'fa fa-plus-square', handler:'onAddClick'}, '-', {tooltip:'导入合同信息', ui:'header', iconCls:'fa fa-cloud-upload', handler:'uploadContract'}, '-', {tooltip:'合同模板下载', ui:'header', iconCls:'fa fa-cloud-download', 
+href:'/contract/downloadWord', hrefTarget:'_self'}], dockedItems:[{xtype:'pagingtoolbar', dock:'bottom', itemId:'userPaginationToolbar', displayInfo:true, bind:'{contractLists}'}]}]});
+>>>>>>> branch 'master' of https://github.com/MyElevenTeam/Knorragency.git
 Ext.define('Admin.view.contract.ContractUploadWindow', {extend:Ext.window.Window, alias:'widget.contractUploadWindow', height:180, minHeight:100, minWidth:300, width:500, scrollable:true, title:'Contract Upload Window', closable:true, constrain:true, defaultFocus:'textfield', modal:true, layout:'fit', items:[{xtype:'form', layout:'form', padding:'10px', items:[{xtype:'filefield', width:400, labelWidth:80, name:'file', emptyText:'请选择.doc/.docx文件', fieldLabel:'上传文件:', labelSeparator:'', buttonConfig:{xtype:'filebutton', 
 glyph:'', iconCls:'x-fa fa-cloud-upload', text:'上传'}}]}], buttons:['-\x3e', {xtype:'button', text:'上传', handler:'onClickUploadFormSumbitButton'}, {xtype:'button', text:'取消', handler:function(btn) {
   btn.up('window').close();
@@ -106063,6 +108825,25 @@ Ext.define('Admin.view.contract.ContractViewController', {extend:Ext.app.ViewCon
   } else {
     Ext.Msg.alert('错误', '没有任何行被选中，无法进行删除操作！');
   }
+}, searchOpen:function(btn) {
+  Ext.getCmp('contract_searchOpen').hide();
+  Ext.getCmp('contract_gridfilters').show();
+}, searchContract:function(textfield, e) {
+  if (e.getKey() == Ext.EventObject.ENTER) {
+    var contractNumber = Ext.getCmp('contract_contractNumber').getValue();
+    var customerName = Ext.getCmp('contract_customerName').getValue();
+    var employeeName = Ext.getCmp('contract_employeeName').getValue();
+    var contractType = Ext.getCmp('contract_contractType').getValue();
+    var timeStart = Ext.getCmp('contract_timeStart').getValue();
+    var timeEnd = Ext.getCmp('contract_timeEnd').getValue();
+    var store = Ext.data.StoreManager.lookup('contractGridStroe');
+    Ext.apply(store.proxy.extraParams, {contractNumber:'', customerName:'', employeeName:'', contractType:'', timeStart:'', timeEnd:''});
+    Ext.apply(store.proxy.extraParams, {contractNumber:contractNumber, customerName:customerName, employeeName:employeeName, contractType:contractType, timeStart:Ext.util.Format.date(timeStart, 'Y/m/d H:i:s'), timeEnd:Ext.util.Format.date(timeEnd, 'Y/m/d H:i:s')});
+    store.load({params:{start:0, limit:20, page:1}});
+  }
+}, searchOpen:function(btn) {
+  Ext.getCmp('contract_searchClose').hide();
+  Ext.getCmp('contract_searchClose').show();
 }, starLeaveProcess:function(grid, rowIndex, colIndex) {
   var record = grid.getStore().getAt(rowIndex);
   Ext.Ajax.request({url:'/contract/start', method:'post', params:{id:record.get('id')}, success:function(response, options) {
@@ -106077,20 +108858,32 @@ Ext.define('Admin.view.contract.ContractViewController', {extend:Ext.app.ViewCon
   }});
 }, cancelLeaveProcess:function(grid, rowIndex, colIndex) {
   Ext.Msg.alert('Title', 'Cancel Leave Process');
+<<<<<<< HEAD
+}, LookAppeal:function(grid, rowIndex, colIndex) {
+=======
+}, LookContract:function(grid, rowIndex, colIndex) {
+>>>>>>> branch 'master' of https://github.com/MyElevenTeam/Knorragency.git
+  var record = grid.getStore().getAt(rowIndex);
+  var win = grid.up('panel').up('container').add(Ext.widget('lookContractWindow'));
+  win.show();
+  win.down('form').getForm().loadRecord(record);
 }});
 Ext.define('Admin.view.contract.ContractViewModel', {extend:Ext.app.ViewModel, alias:'viewmodel.contractViewModel', stores:{contractLists:{type:'contractGridStroe'}}});
+Ext.define('Admin.view.contract.LookContractWindow', {extend:Ext.window.Window, alias:'widget.lookContractWindow', height:600, width:550, title:'合同审批结果', bodyPadding:5, bodyBorder:true, defaults:{anchor:'100%'}, fieldDefaults:{labelAlign:'left', msgTarget:'none', invalidCls:''}, items:[{xtype:'form', layout:'form', padding:'10px', items:[{xtype:'textfield', cls:'lookcontract', name:'contractNumber', fieldLabel:'合同编号', readOnly:true}, {xtype:'textfield', cls:'lookcontract', name:'customerName', fieldLabel:'客户姓名', 
+readOnly:true}, {xtype:'textfield', cls:'lookcontract', name:'hoseName', fieldLabel:'房源名称', readOnly:true}, {xtype:'textfield', cls:'lookcontract', name:'employeeName', fieldLabel:'房产经纪人姓名', readOnly:true}, {xtype:'datefield', cls:'lookcontract', name:'startTime', fieldLabel:'签约时间', format:'Y/m/d H:i:s', readOnly:true}, {xtype:'datefield', cls:'lookcontract', name:'endTime', fieldLabel:'失效时间', format:'Y/m/d H:i:s', readOnly:true}, {xtype:'textfield', cls:'lookcontract', name:'contractType', fieldLabel:'合同类型', 
+readOnly:true}, {xtype:'textfield', cls:'lookcontract', name:'total', fieldLabel:'金额', readOnly:true}, {xtype:'textareafield', name:'depreason', fieldLabel:'店长审批意见', readOnly:true}, {xtype:'textareafield', name:'manreason', fieldLabel:'经理审批意见', readOnly:true}]}]});
 Ext.define('Admin.view.contractapprove.ContractApprove', {extend:Ext.container.Container, xtype:'contractApprove', controller:'contractApproveViewController', viewModel:{type:'contractApproveViewModel'}, layout:'fit', items:[{xtype:'contractApprovePanel'}]});
 Ext.define('Admin.view.contractapprove.ContractApprovePanel', {extend:Ext.panel.Panel, xtype:'contractApprovePanel', layout:'fit', items:[{title:'合同审核', xtype:'gridpanel', cls:'process-definition-grid', layout:'fit', bind:'{contractApproveLists}', columns:[{xtype:'actioncolumn', items:[{xtype:'button', iconCls:'x-fa fa-pencil', tooltip:'签收任务', getClass:function(v, meta, rec) {
   if (rec.get('assignee') != '') {
     return 'x-hidden';
   }
   return 'x-fa fa-pencil';
-}, handler:'onClickLeaveApproveClaimButton'}, {xtype:'button', iconCls:'x-fa fa-edit', tooltip:'审批任务', getClass:function(v, meta, rec) {
+}, handler:'onClickContractApproveClaimButton'}, {xtype:'button', iconCls:'x-fa fa-edit', tooltip:'审批任务', getClass:function(v, meta, rec) {
   if (rec.get('assignee') == '') {
     return 'x-hidden';
   }
   return 'x-fa fa-edit';
-}, handler:'onClickLeaveApproveCompleteWindowButton'}, {xtype:'button', iconCls:'x-fa fa-object-group', tooltip:'任务跟踪', handler:'onClickGraphTraceButton'}], cls:'content-column', width:120, dataIndex:'bool', text:'操作', tooltip:'edit '}, {header:'id', dataIndex:'id', width:60, sortable:true, hidden:true}, {header:'审核状态', dataIndex:'processStatus', width:100, sortable:true, renderer:function(val) {
+}, handler:'onClickContractApproveCompleteWindowButton'}, {xtype:'button', iconCls:'x-fa fa-object-group', tooltip:'任务跟踪', handler:'onClickGraphTraceButton'}], cls:'content-column', width:120, dataIndex:'bool', text:'操作', tooltip:'edit '}, {header:'id', dataIndex:'id', width:60, sortable:true, hidden:true}, {header:'审核状态', dataIndex:'processStatus', width:100, sortable:true, renderer:function(val) {
   if (val == 'NEW') {
     return '\x3cspan style\x3d"color:green;"\x3e新建\x3c/span\x3e';
   } else {
@@ -106111,7 +108904,7 @@ text:'签约时间', flex:1, formatter:'date("Y/m/d H:i:s")'}, {xtype:'datecolum
 }}, {xtype:'gridcolumn', cls:'content-column', width:100, dataIndex:'area', text:'公司区域'}, {header:'processInstanceId', dataIndex:'processInstanceId', width:80, sortable:true, hidden:true}, {header:'taskId', dataIndex:'taskId', width:80, sortable:true, hidden:true}, {header:'审核名称', dataIndex:'taskName', width:100, sortable:true}, {header:'提交审核时间', dataIndex:'taskCreateTime', width:100, sortable:true, renderer:Ext.util.Format.dateRenderer('Y/m/d H:i:s')}, {header:'assignee', dataIndex:'assignee', width:80, 
 sortable:true, hidden:true}, {header:'taskDefinitionKey', dataIndex:'taskDefinitionKey', width:80, sortable:true, hidden:true}, {header:'processDefinitionId', dataIndex:'processDefinitionId', width:80, sortable:true, hidden:true}, {header:'suspended', dataIndex:'suspended', width:80, sortable:true, hidden:true}, {header:'version', dataIndex:'version', width:60, sortable:true, hidden:true}, {header:'depreason', dataIndex:'depreason', width:60, sortable:true, hidden:true}, {header:'manreason', dataIndex:'manreason', 
 width:60, sortable:true, hidden:true}], dockedItems:[{xtype:'pagingtoolbar', dock:'bottom', displayInfo:true, bind:'{contractApproveLists}'}]}]});
-Ext.define('Admin.view.contractapprove.ContractApproveViewController', {extend:Ext.app.ViewController, alias:'controller.contractApproveViewController', onClickLeaveApproveClaimButton:function(view, recIndex, cellIndex, item, e, record) {
+Ext.define('Admin.view.contractapprove.ContractApproveViewController', {extend:Ext.app.ViewController, alias:'controller.contractApproveViewController', onClickContractApproveClaimButton:function(view, recIndex, cellIndex, item, e, record) {
   Ext.Ajax.request({url:'contract/claim/' + record.get('taskId'), method:'post', success:function(response, options) {
     var json = Ext.util.JSON.decode(response.responseText);
     if (json.success) {
@@ -106127,7 +108920,7 @@ Ext.define('Admin.view.contractapprove.ContractApproveViewController', {extend:E
   var win = Ext.widget(cfg);
   view.up('panel').up('container').add(win);
   return win;
-}, onClickLeaveApproveCompleteWindowButton:function(view, recIndex, cellIndex, item, e, record) {
+}, onClickContractApproveCompleteWindowButton:function(view, recIndex, cellIndex, item, e, record) {
   var taskDefinitionKey = record.get('taskDefinitionKey');
   if (taskDefinitionKey == 'deptLeaderAudit') {
     var win = this.setCurrentView(view, taskDefinitionKey, '店长审批');
@@ -106469,12 +109262,20 @@ Ext.define('Admin.view.user.UserEditWindow', {extend:Ext.window.Window, alias:'w
 name:'createTime', format:'Y/m/d H:i:s'}]}], buttons:[{xtype:'button', text:'Submit', handler:'submitUserEditFormButton'}, {xtype:'button', text:'Close', handler:function(btn) {
   btn.up('window').close();
 }}]});
-Ext.define('Admin.view.user.UserPanel', {extend:Ext.panel.Panel, xtype:'userPanel', layout:'fit', items:[{xtype:'gridpanel', cls:'user-grid', title:'UserGrid Results', bind:'{userLists}', scrollable:false, selModel:{type:'checkboxmodel', checkOnly:true}, listeners:{selectionchange:function(selModel, selections) {
+Ext.define('Admin.view.user.UserPanel', {extend:Ext.panel.Panel, xtype:'userPanel', layout:'fit', items:[{xtype:'gridpanel', plugins:{gfilters:true}, cls:'user-grid', title:'UserGrid Results', bind:'{userLists}', scrollable:false, selModel:{type:'checkboxmodel', checkOnly:true}, listeners:{selectionchange:function(selModel, selections) {
   this.down('#userPanelRemove').setDisabled(selections.length === 0);
-}}, columns:[{xtype:'gridcolumn', width:40, dataIndex:'id', text:'id', hidden:true}, {xtype:'gridcolumn', cls:'content-column', width:320, dataIndex:'userName', text:'userName'}, {xtype:'datecolumn', cls:'content-column', width:120, dataIndex:'time', text:'createTime', flex:1, formatter:'date("Y/m/d H:i:s")'}, {xtype:'actioncolumn', cls:'content-column', width:250, dataIndex:'bool', text:'Actions', tooltip:'edit ', items:[{xtype:'button', iconCls:'x-fa fa-pencil', handler:'onEditButton'}, {xtype:'button', 
-iconCls:'x-fa fa-close', handler:'onDeleteButton'}, {xtype:'button', iconCls:'x-fa fa-ban', handler:'onDisableButton'}]}], tbar:[{xtype:'combobox', reference:'searchFieldName', hideLabel:true, store:Ext.create('Ext.data.Store', {fields:['name', 'value'], data:[{name:'用户名', value:'userName'}, {name:'创建时间', value:'createTime'}]}), displayField:'name', valueField:'value', value:'userName', editable:false, queryMode:'local', triggerAction:'all', width:135, listeners:{select:'searchComboboxSelectChange'}}, 
-'-', {xtype:'textfield', reference:'searchFieldValue', name:'userPanelSearchField'}, '-', {xtype:'datefield', hideLabel:true, hidden:true, format:'Y/m/d H:i:s', reference:'searchDataFieldValue', fieldLabel:'From', name:'from_date'}, {xtype:'datefield', hideLabel:true, hidden:true, format:'Y/m/d H:i:s', reference:'searchDataFieldValue2', fieldLabel:'To', name:'to_date'}, '-', {text:'Search', iconCls:'fa fa-search', handler:'quickSearch'}, '-', {text:'Search More', iconCls:'fa fa-search-plus', handler:'openSearchWindow'}, 
-'-\x3e', {text:'Add', tooltip:'Add a new row', iconCls:'fa fa-plus', handler:'openAddWindow'}, '-', {text:'Removes', itemId:'userPanelRemove', tooltip:'Remove the selected item', iconCls:'fa fa-trash', disabled:true, handler:'deleteMoreRows'}], dockedItems:[{xtype:'pagingtoolbar', dock:'bottom', itemId:'userPaginationToolbar', displayInfo:true, bind:'{userLists}'}]}]});
+}}, columns:[{xtype:'gridcolumn', width:40, dataIndex:'id', text:'id', hidden:true, filter:'number'}, {xtype:'gridcolumn', cls:'content-column', width:320, dataIndex:'userName', text:'userName', filter:{type:'string', itemDefaults:{emptyText:'Search for...'}}}, {xtype:'datecolumn', cls:'content-column', width:120, dataIndex:'time', text:'createTime', flex:1, formatter:'date("Y/m/d H:i:s")'}, {xtype:'actioncolumn', cls:'content-column', width:250, dataIndex:'bool', text:'Actions', tooltip:'edit ', 
+items:[{xtype:'button', iconCls:'x-fa fa-pencil', handler:'onEditButton'}, {xtype:'button', iconCls:'x-fa fa-close', handler:'onDeleteButton'}, {xtype:'button', iconCls:'x-fa fa-ban', handler:'onDisableButton'}]}], tbar:[{text:'Add Employee', iconCls:'employee-add', handler:function() {
+  var rowEditing = Ext.create('Ext.grid.plugin.RowEditing', {clicksToEdit:1});
+  var store = Ext.data.StoreManager.lookup('userGridStroe');
+  rowEditing.cancelEdit();
+  var r = Ext.create('Admin.model.user.UserModel');
+  var insertPosition = 0;
+  var lastRecord = store.insert(0, r);
+  rowEditing.startEdit(r, 0);
+}}, '-', {xtype:'combobox', reference:'searchFieldName', hideLabel:true, store:Ext.create('Ext.data.Store', {fields:['name', 'value'], data:[{name:'用户名', value:'userName'}, {name:'创建时间', value:'createTime'}]}), displayField:'name', valueField:'value', value:'userName', editable:false, queryMode:'local', triggerAction:'all', width:135, listeners:{select:'searchComboboxSelectChange'}}, '-', {xtype:'textfield', reference:'searchFieldValue', name:'userPanelSearchField'}, '-', {xtype:'datefield', hideLabel:true, 
+hidden:true, format:'Y/m/d H:i:s', reference:'searchDataFieldValue', fieldLabel:'From', name:'from_date'}, {xtype:'datefield', hideLabel:true, hidden:true, format:'Y/m/d H:i:s', reference:'searchDataFieldValue2', fieldLabel:'To', name:'to_date'}, '-', {text:'Search', iconCls:'fa fa-search', handler:'quickSearch'}, '-', {text:'Search More', iconCls:'fa fa-search-plus', handler:'openSearchWindow'}, '-\x3e', {text:'Add', tooltip:'Add a new row', iconCls:'fa fa-plus', handler:'openAddWindow'}, '-', {text:'Removes', 
+itemId:'userPanelRemove', tooltip:'Remove the selected item', iconCls:'fa fa-trash', disabled:true, handler:'deleteMoreRows'}], dockedItems:[{xtype:'pagingtoolbar', dock:'bottom', itemId:'userPaginationToolbar', displayInfo:true, bind:'{userLists}'}]}]});
 Ext.define('Aria.view.user.UserSearchWindow', {extend:Ext.window.Window, alias:'widget.userSearchWindow', height:200, minHeight:100, minWidth:300, width:500, scrollable:true, title:'User Search Window', closable:true, constrain:true, modal:true, layout:'fit', items:[{xtype:'form', layout:'form', padding:'10px', ariaLabel:'Enter your name', items:[{xtype:'textfield', fieldLabel:'UserName', name:'userName'}, {xtype:'datefield', fieldLabel:'Create Time', name:'createTime', format:'Y/m/d H:i:s'}]}], 
 buttons:[{xtype:'button', text:'Submit', handler:'submitSearchForm'}, {xtype:'button', text:'Close', handler:function(btn) {
   btn.up('window').close();

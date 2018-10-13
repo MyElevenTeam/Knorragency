@@ -2,18 +2,21 @@ Ext.define('Admin.view.achievement.Achievement', {
     extend: 'Ext.container.Container',
     xtype: 'achievement',
 
-    requires: [
-      
-        'Admin.view.achievement.AchievementPanel',
+    requires: [ 
         'Admin.view.achievement.AchievementViewModel',
-        'Ext.ux.layout.ResponsiveColumn'
+        'Ext.layout.container.VBox',
+        'Ext.layout.container.HBox',
+         'Admin.view.achievement.ChartPanel',
+        'Admin.view.achievement.AchievementViewModel'
     ],
-
+    controller: 'achievementController',
     viewModel: {
-        type: 'charts'
+        type: 'achievementViewModel'
     },
-
-    layout: 'responsivecolumn',
+    layout: {
+        type :'vbox',
+        align: 'stretch'               
+    },
 
     defaults: {
         defaults: {
@@ -21,10 +24,16 @@ Ext.define('Admin.view.achievement.Achievement', {
         }
     },
 
-    items: [
-        {
-            xtype: 'achievementPanel',
-            userCls: 'big-50 small-100'
-        }
-    ]
+    items : [{
+        xtype: 'analysePanel',
+        flex: 1,
+
+    },{
+       xtype: 'chartPanel',
+       margin: '0 0 10 0',
+       flex : 1
+    },{
+        xtype: 'sortPanel',
+        flex: 1
+    }]
 });

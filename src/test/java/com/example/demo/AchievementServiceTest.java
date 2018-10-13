@@ -9,7 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import com.example.demo.achievement.entity.AchievementDTO;
+import com.example.demo.achievement.entity.ResponseDTO;
 import com.example.demo.achievement.service.AchievementService;
 import com.example.demo.achievement.service.IAchievementService;
 import com.example.demo.contract.entity.Contract;
@@ -25,8 +25,8 @@ public class AchievementServiceTest {
 	IAchievementService achievementService;
 	@Test
 	public void achievementTest() {
-		List<AchievementDTO> tmps=achievementService.findByMonth("十月");
-		for(AchievementDTO tmp:tmps) {
+		List<ResponseDTO> tmps=achievementService.findByMonth("十月");
+		for(ResponseDTO tmp:tmps) {
 			System.out.println(tmp);	
 		}	
 	}
