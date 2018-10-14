@@ -8,7 +8,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter
 @SpringBootConfiguration
 public class Config extends WebMvcConfigurerAdapter{
 	
-	@Autowired
+	/*@Autowired
 	private EmployeeConfig employeeConfig;
 	@Autowired
 	private EmployeeConfig2 employeeConfig2;
@@ -18,6 +18,6 @@ public class Config extends WebMvcConfigurerAdapter{
 		//registry.addInterceptor(employeeConfig2).addPathPatterns("/**");
 		registry.addInterceptor(employeeConfig).addPathPatterns("/store/**");
 		registry.addInterceptor(employeeConfig).addPathPatterns("/employee/**");
-	}
+	}*/
 	
 }

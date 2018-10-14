@@ -100,5 +100,11 @@ public class Employee implements Serializable{
 	public void setPicture(String picture) {
 		this.picture = picture;
 	}
+	public String getQuotation() {
+		return quotation;
+	}
+	public void setQuotation(String quotation) {
+		this.quotation = quotation;
+	}
 	
 }
