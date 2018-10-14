@@ -27,7 +27,6 @@ Ext.define('Admin.view.achievement.Achievement', {
     items : [{
         xtype: 'analysePanel',
         flex: 1,
-
     },{
        xtype: 'chartPanel',
        margin: '0 0 10 0',
