@@ -2,21 +2,22 @@ Ext.define('Admin.view.contract.ContractViewController', {
     extend: 'Ext.app.ViewController',
     alias: 'controller.contractViewController',
 
+    
+    
     /*增加合同信息*/
-    // onAddClick:function(toolbar){
-    //   var view = this.getView();
-    //   var grid=toolbar.up('panel').down('grid');
-    //   rec = new Admin.model.contract.ContractModel({
-    //       contractNumber: '',
-    //       customerName: '',
-    //       hoseName: '',
-    //       employeeName:'',
-    //       startTime: Ext.Date.clearTime(new Date()),
-    //       endTime: Ext.Date.clearTime(new Date())      
-    //   });
-    //   grid.getStore().insert(0, rec);
-    //   view.findPlugin('cellediting').startEdit(rec, 0);
-    // },
+    onAddClick:function(toolbar){
+        toolbar.up('grid').up('container').add(Ext.widget('contractAddWindow')).show();
+    },
+    submitContractAddFormButton:function(btn){
+        var win    = btn.up('window');
+        var form = win.down('form');
+        var record = Ext.create('Admin.model.contract.ContractModel');
+        var values  =form.getValues();//获取form数据
+        record.set(values);
+        record.save();
+        Ext.data.StoreManager.lookup('contractGridStroe').load();
+        win.close();
+    },
     /*上传合同信息*/
     uploadContract:function(btn){
     	btn.up('panel').up('container').add(Ext.widget('contractUploadWindow')).show();
@@ -102,26 +103,7 @@ Ext.define('Admin.view.contract.ContractViewController', {
 		
    },
 
-   /*合同编辑*/
-  onEditButton:function(grid, rowIndex, colIndex){
-      /*打开窗口*/
-      var record = grid.getStore().getAt(rowIndex);
-        //获取选中数据的字段值：console.log(record.get('id')); 或者 console.log(record.data.id);
-      if (record ) {
-        var win = grid.up('container').add(Ext.widget('contractEditWindow'));
-        win.show();
-        win.down('form').getForm().loadRecord(record);
-      }
-  },
-  submitContractEditFormButton:function(btn){
-    var win = btn.up('window');
-    var store = Ext.data.StoreManager.lookup('contractGridStroe');
-      var values  = win.down('form').getValues();//获取form数据
-      var record = store.getById(values.id);//获取id获取store中的数据
-        record.set(values);
-      /*store.load();*/
-        win.close();
-  },
+   
 
   searchOpen:function(btn){
     Ext.getCmp('contract_searchOpen').hide();
@@ -132,12 +114,15 @@ Ext.define('Admin.view.contract.ContractViewController', {
       if(e.getKey() == Ext.EventObject.ENTER){
           var contractNumber=Ext.getCmp('contract_contractNumber').getValue();
           var customerName=Ext.getCmp('contract_customerName').getValue();
-          var employeeName=Ext.getCmp('contract_employeeName').getValue();
-          var contractType=Ext.getCmp('contract_contractType').getValue();
-          var timeStart=Ext.getCmp('contract_timeStart').getValue();
-          var timeEnd=Ext.getCmp('contract_timeEnd').getValue();
+          // var employeeName=Ext.getCmp('contract_employeeName').getValue();
+          // var contractType=Ext.getCmp('contract_contractType').getValue();
+          // var timeStart=Ext.getCmp('contract_timeStart').getValue();
+          // var timeEnd=Ext.getCmp('contract_timeEnd').getValue();
 
-          var store = Ext.data.StoreManager.lookup('contractGridStroe');
+          alert(contractNumber);
+          alert(customerName);
+          //alert(employeeName);
+          /*var store = Ext.data.StoreManager.lookup('contractGridStroe');
           Ext.apply(store.proxy.extraParams, {contractNumber:"",customerName:"",employeeName:"",contractType:"",timeStart:"",timeEnd:""});
           Ext.apply(store.proxy.extraParams,{
             contractNumber:contractNumber,
@@ -147,7 +132,7 @@ Ext.define('Admin.view.contract.ContractViewController', {
             timeStart:Ext.util.Format.date(timeStart, 'Y/m/d H:i:s'),
             timeEnd:Ext.util.Format.date(timeEnd, 'Y/m/d H:i:s')
           });
-          store.load({params:{start:0, limit:20, page:1}});
+          store.load({params:{start:0, limit:20, page:1}});*/
       }
   },
   searchClose:function(btn){

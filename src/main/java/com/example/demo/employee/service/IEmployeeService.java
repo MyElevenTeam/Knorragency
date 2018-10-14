@@ -1,6 +1,5 @@
 package com.example.demo.employee.service;
 
-import java.util.List;
 import java.util.Optional;
 
 import javax.servlet.http.HttpSession;
@@ -28,4 +27,5 @@ public interface IEmployeeService {
 	public ExtAjaxResponse deleteById(Long id);
 	public boolean checkPassword(String employeeNumber, String password);
 	public Employee EmployeeNumber(String employeeNumber);
+	public Employee EmployeeName(String employeeName);
 }

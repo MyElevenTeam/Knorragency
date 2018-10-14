@@ -5,6 +5,10 @@ import java.util.Date;
 import com.example.demo.activiti.entity.ProcessStatus;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
+/**
+ * @author kinghou
+ *
+ */
 public class ContractDTO {
 	
 	/**------------业务数据--------------**/
@@ -29,7 +33,7 @@ public class ContractDTO {
 	
 	private double total;           //金额
 	
-	private String area;           //地方
+	private String storeName;           //地方
 	
 	private ProcessStatus processStatus;//流程状态
 	
@@ -58,6 +62,12 @@ public class ContractDTO {
     private String depreason;
     
     private String manreason;
+    
+    
+    
+	public ContractDTO() {
+		
+	}
 
 	public Long getId() {
 		return id;
@@ -101,8 +111,8 @@ public class ContractDTO {
 		return total;
 	}
 
-	public String getArea() {
-		return area;
+	public String getStoreName() {
+		return storeName;
 	}
 
 	public ProcessStatus getProcessStatus() {
@@ -193,9 +203,9 @@ public class ContractDTO {
 	public void setTotal(double total) {
 		this.total = total;
 	}
-
-	public void setArea(String area) {
-		this.area = area;
+	
+	public void setStoreName(String storeName) {
+		this.storeName = storeName;
 	}
 
 	public void setProcessStatus(ProcessStatus processStatus) {
@@ -245,5 +255,10 @@ public class ContractDTO {
 	public void setManreason(String manreason) {
 		this.manreason = manreason;
 	}
-    
+
+	@Override
+	public String toString() {
+		return "ContractDTO [employeeName=" + employeeName + ", total=" + total + ", storeName=" + storeName + "]";
+	}
+
 }

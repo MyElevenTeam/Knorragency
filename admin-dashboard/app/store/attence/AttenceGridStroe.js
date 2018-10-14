@@ -18,6 +18,7 @@ Ext.define('Admin.store.attence.AttenceGridStroe', {
 		},
 		simpleSortMode: true	//简单排序模式
 	},
+	groupField: 'day',
 	autoLoad: 'true',
     autoSync:true,
     remoteSort:true,

@@ -90,6 +90,19 @@ Ext.define('Admin.store.NavigationTree', {
                 viewType: 'achievement',
                 leaf: true
             },{
+                text: '安全管理',
+                iconCls: 'x-fa  fa-connectdevelop',
+                expanded: false,
+                selectable: false,
+                children: [
+                    {
+                        text: '日志管理',
+                        iconCls: 'x-fa fa-file',
+                        viewType: 'log',
+                        leaf: true
+                    }
+                ]
+            },{
                 text: 'Login',
                 iconCls: 'x-fa fa-check',
                 viewType: 'login',

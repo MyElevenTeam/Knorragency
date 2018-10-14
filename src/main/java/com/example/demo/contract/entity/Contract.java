@@ -3,13 +3,17 @@ package com.example.demo.contract.entity;
 import java.io.Serializable;
 import java.util.Date;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 import com.example.demo.activiti.entity.ProcessStatus;
+import com.example.demo.employee.domain.Employee;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 @Entity
@@ -27,7 +31,7 @@ public class Contract implements Serializable{
 	
 	private String hoseName;          //房源名称
 	
-	private String employeeName;      //房产经纪人姓名
+	private Employee employee;      //房产经纪人姓名
 	
 	private Date startTime;          //签约时间
 	
@@ -36,8 +40,6 @@ public class Contract implements Serializable{
 	private String contractType;     //合同类型
 	
 	private double total;           //金额
-	
-	private String area;           //地方
 	
 	private ProcessStatus processStatus;//流程状态
 	
@@ -67,11 +69,13 @@ public class Contract implements Serializable{
 	public String getHoseName() {
 		return hoseName;
 	}
-
-	public String getEmployeeName() {
-		return employeeName;
-	}
 	
+	@ManyToOne(cascade=CascadeType.ALL)
+	@JoinColumn(name="employee_id")
+	public Employee getEmployee() {
+		return employee;
+	}
+
 	@JsonFormat(pattern="yyyy/MM/dd HH:mm:ss",timezone="GMT+8")
 	public Date getStartTime() {
 		return startTime;
@@ -88,10 +92,6 @@ public class Contract implements Serializable{
 
 	public double getTotal() {
 		return total;
-	}
-	
-	public String getArea() {
-		return area;
 	}
 	
 	public ProcessStatus getProcessStatus() {
@@ -125,13 +125,13 @@ public class Contract implements Serializable{
 	public void setCustomerName(String customerName) {
 		this.customerName = customerName;
 	}
+	
+	public void setEmployee(Employee employee) {
+		this.employee = employee;
+	}
 
 	public void setHoseName(String hoseName) {
 		this.hoseName = hoseName;
-	}
-
-	public void setEmployeeName(String employeeName) {
-		this.employeeName = employeeName;
 	}
 
 	public void setStartTime(Date startTime) {
@@ -150,10 +150,6 @@ public class Contract implements Serializable{
 		this.total = total;
 	}
 
-	public void setArea(String area) {
-		this.area = area;
-	}
-	
 	public void setProcessStatus(ProcessStatus processStatus) {
 		this.processStatus = processStatus;
 	}
@@ -174,12 +170,4 @@ public class Contract implements Serializable{
 		this.manreason = manreason;
 	}
 
-	@Override
-	public String toString() {
-		return "Contract [id=" + id + ", contractNumber=" + contractNumber + ", customerName=" + customerName
-				+ ", hoseName=" + hoseName + ", employeeName=" + employeeName + ", startTime=" + startTime
-				+ ", endTime=" + endTime + ", contractType=" + contractType + ", total=" + total + ", area=" + area
-				+ "]";
-	}
-	
 }

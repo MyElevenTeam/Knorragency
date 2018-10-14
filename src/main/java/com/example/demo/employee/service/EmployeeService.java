@@ -216,4 +216,9 @@ public class EmployeeService implements IEmployeeService {
 		return employeeRepository.findByEmployeeNumber(employeeNumber);
 	}
 
+	@Override
+	public Employee EmployeeName(String employeeName) {
+		return employeeRepository.findByEmployeeName(employeeName);
+	}
+
 }

@@ -25,6 +25,9 @@ import com.example.demo.activiti.service.IWorkflowService;
 import com.example.demo.contract.entity.Contract;
 import com.example.demo.contract.entity.ContractDTO;
 import com.example.demo.contract.repository.ContractRepository;
+import com.example.demo.contract.util.ContractUtil;
+import com.example.demo.employee.domain.Employee;
+import com.example.demo.employee.service.IEmployeeService;
 
 @Service
 @Transactional
@@ -32,6 +35,9 @@ public class ContractService implements IContractService {
 	
 	@Autowired
 	private ContractRepository contractRepository;
+	
+	@Autowired
+	private IEmployeeService employeeService;
 	
 	@Autowired 
 	private IWorkflowService workflowService;
@@ -68,13 +74,51 @@ public class ContractService implements IContractService {
 	}
 
 	@Override
-	public Page<Contract> findAll(Specification<Contract> spec, Pageable pageable) {
-		return contractRepository.findAll(spec, pageable);
+	public Page<ContractDTO> findAll(Specification<Contract> spec, Pageable pageable) {
+		Page<Contract> list =  contractRepository.findAll(spec, pageable);
+		List<ContractDTO> dtoLists = new ArrayList<ContractDTO>();
+		for (Contract entity : list.getContent()) {
+			ContractDTO dto = new ContractDTO();
+			BeanUtils.copyProperties(entity, dto);
+			if(entity.getEmployee()!=null) {
+				dto.setEmployeeName(entity.getEmployee().getEmployeeName());
+				if(entity.getEmployee().getLocalStore()!=null) {
+					dto.setStoreName(entity.getEmployee().getLocalStore().getStoreName());
+				}
+			}
+			dtoLists.add(dto);
+		}
+		return new PageImpl<ContractDTO>(dtoLists, pageable, list.getTotalElements());
 	}
 	
 	@Override
 	public List<Contract> findAllContract(Specification<Contract> spec) {
 		return contractRepository.findAll(spec);
+	}
+	
+	//根据月份和门店名统计出某月某门店的每个员工的销售额
+	@Override
+	public List<ContractDTO> getSumAndEmployeeNameByMonthAndStoreName(String month, String storeName){
+		
+		Date dmonth=ContractUtil.toDate(month);
+		
+		List<Object> sumList=contractRepository.getSumByMonthAndStoreName(dmonth, storeName);
+		List<Object> employeeList=contractRepository.getEmployeeByMonthAndStoreName(dmonth, storeName);
+		
+		return ContractUtil.toContractDTOByEmployee(sumList, employeeList);
+	}
+	
+	//根据月份统计出某月某门店的总销售额
+	@Override
+	public List<ContractDTO> getSumAndStoreNameByMonthAndStoreName(String month){
+		
+		Date dmonth=ContractUtil.toDate(month);
+		
+		List<Object> sumList=contractRepository.getSumByMonth(dmonth);
+		List<Object> storeList=contractRepository.getStoreNameByMonth(dmonth);
+		
+		return ContractUtil.toContractDTOByStore(sumList, storeList);
+		
 	}
 
 	/*上传word文档*/
@@ -87,24 +131,28 @@ public class ContractService implements IContractService {
 	        for (int i = 0; i < lines.length; i++) {
 	        	String str=lines[i];
 	        	
-	        	if(i==1) {
+	        	if(i==1) {  //获取合同号
 					String contractNumber=str.substring(5, 8);
 					c.setContractNumber(contractNumber);
 				}
 	        	
-	        	if(i==2) {
+	        	if(i==2) {  
+	        		//获得签约时间
 					String startTime=str.substring(3, 12);
 					SimpleDateFormat ssdf = new SimpleDateFormat("yyyy/MM/dd");
 				    Date sutilDate = ssdf.parse(startTime);
 				    c.setStartTime(sutilDate);
 				    
+				    //获得房源名
 					String houseName=str.substring(16, 19);
 					c.setHoseName(houseName);
 					
+					//获得金额
 					String stotal=str.substring(25, 30);
 					Double total=Double.valueOf(stotal);
 					c.setTotal(total);
 					
+					//获得失效时间
 					String endTime=str.substring(36);
 					SimpleDateFormat esdf = new SimpleDateFormat("yyyy/MM/dd");
 				    Date eutilDate = esdf.parse(endTime);
@@ -112,12 +160,17 @@ public class ContractService implements IContractService {
 				}
 	        	
 	        	if(i==3) {
+	        		//获得客户名
 					String customerName=str.substring(3);
 					c.setCustomerName(customerName);
 				}
 				if(i==4) {
+					//获得员工姓名
 					String employeeName=str.substring(3);
-					c.setEmployeeName(employeeName);
+					Employee e=employeeService.EmployeeName(employeeName);
+					if(e!=null) {
+						c.setEmployee(e);
+					}
 				}
 			}
 			return c;
@@ -235,11 +288,4 @@ public class ContractService implements IContractService {
 		workflowService.complete(taskId, variables);
 	}
 
-	@Override
-	public List<Object> sum(Date d,String employeeName) {
-		
-		return contractRepository.sum(d,employeeName);
-	}
-	
-	
 }

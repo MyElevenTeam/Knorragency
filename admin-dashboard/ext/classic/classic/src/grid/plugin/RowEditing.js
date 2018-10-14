@@ -178,29 +178,37 @@ Ext.define('Ext.grid.plugin.RowEditing', {
      * @return {Boolean} `true` if editing was started, `false` otherwise.
      */
     startEdit: function(record, columnHeader) {
-        var me = this,
+
+        
+        if(record.data.processStatus=="NEW"){
+            var me = this,
             editor = me.getEditor(),
             context;
             
-        if (Ext.isEmpty(columnHeader)) {
-            columnHeader = me.grid.getTopLevelVisibleColumnManager().getHeaderAtIndex(0);
-        }
-
-        if (editor.beforeEdit() !== false) {
-            context = me.getEditingContext(record, columnHeader, true);
-            if (context && me.beforeEdit(context) !== false && me.fireEvent('beforeedit', me, context) !== false && !context.cancel) {
-                me.context = context;
-
-                // If editing one side of a lockable grid, cancel any edit on the other side.
-                if (me.lockingPartner) {
-                    me.lockingPartner.cancelEdit();
-                }
-                editor.startEdit(context.record, context.column, context);
-                me.editing = true;
-                return true;
+            if (Ext.isEmpty(columnHeader)) {
+                columnHeader = me.grid.getTopLevelVisibleColumnManager().getHeaderAtIndex(0);
             }
+
+            if (editor.beforeEdit() !== false) {
+                context = me.getEditingContext(record, columnHeader, true);
+                if (context && me.beforeEdit(context) !== false && me.fireEvent('beforeedit', me, context) !== false && !context.cancel) {
+                    me.context = context;
+
+                    // If editing one side of a lockable grid, cancel any edit on the other side.
+                    if (me.lockingPartner) {
+                        me.lockingPartner.cancelEdit();
+                    }
+                    editor.startEdit(context.record, context.column, context);
+                    me.editing = true;
+                    return true;
+                }
+            }
+        }else{
+            Ext.Msg.alert('提示',"只可以修改'新建'状态的信息！");
+            return false;
         }
-        return false;
+        
+        
     },
 
     /**
@@ -273,11 +281,12 @@ Ext.define('Ext.grid.plugin.RowEditing', {
         
         var me = this,
             context = me.context;
-
+        // var check=Ext.getCmp('contract_processStatus').getValue();
         if (me.editing && me.validateEdit(context)) {
-            me.editing = false;
-            me.fireEvent('edit', me, context);
-        }
+                me.editing = false;
+                me.fireEvent('edit', me, context);
+            }
+        
     },
 
     validateEdit: function() {

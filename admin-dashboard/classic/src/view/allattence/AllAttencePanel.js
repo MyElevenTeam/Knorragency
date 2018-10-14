@@ -94,6 +94,13 @@ Ext.define('Admin.view.allattence.AllAttencePanel', {
             //         },
             //         cellclick: 'onGridCellItemClick'
             // },
+            features: [{
+                ftype: 'grouping',
+                groupHeaderTpl: '{name}',
+                hideGroupedHeader: false,
+                startCollapsed: true,
+                // enableGroupingMenu: true
+            }],
             columns: [
                 {xtype: 'gridcolumn',width: 40,dataIndex: 'id',text: 'id',hidden:true},
                 {header: '上班状态',dataIndex: 'attenceStatus',width: 120,sortable: true,
@@ -111,9 +118,11 @@ Ext.define('Admin.view.allattence.AllAttencePanel', {
                     }
                 },
                 {xtype: 'gridcolumn', cls: 'content-column',width:150,dataIndex: 'employeeName',text: '员工姓名'},
+                {xtype: 'gridcolumn', cls: 'content-column',width:150,dataIndex: 'storeName',text: '部门名'},
                 {xtype: 'gridcolumn', cls: 'content-column',width:150,dataIndex: 'location',text: '打卡地点'},
-                {xtype: 'datecolumn',cls: 'content-column',width: 180,dataIndex: 'workinTime',text: '上班时间',flex:1,formatter: 'date("Y/m/d H:i:s")'},
-                {xtype: 'datecolumn',cls: 'content-column',width: 180,dataIndex: 'workoutTime',text: '下班时间',flex:1,formatter: 'date("Y/m/d H:i:s")'},
+                {xtype: 'datecolumn',cls: 'content-column',width: 160,dataIndex: 'workinTime',text: '上班时间',flex:1,formatter: 'date("Y/m/d H:i:s")'},
+                {xtype: 'datecolumn',cls: 'content-column',width: 160,dataIndex: 'workoutTime',text: '下班时间',flex:1,formatter: 'date("Y/m/d H:i:s")'},
+                 {xtype: 'datecolumn',cls: 'content-column',width: 160,dataIndex: 'day',text: '考勤时间',flex:1,formatter: 'date("Y/m")'},
                 {xtype: 'actioncolumn',cls: 'content-column', width: 80,dataIndex: 'bool',text: '操作',tooltip: 'edit '}
             ],
             dockedItems: [{

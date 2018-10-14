@@ -8,16 +8,16 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter
 @SpringBootConfiguration
 public class Config extends WebMvcConfigurerAdapter{
 	
-	@Autowired
-	private EmployeeConfig employeeConfig;
-	@Autowired
-	private EmployeeConfig2 employeeConfig2;
-	
-	@Override
-	public void addInterceptors(InterceptorRegistry registry) {
-		//registry.addInterceptor(employeeConfig2).addPathPatterns("/**");
-		registry.addInterceptor(employeeConfig).addPathPatterns("/store/**");
-		registry.addInterceptor(employeeConfig).addPathPatterns("/employee/**");
-	}
+//	@Autowired
+//	private EmployeeConfig employeeConfig;
+//	@Autowired
+//	private EmployeeConfig2 employeeConfig2;
+//	
+//	@Override
+//	public void addInterceptors(InterceptorRegistry registry) {
+//		//registry.addInterceptor(employeeConfig2).addPathPatterns("/**");
+//		registry.addInterceptor(employeeConfig).addPathPatterns("/store/**");
+//		registry.addInterceptor(employeeConfig).addPathPatterns("/employee/**");
+//	}
 	
 }

@@ -16,4 +16,7 @@ public interface EmployeeRepository extends PagingAndSortingRepository<Employee,
 	
 	@Query("from Employee e where e.employeeNumber = ?1 and e.password = ?2")
 	public Employee checkPassword(String employeeNumber,String password);
+	
+	@Query("from Employee e where e.employeeName = ?1")
+	public Employee findByEmployeeName(String employeeName);
 }

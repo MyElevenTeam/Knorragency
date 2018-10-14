@@ -1,8 +1,13 @@
 package com.example.demo.contract.util;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
+
+import com.example.demo.contract.entity.ContractDTO;
+import com.example.demo.employee.domain.Employee;
 
 public class ContractUtil {
 
@@ -32,6 +37,34 @@ public class ContractUtil {
 			e.printStackTrace();
 		}
 		return dMonth;
+	}
+	
+	public static List<ContractDTO> toContractDTOByEmployee(List<Object> sumList,List<Object> employeeList){
+		
+		List<ContractDTO> dtoLists = new ArrayList<ContractDTO>();
+		
+		for(int i=0;i<sumList.size();i++){
+			ContractDTO dto=new ContractDTO();
+			dto.setTotal((double)sumList.get(i));
+			Employee e=(Employee)employeeList.get(i);
+			dto.setEmployeeName(e.getEmployeeName());
+			dtoLists.add(dto);
+		}
+		return dtoLists;
+	}
+	
+	public static List<ContractDTO> toContractDTOByStore(List<Object> sumList,List<Object> storeList){
+		
+		List<ContractDTO> dtoLists = new ArrayList<ContractDTO>();
+		
+		for(int i=0;i<sumList.size();i++){
+			ContractDTO dto=new ContractDTO();
+			dto.setTotal((double)sumList.get(i));
+			Employee e=(Employee)storeList.get(i);
+			dto.setStoreName(e.getLocalStore().getStoreName());
+			dtoLists.add(dto);
+		}
+		return dtoLists;
 	}
 
 }

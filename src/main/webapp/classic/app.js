@@ -82253,6 +82253,1035 @@ Ext.define('Ext.grid.feature.Feature', {extend:Ext.util.Observable, alias:'featu
 }, disable:function() {
   this.disabled = true;
 }});
+Ext.define('Ext.grid.feature.AbstractSummary', {extend:Ext.grid.feature.Feature, alias:'feature.abstractsummary', summaryRowCls:Ext.baseCSSPrefix + 'grid-row-summary', summaryRowSelector:'.' + Ext.baseCSSPrefix + 'grid-row-summary', readDataOptions:{recordCreator:Ext.identityFn}, summaryRowTpl:{fn:function(out, values, parent) {
+  if (values.record.isSummary) {
+    this.summaryFeature.outputSummaryRecord(values.record, values, out, parent);
+  } else {
+    this.nextTpl.applyOut(values, out, parent);
+  }
+}, priority:1000}, showSummaryRow:true, init:function() {
+  var me = this;
+  me.view.summaryFeature = me;
+  me.rowTpl = me.view.self.prototype.rowTpl;
+  me.view.addRowTpl(me.summaryRowTpl).summaryFeature = me;
+  me.summaryData = {};
+  me.groupInfo = {};
+  if (!me.summaryTableCls) {
+    me.summaryTableCls = Ext.baseCSSPrefix + 'grid-item';
+  }
+  if (me.hasOwnProperty('summaryRowCls')) {
+    me.summaryRowSelector = '.' + me.summaryRowCls;
+  }
+}, bindStore:function(grid, store) {
+  var me = this;
+  Ext.destroy(me.readerListeners);
+  if (me.remoteRoot) {
+    me.readerListeners = store.getProxy().getReader().on({scope:me, destroyable:true, rawdata:me.onReaderRawData});
+  }
+}, onReaderRawData:function(data) {
+  this.summaryRows = null;
+  this.readerRawData = data;
+}, toggleSummaryRow:function(visible, fromLockingPartner) {
+  var me = this, prev = me.showSummaryRow, doRefresh;
+  visible = visible != null ? !!visible : !me.showSummaryRow;
+  me.showSummaryRow = visible;
+  if (visible && visible !== prev) {
+    me.updateSummaryRow = true;
+  }
+  if (me.lockingPartner) {
+    if (!fromLockingPartner) {
+      me.lockingPartner.toggleSummaryRow(visible, true);
+      doRefresh = true;
+    }
+  } else {
+    doRefresh = true;
+  }
+  if (doRefresh) {
+    me.grid.ownerGrid.getView().refresh();
+  }
+}, createRenderer:function(column, record) {
+  var me = this, ownerGroup = record.ownerGroup, summaryData = ownerGroup ? me.summaryData[ownerGroup] : me.summaryData, dataIndex = column.dataIndex || column.getItemId();
+  return function(value, metaData) {
+    return column.summaryRenderer ? column.summaryRenderer(record.data[dataIndex], summaryData, dataIndex, metaData) : record.data[dataIndex];
+  };
+}, outputSummaryRecord:function(summaryRecord, contextValues, out) {
+  var view = contextValues.view, savedRowValues = view.rowValues, columns = contextValues.columns || view.headerCt.getVisibleGridColumns(), colCount = columns.length, i, column, values = {view:view, record:summaryRecord, rowStyle:'', rowClasses:[this.summaryRowCls, this.summaryItemCls], itemClasses:[], recordIndex:-1, rowId:view.getRowId(summaryRecord), columns:columns};
+  for (i = 0; i < colCount; i++) {
+    column = columns[i];
+    column.savedRenderer = column.renderer;
+    if (column.summaryType || column.summaryRenderer) {
+      column.renderer = this.createRenderer(column, summaryRecord);
+    } else {
+      column.renderer = Ext.emptyFn;
+    }
+  }
+  view.rowValues = values;
+  view.self.prototype.rowTpl.applyOut(values, out, parent);
+  view.rowValues = savedRowValues;
+  for (i = 0; i < colCount; i++) {
+    column = columns[i];
+    column.renderer = column.savedRenderer;
+    column.savedRenderer = null;
+  }
+}, getSummary:function(store, type, field, group) {
+  var isGrouped = !!group, item = isGrouped ? group : store;
+  if (type) {
+    if (Ext.isFunction(type)) {
+      if (isGrouped) {
+        return item.aggregate(field, type);
+      } else {
+        return item.aggregate(type, null, false, [field]);
+      }
+    }
+    switch(type) {
+      case 'count':
+        return item.count();
+      case 'min':
+        return item.min(field);
+      case 'max':
+        return item.max(field);
+      case 'sum':
+        return item.sum(field);
+      case 'average':
+        return item.average(field);
+      default:
+        return '';
+    }
+  }
+}, getRawData:function() {
+  var data = this.readerRawData;
+  if (data) {
+    return data;
+  }
+  return this.view.getStore().getProxy().getReader().rawData;
+}, generateSummaryData:function(groupField) {
+  var me = this, summaryRows = me.summaryRows, convertedSummaryRow = {}, remoteData = {}, storeReader, reader, rawData, i, len, summaryRows, rows, row;
+  if (!summaryRows) {
+    rawData = me.getRawData();
+    if (!rawData) {
+      return;
+    }
+    storeReader = me.view.store.getProxy().getReader();
+    reader = Ext.create('reader.' + storeReader.type, storeReader.getConfig());
+    reader.setRootProperty(me.remoteRoot);
+    summaryRows = reader.getRoot(rawData);
+    if (summaryRows) {
+      rows = [];
+      if (!Ext.isArray(summaryRows)) {
+        summaryRows = [summaryRows];
+      }
+      len = summaryRows.length;
+      for (i = 0; i < len; ++i) {
+        row = reader.extractRecordData(summaryRows[i], me.readDataOptions);
+        rows.push(row);
+      }
+      me.summaryRows = summaryRows = rows;
+    }
+    reader.destroy();
+    me.readerRawData = null;
+  }
+  if (summaryRows) {
+    for (i = 0, len = summaryRows.length; i < len; i++) {
+      convertedSummaryRow = summaryRows[i];
+      if (groupField) {
+        remoteData[convertedSummaryRow[groupField]] = convertedSummaryRow;
+      }
+    }
+  }
+  return groupField ? remoteData : convertedSummaryRow;
+}, setSummaryData:function(record, colId, summaryValue, groupName) {
+  var summaryData = this.summaryData;
+  if (groupName) {
+    if (!summaryData[groupName]) {
+      summaryData[groupName] = {};
+    }
+    summaryData[groupName][colId] = summaryValue;
+  } else {
+    summaryData[colId] = summaryValue;
+  }
+}, destroy:function() {
+  Ext.destroy(this.readerListeners);
+  this.readerRawData = this.summaryRows = null;
+  this.callParent();
+}});
+Ext.define('Ext.grid.feature.GroupStore', {extend:Ext.util.Observable, isStore:true, defaultViewSize:100, isFeatureStore:true, badGrouperKey:'[object Object]', constructor:function(groupingFeature, store) {
+  var me = this;
+  me.callParent();
+  me.groupingFeature = groupingFeature;
+  me.bindStore(store);
+  if (!groupingFeature.grid.isLocked) {
+    me.bindViewStoreListeners();
+  }
+}, bindStore:function(store) {
+  var me = this;
+  if (!store || me.store !== store) {
+    Ext.destroy(me.storeListeners);
+    me.store = null;
+  }
+  if (store) {
+    me.storeListeners = store.on({datachanged:me.onDataChanged, groupchange:me.onGroupChange, idchanged:me.onIdChanged, update:me.onUpdate, scope:me, destroyable:true});
+    me.store = store;
+    me.processStore(store);
+  }
+}, bindViewStoreListeners:function() {
+  var view = this.groupingFeature.view, listeners = view.getStoreListeners(this);
+  listeners.scope = view;
+  this.on(listeners);
+}, processStore:function(store) {
+  var me = this, groupingFeature = me.groupingFeature, collapseAll = groupingFeature.startCollapsed, data = me.data, groups = store.getGroups(), groupCount = groups ? groups.length : 0, groupField = store.getGroupField(), metaGroup, i, featureGrouper, group, key;
+  if (data) {
+    data.clear();
+  } else {
+    data = me.data = new Ext.util.Collection({rootProperty:'data', extraKeys:{byInternalId:{property:'internalId', rootProperty:''}}});
+  }
+  if (store.getCount()) {
+    groupingFeature.startCollapsed = false;
+    if (groupCount > 0) {
+      for (i = 0; i < groupCount; i++) {
+        group = groups.getAt(i);
+        key = group.getGroupKey();
+        if (me.badGrouperKey === key && (featureGrouper = groupingFeature.getGrouper(groupField))) {
+          store.getGroups().remove(group);
+          groupingFeature.startCollapsed = collapseAll;
+          store.group(featureGrouper);
+          return;
+        }
+        metaGroup = groupingFeature.getMetaGroup(group);
+        if (collapseAll) {
+          metaGroup.isCollapsed = collapseAll;
+        }
+        if (metaGroup.isCollapsed) {
+          data.add(metaGroup.placeholder);
+        } else {
+          data.insert(me.data.length, group.items);
+        }
+      }
+    } else {
+      data.add(store.getRange());
+    }
+  }
+}, isCollapsed:function(name) {
+  return this.groupingFeature.getCache()[name].isCollapsed;
+}, isLoading:function() {
+  return false;
+}, getData:function() {
+  return this.data;
+}, getCount:function() {
+  return this.data.getCount();
+}, getTotalCount:function() {
+  return this.data.getCount();
+}, rangeCached:function(start, end) {
+  return end < this.getCount();
+}, getRange:function(start, end, options) {
+  var result = this.data.getRange(start, Ext.isNumber(end) ? end + 1 : end);
+  if (options && options.callback) {
+    options.callback.call(options.scope || this, result, start, end, options);
+  }
+  return result;
+}, getAt:function(index) {
+  return this.data.getAt(index);
+}, getById:function(id) {
+  return this.store.getById(id);
+}, getByInternalId:function(internalId) {
+  return this.store.getByInternalId(internalId) || this.data.byInternalId.get(internalId);
+}, expandGroup:function(group) {
+  var me = this, groupingFeature = me.groupingFeature, lockingPartner = groupingFeature.lockingPartner, metaGroup, placeholder, startIdx, items;
+  if (typeof group === 'string') {
+    group = groupingFeature.getGroup(group);
+  }
+  if (group) {
+    items = group.items;
+    metaGroup = groupingFeature.getMetaGroup(group);
+    placeholder = metaGroup.placeholder;
+  }
+  if (items.length && (startIdx = me.data.indexOf(placeholder)) !== -1) {
+    metaGroup.isCollapsed = false;
+    if (lockingPartner) {
+      lockingPartner.getMetaGroup(group).isCollapsed = false;
+    }
+    me.isExpandingOrCollapsing = 1;
+    me.data.removeAt(startIdx);
+    me.data.insert(startIdx, group.items);
+    me.fireEvent('replace', me, startIdx, [placeholder], group.items);
+    me.fireEvent('groupexpand', me, group);
+    me.isExpandingOrCollapsing = 0;
+  }
+}, collapseGroup:function(group) {
+  var me = this, groupingFeature = me.groupingFeature, lockingPartner = groupingFeature.lockingPartner, startIdx, placeholder, len, items;
+  if (typeof group === 'string') {
+    group = groupingFeature.getGroup(group);
+  }
+  if (group) {
+    items = group.items;
+  }
+  if (items && (len = items.length) && (startIdx = me.data.indexOf(items[0])) !== -1) {
+    groupingFeature.getMetaGroup(group).isCollapsed = true;
+    if (lockingPartner) {
+      lockingPartner.getMetaGroup(group).isCollapsed = true;
+    }
+    me.isExpandingOrCollapsing = 2;
+    me.data.removeAt(startIdx, len);
+    me.data.insert(startIdx, placeholder = me.getGroupPlaceholder(group));
+    me.fireEvent('replace', me, startIdx, items, [placeholder]);
+    me.fireEvent('groupcollapse', me, group);
+    me.isExpandingOrCollapsing = 0;
+  }
+}, getGroupPlaceholder:function(group) {
+  var metaGroup = this.groupingFeature.getMetaGroup(group);
+  if (!metaGroup.placeholder) {
+    var store = this.store, Model = store.getModel(), modelData = {}, key = group.getGroupKey(), groupPlaceholder;
+    modelData[store.getGroupField()] = key;
+    groupPlaceholder = metaGroup.placeholder = new Model(modelData);
+    groupPlaceholder.isNonData = groupPlaceholder.isCollapsedPlaceholder = true;
+    groupPlaceholder.groupKey = key;
+  }
+  return metaGroup.placeholder;
+}, indexOf:function(record) {
+  var ret = -1;
+  if (record && !record.isCollapsedPlaceholder) {
+    ret = this.data.indexOf(record);
+  }
+  return ret;
+}, contains:function(record) {
+  return this.indexOf(record) > -1;
+}, indexOfPlaceholder:function(record) {
+  return this.data.indexOf(record);
+}, indexOfId:function(id) {
+  return this.data.indexOfKey(id);
+}, indexOfTotal:function(record) {
+  return this.store.indexOf(record);
+}, onIdChanged:function(store, rec, oldId, newId) {
+  this.data.updateKey(rec, oldId);
+}, onUpdate:function(store, record, operation, modifiedFieldNames) {
+  var me = this, groupingFeature = me.groupingFeature, group, metaGroup, firstRec, lastRec, items;
+  if (store.isGrouped()) {
+    group = record.group = groupingFeature.getGroup(record);
+    if (group) {
+      metaGroup = groupingFeature.getMetaGroup(record);
+      if (modifiedFieldNames && Ext.Array.contains(modifiedFieldNames, groupingFeature.getGroupField())) {
+        me.onDataChanged();
+        delete record.group;
+        return;
+      }
+      if (metaGroup.isCollapsed) {
+        me.fireEvent('update', me, metaGroup.placeholder);
+      } else {
+        Ext.suspendLayouts();
+        me.fireEvent('update', me, record, operation, modifiedFieldNames);
+        items = group.items;
+        firstRec = items[0];
+        lastRec = items[items.length - 1];
+        if (firstRec !== record) {
+          firstRec.group = group;
+          me.fireEvent('update', me, firstRec, 'edit', modifiedFieldNames);
+          delete firstRec.group;
+        }
+        if (lastRec !== record && lastRec !== firstRec && groupingFeature.showSummaryRow) {
+          lastRec.group = group;
+          me.fireEvent('update', me, lastRec, 'edit', modifiedFieldNames);
+          delete lastRec.group;
+        }
+        Ext.resumeLayouts(true);
+      }
+    }
+    delete record.group;
+  } else {
+    me.fireEvent('update', me, record, operation, modifiedFieldNames);
+  }
+}, onGroupChange:function(store, grouper) {
+  if (!grouper) {
+    this.processStore(store);
+  }
+  this.fireEvent('groupchange', store, grouper);
+}, onDataChanged:function() {
+  this.processStore(this.store);
+  this.fireEvent('refresh', this);
+}, destroy:function() {
+  var me = this;
+  me.bindStore(null);
+  Ext.destroy(me.data);
+  me.groupingFeature = null;
+  me.callParent();
+}});
+Ext.define('Ext.grid.feature.Grouping', {extend:Ext.grid.feature.Feature, mixins:{summary:Ext.grid.feature.AbstractSummary}, alias:'feature.grouping', eventPrefix:'group', eventSelector:'.' + Ext.baseCSSPrefix + 'grid-group-hd', refreshData:{}, wrapsItem:true, groupHeaderTpl:'{columnName}: {name}', depthToIndent:17, collapsedCls:Ext.baseCSSPrefix + 'grid-group-collapsed', hdCollapsedCls:Ext.baseCSSPrefix + 'grid-group-hd-collapsed', hdNotCollapsibleCls:Ext.baseCSSPrefix + 'grid-group-hd-not-collapsible', 
+collapsibleCls:Ext.baseCSSPrefix + 'grid-group-hd-collapsible', ctCls:Ext.baseCSSPrefix + 'group-hd-container', groupByText:'Group by this field', showGroupsText:'Show in groups', hideGroupedHeader:false, startCollapsed:false, enableGroupingMenu:true, enableNoGroups:true, collapsible:true, groupers:null, expandTip:'Click to expand. CTRL key collapses all others', collapseTip:'Click to collapse. CTRL/click collapses all others', showSummaryRow:false, outerTpl:['{%', 'if (!(this.groupingFeature.disabled || values.rows.length \x3d\x3d\x3d 1 \x26\x26 values.rows[0].isSummary)) {', 
+'this.groupingFeature.setup(values.rows, values.view.rowValues);', '}', 'this.nextTpl.applyOut(values, out, parent);', 'if (!(this.groupingFeature.disabled || values.rows.length \x3d\x3d\x3d 1 \x26\x26 values.rows[0].isSummary)) {', 'this.groupingFeature.cleanup(values.rows, values.view.rowValues);', '}', '%}', {priority:200}], groupRowTpl:['{%', 'var me \x3d this.groupingFeature,', 'colspan \x3d "colspan\x3d" + values.columns.length;', 'if (me.disabled || parent.rows.length \x3d\x3d\x3d 1 \x26\x26 parent.rows[0].isSummary) {', 
+'values.needsWrap \x3d false;', '} else {', 'me.setupRowData(values.record, values.rowIndex, values);', '}', '%}', '\x3ctpl if\x3d"needsWrap"\x3e', '\x3ctpl if\x3d"isFirstRow"\x3e', '{% values.view.renderColumnSizer(values, out); %}', '\x3ctr data-boundView\x3d"{view.id}" data-recordId\x3d"{record.internalId:htmlEncode}" data-recordIndex\x3d"{[values.isCollapsedGroup ? -1 : values.recordIndex]}" class\x3d"{groupHeaderCls}"\x3e', '\x3ctd class\x3d"{[me.ctCls]}" {[colspan]}\x3e', '{%', 'var groupTitleStyle \x3d (!values.view.lockingPartner || (values.view.ownerCt \x3d\x3d\x3d values.view.ownerCt.ownerLockable.lockedGrid) || (values.view.lockingPartner.headerCt.getVisibleGridColumns().length \x3d\x3d\x3d 0)) ? "" : "visibility:hidden",', 
+'tooltip \x3d "";', 'if (me.collapsible) {', 'tooltip \x3d Ext.String.format(\'data-qtip\x3d"{0}"\', values.isCollapsedGroup ? me.expandTip : me.collapseTip);', '}', '%}', '\x3cdiv data-groupname\x3d"{groupName:htmlEncode}" class\x3d"', Ext.baseCSSPrefix, 'grid-group-hd {collapsibleCls}" nottabindex\x3d"0" hidefocus\x3d"on" {ariaCellInnerAttr}\x3e', '\x3cdiv class\x3d"', Ext.baseCSSPrefix, 'grid-group-title" style\x3d"{[groupTitleStyle]}" {ariaGroupTitleAttr} {[tooltip]}\x3e', '{[values.groupHeaderTpl.apply(values.groupRenderInfo, parent) || "\x26#160;"]}', 
+'\x3c/div\x3e', '\x3c/div\x3e', '\x3c/td\x3e', '\x3c/tr\x3e', '\x3c/tpl\x3e', '\x3ctpl if\x3d"!isCollapsedGroup"\x3e', '{%', 'values.itemClasses.length \x3d 0;', 'this.nextTpl.applyOut(values, out, parent);', '%}', '\x3c/tpl\x3e', '\x3ctpl if\x3d"summaryRecord"\x3e', '{%me.outputSummaryRecord(values.summaryRecord, values, out, parent);%}', '\x3c/tpl\x3e', '\x3ctpl else\x3e', '{%this.nextTpl.applyOut(values, out, parent);%}', '\x3c/tpl\x3e', {priority:200, beginRowSync:function(rowSync) {
+  var groupingFeature = this.groupingFeature;
+  rowSync.add('header', groupingFeature.eventSelector);
+  rowSync.add('summary', groupingFeature.summaryRowSelector);
+}, syncContent:function(destRow, sourceRow, columnsToUpdate) {
+  destRow = Ext.fly(destRow, 'syncDest');
+  sourceRow = Ext.fly(sourceRow, 'syncSrc');
+  var groupingFeature = this.groupingFeature, destHd = destRow.down(groupingFeature.eventSelector, true), sourceHd = sourceRow.down(groupingFeature.eventSelector, true), destSummaryRow = destRow.down(groupingFeature.summaryRowSelector, true), sourceSummaryRow = sourceRow.down(groupingFeature.summaryRowSelector, true);
+  if (destHd && sourceHd) {
+    Ext.fly(destHd).syncContent(sourceHd);
+  }
+  if (destSummaryRow && sourceSummaryRow) {
+    if (columnsToUpdate) {
+      this.groupingFeature.view.updateColumns(destSummaryRow, sourceSummaryRow, columnsToUpdate);
+    } else {
+      Ext.fly(destSummaryRow).syncContent(sourceSummaryRow);
+    }
+  }
+}}], relayedEvents:['groupcollapse', 'groupexpand'], init:function(grid) {
+  var me = this, view = me.view, store = me.gridStore = grid.getStore(), dataSource;
+  view.isGrouping = store.isGrouped();
+  me.mixins.summary.init.call(me);
+  me.callParent([grid]);
+  view.headerCt.on({columnhide:me.onColumnHideShow, columnshow:me.onColumnHideShow, columnmove:me.onColumnMove, scope:me});
+  view.addTpl(Ext.XTemplate.getTpl(me, 'outerTpl')).groupingFeature = me;
+  view.addRowTpl(Ext.XTemplate.getTpl(me, 'groupRowTpl')).groupingFeature = me;
+  view.preserveScrollOnRefresh = true;
+  if (store.isBufferedStore) {
+    me.collapsible = false;
+  } else {
+    if (!store.isEmptyStore) {
+      dataSource = me.createDataSource();
+    }
+  }
+  grid = grid.ownerLockable || grid;
+  grid.on('beforereconfigure', me.beforeReconfigure, me);
+  if (!view.isLockedView) {
+    me.gridEventRelayers = grid.relayEvents(view, me.relayedEvents);
+  }
+  view.on({afterrender:me.afterViewRender, scope:me, single:true});
+  me.groupRenderInfo = {};
+  if (store.isEmptyStore) {
+    return;
+  } else {
+    if (dataSource) {
+      dataSource.on('groupchange', me.onGroupChange, me);
+    } else {
+      me.setupStoreListeners(store);
+    }
+  }
+  me.mixins.summary.bindStore.call(me, grid, grid.getStore());
+}, getGridStore:function() {
+  return this.gridStore;
+}, indexOf:function(record) {
+  if (record.isCollapsedPlaceholder) {
+    return this.dataSource.indexOfPlaceholder(record);
+  }
+  return this.dataSource.indexOf(record);
+}, indexOfPlaceholder:function(record) {
+  return this.dataSource.indexOfPlaceholder(record);
+}, isInCollapsedGroup:function(record) {
+  var me = this, store = me.getGridStore(), result = false, metaGroup;
+  if (store.isGrouped() && (metaGroup = me.getMetaGroup(record))) {
+    result = !!(metaGroup && metaGroup.isCollapsed);
+  }
+  return result;
+}, getCache:function() {
+  var me = this, id = me.getId(), metagroupCache = {}, groups = this.getGridStore().getGroups(), groupingContext;
+  if (groups) {
+    groups.eachKey(function(key, group) {
+      groupingContext = group.$groupingContext || (group.$groupingContext = {});
+      metagroupCache[key] = groupingContext[id];
+    });
+  }
+  return metagroupCache;
+}, invalidateCache:function() {
+  var me = this, id = me.getId(), groups = me.getGridStore().getGroups(), groupingContext;
+  if (groups) {
+    groups.eachKey(function(key, group) {
+      groupingContext = group.$groupingContext;
+      if (groupingContext) {
+        groupingContext[id] = null;
+      }
+    });
+  }
+}, vetoEvent:function(record, row, rowIndex, e) {
+  var shouldVeto = false;
+  if (e.type !== 'mouseover' && e.type !== 'mouseout' && e.type !== 'mouseenter' && e.type !== 'mouseleave' && e.getTarget(this.eventSelector)) {
+    shouldVeto = true;
+  }
+  if (this.showSummaryRow && !shouldVeto && e.getTarget(this.summaryRowSelector)) {
+    shouldVeto = true;
+  }
+  if (shouldVeto) {
+    return false;
+  }
+}, enable:function() {
+  var me = this, view = me.view, store = me.getGridStore(), currentGroupedHeader = me.hideGroupedHeader && me.getGroupedHeader(), groupToggleMenuItem;
+  view.isGrouping = true;
+  if (view.lockingPartner) {
+    view.lockingPartner.isGrouping = true;
+  }
+  me.callParent();
+  if (me.lastGrouper) {
+    store.group(me.lastGrouper);
+    me.lastGrouper = null;
+  }
+  if (currentGroupedHeader) {
+    currentGroupedHeader.hide();
+  }
+  groupToggleMenuItem = me.view.headerCt.getMenu().down('#groupToggleMenuItem');
+  if (groupToggleMenuItem) {
+    groupToggleMenuItem.setChecked(true, true);
+  }
+}, disable:function() {
+  var me = this, view = me.view, store = me.getGridStore(), currentGroupedHeader = me.hideGroupedHeader && me.getGroupedHeader(), lastGrouper = store.getGrouper(), groupToggleMenuItem;
+  view.isGrouping = false;
+  if (view.lockingPartner) {
+    view.lockingPartner.isGrouping = false;
+  }
+  me.callParent();
+  if (lastGrouper) {
+    me.lastGrouper = lastGrouper;
+    store.clearGrouping();
+  }
+  if (currentGroupedHeader) {
+    currentGroupedHeader.show();
+  }
+  groupToggleMenuItem = me.view.headerCt.getMenu().down('#groupToggleMenuItem');
+  if (groupToggleMenuItem) {
+    groupToggleMenuItem.setChecked(false, true);
+    groupToggleMenuItem.disable();
+  }
+}, afterViewRender:function() {
+  var me = this, view = me.view;
+  view.on({scope:me, groupmousedown:me.onGroupMousedown, groupclick:me.onGroupClick});
+  if (me.enableGroupingMenu) {
+    me.injectGroupingMenu();
+  }
+  me.pruneGroupedHeader();
+  me.lastGrouper = me.getGridStore().getGrouper();
+  if (me.disabled) {
+    me.disable();
+  }
+}, injectGroupingMenu:function() {
+  var me = this, headerCt = me.view.headerCt;
+  headerCt.showMenuBy = Ext.Function.createInterceptor(headerCt.showMenuBy, me.showMenuBy);
+  headerCt.getMenuItems = me.getMenuItems();
+}, onColumnHideShow:function(headerOwnerCt, header) {
+  var me = this, view = me.view, headerCt = view.headerCt, menu = headerCt.getMenu(), activeHeader = menu.activeHeader, groupMenuItem = menu.down('#groupMenuItem'), groupMenuMeth, colCount = me.grid.getVisibleColumnManager().getColumns().length, items, len, i;
+  if (activeHeader && groupMenuItem) {
+    groupMenuMeth = activeHeader.groupable === false || !activeHeader.dataIndex || me.view.headerCt.getVisibleGridColumns().length < 2 ? 'disable' : 'enable';
+    groupMenuItem[groupMenuMeth]();
+  }
+  if (view.rendered && colCount) {
+    items = view.el.query('.' + me.ctCls);
+    for (i = 0, len = items.length; i < len; ++i) {
+      items[i].colSpan = colCount;
+    }
+  }
+}, onColumnMove:function() {
+  var me = this, view = me.view, groupName, groupNames, group, firstRec, lastRec, metaGroup;
+  if (view.getStore().isGrouped()) {
+    groupNames = me.getCache();
+    Ext.suspendLayouts();
+    for (groupName in groupNames) {
+      group = me.getGroup(groupName);
+      if (group) {
+        firstRec = group.first();
+        lastRec = group.last();
+        metaGroup = me.getMetaGroup(group);
+        if (metaGroup.isCollapsed) {
+          firstRec = lastRec = me.dataSource.getGroupPlaceholder(groupName);
+        }
+        view.refreshNode(firstRec);
+        if (me.showSummaryRow && lastRec !== firstRec) {
+          view.refreshNode(lastRec);
+        }
+      }
+    }
+    Ext.resumeLayouts(true);
+  }
+}, showMenuBy:function(clickEvent, t, header) {
+  var me = this, menu = me.getMenu(), groupMenuItem = menu.down('#groupMenuItem'), groupMenuMeth = header.groupable === false || !header.dataIndex || me.view.headerCt.getVisibleGridColumns().length < 2 ? 'disable' : 'enable', groupToggleMenuItem = menu.down('#groupToggleMenuItem'), isGrouped = me.grid.getStore().isGrouped();
+  groupMenuItem[groupMenuMeth]();
+  if (groupToggleMenuItem) {
+    groupToggleMenuItem.setChecked(isGrouped, true);
+    groupToggleMenuItem[isGrouped ? 'enable' : 'disable']();
+  }
+}, getMenuItems:function() {
+  var me = this, groupByText = me.groupByText, disabled = me.disabled || !me.getGroupField(), showGroupsText = me.showGroupsText, enableNoGroups = me.enableNoGroups, getMenuItems = me.view.headerCt.getMenuItems;
+  return function() {
+    var o = getMenuItems.call(this);
+    o.push('-', {iconCls:Ext.baseCSSPrefix + 'group-by-icon', itemId:'groupMenuItem', text:groupByText, handler:me.onGroupMenuItemClick, scope:me});
+    if (enableNoGroups) {
+      o.push({itemId:'groupToggleMenuItem', text:showGroupsText, checked:!disabled, checkHandler:me.onGroupToggleMenuItemClick, scope:me});
+    }
+    return o;
+  };
+}, onGroupMenuItemClick:function(menuItem, e) {
+  var me = this, menu = menuItem.parentMenu, hdr = menu.activeHeader, view = me.view, store = me.getGridStore();
+  if (me.disabled) {
+    me.lastGrouper = null;
+    me.block();
+    me.enable();
+    me.unblock();
+  }
+  view.isGrouping = true;
+  store.group(me.getGrouper(hdr.dataIndex) || hdr.dataIndex);
+  me.pruneGroupedHeader();
+}, block:function(fromPartner) {
+  var me = this;
+  me.blockRefresh = me.view.blockRefresh = true;
+  if (me.lockingPartner && !fromPartner) {
+    me.lockingPartner.block(true);
+  }
+}, unblock:function(fromPartner) {
+  var me = this;
+  me.blockRefresh = me.view.blockRefresh = false;
+  if (me.lockingPartner && !fromPartner) {
+    me.lockingPartner.unblock(true);
+  }
+}, onGroupToggleMenuItemClick:function(menuItem, checked) {
+  this[checked ? 'enable' : 'disable']();
+}, pruneGroupedHeader:function() {
+  var me = this, header = me.getGroupedHeader();
+  if (me.hideGroupedHeader && header) {
+    Ext.suspendLayouts();
+    if (me.prunedHeader && me.prunedHeader !== header) {
+      me.prunedHeader.show();
+    }
+    me.prunedHeader = header;
+    if (header.rendered) {
+      header.hide();
+    }
+    Ext.resumeLayouts(true);
+  }
+}, getHeaderNode:function(groupName) {
+  var el = this.view.getEl(), nodes, i, len, node;
+  if (el) {
+    nodes = el.query(this.eventSelector);
+    for (i = 0, len = nodes.length; i < len; ++i) {
+      node = nodes[i];
+      if (node.getAttribute('data-groupName') === groupName) {
+        return node;
+      }
+    }
+  }
+}, getGroup:function(name) {
+  var store = this.getGridStore(), value = name, groups, group;
+  if (store.isGrouped()) {
+    if (name.isModel) {
+      name = name.get(store.getGroupField());
+    }
+    if (typeof name !== 'string') {
+      name = store.getGrouper().getGroupString(value);
+    }
+    if (store.isBufferedStore) {
+      groups = store.groups || (store.groups = {});
+      group = groups[name] || (groups[name] = {getGroupKey:function() {
+        return name;
+      }});
+    } else {
+      group = store.getGroups().getByKey(name);
+    }
+  }
+  return group;
+}, getGrouper:function(dataIndex) {
+  var groupers = this.groupers;
+  if (!groupers) {
+    return null;
+  }
+  return Ext.Array.findBy(groupers, function(grouper) {
+    return grouper.property === dataIndex;
+  });
+}, getGroupField:function() {
+  return this.getGridStore().getGroupField();
+}, getMetaGroup:function(group) {
+  var me = this, id = me.getId(), key, metaGroup, Model, modelData, groupPlaceholder, aggregateRecord, groupingContext;
+  if (group.isModel || typeof group === 'string') {
+    group = me.getGroup(group);
+  }
+  if (group) {
+    key = group.getGroupKey();
+    groupingContext = group.$groupingContext || (group.$groupingContext = {});
+    metaGroup = groupingContext[id];
+    if (!metaGroup) {
+      Model = me.getGridStore().getModel();
+      modelData = {};
+      modelData[me.getGroupField()] = key;
+      groupPlaceholder = new Model(modelData);
+      groupPlaceholder.isNonData = groupPlaceholder.isCollapsedPlaceholder = true;
+      groupPlaceholder.groupKey = key;
+      aggregateRecord = new Ext.data.Model(modelData);
+      aggregateRecord.isNonData = aggregateRecord.isSummary = true;
+      aggregateRecord.groupKey = key;
+      metaGroup = groupingContext[id] = {placeholder:groupPlaceholder, isCollapsed:false, lastGroup:null, lastGroupGeneration:null, lastFilterGeneration:null, aggregateRecord:aggregateRecord};
+    }
+  }
+  return metaGroup;
+}, isExpanded:function(groupName) {
+  return !this.getMetaGroup(groupName).isCollapsed;
+}, expand:function(groupName, options) {
+  this.doCollapseExpand(false, groupName, options);
+}, expandAll:function() {
+  var me = this, metaGroupCache = me.getCache(), lockingPartner = me.lockingPartner, groupName;
+  for (groupName in metaGroupCache) {
+    if (metaGroupCache.hasOwnProperty(groupName)) {
+      metaGroupCache[groupName].isCollapsed = false;
+    }
+  }
+  Ext.suspendLayouts();
+  me.dataSource.onDataChanged();
+  Ext.resumeLayouts(true);
+  for (groupName in metaGroupCache) {
+    if (metaGroupCache.hasOwnProperty(groupName)) {
+      me.afterCollapseExpand(false, groupName);
+      if (lockingPartner) {
+        lockingPartner.afterCollapseExpand(false, groupName);
+      }
+    }
+  }
+}, collapse:function(groupName, options) {
+  this.doCollapseExpand(true, groupName, options);
+}, isAllCollapsed:function() {
+  var me = this, metaGroupCache = me.getCache(), groupName;
+  for (groupName in metaGroupCache) {
+    if (metaGroupCache.hasOwnProperty(groupName)) {
+      if (!metaGroupCache[groupName].isCollapsed) {
+        return false;
+      }
+    }
+  }
+  return true;
+}, isAllExpanded:function() {
+  var me = this, metaGroupCache = me.getCache(), groupName;
+  for (groupName in metaGroupCache) {
+    if (metaGroupCache.hasOwnProperty(groupName)) {
+      if (metaGroupCache[groupName].isCollapsed) {
+        return false;
+      }
+    }
+  }
+  return true;
+}, collapseAll:function() {
+  var me = this, metaGroupCache = me.getCache(), groupName, lockingPartner = me.lockingPartner;
+  for (groupName in metaGroupCache) {
+    if (metaGroupCache.hasOwnProperty(groupName)) {
+      metaGroupCache[groupName].isCollapsed = true;
+    }
+  }
+  Ext.suspendLayouts();
+  me.dataSource.onDataChanged();
+  Ext.resumeLayouts(true);
+  for (groupName in metaGroupCache) {
+    if (metaGroupCache.hasOwnProperty(groupName)) {
+      me.afterCollapseExpand(true, groupName);
+      if (lockingPartner) {
+        lockingPartner.afterCollapseExpand(true, groupName);
+      }
+    }
+  }
+}, doCollapseExpand:function(collapsed, groupName, options) {
+  var me = this, lockingPartner = me.lockingPartner, group = me.getGroup(groupName);
+  if (options === true) {
+    options = {focus:true};
+  }
+  if (me.getMetaGroup(group).isCollapsed !== collapsed) {
+    me.isExpandingOrCollapsing = true;
+    Ext.suspendLayouts();
+    if (collapsed) {
+      me.dataSource.collapseGroup(group);
+    } else {
+      me.dataSource.expandGroup(group);
+    }
+    Ext.resumeLayouts(true);
+    me.afterCollapseExpand(collapsed, groupName, options);
+    if (lockingPartner) {
+      if (options && options.focus) {
+        options = Ext.Object.chain(options);
+        options.focus = false;
+      }
+      lockingPartner.afterCollapseExpand(collapsed, groupName, options);
+    }
+    me.isExpandingOrCollapsing = false;
+  }
+}, afterCollapseExpand:function(collapsed, groupName, options) {
+  var me = this, view = me.view, header, record;
+  header = me.getHeaderNode(groupName);
+  view.fireEvent(collapsed ? 'groupcollapse' : 'groupexpand', view, header, groupName);
+  if (options) {
+    if (collapsed) {
+      options.focus = false;
+      record = me.getMetaGroup(groupName).placeholder;
+    } else {
+      record = me.getGroup(groupName).getAt(0);
+    }
+    me.grid.ensureVisible(record, options);
+  }
+}, onGroupChange:function(store, grouper) {
+  if (!grouper) {
+    this.view.ownerGrid.getView().refreshView();
+  } else {
+    this.lastGrouper = grouper;
+  }
+}, getMenuItem:function(dataIndex) {
+  var view = this.view, header = view.headerCt.down('gridcolumn[dataIndex\x3d' + dataIndex + ']'), menu = view.headerCt.getMenu();
+  return header ? menu.down('menuitem[headerId\x3d' + header.id + ']') : null;
+}, onGroupKey:function(keyCode, event) {
+  var me = this, groupName = me.getGroupName(event.target);
+  if (groupName) {
+    me.onGroupClick(me.view, event.target, groupName, event);
+  }
+}, onGroupMousedown:function(view, rowElement, groupName, e) {
+  e.preventDefault();
+}, onGroupClick:function(view, rowElement, groupName, e) {
+  var me = this, metaGroupCache, groupIsCollapsed, g;
+  if (!me.collapsible) {
+    return;
+  }
+  metaGroupCache = me.getCache();
+  groupIsCollapsed = !me.isExpanded(groupName);
+  if (e.ctrlKey) {
+    Ext.suspendLayouts();
+    for (g in metaGroupCache) {
+      if (g === groupName) {
+        if (groupIsCollapsed) {
+          me.expand(groupName);
+        }
+      } else {
+        if (!metaGroupCache[g].isCollapsed) {
+          me.doCollapseExpand(true, g, false);
+        }
+      }
+    }
+    Ext.resumeLayouts(true);
+  } else {
+    me[groupIsCollapsed ? 'expand' : 'collapse'](groupName);
+  }
+}, setupRowData:function(record, idx, rowValues) {
+  var me = this, recordIndex = rowValues.recordIndex, data = me.refreshData, groupRenderInfo = me.groupRenderInfo, header = data.header, groupField = data.groupField, store = me.getGridStore(), dataSource = me.view.dataSource, isBufferedStore = dataSource.isBufferedStore, column = me.grid.columnManager.getHeaderByDataIndex(groupField), hasRenderer = !!(column && column.renderer), groupKey = record.groupKey, group = record.isCollapsedPlaceholder && Ext.isDefined(groupKey) ? me.getGroup(groupKey) : 
+  record.group, grouper, groupName, prev, next, items;
+  rowValues.isCollapsedGroup = false;
+  rowValues.summaryRecord = rowValues.groupHeaderCls = null;
+  if (data.doGrouping) {
+    grouper = store.getGrouper();
+    if (record.isCollapsedPlaceholder) {
+      groupName = group.getGroupKey();
+      items = group.items;
+      record = items[0];
+      rowValues.isFirstRow = rowValues.isLastRow = true;
+      rowValues.groupHeaderCls = me.hdCollapsedCls;
+      rowValues.isCollapsedGroup = rowValues.needsWrap = true;
+      rowValues.groupName = groupName;
+      rowValues.groupRenderInfo = groupRenderInfo;
+      groupRenderInfo.groupField = groupField;
+      groupRenderInfo.groupValue = record.get(groupField);
+      groupRenderInfo.name = groupRenderInfo.renderedGroupValue = hasRenderer ? column.renderer(groupRenderInfo.groupValue, {}, record) : groupName;
+      groupRenderInfo.columnName = header ? header.text : groupField;
+      rowValues.collapsibleCls = me.collapsible ? me.collapsibleCls : me.hdNotCollapsibleCls;
+      groupRenderInfo.rows = groupRenderInfo.children = items;
+      if (me.showSummaryRow) {
+        rowValues.summaryRecord = data.summaryData[groupName];
+      }
+      return;
+    }
+    groupName = grouper.getGroupString(record);
+    if (group) {
+      items = group.items;
+      rowValues.isFirstRow = record === items[0];
+      rowValues.isLastRow = record === items[items.length - 1];
+    } else {
+      rowValues.isFirstRow = recordIndex === 0;
+      if (!rowValues.isFirstRow) {
+        prev = store.getAt(recordIndex - 1);
+        if (prev) {
+          rowValues.isFirstRow = !prev.isEqual(grouper.getGroupString(prev), groupName);
+        }
+      }
+      rowValues.isLastRow = recordIndex === (isBufferedStore ? store.getTotalCount() : store.getCount()) - 1;
+      if (!rowValues.isLastRow) {
+        next = store.getAt(recordIndex + 1);
+        if (next) {
+          rowValues.isLastRow = !next.isEqual(grouper.getGroupString(next), groupName);
+        }
+      }
+    }
+    if (rowValues.isFirstRow) {
+      groupRenderInfo.groupField = groupField;
+      groupRenderInfo.name = groupRenderInfo.renderedGroupValue = hasRenderer ? column.renderer(record.get(groupField), {}, record) : groupName;
+      groupRenderInfo.groupValue = record.get(groupField);
+      groupRenderInfo.columnName = header ? header.text : groupField;
+      rowValues.collapsibleCls = me.collapsible ? me.collapsibleCls : me.hdNotCollapsibleCls;
+      rowValues.groupName = groupName;
+      if (!me.isExpanded(groupName)) {
+        rowValues.itemClasses.push(me.hdCollapsedCls);
+        rowValues.isCollapsedGroup = true;
+      }
+      if (isBufferedStore) {
+        groupRenderInfo.rows = groupRenderInfo.children = [];
+      } else {
+        groupRenderInfo.rows = groupRenderInfo.children = me.getRecordGroup(record).items;
+      }
+      rowValues.groupRenderInfo = groupRenderInfo;
+    }
+    if (rowValues.isLastRow) {
+      if (me.showSummaryRow) {
+        rowValues.summaryRecord = data.summaryData[groupName];
+        rowValues.itemClasses.push(Ext.baseCSSPrefix + 'grid-group-last');
+      }
+    }
+    rowValues.needsWrap = rowValues.isFirstRow || rowValues.summaryRecord;
+  }
+}, setup:function(rows, rowValues) {
+  var me = this, data = me.refreshData, view = rowValues.view, isGrouping = view.isGrouping = !me.disabled && me.getGridStore().isGrouped(), bufferedRenderer = view.bufferedRenderer;
+  me.skippedRows = 0;
+  if (bufferedRenderer) {
+    bufferedRenderer.variableRowHeight = view.hasVariableRowHeight() || isGrouping;
+  }
+  data.groupField = me.getGroupField();
+  data.header = me.getGroupedHeader(data.groupField);
+  data.doGrouping = isGrouping;
+  rowValues.groupHeaderTpl = Ext.XTemplate.getTpl(me, 'groupHeaderTpl');
+  if (isGrouping && me.showSummaryRow) {
+    data.summaryData = me.generateSummaryData();
+  }
+}, cleanup:function(rows, rowValues) {
+  var data = this.refreshData;
+  rowValues.groupRenderInfo = rowValues.groupHeaderTpl = rowValues.isFirstRow = null;
+  data.groupField = data.header = data.summaryData = null;
+}, generateSummaryData:function() {
+  var me = this, store = me.getGridStore(), filters = store.getFilters(), groups = store.getGroups().items, groupField = me.getGroupField(), lockingPartner = me.lockingPartner, updateSummaryRow = me.updateSummaryRow, data = {}, ownerCt = me.view.ownerCt, columnsChanged = me.didColumnsChange(), i, len, group, metaGroup, record, hasRemote, remoteData;
+  if (me.remoteRoot) {
+    remoteData = me.mixins.summary.generateSummaryData.call(me, groupField);
+    hasRemote = !!remoteData;
+  }
+  for (i = 0, len = groups.length; i < len; ++i) {
+    group = groups[i];
+    metaGroup = me.getMetaGroup(group);
+    if (updateSummaryRow || hasRemote || store.updating || me.grid.reconfiguring || columnsChanged || me.didGroupChange(group, metaGroup, filters)) {
+      record = me.populateRecord(group, metaGroup, remoteData);
+      if (!lockingPartner || ownerCt === ownerCt.ownerLockable.normalGrid) {
+        metaGroup.lastGroup = group;
+        metaGroup.lastGroupGeneration = group.generation;
+        metaGroup.lastFilterGeneration = filters.generation;
+      }
+    } else {
+      record = metaGroup.aggregateRecord;
+    }
+    data[group.getGroupKey()] = record;
+  }
+  me.updateSummaryRow = false;
+  return data;
+}, getGroupName:function(element) {
+  var me = this, view = me.view, eventSelector = me.eventSelector, targetEl, row;
+  targetEl = Ext.fly(element).findParent(eventSelector);
+  if (!targetEl) {
+    row = Ext.fly(element).findParent(view.itemSelector);
+    if (row) {
+      targetEl = row.down(eventSelector, true);
+    }
+  }
+  if (targetEl) {
+    return targetEl.getAttribute('data-groupname');
+  }
+}, getRecordGroup:function(record) {
+  var store = this.getGridStore(), grouper = store.getGrouper();
+  if (grouper) {
+    return store.getGroups().getItemGroup(record);
+  }
+}, getGroupedHeader:function(groupField) {
+  var me = this, headerCt = me.view.headerCt, partner = me.lockingPartner, selector, header;
+  groupField = groupField || me.getGroupField();
+  if (groupField) {
+    selector = '[dataIndex\x3d' + groupField + ']';
+    header = headerCt.down(selector);
+    if (!header && partner) {
+      header = partner.view.headerCt.down(selector);
+    }
+  }
+  return header || null;
+}, getFireEventArgs:function(type, view, targetEl, e) {
+  return [type, view, targetEl, this.getGroupName(targetEl), e];
+}, destroy:function() {
+  var me = this, dataSource = me.dataSource;
+  Ext.destroy(me.gridEventRelayers);
+  me.gridEventRelayers = null;
+  me.storeListeners = Ext.destroy(me.storeListeners);
+  me.view = me.prunedHeader = me.grid = me.dataSource = me.groupers = null;
+  if (dataSource && !dataSource.destroyed) {
+    dataSource.bindStore(null);
+    Ext.destroy(dataSource);
+  }
+  me.callParent();
+}, beforeReconfigure:function(grid, store, columns, oldStore, oldColumns) {
+  var me = this, view = me.view, dataSource = me.dataSource, bufferedRenderer = view.bufferedRenderer, bufferedStore;
+  if (store && store !== oldStore) {
+    me.gridStore = store;
+    bufferedStore = store.isBufferedStore;
+    if (me.storeListeners) {
+      Ext.destroy(me.storeListeners);
+    }
+    if (!oldStore.isEmptyStore && bufferedStore !== oldStore.isBufferedStore) {
+      Ext.raise('Cannot reconfigure grouping switching between buffered and non-buffered stores');
+    }
+    if (!dataSource) {
+      if (bufferedStore) {
+        me.collapsible = false;
+        me.setupStoreListeners(store);
+      } else {
+        dataSource = me.createDataSource();
+        dataSource.on('groupchange', me.onGroupChange, me);
+        if (bufferedRenderer) {
+          bufferedRenderer.bindStore(dataSource);
+        }
+      }
+    }
+    if (!bufferedStore) {
+      view.isGrouping = !!store.getGrouper();
+      dataSource.bindStore(store);
+    }
+    me.mixins.summary.bindStore.call(me, grid, store);
+  }
+}, createDataSource:function() {
+  var me = this, view = me.view, lockPartner = me.lockingPartner, dataSource;
+  if (lockPartner && lockPartner.dataSource) {
+    me.dataSource = view.dataSource = dataSource = lockPartner.dataSource;
+  } else {
+    me.dataSource = view.dataSource = dataSource = new Ext.grid.feature.GroupStore(me, me.gridStore);
+  }
+  return dataSource;
+}, populateRecord:function(group, metaGroup, remoteData) {
+  var me = this, view = me.grid.ownerLockable ? me.grid.ownerLockable.view : me.view, store = me.getGridStore(), record = metaGroup.aggregateRecord, columns = view.headerCt.getGridColumns(), len = columns.length, groupName = group.getGroupKey(), groupData, field, i, column, fieldName, summaryValue;
+  record.beginEdit();
+  if (remoteData) {
+    groupData = remoteData[groupName];
+    for (field in groupData) {
+      if (groupData.hasOwnProperty(field)) {
+        if (field !== record.idProperty) {
+          record.set(field, groupData[field]);
+        }
+      }
+    }
+  }
+  for (i = 0; i < len; ++i) {
+    column = columns[i];
+    fieldName = column.dataIndex || column.getItemId();
+    if (!remoteData) {
+      summaryValue = me.getSummary(store, column.summaryType, fieldName, group);
+      record.set(fieldName, summaryValue);
+    } else {
+      summaryValue = record.get(column.dataIndex);
+    }
+    me.setSummaryData(record, column.getItemId(), summaryValue, groupName);
+  }
+  record.ownerGroup = groupName;
+  record.endEdit(true);
+  record.commit();
+  return record;
+}, privates:{didGroupChange:function(group, metaGroup, filters) {
+  var ret = true;
+  if (group === metaGroup.lastGroup) {
+    ret = metaGroup.lastGroupGeneration !== group.generation || metaGroup.lastFilterGeneration !== filters.generation;
+  }
+  return ret;
+}, didColumnsChange:function() {
+  var me = this, result = me.view.headerCt.items.generation !== me.lastHeaderCtGeneration;
+  me.lastHeaderCtGeneration = me.view.headerCt.items.generation;
+  return result;
+}, setupStoreListeners:function(store) {
+  var me = this;
+  me.storeListeners = store.on({groupchange:me.onGroupChange, scope:me, destroyable:true});
+}}});
+Ext.define('Ext.grid.feature.GroupingSummary', {extend:Ext.grid.feature.Grouping, alias:'feature.groupingsummary', showSummaryRow:true});
 Ext.define('Ext.grid.feature.RowBody', {extend:Ext.grid.feature.Feature, alias:'feature.rowbody', rowBodyCls:Ext.baseCSSPrefix + 'grid-row-body', innerSelector:'.' + Ext.baseCSSPrefix + 'grid-rowbody', rowBodyHiddenCls:Ext.baseCSSPrefix + 'grid-row-body-hidden', rowBodyTdSelector:'td.' + Ext.baseCSSPrefix + 'grid-cell-rowbody', eventPrefix:'rowbody', eventSelector:'tr.' + Ext.baseCSSPrefix + 'grid-rowbody-tr', bodyBefore:false, outerTpl:{fn:function(out, values, parent) {
   var me = this.rowBody, view = values.view, columns = view.getVisibleColumnManager().getColumns(), rowValues = view.rowValues, rowExpanderCol = me.rowExpander && me.rowExpander.expanderColumn;
   rowValues.rowBodyColspan = columns.length;
@@ -82312,6 +83341,192 @@ Ext.baseCSSPrefix + 'grid-td ' + Ext.baseCSSPrefix + 'grid-cell-rowbody" colspan
   if (this.getAdditionalData) {
     Ext.apply(rowValues, this.getAdditionalData(record.data, rowIndex, record, rowValues));
   }
+}});
+Ext.define('Ext.grid.feature.Summary', {extend:Ext.grid.feature.AbstractSummary, alias:'feature.summary', dock:undefined, summaryItemCls:Ext.baseCSSPrefix + 'grid-row-summary-item', dockedSummaryCls:Ext.baseCSSPrefix + 'docked-summary', summaryRowCls:Ext.baseCSSPrefix + 'grid-row-summary ' + Ext.baseCSSPrefix + 'grid-row-total', summaryRowSelector:'.' + Ext.baseCSSPrefix + 'grid-row-summary.' + Ext.baseCSSPrefix + 'grid-row-total', panelBodyCls:Ext.baseCSSPrefix + 'summary-', hasFeatureEvent:false, 
+fullSummaryTpl:{fn:function(out, values, parent) {
+  var me = this.summaryFeature, record = me.summaryRecord, view = values.view, bufferedRenderer = view.bufferedRenderer;
+  this.nextTpl.applyOut(values, out, parent);
+  if (!me.disabled && me.showSummaryRow && !view.addingRows && view.store.isLast(values.record)) {
+    if (bufferedRenderer && !me.dock) {
+      bufferedRenderer.variableRowHeight = true;
+    }
+    me.outputSummaryRecord(record && record.isModel ? record : me.createSummaryRecord(view), values, out, parent);
+  }
+}, priority:300, beginRowSync:function(rowSync) {
+  rowSync.add('fullSummary', this.summaryFeature.summaryRowSelector);
+}, syncContent:function(destRow, sourceRow, columnsToUpdate) {
+  destRow = Ext.fly(destRow, 'syncDest');
+  sourceRow = Ext.fly(sourceRow, 'sycSrc');
+  var summaryFeature = this.summaryFeature, selector = summaryFeature.summaryRowSelector, destSummaryRow = destRow.down(selector, true), sourceSummaryRow = sourceRow.down(selector, true);
+  if (destSummaryRow && sourceSummaryRow) {
+    if (columnsToUpdate) {
+      this.summaryFeature.view.updateColumns(destSummaryRow, sourceSummaryRow, columnsToUpdate);
+    } else {
+      Ext.fly(destSummaryRow).syncContent(sourceSummaryRow);
+    }
+  }
+}}, init:function(grid) {
+  var me = this, view = me.view, dock = me.dock;
+  me.callParent([grid]);
+  if (dock) {
+    grid.addBodyCls(me.panelBodyCls + dock);
+    grid.headerCt.on({add:me.onStoreUpdate, afterlayout:me.onStoreUpdate, remove:me.onStoreUpdate, scope:me});
+    grid.on({beforerender:function() {
+      var tableCls = [me.summaryTableCls];
+      if (view.columnLines) {
+        tableCls[tableCls.length] = view.ownerCt.colLinesCls;
+      }
+      me.summaryBar = grid.addDocked({childEls:['innerCt', 'item'], renderTpl:['\x3cdiv id\x3d"{id}-innerCt" data-ref\x3d"innerCt" role\x3d"presentation"\x3e', '\x3ctable id\x3d"{id}-item" data-ref\x3d"item" cellPadding\x3d"0" cellSpacing\x3d"0" class\x3d"' + tableCls.join(' ') + '"\x3e', '\x3ctr class\x3d"' + me.summaryRowCls + '"\x3e\x3c/tr\x3e', '\x3c/table\x3e', '\x3c/div\x3e'], scrollable:{x:false, y:false}, hidden:!me.showSummaryRow, itemId:'summaryBar', cls:[me.dockedSummaryCls, me.dockedSummaryCls + 
+      '-' + dock], xtype:'component', dock:dock, weight:10000000})[0];
+    }, afterrender:function() {
+      grid.getView().getScrollable().addPartner(me.summaryBar.getScrollable(), 'x');
+      me.onStoreUpdate();
+      me.columnSizer = me.summaryBar.el;
+    }, single:true});
+  } else {
+    if (grid.bufferedRenderer) {
+      me.wrapsItem = true;
+      view.addRowTpl(me.fullSummaryTpl).summaryFeature = me;
+      view.on('refresh', me.onViewRefresh, me);
+    } else {
+      me.wrapsItem = false;
+      me.view.addFooterFn(me.renderSummaryRow);
+    }
+  }
+  grid.headerCt.on({afterlayout:me.afterHeaderCtLayout, scope:me});
+  grid.ownerGrid.on({beforereconfigure:me.onBeforeReconfigure, columnmove:me.onStoreUpdate, scope:me});
+  me.bindStore(grid, grid.getStore());
+}, onBeforeReconfigure:function(grid, store) {
+  this.summaryRecord = null;
+  if (store) {
+    this.bindStore(grid, store);
+  }
+}, bindStore:function(grid, store) {
+  var me = this;
+  Ext.destroy(me.storeListeners);
+  me.storeListeners = store.on({scope:me, destroyable:true, update:me.onStoreUpdate, datachanged:me.onStoreUpdate});
+  me.callParent([grid, store]);
+}, renderSummaryRow:function(values, out, parent) {
+  var view = values.view, me = view.findFeature('summary'), record;
+  if (!me.disabled && me.showSummaryRow && !view.addingRows && !view.updatingRows) {
+    record = me.summaryRecord;
+    out.push('\x3ctable cellpadding\x3d"0" cellspacing\x3d"0" class\x3d"' + me.summaryItemCls + '" style\x3d"table-layout: fixed; width: 100%;"\x3e');
+    me.outputSummaryRecord(record && record.isModel ? record : me.createSummaryRecord(view), values, out, parent);
+    out.push('\x3c/table\x3e');
+  }
+}, toggleSummaryRow:function(visible, fromLockingPartner) {
+  var me = this, bar = me.summaryBar;
+  me.callParent([visible, fromLockingPartner]);
+  if (bar) {
+    bar.setVisible(me.showSummaryRow);
+    me.onViewScroll();
+  }
+}, getSummaryBar:function() {
+  return this.summaryBar;
+}, getSummaryRowPlaceholder:function(view) {
+  var placeholderCls = this.summaryItemCls, nodeContainer, row;
+  nodeContainer = Ext.fly(view.getNodeContainer());
+  if (!nodeContainer) {
+    return null;
+  }
+  row = nodeContainer.down('.' + placeholderCls, true);
+  if (!row) {
+    row = nodeContainer.createChild({tag:'table', cellpadding:0, cellspacing:0, cls:placeholderCls, style:'table-layout: fixed; width: 100%', children:[{tag:'tbody'}]}, false, true);
+  }
+  return row;
+}, vetoEvent:function(record, row, rowIndex, e) {
+  return !e.getTarget(this.summaryRowSelector);
+}, onViewScroll:function() {
+  this.summaryBar.setScrollX(this.view.getScrollX());
+}, onViewRefresh:function(view) {
+  var me = this, record, row;
+  if (!me.disabled && me.showSummaryRow && !view.all.getCount()) {
+    record = me.createSummaryRecord(view);
+    row = me.getSummaryRowPlaceholder(view);
+    row.tBodies[0].appendChild(view.createRowElement(record, -1).querySelector(me.summaryRowSelector));
+  }
+}, createSummaryRecord:function(view) {
+  var me = this, columns = view.headerCt.getGridColumns(), remoteRoot = me.remoteRoot, summaryRecord = me.summaryRecord || (me.summaryRecord = new Ext.data.Model({id:view.id + '-summary-record'})), colCount = columns.length, i, column, dataIndex, summaryValue;
+  summaryRecord.beginEdit();
+  if (remoteRoot) {
+    summaryValue = me.generateSummaryData();
+    if (summaryValue) {
+      summaryRecord.set(summaryValue);
+    }
+  } else {
+    for (i = 0; i < colCount; i++) {
+      column = columns[i];
+      dataIndex = column.dataIndex || column.getItemId();
+      summaryValue = me.getSummary(view.store, column.summaryType, dataIndex);
+      summaryRecord.set(dataIndex, summaryValue);
+      me.setSummaryData(summaryRecord, column.getItemId(), summaryValue);
+    }
+  }
+  summaryRecord.endEdit(true);
+  summaryRecord.commit(true);
+  summaryRecord.isSummary = true;
+  return summaryRecord;
+}, onStoreUpdate:function() {
+  var me = this, view = me.view, selector = me.summaryRowSelector, dock = me.dock, record, newRowDom, oldRowDom, p;
+  if (!view.rendered) {
+    return;
+  }
+  record = me.createSummaryRecord(view);
+  newRowDom = Ext.fly(view.createRowElement(record, -1)).down(selector, true);
+  if (!newRowDom) {
+    return;
+  }
+  if (dock) {
+    p = me.summaryBar.item.dom.firstChild;
+    oldRowDom = p.firstChild;
+    p.insertBefore(newRowDom, oldRowDom);
+    p.removeChild(oldRowDom);
+  } else {
+    oldRowDom = view.el.down(selector, true);
+    p = oldRowDom && oldRowDom.parentNode;
+    if (p) {
+      p.removeChild(oldRowDom);
+    }
+    p = view.getRow(view.all.last());
+    if (p) {
+      p = p.parentElement;
+    } else {
+      p = me.getSummaryRowPlaceholder(view);
+      p = p && p.tBodies && p.tBodies[0];
+    }
+    if (p) {
+      p.appendChild(newRowDom);
+    }
+  }
+}, afterHeaderCtLayout:function(headerCt) {
+  var me = this, view = me.view, columns = view.getVisibleColumnManager().getColumns(), column, len = columns.length, i, summaryEl, el, width, innerCt;
+  if (me.showSummaryRow && view.refreshCounter) {
+    if (me.dock) {
+      summaryEl = me.summaryBar.el;
+      width = headerCt.getTableWidth();
+      innerCt = me.summaryBar.innerCt;
+      me.summaryBar.item.setWidth(width);
+      if (headerCt.tooNarrow) {
+        width += Ext.getScrollbarSize().width;
+      }
+      innerCt.setWidth(width);
+    } else {
+      summaryEl = Ext.fly(Ext.fly(view.getNodeContainer()).down('.' + me.summaryItemCls, true));
+    }
+    if (summaryEl) {
+      for (i = 0; i < len; i++) {
+        column = columns[i];
+        el = summaryEl.down(view.getCellSelector(column), true);
+        if (el) {
+          Ext.fly(el).setWidth(column.width || (column.lastBox ? column.lastBox.width : 100));
+        }
+      }
+    }
+  }
+}, destroy:function() {
+  var me = this;
+  me.summaryRecord = me.storeListeners = Ext.destroy(me.storeListeners);
+  me.callParent();
 }});
 Ext.define('Ext.menu.Item', {extend:Ext.Component, alias:'widget.menuitem', alternateClassName:'Ext.menu.TextItem', isMenuItem:true, mixins:[Ext.mixin.Queryable], config:{glyph:null}, activated:false, activeCls:Ext.baseCSSPrefix + 'menu-item-active', clickHideDelay:0, destroyMenu:true, disabledCls:Ext.baseCSSPrefix + 'menu-item-disabled', hideOnClick:true, menuAlign:'tl-tr?', menuExpandDelay:200, menuHideDelay:200, tooltipType:'qtip', focusable:true, ariaRole:'menuitem', ariaEl:'itemEl', baseCls:Ext.baseCSSPrefix + 
 'menu-item', arrowCls:Ext.baseCSSPrefix + 'menu-item-arrow', baseIconCls:Ext.baseCSSPrefix + 'menu-item-icon', textCls:Ext.baseCSSPrefix + 'menu-item-text', indentCls:Ext.baseCSSPrefix + 'menu-item-indent', indentNoSeparatorCls:Ext.baseCSSPrefix + 'menu-item-indent-no-separator', indentRightIconCls:Ext.baseCSSPrefix + 'menu-item-indent-right-icon', indentRightArrowCls:Ext.baseCSSPrefix + 'menu-item-indent-right-arrow', linkCls:Ext.baseCSSPrefix + 'menu-item-link', linkHrefCls:Ext.baseCSSPrefix + 
@@ -86562,23 +87777,27 @@ Ext.define('Ext.grid.plugin.RowEditing', {extend:Ext.grid.plugin.Editing, alias:
 }, shouldStartEdit:function(editor) {
   return true;
 }, startEdit:function(record, columnHeader) {
-  var me = this, editor = me.getEditor(), context;
-  if (Ext.isEmpty(columnHeader)) {
-    columnHeader = me.grid.getTopLevelVisibleColumnManager().getHeaderAtIndex(0);
-  }
-  if (editor.beforeEdit() !== false) {
-    context = me.getEditingContext(record, columnHeader, true);
-    if (context && me.beforeEdit(context) !== false && me.fireEvent('beforeedit', me, context) !== false && !context.cancel) {
-      me.context = context;
-      if (me.lockingPartner) {
-        me.lockingPartner.cancelEdit();
-      }
-      editor.startEdit(context.record, context.column, context);
-      me.editing = true;
-      return true;
+  if (record.data.processStatus == 'NEW') {
+    var me = this, editor = me.getEditor(), context;
+    if (Ext.isEmpty(columnHeader)) {
+      columnHeader = me.grid.getTopLevelVisibleColumnManager().getHeaderAtIndex(0);
     }
+    if (editor.beforeEdit() !== false) {
+      context = me.getEditingContext(record, columnHeader, true);
+      if (context && me.beforeEdit(context) !== false && me.fireEvent('beforeedit', me, context) !== false && !context.cancel) {
+        me.context = context;
+        if (me.lockingPartner) {
+          me.lockingPartner.cancelEdit();
+        }
+        editor.startEdit(context.record, context.column, context);
+        me.editing = true;
+        return true;
+      }
+    }
+  } else {
+    Ext.Msg.alert('提示', "只可以修改'新建'状态的信息！");
+    return false;
   }
-  return false;
 }, activateCell:function(pos) {
   if (!pos.getCell(true).querySelector('[tabIndex\x3d"-1"]')) {
     this.startEdit(pos.record, pos.column);
@@ -107716,11 +108935,11 @@ text:'Today', margin:'0 10 0 0'}, value:undefined, views:{day:{xtype:'calendar-d
   return a.weight - b.weight;
 }}});
 Ext.define('Admin.model.Base', {extend:Ext.data.Model, schema:{namespace:'Admin.model'}});
-Ext.define('Admin.model.achievement.AchievementModel', {extend:Admin.model.Base, fields:[{name:'total'}, {name:'employeeName'}]});
+Ext.define('Admin.model.achievement.ChartModel', {extend:Admin.model.Base, fields:[{name:'total'}, {name:'employeeName'}]});
 Ext.define('Admin.model.addressList.AddListModel', {extend:Admin.model.Base, fields:[{type:'int', name:'id'}, {type:'string', name:'employeeName'}, {type:'string', name:'employeeNumber'}, {type:'string', name:'employeeArea'}, {type:'string', name:'post'}, {type:'string', name:'email'}], proxy:{type:'rest', url:'/addressList'}});
 Ext.define('Admin.model.allattence.AllAttenceModel', {extend:Admin.model.Base, fields:[{type:'int', name:'id'}, {type:'string', name:'employeeName'}, {type:'string', name:'location'}, {type:'date', name:'workinTime', dateFormat:'Y/m/d H:i:s'}, {type:'date', name:'workoutTime', dateFormat:'Y/m/d H:i:s'}, {type:'string', name:'attenceStatus'}]});
-Ext.define('Admin.model.attence.AttenceModel', {extend:Admin.model.Base, fields:[{type:'int', name:'id'}, {type:'string', name:'employeeName'}, {type:'string', name:'location'}, {type:'date', name:'workinTime', dateFormat:'Y/m/d H:i:s'}, {type:'date', name:'workoutTime', dateFormat:'Y/m/d H:i:s'}, {type:'string', name:'attenceStatus'}, {type:'string', name:'processInstanceId'}, {type:'string', name:'processStatus'}, {type:'string', name:'userId'}, {type:'string', name:'appealreason'}, {type:'string', 
-name:'deptLeaderBackReason'}, {type:'string', name:'hrBackReason'}], proxy:{type:'rest', url:'/attence'}});
+Ext.define('Admin.model.attence.AttenceModel', {extend:Admin.model.Base, fields:[{type:'int', name:'id'}, {type:'string', name:'employeeName'}, {type:'string', name:'location'}, {type:'date', name:'workinTime', dateFormat:'Y/m/d H:i:s'}, {type:'date', name:'workoutTime', dateFormat:'Y/m/d H:i:s'}, {type:'date', name:'day', dateFormat:'Y/m/d H:i:s'}, {type:'string', name:'attenceStatus'}, {type:'string', name:'processInstanceId'}, {type:'string', name:'processStatus'}, {type:'string', name:'userId'}, 
+{type:'string', name:'appealreason'}, {type:'string', name:'deptLeaderBackReason'}, {type:'string', name:'hrBackReason'}], proxy:{type:'rest', url:'/attence'}});
 Ext.define('Admin.model.attenceapprove.AppealApproveModel', {extend:Admin.model.Base, fields:[{type:'int', name:'id'}, {type:'string', name:'employeeName'}, {type:'string', name:'location'}, {type:'date', name:'workinTime'}, {type:'date', name:'workoutTime'}, {type:'string', name:'attenceStatus'}, {type:'string', name:'processStatus'}, {type:'string', name:'appealreason'}, {type:'date', name:'applyTime'}, {type:'string', name:'taskId'}, {type:'string', name:'taskName'}, {type:'date', name:'taskCreateTime'}, 
 {type:'string', name:'assignee'}, {type:'string', name:'taskDefinitionKey'}, {type:'string', name:'processInstanceId'}, {type:'string', name:'processDefinitionId'}, {type:'boolean', name:'suspended'}, {type:'int', name:'version'}, {type:'string', name:'depreason'}, {type:'string', name:'hrreason'}]});
 Ext.define('Admin.model.attenceapprove.LeaveApproveModel', {extend:Admin.model.Base, fields:[{type:'int', name:'id'}, {type:'string', name:'userId'}, {type:'date', name:'startTime'}, {type:'date', name:'endTime'}, {type:'date', name:'realityStartTime'}, {type:'date', name:'realityEndTime'}, {type:'date', name:'applyTime'}, {type:'string', name:'leaveType'}, {type:'string', name:'processStatus'}, {type:'string', name:'reason'}, {type:'string', name:'processInstanceId'}, {type:'string', name:'taskId'}, 
@@ -107731,21 +108950,23 @@ Ext.define('Admin.model.contractapprove.ContractApproveModel', {extend:Admin.mod
 {type:'string', name:'processInstanceId'}, {type:'string', name:'taskId'}, {type:'string', name:'taskName'}, {type:'date', name:'taskCreateTime'}, {type:'string', name:'assignee'}, {type:'string', name:'taskDefinitionKey'}, {type:'string', name:'processDefinitionId'}, {type:'boolean', name:'suspended'}, {type:'int', name:'version'}, {type:'string', name:'depreason'}, {type:'string', name:'manreason'}]});
 Ext.define('Admin.model.leave.LeaveModel', {extend:Admin.model.Base, fields:[{type:'int', name:'id'}, {type:'string', name:'userId'}, {type:'date', name:'startTime', dateFormat:'Y/m/d H:i:s'}, {type:'date', name:'endTime', dateFormat:'Y/m/d H:i:s'}, {type:'date', name:'realityStartTime', dateFormat:'Y/m/d H:i:s'}, {type:'date', name:'realityEndTime', dateFormat:'Y/m/d H:i:s'}, {type:'date', name:'applyTime', dateFormat:'Y/m/d H:i:s'}, {type:'string', name:'leaveType'}, {type:'string', name:'processStatus'}, 
 {type:'string', name:'reason'}, {type:'string', name:'processInstanceId'}, {type:'string', name:'depReason'}, {type:'string', name:'hrReason'}], proxy:{type:'rest', url:'/leave'}});
+Ext.define('Admin.model.log.LogModel', {extend:Admin.model.Base, fields:[{type:'int', name:'id'}, {type:'string', name:'employeeName'}, {type:'string', name:'title'}, {type:'string', name:'type'}, {type:'string', name:'remoteAddr'}, {type:'string', name:'requestUri'}, {type:'string', name:'method'}, {type:'string', name:'params'}, {type:'date', name:'logTime', dateFormat:'Y/m/d H:i:s'}], proxy:{type:'rest', url:'/log'}});
 Ext.define('Admin.model.processdefinition.ProcessDefinitionModel', {extend:Admin.model.Base, fields:[{type:'string', name:'id'}, {type:'string', name:'category'}, {type:'string', name:'name'}, {type:'string', name:'key'}, {type:'string', name:'description'}, {type:'int', name:'version'}, {type:'string', name:'resourceName'}, {type:'string', name:'deploymentId'}, {type:'string', name:'diagramResourceName'}, {type:'string', name:'tenantId'}, {type:'boolean', name:'startFormKey'}, {type:'boolean', name:'graphicalNotation'}, 
 {type:'boolean', name:'suspended'}]});
 Ext.define('Admin.model.user.UserModel', {extend:Admin.model.Base, fields:[{type:'int', name:'id'}, {type:'string', name:'userName'}, {type:'date', name:'createTime', dateFormat:'Y/m/d H:i:s'}], proxy:{type:'rest', url:'/user'}});
 Ext.define('Admin.store.NavigationTree', {extend:Ext.data.TreeStore, storeId:'NavigationTree', fields:[{name:'text'}], root:{expanded:true, children:[{text:'Dashboard', iconCls:'x-fa fa-desktop', viewType:'admindashboard', routeId:'dashboard', leaf:true}, {text:'模板', iconCls:'x-fa fa-address-card', viewType:'user', leaf:true}, {text:'业务管理模块', iconCls:'x-fa fa-briefcase', expanded:false, selectable:false, children:[{text:'合同管理', iconCls:'x-fa fa-clipboard', viewType:'contract', leaf:true}, {text:'业务审核', 
 iconCls:'x-fa fa-pencil-square-o', viewType:'contractApprove', leaf:true}]}, {text:'通讯录', iconCls:'x-fa fa-address-card', viewType:'addressList', leaf:true}, {text:'日程管理', iconCls:'x-fa fa-calendar', viewType:'calendar', leaf:true}, {text:'个人考勤', iconCls:'x-fa fa-fax', viewType:'attence', leaf:true}, {text:'考勤管理', iconCls:'x-fa  fa-calendar-o', expanded:false, selectable:false, children:[{text:'部门考勤表', iconCls:'x-fa fa-copy', viewType:'allAttence', leaf:true}, {text:'考勤审核', iconCls:'x-fa fa-pencil-square-o', 
-viewType:'attenceApprove', leaf:true}]}, {text:'流程定义图', iconCls:'x-fa fa-file-picture-o', viewType:'processDefinition', leaf:true}, {text:'业务排行', iconCls:'x-fa fa-fax', viewType:'achievement', leaf:true}, {text:'Login', iconCls:'x-fa fa-check', viewType:'login', leaf:true}]}});
-Ext.define('Admin.store.achievement.AchievementStore', {extend:Ext.data.Store, storeId:'achievementStore', alias:'store.achievementStore', model:'Admin.model.achievement.AchievementModel', proxy:{type:'rest', url:'/achievement', reader:{type:'json', rootProperty:'content'}, writer:{type:'json'}}, autoLoad:true, autoSync:true});
+viewType:'attenceApprove', leaf:true}]}, {text:'流程定义图', iconCls:'x-fa fa-file-picture-o', viewType:'processDefinition', leaf:true}, {text:'业务排行', iconCls:'x-fa fa-fax', viewType:'achievement', leaf:true}, {text:'安全管理', iconCls:'x-fa  fa-connectdevelop', expanded:false, selectable:false, children:[{text:'日志管理', iconCls:'x-fa fa-file', viewType:'log', leaf:true}]}, {text:'Login', iconCls:'x-fa fa-check', viewType:'login', leaf:true}]}});
+Ext.define('Admin.store.achievement.ChartStore', {extend:Ext.data.Store, storeId:'chartStore', alias:'store.chartStore', model:'Admin.model.achievement.ChartModel', data:{'lists':[{'total':1000, 'employeeName':'小红'}, {'total':3000, 'employeeName':'小明'}, {'total':2000, 'employeeName':'小狼'}]}, proxy:{type:'memory', reader:{type:'json', rootProperty:'lists'}}, autoLoad:true});
 Ext.define('Admin.store.addressList.AddressListPanelStroe', {extend:Ext.data.Store, alias:'store.addressListPanelStroe', model:'Admin.model.addressList.AddListModel', proxy:{type:'rest', url:'/addressList', reader:{type:'json', rootProperty:'content', totalProperty:'totalElements'}, writer:{type:'json'}, simpleSortMode:true}, autoLoad:true, autoSync:true});
-Ext.define('Admin.store.allattence.AllAttenceGridStroe', {extend:Ext.data.Store, storeId:'allAttenceGridStroe', alias:'store.allAttenceGridStroe', model:'Admin.model.allattence.AllAttenceModel', proxy:{type:'ajax', url:'attence/getAllAttence', reader:new Ext.data.JsonReader({type:'json', rootProperty:'content', totalProperty:'totalElements'}), simpleSortMode:true}, remoteSort:true, sorters:[{property:'id', direction:'desc'}], autoLoad:true});
-Ext.define('Admin.store.attence.AttenceGridStroe', {extend:Ext.data.Store, storeId:'attenceGridStroe', alias:'store.attenceGridStroe', model:'Admin.model.attence.AttenceModel', proxy:{type:'rest', url:'/attence', reader:{type:'json', rootProperty:'content', totalProperty:'totalElements'}, writer:{type:'json'}, simpleSortMode:true}, autoLoad:'true', autoSync:true, remoteSort:true, pageSize:20, sorters:{direction:'ASC', property:'id'}});
+Ext.define('Admin.store.allattence.AllAttenceGridStroe', {extend:Ext.data.Store, storeId:'allAttenceGridStroe', alias:'store.allAttenceGridStroe', model:'Admin.model.allattence.AllAttenceModel', proxy:{type:'ajax', url:'attence/getAllAttence', reader:new Ext.data.JsonReader({type:'json', rootProperty:'content', totalProperty:'totalElements'}), simpleSortMode:true}, groupField:'storeName', remoteSort:true, sorters:[{property:'id', direction:'desc'}], autoLoad:true});
+Ext.define('Admin.store.attence.AttenceGridStroe', {extend:Ext.data.Store, storeId:'attenceGridStroe', alias:'store.attenceGridStroe', model:'Admin.model.attence.AttenceModel', proxy:{type:'rest', url:'/attence', reader:{type:'json', rootProperty:'content', totalProperty:'totalElements'}, writer:{type:'json'}, simpleSortMode:true}, groupField:'day', autoLoad:'true', autoSync:true, remoteSort:true, pageSize:20, sorters:{direction:'ASC', property:'id'}});
 Ext.define('Admin.store.attenceapprove.AppealApproveStore', {extend:Ext.data.Store, storeId:'appealApproveStore', alias:'store.appealApproveStore', model:'Admin.model.attenceapprove.AppealApproveModel', proxy:{type:'ajax', url:'attence/tasks', reader:new Ext.data.JsonReader({type:'json', rootProperty:'content', totalProperty:'totalElements'}), simpleSortMode:true}, remoteSort:true, sorters:[{property:'id', direction:'desc'}], autoLoad:true});
 Ext.define('Admin.store.attenceapprove.LeaveApproveStore', {extend:Ext.data.Store, storeId:'leaveApproveStore', alias:'store.leaveApproveStore', model:'Admin.model.attenceapprove.LeaveApproveModel', proxy:{type:'ajax', url:'leave/tasks', reader:new Ext.data.JsonReader({type:'json', rootProperty:'content', totalProperty:'totalElements'}), simpleSortMode:true}, remoteSort:true, sorters:[{property:'id', direction:'desc'}], autoLoad:true});
-Ext.define('Admin.store.contract.ContractGridStroe', {extend:Ext.data.Store, storeId:'contractGridStroe', alias:'store.contractGridStroe', model:'Admin.model.contract.ContractModel', proxy:{type:'rest', url:'/contract', reader:{type:'json', rootProperty:'content', totalProperty:'totalElements'}, writer:{type:'json'}, simpleSortMode:true}, autoLoad:'true', autoSync:true, remoteSort:true, pageSize:20, sorters:{direction:'ASC', property:'id'}});
+Ext.define('Admin.store.contract.ContractGridStroe', {extend:Ext.data.Store, storeId:'contractGridStroe', alias:'store.contractGridStroe', model:'Admin.model.contract.ContractModel', proxy:{type:'rest', url:'/contract', reader:{type:'json', rootProperty:'content', totalProperty:'totalElements'}, writer:{type:'json'}, simpleSortMode:true}, groupField:'area', autoLoad:'true', autoSync:true, remoteSort:true, pageSize:20, sorters:{direction:'ASC', property:'id'}});
 Ext.define('Admin.store.contractapprove.ContractApproveStore', {extend:Ext.data.Store, storeId:'contractApproveStore', alias:'store.contractApproveStore', model:'Admin.model.contractapprove.ContractApproveModel', proxy:{type:'ajax', url:'contract/tasks', reader:new Ext.data.JsonReader({type:'json', rootProperty:'content', totalProperty:'totalElements'}), simpleSortMode:true}, remoteSort:true, sorters:[{property:'id', direction:'desc'}], autoLoad:true});
 Ext.define('Admin.store.leave.LeaveStroe', {extend:Ext.data.Store, storeId:'leaveStroe', alias:'store.leaveStroe', model:'Admin.model.leave.LeaveModel', proxy:{type:'rest', url:'/leave', reader:{type:'json', rootProperty:'content', totalProperty:'totalElements'}, writer:{type:'json'}, simpleSortMode:true}, autoLoad:true, autoSync:true, remoteSort:true, pageSize:15, sorters:{direction:'DESC', property:'id'}, listeners:{}});
+Ext.define('Admin.store.log.LogGridStroe', {extend:Ext.data.Store, storeId:'logGridStroe', alias:'store.logGridStroe', model:'Admin.model.log.LogModel', proxy:{type:'rest', url:'/log', reader:{type:'json', rootProperty:'content', totalProperty:'totalElements'}, writer:{type:'json'}, simpleSortMode:true}, groupField:'day', autoLoad:'true', autoSync:true, remoteSort:true, pageSize:20, sorters:{direction:'ASC', property:'id'}});
 Ext.define('Admin.store.processdefinition.ProcessDefinitionStroe', {extend:Ext.data.Store, storeId:'processDefinitionStroe', alias:'store.processDefinitionStroe', model:'Admin.model.processdefinition.ProcessDefinitionModel', pageSize:15, proxy:{type:'ajax', url:'/process-definition', reader:{type:'json', rootProperty:'content', totalProperty:'totalElements'}, simpleSortMode:true}, remoteSort:true, sorters:[{property:'id', direction:'desc'}], autoLoad:true, listeners:{}});
 Ext.define('Admin.store.user.UserGridStroe', {extend:Ext.data.Store, alias:'store.userGridStroe', model:'Admin.model.user.UserModel', data:{'content':[{'id':1, 'userName':'No001', 'createTime':'2018/09/08 19:40:52'}, {'id':2, 'userName':'No002', 'createTime':'2018/09/08 19:40:52'}, {'id':3, 'userName':'No003', 'createTime':'2018/09/08 19:40:52'}, {'id':4, 'userName':'No004', 'createTime':'2018/09/08 19:40:52'}, {'id':5, 'userName':'No004', 'createTime':'2018/09/08 19:40:52'}, {'id':6, 'userName':'No006', 
 'createTime':'2018/09/08 19:40:52'}, {'id':7, 'userName':'No001', 'createTime':'2018/09/08 19:40:52'}, {'id':8, 'userName':'No002', 'createTime':'2018/09/08 19:40:52'}, {'id':9, 'userName':'No001', 'createTime':'2018/09/08 19:40:52'}, {'id':10, 'userName':'No0021', 'createTime':'2018/09/08 19:40:52'}, {'id':11, 'userName':'No0011', 'createTime':'2018/09/08 19:40:52'}, {'id':12, 'userName':'No0012', 'createTime':'2018/09/08 19:40:52'}, {'id':13, 'userName':'No0013', 'createTime':'2018/09/08 19:40:52'}, 
@@ -107991,18 +109212,23 @@ Ext.define('Admin.view.GridFilters.GridFilters', {extend:Ext.plugin.Abstract, lo
   }
   me.reconfiguring = false;
 }});
-Ext.define('Admin.view.achievement.ChartBase', {extend:Ext.Panel, height:300, ui:'light', layout:'fit', platformConfig:{classic:{cls:'quick-graph-panel shadow', headerPosition:'bottom'}, modern:{cls:'quick-graph-panel', shadow:true, header:{docked:'bottom'}}}, defaults:{width:'100%'}});
-Ext.define('Admin.view.achievement.AchievementPanel', {extend:Admin.view.achievement.ChartBase, xtype:'achievementPanel', title:'Bar Chart', iconCls:'x-fa fa-bar-chart', items:[{xtype:'cartesian', colors:['#6aa5db'], bind:'{barData}', axes:[{type:'category', fields:['employeeName'], position:'bottom'}, {type:'numeric', fields:['total'], grid:{odd:{fill:'#e8e8e8'}}, position:'left'}], series:[{type:'bar', xField:'employeeName', yField:['total']}], tbar:[{xtype:'combobox', reference:'searchFieldName', 
-hideLabel:true, store:Ext.create('Ext.data.Store', {fields:['name', 'value'], data:[{name:'一月', value:'一月'}, {name:'二月', value:'二月'}, {name:'三月', value:'三月'}, {name:'四月', value:'四月'}, {name:'五月', value:'五月'}, {name:'六月', value:'六月'}, {name:'七月', value:'七月'}, {name:'八月', value:'八月'}, {name:'九月', value:'九月'}, {name:'十月', value:'十月'}, {name:'十一月', value:'十一月'}, {name:'十二月', value:'十二月'}]}), displayField:'name', valueField:'value', value:'一月', editable:false, queryMode:'local', triggerAction:'all', emptyText:'Select a state...', 
-width:135, listeners:{select:'searchCombobox'}}]}]});
-Ext.define('Admin.view.achievement.AchievementViewModel', {extend:Ext.app.ViewModel, alias:'viewmodel.achievementViewModel', stores:{barData:{type:'achievementStore'}}});
-Ext.define('Admin.view.achievement.Achievement', {extend:Ext.container.Container, xtype:'achievement', controller:'achievementController', viewModel:{type:'achievementViewModel'}, layout:'responsivecolumn', defaults:{defaults:{animation:!Ext.isIE9m && Ext.os.is.Desktop}}, items:[{xtype:'achievementPanel', userCls:'big-50 small-100'}]});
+Ext.define('Admin.view.achievement.AchievementViewModel', {extend:Ext.app.ViewModel, alias:'viewmodel.achievementViewModel', stores:{barData:{type:'chartStore'}}});
+Ext.define('Admin.view.achievement.ChartPanel', {extend:Ext.Panel, xtype:'chartPanel', layout:'fit', items:[{xtype:'cartesian', colors:['#6aa5db'], bind:'{barData}', axes:[{type:'category', fields:['employeeName'], position:'bottom'}, {type:'numeric', fields:['total'], grid:{odd:{fill:'#e8e8e8'}}, position:'left'}], series:[{type:'bar', xField:'employeeName', yField:['total']}], tbar:['-\x3e', {xtype:'combobox', reference:'searchFieldName', hideLabel:true, store:Ext.create('Ext.data.Store', {fields:['name', 
+'value'], data:[{name:'一月', value:'一月'}, {name:'二月', value:'二月'}, {name:'三月', value:'三月'}, {name:'四月', value:'四月'}, {name:'五月', value:'五月'}, {name:'六月', value:'六月'}, {name:'七月', value:'七月'}, {name:'八月', value:'八月'}, {name:'九月', value:'九月'}, {name:'十月', value:'十月'}, {name:'十一月', value:'十一月'}, {name:'十二月', value:'十二月'}]}), displayField:'name', valueField:'value', value:'一月', editable:false, queryMode:'local', triggerAction:'all', emptyText:'Select a state...', width:135, listeners:{select:'searchCombobox'}}]}]});
+Ext.define('Admin.view.achievement.Achievement', {extend:Ext.container.Container, xtype:'achievement', controller:'achievementController', viewModel:{type:'achievementViewModel'}, layout:{type:'vbox', align:'stretch'}, defaults:{defaults:{animation:!Ext.isIE9m && Ext.os.is.Desktop}}, items:[{xtype:'analysePanel', flex:1}, {xtype:'chartPanel', margin:'0 0 10 0', flex:1}, {xtype:'sortPanel', flex:1}]});
 Ext.define('Admin.view.achievement.AchievementController', {extend:Ext.app.ViewController, alias:'controller.achievementController', searchCombobox:function(combo, record, index) {
   var searchField = this.lookupReference('searchFieldName').getValue();
   var store = combo.up('cartesian').getStore();
   Ext.apply(store.proxy.extraParams, {month:searchField, area:''});
   store.load();
 }});
+Ext.define('Admin.view.achievement.AnalysePanel', {extend:Ext.container.Container, xtype:'analysePanel', dataIndex:'fullname', layout:{type:'hbox', align:'stretch'}, margin:'0 0 10 0', items:[{xtype:'dataview', itemSelector:'test', html:"\x3cimg src\x3d'resources/images/user-profile/1.png' alt\x3d'Profile Pic'  style\x3d'height:100px ;width:100px;border-radius:500px;position: absolute;left:33%;top: 25%;'\x3e" + "\x3cimg src\x3d'resources/images/icons/crown1.png' alt\x3d'Profile Pic'  style\x3d'height:120px ;width:200px;position: absolute;left:16%;top: -18%;'\x3e" + 
+"\x3cimg src\x3d'resources/images/icons/crown2.png' alt\x3d'Profile Pic'  style\x3d'height:120px ;width:200px;position: absolute;left:16%;top: 26%;'\x3e", itemTpl:"\x3ctpl for\x3d'.'\x3e\x3ch2 style\x3d'position: absolute;bottom:0px;text-align: center;left: 0;right: 0;color:#919191;'\x3e" + '{fullname}' + '\x3c/h2\x3e\x3c/tpl\x3e', cls:'_boder', flex:1}, {html:"\x3cdiv style\x3d'color:#919191;text-align:center;line-height:0.8em'\x3e\x3cp style\x3d'font-size:3em'\x3e￥2000000000\x3c/p\x3e\x3cbr\x3e" + 
+'\x3ch2\x3e销售总额\x3c/h2\x3e\x3c/div\x3e', cls:'_boder', flex:1}, {html:"\x3cdiv style\x3d'color:#919191;text-align:center;line-height:0.8em'\x3e\x3cp style\x3d'font-size:3em'\x3e20%\x3c/p\x3e\x3cbr\x3e" + '\x3ch2\x3e月增长率\x3c/h2\x3e\x3c/div\x3e', cls:'_boder', flex:1}, {html:"\x3cdiv style\x3d'color:#919191;text-align:center;line-height:0.8em'\x3e\x3cp style\x3d'font-size:3em'\x3e20\x3c/p\x3e\x3cbr\x3e" + '\x3ch2\x3e总人数\x3c/h2\x3e\x3c/div\x3e', cls:'_boder', flex:1}]});
+Ext.define('Admin.view.achievement.SortPanel', {extend:Ext.container.Container, xtype:'sortPanel', dataIndex:'fullname', layout:{type:'hbox', align:'stretch'}, margin:'0 0 10 0', items:[{html:"\x3cdiv style\x3d'color:#919191;'\x3e\x3cdiv style\x3d'text-align:center;'\x3e\x3cimg src\x3d'resources/images/user-profile/1.png' alt\x3d'Profile Pic'  style\x3d'height:100px ;width:100px;border-radius:500px;text-align:center;'\x3e" + '\x3ch2\x3e我就是这么优秀\x3c/h2\x3e\x3c/div\x3e\x3cbr\x3e' + "\x3ch2 style\x3d'text-align:right'\x3e———皇甫铁牛\x3c/h2\x3e\x3c/div\x3e", 
+cls:'_boder', flex:1}, {html:"\x3cdiv style\x3d'color:#919191;'\x3e\x3cdiv style\x3d'text-align:center;'\x3e\x3cimg src\x3d'resources/images/user-profile/20.png' alt\x3d'Profile Pic'  style\x3d'height:100px ;width:100px;border-radius:500px;text-align:center;'\x3e" + '\x3ch2\x3e像我这么优秀的还有三个\x3c/h2\x3e\x3c/div\x3e\x3cbr\x3e' + "\x3ch2 style\x3d'text-align:right'\x3e———欧阳翠花\x3c/h2\x3e\x3c/div\x3e", cls:'_boder', flex:1}, {html:"\x3cdiv style\x3d'color:#919191;'\x3e\x3cdiv style\x3d'text-align:center;'\x3e\x3cimg src\x3d'resources/images/user-profile/10.png' alt\x3d'Profile Pic'  style\x3d'height:100px ;width:100px;border-radius:500px;text-align:center;'\x3e" + 
+'\x3ch2\x3e你们好优秀啊\x3c/h2\x3e\x3c/div\x3e\x3cbr\x3e' + "\x3ch2 style\x3d'text-align:right'\x3e———诸葛钢蛋\x3c/h2\x3e\x3c/div\x3e", cls:'_boder', flex:1}, {html:"\x3cdiv style\x3d'color:#919191;'\x3e\x3cdiv style\x3d'text-align:center;'\x3e\x3cimg src\x3d'resources/images/user-profile/7.png' alt\x3d'Profile Pic'  style\x3d'height:100px ;width:100px;border-radius:500px;text-align:center;'\x3e" + '\x3ch2\x3e是啊\x3c/h2\x3e\x3c/div\x3e\x3cbr\x3e' + "\x3ch2 style\x3d'text-align:right'\x3e———晓晓\x3c/h2\x3e\x3c/div\x3e", 
+cls:'_boder', flex:1}]});
 Ext.define('Admin.view.addressList.AddressList', {extend:Ext.container.Container, xtype:'addressList', controller:'addressListViewController', viewModel:{type:'addressListViewModel'}, layout:'fit', items:[{xtype:'addressListPanel'}]});
 Ext.define('Admin.view.addressList.AddressListPanel', {extend:Ext.panel.Panel, xtype:'addressListPanel', layout:'fit', items:[{xtype:'gridpanel', cls:'user-grid', title:'AddressList Results', bind:'{addressListLists}', scrollable:false, columns:[{xtype:'gridcolumn', width:40, dataIndex:'id', text:'#', hidden:true}, {xtype:'gridcolumn', cls:'content-column', dataIndex:'employeeName', text:'Name', flex:1}, {xtype:'gridcolumn', cls:'content-column', dataIndex:'employeeNumber', text:'Number', flex:1}, 
 {xtype:'gridcolumn', cls:'content-column', dataIndex:'employeeArea', text:'Area', flex:1}, {xtype:'gridcolumn', cls:'content-column', dataIndex:'post', text:'post', flex:1}, {xtype:'gridcolumn', cls:'content-column', dataIndex:'email', text:'email', flex:1}, {xtype:'actioncolumn', cls:'content-column', width:120, dataIndex:'bool', text:'Actions', tooltip:'edit ', items:[{xtype:'button', iconCls:'x-fa fa-pencil', handler:'onEditButton'}, {xtype:'button', iconCls:'x-fa fa-close', handler:'onDeleteButton'}, 
@@ -108032,10 +109258,9 @@ Ext.define('Admin.view.addressList.AddressListViewController', {extend:Ext.app.V
 }});
 Ext.define('Admin.view.addressList.AddressListViewModel', {extend:Ext.app.ViewModel, alias:'viewmodel.addressListViewModel', stores:{addressListLists:{type:'addressListPanelStroe'}}});
 Ext.define('Admin.view.allattence.AllAttence', {extend:Ext.container.Container, xtype:'allAttence', controller:'allAttenceViewController', viewModel:{type:'allAttenceViewModel'}, layout:'fit', items:[{xtype:'allAttencePanel'}]});
-Ext.define('Admin.view.allattence.AllAttencePanel', {extend:Ext.panel.Panel, xtype:'allAttencePanel', layout:{type:'vbox', pack:'start', align:'stretch'}, items:[{title:'考勤列表'}, {bodypadding:15, cls:'has-border', height:60, tbar:['-\x3e', {iconCls:'fa fa-search fa-5x', ui:'header', tooltip:'查找'}, '-', {iconCls:'fa fa-download fa-5x', ui:'header', tooltip:'导出考勤表'}]}, {xtype:'gridpanel', cls:'has-border', height:650, bind:'{allAttenceLists}', scrollable:false, selModel:{type:'checkboxmodel', checkOnly:true}, 
-listeners:{selectionchange:function(selModel, selections) {
-  this.up('panel').down('#contractPanelRemove').setDisabled(selections.length === 0);
-}, cellclick:'onGridCellItemClick'}, columns:[{xtype:'gridcolumn', width:40, dataIndex:'id', text:'id', hidden:true}, {header:'上班状态', dataIndex:'attenceStatus', width:120, sortable:true, renderer:function(val) {
+Ext.define('Admin.view.allattence.AllAttencePanel', {extend:Ext.panel.Panel, xtype:'allAttencePanel', layout:{type:'vbox', pack:'start', align:'stretch'}, items:[{title:'考勤列表'}, {bodypadding:15, cls:'has-border', height:60, tbar:['-\x3e', {xtype:'splitbutton', id:'allattence_gridfilters', text:'请选择搜索条件', menu:[{xtype:'menucheckitem', text:'签约时间', menu:[{xtype:'datefield', id:'allattence_workinTime', value:new Date, format:'Y/m/d H:i:s', listeners:{specialkey:'searchAllAttence'}}]}, {xtype:'menucheckitem', 
+text:'失效时间', menu:[{xtype:'datefield', id:'allattence_workoutTime', value:new Date, format:'Y/m/d H:i:s', listeners:{specialkey:'searchAllAttence'}}]}]}, '-', {iconCls:'fa fa-search fa-5x', ui:'header', tooltip:'查找', id:'allattence_searchOpen', handler:'searchOpen'}, '-', {iconCls:'fa fa-close fa-5x', ui:'header', tooltip:'取消', id:'allattence_searchClose', handler:'searchClose'}, '-', {iconCls:'fa fa-download fa-5x', ui:'header', tooltip:'导出考勤表'}]}, {xtype:'gridpanel', cls:'has-border', height:650, 
+bind:'{allAttenceLists}', scrollable:false, features:[{ftype:'grouping', groupHeaderTpl:'{name}', hideGroupedHeader:false, startCollapsed:true}], columns:[{xtype:'gridcolumn', width:40, dataIndex:'id', text:'id', hidden:true}, {header:'上班状态', dataIndex:'attenceStatus', width:120, sortable:true, renderer:function(val) {
   if (val == 'NORMAL') {
     return '\x3cspan style\x3d"color:green;"\x3e正常\x3c/span\x3e';
   } else {
@@ -108052,9 +109277,24 @@ listeners:{selectionchange:function(selModel, selections) {
     }
   }
   return val;
-}}, {xtype:'gridcolumn', cls:'content-column', width:150, dataIndex:'employeeName', text:'员工姓名'}, {xtype:'gridcolumn', cls:'content-column', width:150, dataIndex:'location', text:'打卡地点'}, {xtype:'datecolumn', cls:'content-column', width:180, dataIndex:'workinTime', text:'上班时间', flex:1, formatter:'date("Y/m/d H:i:s")'}, {xtype:'datecolumn', cls:'content-column', width:180, dataIndex:'workoutTime', text:'下班时间', flex:1, formatter:'date("Y/m/d H:i:s")'}, {xtype:'actioncolumn', cls:'content-column', width:80, 
-dataIndex:'bool', text:'操作', tooltip:'edit '}], dockedItems:[{xtype:'pagingtoolbar', dock:'bottom', itemId:'userPaginationToolbar', displayInfo:true, bind:'{allAttenceLists}'}]}]});
-Ext.define('Admin.view.allattence.AllAttenceViewController', {extend:Ext.app.ViewController, alias:'controller.allAttenceViewController'});
+}}, {xtype:'gridcolumn', cls:'content-column', width:150, dataIndex:'employeeName', text:'员工姓名'}, {xtype:'gridcolumn', cls:'content-column', width:150, dataIndex:'storeName', text:'部门名'}, {xtype:'gridcolumn', cls:'content-column', width:150, dataIndex:'location', text:'打卡地点'}, {xtype:'datecolumn', cls:'content-column', width:160, dataIndex:'workinTime', text:'上班时间', flex:1, formatter:'date("Y/m/d H:i:s")'}, {xtype:'datecolumn', cls:'content-column', width:160, dataIndex:'workoutTime', text:'下班时间', 
+flex:1, formatter:'date("Y/m/d H:i:s")'}, {xtype:'datecolumn', cls:'content-column', width:160, dataIndex:'day', text:'考勤时间', flex:1, formatter:'date("Y/m")'}, {xtype:'actioncolumn', cls:'content-column', width:80, dataIndex:'bool', text:'操作', tooltip:'edit '}], dockedItems:[{xtype:'pagingtoolbar', dock:'bottom', itemId:'userPaginationToolbar', displayInfo:true, bind:'{allAttenceLists}'}]}]});
+Ext.define('Admin.view.allattence.AllAttenceViewController', {extend:Ext.app.ViewController, alias:'controller.allAttenceViewController', searchOpen:function(btn) {
+  Ext.getCmp('allattence_searchOpen').hide();
+  Ext.getCmp('allattence_gridfilters').show();
+}, searchAllAttence:function(textfield, e) {
+  if (e.getKey() == Ext.EventObject.ENTER) {
+    var workinTime = Ext.getCmp('allattence_workinTime').getValue();
+    var workoutTime = Ext.getCmp('allattence_workoutTime').getValue();
+    var store = Ext.data.StoreManager.lookup('allAttenceGridStroe');
+    Ext.apply(store.proxy.extraParams, {workinTime:'', workoutTime:''});
+    Ext.apply(store.proxy.extraParams, {workinTime:Ext.util.Format.date(workinTime, 'Y/m/d H:i:s'), workoutTime:Ext.util.Format.date(workoutTime, 'Y/m/d H:i:s')});
+    store.load({params:{start:0, limit:20, page:1}});
+  }
+}, searchClose:function(btn) {
+  Ext.getCmp('allattence_gridfilters').hide();
+  Ext.getCmp('allattence_searchOpen').show();
+}});
 Ext.define('Admin.view.allattence.AllAttenceViewModel', {extend:Ext.app.ViewModel, alias:'viewmodel.allAttenceViewModel', stores:{allAttenceLists:{type:'allAttenceGridStroe'}}});
 Ext.define('Admin.view.attence.AppealWindow', {extend:Ext.window.Window, alias:'widget.appealWindow', height:420, width:550, scrollable:true, title:'申诉表', closable:true, modal:true, layout:'fit', items:[{xtype:'form', layout:'form', padding:'10px', ariaLabel:'Enter your name', items:[{xtype:'textfield', fieldLabel:'id', name:'id', hidden:true, readOnly:true}, {xtype:'textfield', fieldLabel:'申诉人', cls:'appeal', readOnly:true, name:'employeeName'}, {xtype:'textfield', fieldLabel:'打卡地点', cls:'appeal', 
 readOnly:true, name:'location'}, {xtype:'datefield', fieldLabel:'上班时间', cls:'appeal', readOnly:true, name:'workinTime', format:'Y/m/d H:i:s'}, {xtype:'datefield', fieldLabel:'下班时间', cls:'appeal', readOnly:true, name:'workoutTime', format:'Y/m/d H:i:s'}, {xtype:'textfield', fieldLabel:'原上班状态', cls:'appeal', readOnly:true, name:'attenceStatus', style:{'color':'red'}}, {xtype:'textareafield', grow:true, name:'appealreason', emptyText:'此处填写申诉原因', fieldLabel:'申诉原因', allowBlank:false, anchor:'100%'}]}], 
@@ -108062,10 +109302,9 @@ buttons:[{xtype:'button', text:'发起申诉', style:{'background-color':'dynami
   btn.up('window').close();
 }}]});
 Ext.define('Admin.view.attence.Attence', {extend:Ext.container.Container, xtype:'attence', controller:'attenceViewController', viewModel:{type:'attenceViewModel'}, layout:'fit', items:[{xtype:'attencePanel'}]});
-Ext.define('Admin.view.attence.AttencePanel', {extend:Ext.panel.Panel, xtype:'attencePanel', layout:{type:'vbox', pack:'start', align:'stretch'}, items:[{title:'个人考勤列表'}, {bodypadding:15, cls:'has-border', height:60, tbar:[{iconCls:'fa fa-folder-o fa-5x', ui:'header', tooltip:'我的请假单', handler:'openLeaveWindow'}, '-', {iconCls:'fa fa-edit fa-5x', ui:'header', tooltip:'填写请假单', handler:'openAddWindow'}, '-\x3e', {iconCls:'fa fa-search fa-5x', ui:'header', tooltip:'查找'}, '-', {iconCls:'fa fa-download fa-5x', 
-ui:'header', tooltip:'导出个人考勤表'}]}, {xtype:'gridpanel', cls:'has-border', height:650, bind:'{attenceLists}', scrollable:false, selModel:{type:'checkboxmodel', checkOnly:true}, listeners:{selectionchange:function(selModel, selections) {
-  this.up('panel').down('#contractPanelRemove').setDisabled(selections.length === 0);
-}, cellclick:'onGridCellItemClick'}, columns:[{xtype:'gridcolumn', width:40, dataIndex:'id', text:'id', hidden:true}, {header:'上班状态', dataIndex:'attenceStatus', width:120, sortable:true, renderer:function(val) {
+Ext.define('Admin.view.attence.AttencePanel', {extend:Ext.panel.Panel, xtype:'attencePanel', layout:{type:'vbox', pack:'start', align:'stretch'}, items:[{title:'个人考勤列表'}, {bodypadding:15, cls:'has-border', height:60, tbar:[{iconCls:'fa fa-folder-o fa-5x', ui:'header', tooltip:'我的请假单', handler:'openLeaveWindow'}, '-', {iconCls:'fa fa-edit fa-5x', ui:'header', tooltip:'填写请假单', handler:'openAddWindow'}, '-\x3e', {xtype:'splitbutton', id:'attence_gridfilters', text:'请选择搜索条件', menu:[{xtype:'menucheckitem', 
+text:'上班时间', menu:[{xtype:'datefield', id:'attence_workinTime', value:new Date, format:'Y/m/d H:i:s', listeners:{specialkey:'searchAttence'}}]}, {xtype:'menucheckitem', text:'下班时间', menu:[{xtype:'datefield', id:'attence_workoutTime', value:new Date, format:'Y/m/d H:i:s', listeners:{specialkey:'searchAttence'}}]}]}, '-', {iconCls:'fa fa-search fa-5x', ui:'header', tooltip:'查找', id:'attence_searchOpen', handler:'searchOpen'}, '-', {iconCls:'fa fa-close fa-5x', ui:'header', tooltip:'取消', id:'attence_searchClose', 
+handler:'searchClose'}, '-', {iconCls:'fa fa-download fa-5x', ui:'header', tooltip:'导出个人考勤表'}]}, {xtype:'gridpanel', cls:'has-border', height:650, bind:'{attenceLists}', scrollable:false, features:[{ftype:'grouping', startCollapsed:true, groupHeaderTpl:'{name}' + '考勤情况：' + '  (已打卡{rows.length}天)'}], columns:[{xtype:'gridcolumn', width:40, dataIndex:'id', text:'id', hidden:true}, {header:'上班状态', dataIndex:'attenceStatus', width:120, sortable:true, renderer:function(val) {
   if (val == 'NORMAL') {
     return '\x3cspan style\x3d"color:green;"\x3e正常\x3c/span\x3e';
   } else {
@@ -108100,7 +109339,8 @@ ui:'header', tooltip:'导出个人考勤表'}]}, {xtype:'gridpanel', cls:'has-bo
   }
   return val;
 }}, {xtype:'gridcolumn', cls:'content-column', width:50, dataIndex:'appealreason', text:'申诉原因', hidden:true}, {xtype:'gridcolumn', cls:'content-column', width:50, dataIndex:'deptLeaderBackReason', text:'经理意见', hidden:true}, {xtype:'gridcolumn', cls:'content-column', width:50, dataIndex:'hrBackReason', text:'人事经理意见', hidden:true}, {xtype:'gridcolumn', cls:'content-column', width:150, dataIndex:'employeeName', text:'员工姓名'}, {xtype:'gridcolumn', cls:'content-column', width:150, dataIndex:'location', 
-text:'打卡地点'}, {xtype:'datecolumn', cls:'content-column', width:180, dataIndex:'workinTime', text:'上班时间', flex:1, formatter:'date("Y/m/d H:i:s")'}, {xtype:'datecolumn', cls:'content-column', width:180, dataIndex:'workoutTime', text:'下班时间', flex:1, formatter:'date("Y/m/d H:i:s")'}, {xtype:'actioncolumn', cls:'content-column', width:80, dataIndex:'bool', text:'操作', tooltip:'edit ', items:[{xtype:'button', iconCls:'x-fa fa-hand-paper-o', tooltip:'发起申诉', getClass:function(v, meta, rec) {
+text:'打卡地点'}, {xtype:'datecolumn', cls:'content-column', width:180, dataIndex:'workinTime', text:'上班时间', flex:1, formatter:'date("Y/m/d H:i:s")'}, {xtype:'datecolumn', cls:'content-column', width:180, dataIndex:'workoutTime', text:'下班时间', flex:1, formatter:'date("Y/m/d H:i:s")'}, {xtype:'datecolumn', cls:'content-column', width:180, dataIndex:'day', text:'考勤时间', hidden:true, flex:1, formatter:'date("Y/m")'}, {xtype:'actioncolumn', cls:'content-column', width:80, dataIndex:'bool', text:'操作', tooltip:'edit ', 
+items:[{xtype:'button', iconCls:'x-fa fa-hand-paper-o', tooltip:'发起申诉', getClass:function(v, meta, rec) {
   if (rec.get('processInstanceId') != '') {
     return 'x-hidden';
   }
@@ -108116,7 +109356,22 @@ text:'打卡地点'}, {xtype:'datecolumn', cls:'content-column', width:180, data
   }
   return 'x-hidden';
 }, handler:'LookAppeal'}]}], dockedItems:[{xtype:'pagingtoolbar', dock:'bottom', itemId:'userPaginationToolbar', displayInfo:true, bind:'{attenceLists}'}]}]});
-Ext.define('Admin.view.attence.AttenceViewController', {extend:Ext.app.ViewController, alias:'controller.attenceViewController', openLeaveWindow:function(toolbar, rowIndex, colIndex) {
+Ext.define('Admin.view.attence.AttenceViewController', {extend:Ext.app.ViewController, alias:'controller.attenceViewController', searchOpen:function(btn) {
+  Ext.getCmp('attence_searchOpen').hide();
+  Ext.getCmp('attence_gridfilters').show();
+}, searchContract:function(textfield, e) {
+  if (e.getKey() == Ext.EventObject.ENTER) {
+    var workinTime = Ext.getCmp('attence_workinTime').getValue();
+    var workoutTime = Ext.getCmp('attence_workoutTime').getValue();
+    var store = Ext.data.StoreManager.lookup('attenceGridStroe');
+    Ext.apply(store.proxy.extraParams, {workinTime:'', workoutTime:''});
+    Ext.apply(store.proxy.extraParams, {workinTime:Ext.util.Format.date(workinTime, 'Y/m/d H:i:s'), workoutTime:Ext.util.Format.date(workoutTime, 'Y/m/d H:i:s')});
+    store.load({params:{start:0, limit:20, page:1}});
+  }
+}, searchClose:function(btn) {
+  Ext.getCmp('attence_gridfilters').hide();
+  Ext.getCmp('attence_searchOpen').show();
+}, openLeaveWindow:function(toolbar, rowIndex, colIndex) {
   toolbar.up('panel').up('container').add(Ext.widget('leaveGridWindow')).show();
 }, openAddWindow:function(toolbar, rowIndex, colIndex) {
   toolbar.up('panel').up('container').add(Ext.widget('leaveAddWindow')).show();
@@ -108241,10 +109496,8 @@ name:'reason', fieldLabel:'请假原因', anchor:'100%', emptyText:'请填写请
   btn.up('window').close();
 }}]});
 Ext.define('Admin.view.attence.LeaveGridWindow', {extend:Ext.window.Window, alias:'widget.leaveGridWindow', height:550, minHeight:500, width:1200, scrollable:true, title:'我的请假单', closable:true, constrain:false, autoScroll:true, header:{items:[{iconCls:'fa fa-search', ui:'header', tooltip:'查找', handler:'hhh'}, {iconCls:'fa fa-trash', ui:'header', id:'leaveGridPanelRemove', disabled:true, tooltip:'删除多条', handler:'deleteMoreRows'}]}, listeners:{selectionchange:function(selModel, selections) {
-  if (selections.length > 1) {
-    Ext.getCmp('#leaveGridPanelRemove').setDisabled(false);
-  }
-}}, modal:true, layout:'fit', items:[{xtype:'gridpanel', bind:'{leaveLists}', autoScroll:true, selModel:{type:'checkboxmodel'}, plugins:{rowediting:{clicksToEdit:2}}, columns:[{header:'id', dataIndex:'id', width:60, sortable:true, hidden:true}, {header:'审核状态', dataIndex:'processStatus', width:60, sortable:true, renderer:function(val) {
+  this.up('window').down('#leaveGridPanelRemove').setDisabled(selections.length === 0);
+}}, modal:true, layout:'fit', items:[{xtype:'gridpanel', bind:'{leaveLists}', autoScroll:true, selModel:{type:'checkboxmodel'}, plugins:{rowediting:{saveBtnText:'保存', cancelBtnText:'取消', autoCancel:false, clicksToMoveEditor:1}}, columns:[{header:'id', dataIndex:'id', width:60, sortable:true, hidden:true}, {header:'审核状态', dataIndex:'processStatus', width:60, sortable:true, renderer:function(val) {
   if (val == 'NEW') {
     return '\x3cspan style\x3d"color:green;"\x3e新建\x3c/span\x3e';
   } else {
@@ -108713,9 +109966,14 @@ Ext.define('Admin.view.calendar.CalendarViewController', {extend:Ext.app.ViewCon
   alert('calendar save');
 }});
 Ext.define('Admin.view.contract.Contract', {extend:Ext.container.Container, xtype:'contract', controller:'contractViewController', viewModel:{type:'contractViewModel'}, layout:'fit', items:[{xtype:'contractPanel'}]});
-Ext.define('Admin.view.contract.ContractEditWindow', {extend:Ext.window.Window, alias:'widget.contractEditWindow', height:200, minHeight:200, minWidth:300, width:500, scrollable:true, title:'合同修改窗口', closable:true, modal:true, layout:'fit'});
-Ext.define('Admin.view.contract.ContractPanel', {extend:Ext.panel.Panel, xtype:'contractPanel', controller:'contractViewController', layout:'fit', items:[{xtype:'gridpanel', title:'合同信息表', plugins:{rowexpander:{rowBodyTpl:new Ext.XTemplate('\x3cp\x3e\x3cb\x3e合同编号:\x3c/b\x3e{contractNumber}\x3c/p\x3e', '\x3cp\x3e\x3cb\x3e客户姓名:\x3c/b\x3e\x3c/p\x3e{customerName}\x3cbr\x3e', '\x3cp\x3e\x3cb\x3e房源名称:\x3c/b\x3e{hoseName}\x3c/p\x3e', '\x3cp\x3e\x3cb\x3e房产经纪人姓名:\x3c/b\x3e{employeeName}\x3c/p\x3e', '\x3cp\x3e\x3cb\x3e签约时间:\x3c/b\x3e\x3c/p\x3e{startTime}\x3cbr\x3e', 
-'\x3cp\x3e\x3cb\x3e失效时间:\x3c/b\x3e{endTime}\x3c/p\x3e', '\x3cp\x3e\x3cb\x3e金额:\x3c/b\x3e{total}\x3c/p\x3e')}, rowediting:{saveBtnText:'保存', cancelBtnText:'取消', autoCancel:false, clicksToMoveEditor:2}}, cls:'has-border', bind:'{contractLists}', selModel:{type:'checkboxmodel', checkOnly:true}, columns:[{xtype:'gridcolumn', width:40, dataIndex:'id', text:'id', hidden:true}, {header:'processStatus', dataIndex:'processStatus', width:60, sortable:true, renderer:function(val) {
+Ext.define('Admin.view.contract.ContractAddWindow', {extend:Ext.window.Window, alias:'widget.contractAddWindow', height:650, width:500, scrollable:true, title:'合同添加窗口', closable:true, modal:true, layout:'fit', items:[{xtype:'form', layout:'form', padding:'10px', items:[{xtype:'textfield', fieldLabel:'id', name:'id', hidden:true, readOnly:true}, {xtype:'textfield', fieldLabel:'processStatus', name:'processStatus', value:'NEW', hidden:true, readOnly:true}, {xtype:'textfield', fieldLabel:'客户姓名', name:'customerName', 
+allowBlank:false, emptyText:'请填写客户姓名', blankText:'请填写客户姓名'}, {xtype:'textfield', fieldLabel:'房源名称', name:'hoseName', allowBlank:false, emptyText:'请填写房源名称', blankText:'请填写房源名称'}, {xtype:'datefield', fieldLabel:'签约时间', name:'startTime', value:new Date, format:'Y/m/d H:i:s', emptyText:'--------请选择---------', allowBlank:false, blankText:'请选择签约时间'}, {xtype:'datefield', fieldLabel:'失效时间', name:'endTime', value:new Date, format:'Y/m/d H:i:s', emptyText:'--------请选择---------', allowBlank:false, blankText:'请选择失效时间'}, 
+{xtype:'textfield', fieldLabel:'合同类型', name:'contractType', allowBlank:false, emptyText:'请填写合同类型', blankText:'请填写合同类型'}, {xtype:'textfield', fieldLabel:'金额', name:'total', allowBlank:false, emptyText:'请填写金额', blankText:'请填写金额'}]}], buttons:[{xtype:'button', text:'Submit', handler:'submitContractEditFormButton'}, {xtype:'button', text:'Close', handler:function(btn) {
+  btn.up('window').close();
+}}]});
+Ext.define('Admin.view.contract.ContractPanel', {extend:Ext.panel.Panel, xtype:'contractPanel', controller:'contractViewController', layout:'fit', items:[{xtype:'gridpanel', id:'contactGridpanel', title:'合同信息表', plugins:{rowediting:{saveBtnText:'保存', cancelBtnText:'取消', autoCancel:false, clicksToMoveEditor:1}}, cls:'has-border', bind:'{contractLists}', selModel:{type:'checkboxmodel', checkOnly:true}, listeners:{selectionchange:function(selModel, selections) {
+  this.down('#contractPanelRemove').setDisabled(selections.length === 0);
+}}, features:[{ftype:'groupingsummary', groupHeaderTpl:'{name}' + '销售情况' + '  ({rows.length}条记录{[values.rows.length \x3e 1 ? "..." : ""]})', hideGroupedHeader:false, startCollapsed:true}, {ftype:'summary', summaryType:'sum', dock:'bottom'}], columns:[{xtype:'gridcolumn', width:40, dataIndex:'id', text:'id', hidden:true}, {header:'processStatus', dataIndex:'processStatus', width:60, sortable:true, id:'contract_processStatus', renderer:function(val) {
   if (val == 'NEW') {
     return '\x3cspan style\x3d"color:green;"\x3e新建\x3c/span\x3e';
   } else {
@@ -108730,15 +109988,20 @@ Ext.define('Admin.view.contract.ContractPanel', {extend:Ext.panel.Panel, xtype:'
     }
   }
   return val;
-}}, {xtype:'gridcolumn', cls:'content-column', width:100, dataIndex:'contractNumber', text:'合同编号', editor:{xtype:'textfield', allowBlank:false}}, {xtype:'gridcolumn', cls:'content-column', width:100, dataIndex:'customerName', text:'客户姓名', editor:{xtype:'textfield', allowBlank:false}}, {xtype:'gridcolumn', cls:'content-column', width:100, dataIndex:'hoseName', text:'房源名称'}, {xtype:'gridcolumn', cls:'content-column', width:120, dataIndex:'employeeName', text:'房产经纪人姓名'}, {xtype:'datecolumn', cls:'content-column', 
-width:150, dataIndex:'startTime', text:'签约时间', flex:1, formatter:'date("Y/m/d H:i:s")', filter:true}, {xtype:'datecolumn', cls:'content-column', width:150, dataIndex:'endTime', text:'失效时间', flex:1, formatter:'date("Y/m/d H:i:s")', filter:true}, {xtype:'gridcolumn', cls:'content-column', width:90, dataIndex:'contractType', text:'合同类型'}, {xtype:'gridcolumn', cls:'content-column', width:100, dataIndex:'total', text:'金额', renderer:function(val) {
+}}, {xtype:'gridcolumn', cls:'content-column', width:100, dataIndex:'contractNumber', text:'合同编号', summaryRenderer:function(value, summaryData, dataIndex) {
+  return '总销售额:';
+}}, {xtype:'gridcolumn', cls:'content-column', width:100, dataIndex:'customerName', text:'客户姓名', editor:{xtype:'textfield', allowBlank:false}}, {xtype:'gridcolumn', cls:'content-column', width:100, dataIndex:'hoseName', text:'房源名称', editor:{xtype:'textfield', allowBlank:false}}, {xtype:'gridcolumn', cls:'content-column', width:120, dataIndex:'employeeName', text:'房产经纪人姓名', editor:{xtype:'textfield', allowBlank:false}}, {xtype:'datecolumn', cls:'content-column', width:150, dataIndex:'startTime', text:'签约时间', 
+flex:1, formatter:'date("Y/m/d H:i:s")', editor:{xtype:'datefield', value:new Date, format:'Y/m/d H:i:s', altFormats:'Y/m/d|Ymd', allowBlank:false, blankText:'请选择开始时间'}}, {xtype:'datecolumn', cls:'content-column', width:150, dataIndex:'endTime', text:'失效时间', flex:1, formatter:'date("Y/m/d H:i:s")', editor:{xtype:'datefield', value:new Date, format:'Y/m/d H:i:s', altFormats:'Y/m/d|Ymd', allowBlank:false, blankText:'请选择开始时间'}}, {xtype:'gridcolumn', cls:'content-column', width:90, dataIndex:'contractType', 
+text:'合同类型', editor:{xtype:'textfield', allowBlank:false}}, {xtype:'gridcolumn', cls:'content-column', width:100, dataIndex:'total', text:'金额', renderer:function(val) {
   return '\x3cspan\x3e' + Ext.util.Format.number(val, '0,000.00') + '万\x3c/span\x3e';
-}}, {xtype:'gridcolumn', cls:'content-column', width:100, dataIndex:'area', text:'公司区域'}, {xtype:'actioncolumn', cls:'content-column', width:150, dataIndex:'bool', text:'操作', tooltip:'edit ', items:[{xtype:'button', iconCls:'x-fa fa-arrow-circle-o-down', tooltip:'合同下载'}, {xtype:'button', iconCls:'x-fa fa-close', tooltip:'删除合同', handler:'onDeleteButton'}, {xtype:'button', iconCls:'x-fa fa-star', tooltip:'发起请假', getClass:function(v, meta, rec) {
+}, editor:{xtype:'textfield', allowBlank:false}, field:{xtype:'numberfield'}, summaryType:'sum', summaryRenderer:function(value, summaryData, dataIndex) {
+  return value + ' 万';
+}}, {xtype:'gridcolumn', cls:'content-column', width:100, dataIndex:'area', text:'公司区域', editor:{xtype:'textfield', allowBlank:false}}, {xtype:'actioncolumn', cls:'content-column', width:150, dataIndex:'bool', text:'操作', tooltip:'edit ', items:[{xtype:'button', iconCls:'x-fa fa-arrow-circle-o-down', tooltip:'合同下载'}, {xtype:'button', iconCls:'x-fa fa-close', tooltip:'删除合同', handler:'onDeleteButton'}, {xtype:'button', iconCls:'x-fa fa-star', tooltip:'发起审核', getClass:function(v, meta, rec) {
   if (rec.get('processInstanceId') != '') {
     return 'x-hidden';
   }
   return 'x-fa fa-star';
-}, handler:'starLeaveProcess'}, {xtype:'button', iconCls:'x-fa fa-ban', tooltip:'取消请假', getClass:function(v, meta, rec) {
+}, handler:'starLeaveProcess'}, {xtype:'button', iconCls:'x-fa fa-ban', tooltip:'取消审核', getClass:function(v, meta, rec) {
   if (rec.get('processInstanceId') == '') {
     return 'x-hidden';
   }
@@ -108748,42 +110011,40 @@ width:150, dataIndex:'startTime', text:'签约时间', flex:1, formatter:'date("
     return 'x-fa fa-file-text-o';
   }
   return 'x-hidden';
-<<<<<<< HEAD
-<<<<<<< HEAD
-}, handler:'LookContract'}]}], dockedItems:[{xtype:'pagingtoolbar', dock:'bottom', itemId:'userPaginationToolbar', displayInfo:true, bind:'{contractLists}'}]}]});
-=======
-}, handler:'LookContract'}]}], tbar:[{xtype:'splitbutton', id:'contract_gridfilters', text:'请选择搜索条件', menu:[{xtype:'menucheckitem', text:'合同编号', menu:[{xtype:'textfield', id:'contract_contractNumber', emptyText:'请输入合同编号', listeners:{specialkey:'searchContract'}}]}, {xtype:'menucheckitem', text:'客户姓名', menu:[{xtype:'textfield', emptyText:'请输入客户姓名', listeners:{specialkey:'searchContract'}}]}, {xtype:'menucheckitem', text:'房源名称', menu:[{xtype:'textfield', emptyText:'请输入房源名称', listeners:{specialkey:'searchContract'}}]}, 
-{xtype:'menucheckitem', text:'签约时间', menu:[{xtype:'datefield', value:new Date, format:'Y/m/d H:i:s', listeners:{specialkey:'searchContract'}}]}, {xtype:'menucheckitem', text:'失效时间', menu:[{xtype:'datefield', value:new Date, format:'Y/m/d H:i:s', listeners:{specialkey:'searchContract'}}]}, {xtype:'menucheckitem', text:'合同类型', menu:[{xtype:'textfield', emptyText:'请输入合同类型', listeners:{specialkey:'searchContract'}}]}]}, '-', {iconCls:'fa fa-search fa-5x', ui:'header', tooltip:'查找', id:'contract_search', 
-handler:'searchContract'}, '-', {iconCls:'fa fa-search fa-5x', ui:'header', tooltip:'取消', handler:'searchContract'}, '-\x3e', {tooltip:'添加合同信息', ui:'header', iconCls:'fa fa-plus-square', handler:'onAddClick'}, '-', {tooltip:'导入合同信息', ui:'header', iconCls:'fa fa-cloud-upload', handler:'uploadContract'}, '-', {tooltip:'合同模板下载', ui:'header', iconCls:'fa fa-cloud-download', href:'/contract/downloadWord', hrefTarget:'_self'}], dockedItems:[{xtype:'pagingtoolbar', dock:'bottom', itemId:'userPaginationToolbar', 
-displayInfo:true, bind:'{contractLists}'}]}]});
->>>>>>> branch 'master' of https://github.com/MyElevenTeam/Knorragency.git
-=======
 }, handler:'LookContract'}]}], tbar:[{xtype:'splitbutton', id:'contract_gridfilters', text:'请选择搜索条件', menu:[{xtype:'menucheckitem', text:'合同编号', menu:[{xtype:'textfield', id:'contract_contractNumber', emptyText:'请输入合同编号', listeners:{specialkey:'searchContract'}}]}, {xtype:'menucheckitem', text:'客户姓名', menu:[{xtype:'textfield', id:'contract_customerName', emptyText:'请输入客户姓名', listeners:{specialkey:'searchContract'}}]}, {xtype:'menucheckitem', text:'房源名称', menu:[{xtype:'textfield', id:'contract_hoseName', 
 emptyText:'请输入房源名称', listeners:{specialkey:'searchContract'}}]}, {xtype:'menucheckitem', text:'签约时间', menu:[{xtype:'datefield', id:'contract_startTime', value:new Date, format:'Y/m/d H:i:s', listeners:{specialkey:'searchContract'}}]}, {xtype:'menucheckitem', text:'失效时间', menu:[{xtype:'datefield', id:'contract_endTime', value:new Date, format:'Y/m/d H:i:s', listeners:{specialkey:'searchContract'}}]}, {xtype:'menucheckitem', text:'合同类型', menu:[{xtype:'textfield', id:'contract_contractType', emptyText:'请输入合同类型', 
-listeners:{specialkey:'searchContract'}}]}]}, '-', {iconCls:'fa fa-search fa-5x', ui:'header', tooltip:'查找', id:'contract_searchOpen', handler:'searchOpen'}, '-', {iconCls:'fa fa-close fa-5x', ui:'header', tooltip:'取消', id:'contract_searchClose', handler:'searchClose'}, '-\x3e', {tooltip:'添加合同信息', ui:'header', iconCls:'fa fa-plus-square', handler:'onAddClick'}, '-', {tooltip:'导入合同信息', ui:'header', iconCls:'fa fa-cloud-upload', handler:'uploadContract'}, '-', {tooltip:'合同模板下载', ui:'header', iconCls:'fa fa-cloud-download', 
-href:'/contract/downloadWord', hrefTarget:'_self'}], dockedItems:[{xtype:'pagingtoolbar', dock:'bottom', itemId:'userPaginationToolbar', displayInfo:true, bind:'{contractLists}'}]}]});
->>>>>>> branch 'master' of https://github.com/MyElevenTeam/Knorragency.git
+listeners:{specialkey:'searchContract'}}]}]}, '-', {iconCls:'fa fa-search fa-5x', ui:'header', tooltip:'查找', id:'contract_searchOpen', handler:'searchOpen'}, '-', {iconCls:'fa fa-close fa-5x', ui:'header', tooltip:'取消', id:'contract_searchClose', handler:'searchClose'}, '-\x3e', {tooltip:'添加合同信息', ui:'header', iconCls:'fa fa-plus-square', handler:'onAddClick'}, '-', {ui:'header', tooltip:'批量删除', itemId:'contractPanelRemove', iconCls:'fa fa-trash fa-5x', disabled:true, handler:'deleteMoreRows'}, '-', 
+{tooltip:'导入合同信息', ui:'header', iconCls:'fa fa-cloud-upload', handler:'uploadContract'}, '-', {tooltip:'合同模板下载', ui:'header', iconCls:'fa fa-cloud-download', href:'/contract/downloadWord', hrefTarget:'_self'}], dockedItems:[{xtype:'pagingtoolbar', dock:'bottom', itemId:'userPaginationToolbar', displayInfo:true, bind:'{contractLists}'}]}]});
 Ext.define('Admin.view.contract.ContractUploadWindow', {extend:Ext.window.Window, alias:'widget.contractUploadWindow', height:180, minHeight:100, minWidth:300, width:500, scrollable:true, title:'Contract Upload Window', closable:true, constrain:true, defaultFocus:'textfield', modal:true, layout:'fit', items:[{xtype:'form', layout:'form', padding:'10px', items:[{xtype:'filefield', width:400, labelWidth:80, name:'file', emptyText:'请选择.doc/.docx文件', fieldLabel:'上传文件:', labelSeparator:'', buttonConfig:{xtype:'filebutton', 
-glyph:'', iconCls:'x-fa fa-cloud-upload', text:'上传'}}]}], buttons:['-\x3e', {xtype:'button', text:'上传', handler:'onClickUploadFormSumbitButton'}, {xtype:'button', text:'取消', handler:function(btn) {
+glyph:'', iconCls:'x-fa fa-cloud-upload', text:'上传'}, allowBlank:false, blankText:'请选择文件后再上传'}]}], buttons:['-\x3e', {xtype:'button', text:'上传', handler:'onClickUploadFormSumbitButton'}, {xtype:'button', text:'取消', handler:function(btn) {
   btn.up('window').close();
 }}, '-\x3e']});
-Ext.define('Admin.view.contract.ContractViewController', {extend:Ext.app.ViewController, alias:'controller.contractViewController', uploadContract:function(btn) {
+Ext.define('Admin.view.contract.ContractViewController', {extend:Ext.app.ViewController, alias:'controller.contractViewController', onAddClick:function(toolbar) {
+  toolbar.up('grid').up('container').add(Ext.widget('contractAddWindow')).show();
+}, submitContractAddFormButton:function(btn) {
+  var win = btn.up('window');
+  var form = win.down('form');
+  var record = Ext.create('Admin.model.contract.ContractModel');
+  var values = form.getValues();
+  record.set(values);
+  record.save();
+  Ext.data.StoreManager.lookup('contractGridStroe').load();
+  win.close();
+}, uploadContract:function(btn) {
   btn.up('panel').up('container').add(Ext.widget('contractUploadWindow')).show();
 }, onClickUploadFormSumbitButton:function(btn) {
   var form = btn.up('window').down('form');
-  form.getForm().submit({url:'/contract/uploadWord', method:'POST', waitMsg:'正在上传，请耐心等待....', success:function(form, action) {
-    Ext.Msg.alert('Success', action.result.msg, function() {
-      btn.up('window').close();
-      Ext.data.StoreManager.lookup('contractGridStroe').load();
-    });
-  }, failure:function(form, action) {
-    Ext.Msg.alert('Error', '上传失败');
-  }});
-}, onGridCellItemClick:function(view, td, cellIndex, record) {
-  if (cellIndex === 1) {
-    var win = new Ext.window.Window({title:'合同细节', width:780, height:470, layout:'fit', html:"\x3ch1 style\x3d'text-align:center;'\x3e家乐房产中介合同\x3c/h1\x3e" + '\x3cbr\x3e' + "\x3ch5 style\x3d'text-align:right;'\x3e合同编号:" + record.get('contractNumber') + '\x3c/h5\x3e' + '\x3cbr\x3e\x3chr\x3e' + '\x3cp\x3e甲方于' + record.get('startTime') + '正式购入' + record.get('hoseName') + '一套,总价为' + record.get('total') + ',失效时间为' + record.get('endTime') + '\x3cp\x3e' + '\x3cbr\x3e' + '\x3ch3\x3e甲方:' + record.get('customerName') + 
-    '\x26nbsp;\x26nbsp;乙方:' + record.get('employeeName') + '\x3cbr\x3e' + "\x3ch5 style\x3d'text-align:right;'\x3e签约时间:" + record.get('startTime') + '\x3c/h5\x3e'});
-    win.show();
+  if (form.isValid()) {
+    form.getForm().submit({url:'/contract/uploadWord', method:'POST', waitMsg:'正在上传，请耐心等待....', success:function(form, action) {
+      Ext.Msg.alert('Success', action.result.msg, function() {
+        btn.up('window').close();
+        Ext.data.StoreManager.lookup('contractGridStroe').load();
+      });
+    }, failure:function(form, action) {
+      Ext.Msg.alert('Error', '上传失败');
+    }});
+  } else {
+    Ext.Msg.alert('Error', '请选择文件');
   }
 }, onDeleteButton:function(grid, rowIndex, colIndex) {
   var store = grid.getStore();
@@ -108832,16 +110093,10 @@ Ext.define('Admin.view.contract.ContractViewController', {extend:Ext.app.ViewCon
   if (e.getKey() == Ext.EventObject.ENTER) {
     var contractNumber = Ext.getCmp('contract_contractNumber').getValue();
     var customerName = Ext.getCmp('contract_customerName').getValue();
-    var employeeName = Ext.getCmp('contract_employeeName').getValue();
-    var contractType = Ext.getCmp('contract_contractType').getValue();
-    var timeStart = Ext.getCmp('contract_timeStart').getValue();
-    var timeEnd = Ext.getCmp('contract_timeEnd').getValue();
-    var store = Ext.data.StoreManager.lookup('contractGridStroe');
-    Ext.apply(store.proxy.extraParams, {contractNumber:'', customerName:'', employeeName:'', contractType:'', timeStart:'', timeEnd:''});
-    Ext.apply(store.proxy.extraParams, {contractNumber:contractNumber, customerName:customerName, employeeName:employeeName, contractType:contractType, timeStart:Ext.util.Format.date(timeStart, 'Y/m/d H:i:s'), timeEnd:Ext.util.Format.date(timeEnd, 'Y/m/d H:i:s')});
-    store.load({params:{start:0, limit:20, page:1}});
+    alert(contractNumber);
+    alert(customerName);
   }
-}, searchOpen:function(btn) {
+}, searchClose:function(btn) {
   Ext.getCmp('contract_searchClose').hide();
   Ext.getCmp('contract_searchClose').show();
 }, starLeaveProcess:function(grid, rowIndex, colIndex) {
@@ -108858,11 +110113,7 @@ Ext.define('Admin.view.contract.ContractViewController', {extend:Ext.app.ViewCon
   }});
 }, cancelLeaveProcess:function(grid, rowIndex, colIndex) {
   Ext.Msg.alert('Title', 'Cancel Leave Process');
-<<<<<<< HEAD
-}, LookAppeal:function(grid, rowIndex, colIndex) {
-=======
 }, LookContract:function(grid, rowIndex, colIndex) {
->>>>>>> branch 'master' of https://github.com/MyElevenTeam/Knorragency.git
   var record = grid.getStore().getAt(rowIndex);
   var win = grid.up('panel').up('container').add(Ext.widget('lookContractWindow'));
   win.show();
@@ -109075,6 +110326,30 @@ Ext.define('Admin.view.dashboard.Todos', {extend:Ext.panel.Panel, xtype:'todo', 
 Ext.define('Admin.view.dashboard.TopMovie', {extend:Ext.panel.Panel, xtype:'topmovies', title:'Top Movie', ui:'light', iconCls:'x-fa fa-video-camera', headerPosition:'bottom', cls:'quick-graph-panel shadow', height:130, layout:'fit', html:'Top Movie'});
 Ext.define('Admin.view.dashboard.Widgets', {extend:Ext.Panel, xtype:'dashboardwidgetspanel', cls:'dashboard-widget-block shadow', bodyPadding:15, title:'Widgets', layout:{type:'vbox', align:'stretch'}, items:[{xtype:'slider', width:400, fieldLabel:'Single Slider', value:40}, {xtype:'tbspacer', flex:0.3}, {xtype:'multislider', width:400, fieldLabel:'Range Slider', values:[10, 40]}, {xtype:'tbspacer', flex:0.3}, {xtype:'pagingtoolbar', width:360, displayInfo:false}, {xtype:'tbspacer', flex:0.3}, {xtype:'progressbar', 
 cls:'widget-progressbar', value:0.4}, {xtype:'tbspacer'}]});
+Ext.define('Admin.view.grid.Grid', {extend:Ext.grid.Panel, xtype:'grid', title:'Products', collapsible:true, iconCls:'icon-grid', frame:true, width:700, height:500, resizable:true, plugins:[Ext.create('Admin.view.GridFilters.GridFilters')], emptyText:'No Matching Records', loadMask:true, stateful:true, stateId:'stateful-filter-grid', defaultListenerScope:true, tbar:[{text:'Show Filters...', tooltip:'Show filter data for the store', handler:'onShowFilters'}, {text:'Clear Filters', tooltip:'Clear all filters', 
+handler:'onClearFilters'}], columns:[{dataIndex:'id', text:'Id', width:50, filter:'number'}, {dataIndex:'company', text:'Company', flex:1, filter:{type:'string', itemDefaults:{emptyText:'Search for...'}}}, {dataIndex:'price', text:'Price', width:90, formatter:'usMoney', filter:'number'}, {dataIndex:'size', text:'Size', width:120, filter:'list'}, {xtype:'datecolumn', dataIndex:'date', text:'Date', width:120, filter:true}, {dataIndex:'visible', text:'Visible', width:80, filter:'boolean'}], onClearFilters:function() {
+  this.filters.clearFilters();
+}, onShowFilters:function() {
+  var data = [];
+  this.store.getFilters().each(function(filter) {
+    data.push(filter.serialize());
+  });
+  data = Ext.JSON.encodeValue(data, '\n').replace(/^[ ]+/gm, function(s) {
+    for (var r = '', i = s.length; i--;) {
+      r += '\x26#160;';
+    }
+    return r;
+  });
+  data = data.replace(/\n/g, '\x3cbr\x3e');
+  Ext.Msg.alert('Filter Data', data);
+}});
+Ext.define('Admin.view.log.Log', {extend:Ext.container.Container, xtype:'log', viewModel:{type:'LogViewModel'}, layout:'fit', items:[{xtype:'logPanel'}]});
+Ext.define('Admin.view.log.LogPanel', {extend:Ext.panel.Panel, xtype:'logPanel', layout:{type:'vbox', pack:'start', align:'stretch'}, items:[{title:'系统日志列表'}, {bodypadding:15, cls:'has-border', height:60, tbar:[{xtype:'splitbutton', id:'log_gridfilters', text:'请选择搜索条件', menu:[{xtype:'menucheckitem', text:'操作人姓名', menu:[{xtype:'textfield', id:'log_employeeName', listeners:{specialkey:'searchLog'}}]}, {xtype:'menucheckitem', text:'Log类型', menu:[{xtype:'textfield', id:'log_type', listeners:{specialkey:'searchLog'}}]}, 
+{xtype:'menucheckitem', text:'操作时间', menu:[{xtype:'datefield', id:'log_logTime', value:new Date, format:'Y/m/d H:i:s', listeners:{specialkey:'searchLog'}}]}]}, '-', {iconCls:'fa fa-search fa-5x', ui:'header', tooltip:'查找', id:'log_searchOpen', handler:'searchOpen'}, '-', {iconCls:'fa fa-close fa-5x', ui:'header', tooltip:'取消', id:'log_searchClose', handler:'searchClose'}, '-', {iconCls:'fa fa-download fa-5x', ui:'header', tooltip:'导出系统日志表'}]}, {xtype:'gridpanel', cls:'has-border', height:650, bind:'{logLists}', 
+scrollable:false, features:[{ftype:'grouping', startCollapsed:true, groupHeaderTpl:'{name}' + '系统使用情况：' + '  ({rows.length}条记录{[values.rows.length \x3e 1 ? "..." : ""]})'}], columns:[{xtype:'gridcolumn', width:40, dataIndex:'id', text:'id', hidden:true}, {xtype:'gridcolumn', cls:'content-column', width:150, dataIndex:'employeeName', text:'操作人姓名'}, {xtype:'gridcolumn', cls:'content-column', width:150, dataIndex:'title', text:'操作名'}, {xtype:'gridcolumn', cls:'content-column', width:150, dataIndex:'type', 
+text:'Log类型', hidden:true}, {xtype:'gridcolumn', cls:'content-column', width:150, dataIndex:'remoteAddr', text:'请求的IP', hidden:true}, {xtype:'gridcolumn', cls:'content-column', width:150, dataIndex:'requestUri', text:'请求的Uri'}, {xtype:'gridcolumn', cls:'content-column', width:150, dataIndex:'method', text:'求的方法类型'}, {xtype:'gridcolumn', cls:'content-column', width:150, dataIndex:'params', text:'请求提交的参数', hidden:true}, {xtype:'datecolumn', cls:'content-column', width:150, dataIndex:'logTime', text:'操作时间', 
+flex:1, formatter:'date("Y/m/d H:i:s")'}, {xtype:'actioncolumn', cls:'content-column', width:100, dataIndex:'bool', text:'操作', tooltip:'edit ', items:[{xtype:'button', iconCls:'x-fa fa-arrow-circle-o-down', tooltip:'日志下载'}]}], dockedItems:[{xtype:'pagingtoolbar', dock:'bottom', itemId:'userPaginationToolbar', displayInfo:true, bind:'{logLists}'}]}]});
+Ext.define('Admin.view.log.LogViewModel', {extend:Ext.app.ViewModel, alias:'viewmodel.LogViewModel', stores:{logLists:{type:'logGridStroe'}}});
 Ext.define('Admin.view.main.MainContainerWrap', {extend:Ext.container.Container, xtype:'maincontainerwrap', scrollable:'y', layout:{type:'hbox', align:'stretchmax', animate:true, animatePolicy:{x:true, width:true}}, beforeLayout:function() {
   var me = this, height = Ext.Element.getViewportHeight() - 64, navTree = me.getComponent('navigationTreeList');
   me.minHeight = height;

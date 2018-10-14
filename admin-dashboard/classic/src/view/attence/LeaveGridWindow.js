@@ -33,13 +33,11 @@
             }
         ]
     },  
-    listeners: {
-		selectionchange: function(selModel, selections){
-			if(selections.length>1){
-				Ext.getCmp('#leaveGridPanelRemove').setDisabled(false);
-			}
-		}
-	},
+    listeners: {                            
+            selectionchange: function(selModel, selections){
+                this.up('window').down('#leaveGridPanelRemove').setDisabled(selections.length === 0);
+            }
+    },
     modal:true,
     layout: 'fit',
     items: [
@@ -50,8 +48,11 @@
             autoScroll:true,
             selModel: {type: 'checkboxmodel'},
             plugins: {
-                rowediting: {
-                    clicksToEdit: 2
+                rowediting:{
+                    saveBtnText: '保存', 
+                    cancelBtnText: "取消", 
+                    autoCancel: false, 
+                    clicksToMoveEditor: 1
                 }
             },
             columns: [

@@ -136,7 +136,7 @@ public class ContractController {
 	
 	/*动态查询*/
 	@GetMapping 
-	public Page<Contract> getPage(HttpSession session,ContractQueryDTO contractQueryDTO,ExtjsPageRequest pageRequest) {
+	public Page<ContractDTO> getPage(HttpSession session,ContractQueryDTO contractQueryDTO,ExtjsPageRequest pageRequest) {
 		
 		String userId = SessionUtil.getUserName(session);  //通过session查找userId
 		if(userId!=null) {

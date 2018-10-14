@@ -13,6 +13,17 @@ import com.example.demo.contract.entity.Contract;
 @Repository
 public interface ContractRepository extends PagingAndSortingRepository<Contract, Long>,JpaSpecificationExecutor<Contract>{
 	
-	@Query("select sum(c.total) from Contract c where month(c.startTime) like month(?1) and c.employeeName like ?2 group by c.employeeName order by sum(c.total) desc")
-	public List<Object> sum(Date d,String employeeName);
+	//根据月份和门店名统计出某月某门店的每个员工的销售额
+	@Query("select sum(c.total) from Contract c , Employee e where c.employee.id=e.id and month(c.startTime) like month(?1) and c.employee.localStore.storeName like ?2 group by c.employee.employeeName order by sum(c.total) desc")
+	public List<Object> getSumByMonthAndStoreName(Date month,String storeName);
+	
+	@Query("select e from Contract c , Employee e where c.employee.id=e.id and month(c.startTime) like month(?1) and c.employee.localStore.storeName like ?2 group by c.employee.employeeName order by sum(c.total) desc")
+	public List<Object> getEmployeeByMonthAndStoreName(Date month,String storeName);
+	
+	//根据月份统计出某月某门店的总销售额
+	@Query("select sum(c.total) from Contract c where month(c.startTime) like month(?1) group by c.employee.localStore.storeName order by sum(c.total) desc")
+	public List<Object> getSumByMonth(Date month);
+	
+	@Query("select e from Contract c , Employee e where month(c.startTime) like month(?1) group by c.employee.localStore.storeName order by sum(c.total) desc")
+	public List<Object> getStoreNameByMonth(Date month);
 }

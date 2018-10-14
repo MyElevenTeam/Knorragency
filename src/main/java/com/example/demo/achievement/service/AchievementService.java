@@ -33,11 +33,11 @@ public class AchievementService implements IAchievementService {
 			if(monthArray[monthTmp].equals(month)) {
 				int i=0;
 				for(;i<achieveList.size();i++) {
-					if(achieveList.get(i).getEmployeeName().equals(contract.getEmployeeName())){
-						double all=contract.getTotal()+achieveList.get(i).getTotal();
-						achieveList.get(i).setTotal(all);
-						break;
-					}
+//					if(achieveList.get(i).getEmployeeName().equals(contract.getEmployeeName())){
+//						double all=contract.getTotal()+achieveList.get(i).getTotal();
+//						achieveList.get(i).setTotal(all);
+//						break;
+//					}
 				}
 				if(i==achieveList.size()) {
 					ResponseDTO achieveTmp=new ResponseDTO();

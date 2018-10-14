@@ -36,7 +36,8 @@
 	            iconCls: 'x-fa fa-cloud-upload',
 	            text: '上传'
 	        },
-            allowBlank:false
+            allowBlank:false,
+            blankText:'请选择文件后再上传'
 	    }]
     }],
 	buttons: ['->',{

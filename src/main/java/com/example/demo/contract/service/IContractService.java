@@ -1,6 +1,5 @@
 package com.example.demo.contract.service;
 
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -23,15 +22,18 @@ public interface IContractService {
 	
 	public Optional<Contract> findById(Long id);
 	
-	public Page<Contract> findAll(Specification<Contract> spec, Pageable pageable);
+	public Page<ContractDTO> findAll(Specification<Contract> spec, Pageable pageable);
 	
 	public List<Contract> findAllContract(Specification<Contract> spec);
 	
+	//根据月份和门店名统计出某月某门店的每个员工的销售额
+	public List<ContractDTO> getSumAndEmployeeNameByMonthAndStoreName(String month, String storeName);
+	
+	//根据月份统计出某月某门店的总销售额
+	public List<ContractDTO> getSumAndStoreNameByMonthAndStoreName(String month);
+	
 	/*上传word文档*/
 	public Contract readWord(String buffer);
-	
-	public List<Object> sum(Date d,String employeeName);
-	
 	
 	/*合同审核业务*/
 	//1.启动流程

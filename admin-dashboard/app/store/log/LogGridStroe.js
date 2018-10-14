@@ -1,13 +1,13 @@
-Ext.define('Admin.store.contract.ContractGridStroe', {
+Ext.define('Admin.store.log.LogGridStroe', {
     extend: 'Ext.data.Store',
-    storeId:'contractGridStroe',
-    alias: 'store.contractGridStroe',
-	model:'Admin.model.contract.ContractModel',
+    storeId:'logGridStroe',
+    alias: 'store.logGridStroe',
+	model:'Admin.model.log.LogModel',
 
     //连接后台数据
    proxy: {
 		type: 'rest',
-		url: '/contract',
+		url: '/log',
 		reader:{
 			type:'json',
 			rootProperty:'content',//对应后台返回的结果集名称
@@ -18,7 +18,7 @@ Ext.define('Admin.store.contract.ContractGridStroe', {
 		},
 		simpleSortMode: true	//简单排序模式
 	},
-	groupField:'area',
+	groupField: 'day',
 	autoLoad: 'true',
     autoSync:true,
     remoteSort:true,

@@ -25,6 +25,8 @@ public class Attence {
 	
 	private Date workoutTime;
 	
+	private Date day;
+	
 	private AttenceStatus attenceStatus;
 	
 	private ProcessStatus processStatus;//申诉状态
@@ -63,7 +65,11 @@ public class Attence {
 		return workoutTime;
 	}
 	
-	
+	@JsonFormat(pattern="yyyy/MM/dd HH:mm:ss",timezone="GMT+8")
+	public Date getDay() {
+		return day;
+	}
+
 	public AttenceStatus getAttenceStatus() {
 		return attenceStatus;
 	}
@@ -110,6 +116,10 @@ public class Attence {
 
 	public void setWorkoutTime(Date workoutTime) {
 		this.workoutTime = workoutTime;
+	}
+	
+	public void setDay(Date day) {
+		this.day = day;
 	}
 
 	public void setAttenceStatus(AttenceStatus attenceStatus) {

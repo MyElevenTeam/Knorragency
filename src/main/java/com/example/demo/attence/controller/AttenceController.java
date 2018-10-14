@@ -84,18 +84,21 @@ public class AttenceController {
 				int work=AttenceUtil.isTimeAndLocation(date, location, true);
 				if(work==-1) {
 					//打卡地错误
+					attence.setDay(AttenceUtil.getDateByYMD(date));
 					attence.setAttenceStatus(AttenceStatus.TRIP);
 					attence.setProcessStatus(ProcessStatus.NEW);
 					response.setMsg("打卡成功,您今天不在公司上班哦");
 					response.setSuccess(true);
 				}else if(work==-2) {
 					//迟到
+					attence.setDay(AttenceUtil.getDateByYMD(date));
 					attence.setAttenceStatus(AttenceStatus.LATER);
 					attence.setProcessStatus(ProcessStatus.NEW);
 					response.setMsg("打卡成功,您今天上班迟到哦");
 					response.setSuccess(true);
 				}else if(work==0) {
 					//正常上班
+					attence.setDay(AttenceUtil.getDateByYMD(date));
 					attence.setAttenceStatus(AttenceStatus.NORMAL);
 					attence.setProcessStatus(ProcessStatus.NEW);
 					response.setMsg("打卡成功,今天要加油哦");

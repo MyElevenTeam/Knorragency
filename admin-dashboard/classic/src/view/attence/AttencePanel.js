@@ -7,7 +7,8 @@ Ext.define('Admin.view.attence.AttencePanel', {
         'Ext.toolbar.Paging',
         'Ext.form.field.ComboBox',
         'Ext.grid.column.Date',
-        'Ext.selection.CheckboxModel'
+        'Ext.selection.CheckboxModel',
+        'Ext.grid.feature.Grouping'
     ],
     layout: {
         type: 'vbox',
@@ -107,6 +108,12 @@ Ext.define('Admin.view.attence.AttencePanel', {
             //         },
             //         cellclick: 'onGridCellItemClick'
             // },
+            features: [{
+                ftype: 'grouping',
+                // enableGroupingMenu: true,
+                startCollapsed: true,
+                groupHeaderTpl: '{name}'+'考勤情况：'+'  (已打卡{rows.length}天)',
+            }],
             columns: [
                 {xtype: 'gridcolumn',width: 40,dataIndex: 'id',text: 'id',hidden:true},
                 {header: '上班状态',dataIndex: 'attenceStatus',width: 120,sortable: true,
@@ -146,6 +153,7 @@ Ext.define('Admin.view.attence.AttencePanel', {
                 {xtype: 'gridcolumn', cls: 'content-column',width:150,dataIndex: 'location',text: '打卡地点'},
                 {xtype: 'datecolumn',cls: 'content-column',width: 180,dataIndex: 'workinTime',text: '上班时间',flex:1,formatter: 'date("Y/m/d H:i:s")'},
                 {xtype: 'datecolumn',cls: 'content-column',width: 180,dataIndex: 'workoutTime',text: '下班时间',flex:1,formatter: 'date("Y/m/d H:i:s")'},
+                {xtype: 'datecolumn',cls: 'content-column',width: 180,dataIndex: 'day',text: '考勤时间',hidden:true,flex:1,formatter: 'date("Y/m")'},
                 {xtype: 'actioncolumn',cls: 'content-column', width: 80,dataIndex: 'bool',text: '操作',tooltip: 'edit ',
                     items: [
                         {

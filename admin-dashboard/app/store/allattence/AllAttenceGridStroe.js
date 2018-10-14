@@ -15,6 +15,7 @@ Ext.define('Admin.store.allattence.AllAttenceGridStroe', {
         })
         ,simpleSortMode: true
     },
+    groupField: 'storeName',
     remoteSort: true,
     sorters: [{ property: 'id',direction: 'desc'}],
     autoLoad: true

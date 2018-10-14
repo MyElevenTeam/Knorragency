@@ -31,6 +31,7 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ResourceUtils;
 
 import com.example.demo.attence.entity.Attence;
@@ -38,8 +39,10 @@ import com.example.demo.attence.entity.AttenceQueryDTO;
 import com.example.demo.attence.service.AttenceService;
 import com.example.demo.attence.utils.AttenceUtil;
 import com.example.demo.contract.entity.Contract;
+import com.example.demo.contract.entity.ContractDTO;
 import com.example.demo.contract.service.IContractService;
-import com.example.demo.contract.util.ContractUtil;
+import com.example.demo.employee.domain.Employee;
+import com.example.demo.employee.service.IEmployeeService;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -47,6 +50,9 @@ public class ContractServiceTest {
 	
 	@Autowired
 	private IContractService contractService;
+	
+	@Autowired
+	private IEmployeeService employeeService;
 	
 	@Autowired
 	private AttenceService attenceService;
@@ -194,14 +200,32 @@ public class ContractServiceTest {
 	
 	
 	@Test
-	public void sum() throws ParseException {
-		Date d=ContractUtil.toDate("十月");
-		List<Object> a=contractService.sum(d,"admin");
-		System.out.println(a);
+	@Transactional
+	public void initData() {
+		Employee e=employeeService.findById(1L).get();
 		
+		Contract c=new Contract();
+		c.setContractNumber("C30");
+		c.setStartTime(new Date());
+		c.setEmployee(e);
+		contractService.save(c);
 	}
 	
-	
+	@Test
+	public void sum1() {
+		
+		List<ContractDTO> dtoLists = new ArrayList<ContractDTO>();
+		dtoLists=contractService.getSumAndEmployeeNameByMonthAndStoreName("十月", "DGS");
+		for(ContractDTO dto:dtoLists) {
+			System.out.println(dto.toString());
+		}
+		
+		List<ContractDTO> dtoList = new ArrayList<ContractDTO>();
+		dtoList=contractService.getSumAndStoreNameByMonthAndStoreName("十月");
+		for(ContractDTO dto:dtoList) {
+			System.out.println(dto.toString());
+		}
+	}
 	
 	
 

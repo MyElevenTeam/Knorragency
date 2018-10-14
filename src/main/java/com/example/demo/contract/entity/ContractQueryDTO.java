@@ -23,7 +23,7 @@ public class ContractQueryDTO {
 	
 	private String contractType;     //合同类型
 	
-	private String area;            //地方
+	private String storeName;            //地方
 	
 	@DateTimeFormat(pattern="yyyy/MM/dd HH:mm:ss")  
 	private Date timeStart;
@@ -62,13 +62,13 @@ public class ContractQueryDTO {
 	public void setContractType(String contractType) {
 		this.contractType = contractType;
 	}
-
-	public String getArea() {
-		return area;
+	
+	public String getStoreName() {
+		return storeName;
 	}
 
-	public void setArea(String area) {
-		this.area = area;
+	public void setStoreName(String storeName) {
+		this.storeName = storeName;
 	}
 
 	public Date getTimeStart() {
@@ -104,16 +104,16 @@ public class ContractQueryDTO {
 							"%" + contractQueryDTO.getCustomerName() + "%"));
 				}
 				if(StringUtils.isNoneBlank(contractQueryDTO.getEmployeeName())) {
-					predicate.add(criteriaBuilder.like(root.get("employeeName").as(String.class),
+					predicate.add(criteriaBuilder.like(root.get("employee").get("employeeName").as(String.class),
 							"%" + contractQueryDTO.getEmployeeName() + "%"));
 				}
 				if(StringUtils.isNoneBlank(contractQueryDTO.getContractType())) {
 					predicate.add(criteriaBuilder.like(root.get("contractType").as(String.class),
 							"%" + contractQueryDTO.getContractType() + "%"));
 				}
-				if(StringUtils.isNoneBlank(contractQueryDTO.getArea())) {
-					predicate.add(criteriaBuilder.like(root.get("area").as(String.class),
-							"%" + contractQueryDTO.getArea() + "%"));
+				if(StringUtils.isNoneBlank(contractQueryDTO.getStoreName())) {
+					predicate.add(criteriaBuilder.like(root.get("employee").get("localStore").get("storeName").as(String.class),
+							"%" + contractQueryDTO.getStoreName() + "%"));
 				}
 				if (null!=contractQueryDTO.getTimeStart()) {
 					predicate.add(criteriaBuilder.greaterThanOrEqualTo(root.get("time").as(Date.class),
