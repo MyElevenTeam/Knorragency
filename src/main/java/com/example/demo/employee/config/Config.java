@@ -7,8 +7,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter
 
 @SpringBootConfiguration
 public class Config extends WebMvcConfigurerAdapter{
-	
-<<<<<<< HEAD
+
 //	@Autowired
 //	private EmployeeConfig employeeConfig;
 //	@Autowired
@@ -20,7 +19,9 @@ public class Config extends WebMvcConfigurerAdapter{
 //		registry.addInterceptor(employeeConfig).addPathPatterns("/store/**");
 //		registry.addInterceptor(employeeConfig).addPathPatterns("/employee/**");
 //	}
-=======
+	
+	
+	
 	/*@Autowired
 	private EmployeeConfig employeeConfig;
 	@Autowired
@@ -32,6 +33,6 @@ public class Config extends WebMvcConfigurerAdapter{
 		registry.addInterceptor(employeeConfig).addPathPatterns("/store/**");
 		registry.addInterceptor(employeeConfig).addPathPatterns("/employee/**");
 	}*/
->>>>>>> branch 'master' of https://github.com/MyElevenTeam/Knorragency.git
+
 	
 }

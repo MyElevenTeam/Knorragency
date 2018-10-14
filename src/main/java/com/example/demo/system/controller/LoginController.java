@@ -73,7 +73,7 @@ public class LoginController {
     }
     
     
-<<<<<<< HEAD
+//<<<<<<< HEAD
     
 
 //	private static final Logger log = LoggerFactory.getLogger(LoginController.class);
@@ -139,8 +139,8 @@ public class LoginController {
     
     
     
-=======
-    private static final Logger log = LoggerFactory.getLogger(LoginController.class);
+
+   // private static final Logger log = LoggerFactory.getLogger(LoginController.class);
 //	
 //	@Autowired
 //	private EmployeeRepository employeeRepository;
@@ -195,5 +195,5 @@ public class LoginController {
 //		}
 //		
 //	}
->>>>>>> branch 'master' of https://github.com/MyElevenTeam/Knorragency.git
+//>>>>>>> branch 'master' of https://github.com/MyElevenTeam/Knorragency.git
 }
