@@ -1,6 +1,6 @@
 Ext.define('Admin.view.allattence.AllAttenceViewController', {
     extend: 'Ext.app.ViewController',
-    alias: 'controller.allAttenceViewController'
+    alias: 'controller.allAttenceViewController',
 
     searchOpen:function(btn){
       Ext.getCmp('allattence_searchOpen').hide();
