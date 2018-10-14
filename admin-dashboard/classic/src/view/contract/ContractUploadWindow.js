@@ -35,7 +35,8 @@
 	            glyph:'',
 	            iconCls: 'x-fa fa-cloud-upload',
 	            text: '上传'
-	        }
+	        },
+            allowBlank:false
 	    }]
     }],
 	buttons: ['->',{

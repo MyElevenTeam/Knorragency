@@ -39,12 +39,11 @@ Ext.define('Admin.view.contract.ContractPanel', {
             bind: '{contractLists}',
             selModel: {type: 'checkboxmodel',checkOnly: true},     //多选框checkbox
             //选中时才激活删除多条按钮
-           /* listeners: {                            
+            listeners: {                            
                     selectionchange: function(selModel, selections){
-                        this.up('panel').down('#contractPanelRemove').setDisabled(selections.length === 0);
-                    },
-                    cellclick: 'onGridCellItemClick'
-            },*/
+                        this.down('#userPanelRemove').setDisabled(selections.length === 0);
+                    }
+            },
             columns: [
                 {xtype: 'gridcolumn',width: 40,dataIndex: 'id',text: 'id',hidden:true},
                 {header: 'processStatus',dataIndex: 'processStatus',width: 60,sortable: true,
@@ -86,6 +85,7 @@ Ext.define('Admin.view.contract.ContractPanel', {
                 {xtype: 'gridcolumn', cls: 'content-column',width:100,dataIndex: 'area',text: '公司区域'},
                 {xtype: 'actioncolumn',cls: 'content-column', width: 150,dataIndex: 'bool',text: '操作',tooltip: 'edit ',
                     items: [
+                        {xtype: 'button', iconCls: 'x-fa fa-pencil' ,tooltip: '合同编辑'handler: 'onEditButton'},
                         {xtype: 'button', iconCls: 'x-fa fa-arrow-circle-o-down' , tooltip: '合同下载'},
                         {xtype: 'button',iconCls: 'x-fa fa-close'   , tooltip: '删除合同',handler: 'onDeleteButton'},
                         {
@@ -124,7 +124,6 @@ Ext.define('Admin.view.contract.ContractPanel', {
             tbar: [{
                         xtype:'splitbutton',
                         id:'contract_gridfilters',
-                        
                         text:'请选择搜索条件',
                         menu:[
                         {
@@ -147,6 +146,7 @@ Ext.define('Admin.view.contract.ContractPanel', {
                             menu:[
                                 {
                                     xtype: 'textfield',
+                                    id:'contract_customerName',
                                     emptyText:'请输入客户姓名',
                                     listeners:{
                                         specialkey: 'searchContract'
@@ -159,6 +159,7 @@ Ext.define('Admin.view.contract.ContractPanel', {
                             menu:[
                                 {
                                     xtype: 'textfield',
+                                    id:'contract_hoseName',
                                     emptyText:'请输入房源名称',
                                     listeners:{
                                         specialkey: 'searchContract'
@@ -171,6 +172,7 @@ Ext.define('Admin.view.contract.ContractPanel', {
                             menu:[
                                 {
                                     xtype: 'datefield',
+                                    id:'contract_startTime',
                                     value:new Date(),
                                     format: 'Y/m/d H:i:s',
                                     listeners:{
@@ -184,6 +186,7 @@ Ext.define('Admin.view.contract.ContractPanel', {
                             menu:[
                                 {
                                     xtype: 'datefield',
+                                    id:'contract_endTime',
                                     value:new Date(),
                                     format: 'Y/m/d H:i:s',
                                     listeners:{
@@ -197,6 +200,7 @@ Ext.define('Admin.view.contract.ContractPanel', {
                             menu:[
                                 {
                                     xtype: 'textfield',
+                                    id:'contract_contractType',
                                     emptyText:'请输入合同类型',
                                     listeners:{
                                         specialkey: 'searchContract'
@@ -208,20 +212,27 @@ Ext.define('Admin.view.contract.ContractPanel', {
                         iconCls:'fa fa-search fa-5x',
                         ui: 'header',
                         tooltip: '查找',
-                        id:'contract_search',
-                        handler:'searchContract'   
+                        id:'contract_searchOpen',
+                        handler:'searchOpen'   
                     },'-',{
-                        iconCls:'fa fa-search fa-5x',
+                        iconCls:'fa fa-close fa-5x',
                         ui: 'header',
                         tooltip: '取消',
-                        //id:'contract_search',
-                        handler:'searchContract'   
+                        id:'contract_searchClose',
+                        handler:'searchClose'   
                     },
                     '->',{
                         tooltip: '添加合同信息',
                         ui: 'header',
                         iconCls: 'fa fa-plus-square',
                         handler:'onAddClick'   
+                    },'-',{
+                        ui: 'header',
+                        tooltip: '批量删除',
+                        itemId: 'contractPanelRemove',
+                        iconCls:'fa fa-trash',
+                        disabled: true,
+                        handler: 'deleteMoreRows'   
                     },'-',{
                         //text: '导入合同',
                         tooltip: '导入合同信息',
@@ -238,15 +249,7 @@ Ext.define('Admin.view.contract.ContractPanel', {
                         hrefTarget: '_self'
 
                             
-                    }/*,'-',{
-                        //text: '批量删除',
-                       // itemId: 'contractPanelRemove',
-                        ui: 'header',
-                        tooltip: '批量删除',
-                        iconCls:'fa fa-trash',
-                        disabled: true,
-                        handler: 'deleteMoreRows'   
-                    }*/
+                    }
              ],
             dockedItems: [{
                 xtype: 'pagingtoolbar',

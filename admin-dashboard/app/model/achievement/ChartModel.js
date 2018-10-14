@@ -1,4 +1,4 @@
-Ext.define('Admin.model.achievement.AchievementModel', {
+Ext.define('Admin.model.achievement.ChartModel', {
     extend: 'Admin.model.Base',
 
     fields: [
