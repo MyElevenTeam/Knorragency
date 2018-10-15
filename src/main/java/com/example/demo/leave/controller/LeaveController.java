@@ -30,6 +30,7 @@ import com.example.demo.leave.entity.Leave;
 import com.example.demo.leave.entity.LeaveDTO;
 import com.example.demo.leave.entity.LeaveQueryDTO;
 import com.example.demo.leave.service.ILeaveService;
+import com.example.demo.log.config.SystemControllerLog;
 
 
 @RestController
@@ -39,6 +40,7 @@ public class LeaveController
 	@Autowired
 	private ILeaveService leaveService;
 	
+	@SystemControllerLog(description="填写请假单")
 	@PostMapping
     public ExtAjaxResponse save(HttpSession session,@RequestBody Leave leave) {
 		
@@ -56,6 +58,7 @@ public class LeaveController
 	    }
     }
 	
+	@SystemControllerLog(description="更新请假信息")
 	@PutMapping(value="{id}")
     public @ResponseBody ExtAjaxResponse update(@PathVariable("id") Long id,@RequestBody Leave leave) {
     	try {
@@ -70,7 +73,8 @@ public class LeaveController
 	        return new ExtAjaxResponse(false,"更新失败!");
 	    }
     }
-
+	
+	@SystemControllerLog(description="删除请假信息")
 	@DeleteMapping(value="{id}")
     public @ResponseBody ExtAjaxResponse delete(@PathVariable("id") Long id) {
     	try {
@@ -85,6 +89,7 @@ public class LeaveController
 	    }
     }
 	
+	@SystemControllerLog(description="删除请假信息")
 	@PostMapping("/deletes")
 	public ExtAjaxResponse deleteRows(@RequestParam(name="ids") Long[] ids) 
 	{
@@ -98,6 +103,7 @@ public class LeaveController
 		}
 	}
 	
+	@SystemControllerLog(description="查看个人请假信息")
 	@GetMapping
     public Page<Leave> findLeaveByUserId(LeaveQueryDTO leaveQueryDTO,HttpSession session,ExtjsPageRequest pageable) 
 	{
@@ -119,6 +125,7 @@ public class LeaveController
 	 * @param session	通过会话获取登录用户(请假人)
 	 * @return
 	 */
+	@SystemControllerLog(description="发起请假")
 	@RequestMapping(value = "/start")
     public @ResponseBody ExtAjaxResponse start(@RequestParam(name="id") Long leaveId,HttpSession session) {
     	try {
@@ -140,6 +147,7 @@ public class LeaveController
 	 * @param session	通过会话获取登录用户(请假人)
 	 * @return
 	 */
+	@SystemControllerLog(description="查询待处理请假任务")
 	@RequestMapping(value = "/tasks")
     public @ResponseBody Page<LeaveDTO> findTodoTasks(HttpSession session,ExtjsPageRequest pageable) {
 		Page<LeaveDTO> page = new PageImpl<LeaveDTO>(new ArrayList<LeaveDTO>(), pageable.getPageable(), 0);
@@ -155,6 +163,7 @@ public class LeaveController
 	/**
      * 签收任务
      */
+	@SystemControllerLog(description="签收请假任务")
     @RequestMapping(value = "claim/{id}")
     public @ResponseBody ExtAjaxResponse claim(@PathVariable("id") String taskId, HttpSession session) {
     	try{
@@ -171,6 +180,7 @@ public class LeaveController
      * @param id
      * @return
      */
+	@SystemControllerLog(description="完成请假任务")
     @RequestMapping(value = "complete/{id}")
     public @ResponseBody ExtAjaxResponse complete(@PathVariable("id") String taskId, WorkflowVariable var) {
     	try{

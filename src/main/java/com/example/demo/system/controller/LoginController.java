@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example.demo.common.controller.ExtAjaxResponse;
 import com.example.demo.common.controller.SessionUtil;
+import com.example.demo.log.config.SystemControllerLog;
 
 
 @RestController
@@ -29,6 +30,7 @@ public class LoginController {
     /**
      * 登录系统
      **/
+    @SystemControllerLog(description="登录系统")
     @RequestMapping(value = "/login")
     public @ResponseBody ExtAjaxResponse logon(@RequestParam("userName") String userName, @RequestParam("password") String password, HttpSession session) {
     	logger.debug("logon request: {userName={}, password={}}", userName, password);
@@ -61,6 +63,7 @@ public class LoginController {
     /**
      * 退出登录
      */
+    @SystemControllerLog(description="退出登录")
     @RequestMapping(value = "/logout")
     public @ResponseBody ExtAjaxResponse logout(HttpSession session) 
     {

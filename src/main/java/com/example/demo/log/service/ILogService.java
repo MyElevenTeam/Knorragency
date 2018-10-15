@@ -5,6 +5,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 
 import com.example.demo.log.entity.Log;
+import com.example.demo.log.entity.LogDTO;
 
 public interface ILogService {
 	
@@ -16,6 +17,6 @@ public interface ILogService {
 	
 	public Log findOne(Long id);
 	
-	public Page<Log> findAll(Specification<Log> spec, Pageable pageable);
+	public Page<LogDTO> findAll(Specification<Log> spec, Pageable pageable);
 
 }

@@ -19,6 +19,7 @@ import com.example.demo.calendar.entity.Event;
 import com.example.demo.calendar.service.IEventService;
 import com.example.demo.common.controller.ExtAjaxResponse;
 import com.example.demo.common.controller.ExtResultJson;
+import com.example.demo.log.config.SystemControllerLog;
 
 @RestController
 @RequestMapping("/calendar")
@@ -28,6 +29,7 @@ public class EventController {
 	private IEventService eventService;
 	
 	//查找日历类型
+	@SystemControllerLog(description="查看行程")
 	@RequestMapping("/findCalendars")
 	public @ResponseBody ExtResultJson<Calendar> findCalendar()
 	{
@@ -83,6 +85,7 @@ public class EventController {
 	 * @return
 	 * @throws ParseException 
 	 */
+	@SystemControllerLog(description="查看行程")
 	@RequestMapping("/finds")
 	public @ResponseBody ExtResultJson<Event> findEvents(
 			Long calendar,
@@ -121,6 +124,7 @@ public class EventController {
 		return json;
 	}
 	
+	@SystemControllerLog(description="保存行程")
 	@RequestMapping(value="/save",method=RequestMethod.POST)
 	public ExtAjaxResponse save(@RequestBody Event event) {
 		try {
@@ -131,6 +135,7 @@ public class EventController {
 		}
 	}
 	
+	@SystemControllerLog(description="删除行程")
 	@RequestMapping("/delete")
 	public ExtAjaxResponse delete(@RequestParam(name="id") Long id) {
 		try {

@@ -4978,6 +4978,96 @@
 .x-tool-wrench:before {
     content: "\f0ad";
 }
+/* C:/Users/Administrator/git/Knorragency/admin-dashboard/classic/src/view/email/Email.scss:6 */
+.menu-item-common,
+.navigation-email .x-menu-item.online-user .x-menu-item-link:after,
+.navigation-email .x-menu-item.offline-user .x-menu-item-link:after,
+.navigation-email .x-menu-item .x-menu-item-link:after {
+    padding-right: 20px;
+    position: absolute;
+    font-family: FontAwesome;
+    right: 0;
+}
+/* C:/Users/Administrator/git/Knorragency/admin-dashboard/classic/src/view/email/Email.scss:12 */
+.navigation-email {
+    -webkit-box-shadow: 0, 1px, 2px, 0, rgba(0, 0, 0, 0.2);
+    -moz-box-shadow: 0, 1px, 2px, 0, rgba(0, 0, 0, 0.2);
+    -ms-box-shadow: 0, 1px, 2px, 0, rgba(0, 0, 0, 0.2);
+    box-shadow: 0, 1px, 2px, 0, rgba(0, 0, 0, 0.2);
+}
+/* C:/Users/Administrator/git/Knorragency/admin-dashboard/classic/src/view/email/Email.scss:16 */
+.navigation-email.x-menu-default {
+    border-width: 0;
+}
+/* C:/Users/Administrator/git/Knorragency/admin-dashboard/classic/src/view/email/Email.scss:21 */
+.navigation-email .x-menu-header {
+    line-height: 20px;
+    background-color: #fff;
+    padding: 20px 15px;
+    border-bottom: 1px solid #ccc !important;
+}
+/* C:/Users/Administrator/git/Knorragency/admin-dashboard/classic/src/view/email/Email.scss:27 */
+.navigation-email .x-menu-header .x-title-icon-wrap {
+    width: 40px;
+    padding-right: 28px;
+    text-align: left;
+}
+/* C:/Users/Administrator/git/Knorragency/admin-dashboard/classic/src/view/email/Email.scss:33 */
+.navigation-email .x-menu-header .x-title-text {
+    font-size: 16px;
+}
+/* C:/Users/Administrator/git/Knorragency/admin-dashboard/classic/src/view/email/Email.scss:38 */
+.navigation-email .x-menu-item-icon-default {
+    padding-top: 10px;
+    padding-left: 12px;
+    font-size: 16px;
+    line-height: 24px;
+}
+/* C:/Users/Administrator/git/Knorragency/admin-dashboard/classic/src/view/email/Email.scss:45 */
+.navigation-email .x-menu-item {
+    line-height: 50px;
+}
+/* C:/Users/Administrator/git/Knorragency/admin-dashboard/classic/src/view/email/Email.scss:48 */
+.navigation-email .x-menu-item .x-menu-item-text-default.x-menu-item-indent-no-separator {
+    margin-left: 56px;
+}
+/* C:/Users/Administrator/git/Knorragency/admin-dashboard/classic/src/view/email/Email.scss:53 */
+.navigation-email .x-menu-item.online-user .x-menu-item-text-default.x-menu-item-indent-no-separator {
+    margin-left: 18px;
+}
+/* C:/Users/Administrator/git/Knorragency/admin-dashboard/classic/src/view/email/Email.scss:57 */
+.navigation-email .x-menu-item.online-user .x-menu-item-link:after {
+    color: #86c747;
+    content: "\f111";
+}
+/* C:/Users/Administrator/git/Knorragency/admin-dashboard/classic/src/view/email/Email.scss:64 */
+.navigation-email .x-menu-item.online-user.x-menu-item-active .x-menu-item-link:after {
+    color: white;
+}
+/* C:/Users/Administrator/git/Knorragency/admin-dashboard/classic/src/view/email/Email.scss:71 */
+.navigation-email .x-menu-item.offline-user .x-menu-item-link:after {
+    color: #9e9f9f;
+    content: "\f111";
+}
+/* C:/Users/Administrator/git/Knorragency/admin-dashboard/classic/src/view/email/Email.scss:77 */
+.navigation-email .x-menu-item.offline-user .x-menu-item-text-default.x-menu-item-indent-no-separator {
+    margin-left: 20px;
+}
+/* C:/Users/Administrator/git/Knorragency/admin-dashboard/classic/src/view/email/Email.scss:82 */
+.navigation-email .x-menu-item .x-menu-item-link:after {
+    color: #858585;
+    content: "\f105";
+}
+/* C:/Users/Administrator/git/Knorragency/admin-dashboard/classic/src/view/email/Email.scss:90 */
+.email-main-wrap .x-menu-item-default.x-menu-item-active {
+    background-color: #88bf4c;
+}
+/* C:/Users/Administrator/git/Knorragency/admin-dashboard/classic/src/view/email/Email.scss:93 */
+.email-main-wrap .x-menu-item-default.x-menu-item-active .fa,
+.email-main-wrap .x-menu-item-default.x-menu-item-active .x-menu-item-link:after,
+.email-main-wrap .x-menu-item-default.x-menu-item-active .x-menu-item.offline-user .x-menu-item-link:after {
+    color: #fff;
+}
 /* C:/Users/Administrator/git/Knorragency/admin-dashboard/sass/src/view/main/Main.scss:1 */
 .nav-tree-badge:after {
     position: absolute;

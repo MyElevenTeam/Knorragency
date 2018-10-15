@@ -34,6 +34,7 @@ import com.example.demo.common.controller.ExtjsPageRequest;
 import com.example.demo.common.controller.SessionUtil;
 import com.example.demo.employee.domain.Employee;
 import com.example.demo.employee.service.IEmployeeService;
+import com.example.demo.log.config.SystemControllerLog;
 
 @RestController
 @RequestMapping("/attence")
@@ -45,6 +46,7 @@ public class AttenceController {
 	@Autowired
 	private IEmployeeService employeeService;
 	
+	@SystemControllerLog(description="查看所有的考勤记录")
 	@RequestMapping("/getAllAttence")
 	//查看所有的考勤记录
 	public Page<AttenceDTO> getAllAttence(ExtjsPageRequest pageRequest) {
@@ -53,6 +55,7 @@ public class AttenceController {
 	
 	/*----------------------------------------------考勤业务--------------------------------------------*/
 	//查看个人的考勤记录
+	@SystemControllerLog(description="查看个人的考勤记录")
 	@GetMapping 
 	public Page<AttenceDTO> getPersonAttence(HttpSession session,AttenceQueryDTO attenceQueryDTO,ExtjsPageRequest pageRequest) {
 		
@@ -69,6 +72,7 @@ public class AttenceController {
 	}
 	
 	//上班打卡
+	@SystemControllerLog(description="上班打卡")
 	@PostMapping("/workIn")
 	public ExtAjaxResponse workIn(HttpSession session){
 		int flag;
@@ -136,6 +140,7 @@ public class AttenceController {
 	}
 	
 	//下班签退
+	@SystemControllerLog(description="下班签退")
 	@PostMapping("/workOut")
 	public ExtAjaxResponse workOut(HttpSession session) {
 		ExtAjaxResponse response=new ExtAjaxResponse();
@@ -190,6 +195,7 @@ public class AttenceController {
 	}
 	
 	//判断是否已打卡
+	@SystemControllerLog(description="考勤操作")
 	@GetMapping("/isAttence")
 	public ExtAjaxResponse isAttence(HttpSession session) {
 		String employeeName = SessionUtil.getUserName(session);
@@ -214,6 +220,7 @@ public class AttenceController {
 	 * @param session	通过会话获取登录用户(请假人)
 	 * @return
 	 */
+	@SystemControllerLog(description="启动申诉业务")
 	@RequestMapping(value = "/start")
     public @ResponseBody ExtAjaxResponse start(@RequestParam(name="id") Long appealId,@RequestParam(name="appealreason") String appealreason,HttpSession session) {
     	try {
@@ -243,6 +250,7 @@ public class AttenceController {
 	 * @param session	通过会话获取登录用户(请假人)
 	 * @return
 	 */
+	@SystemControllerLog(description="查询待处理流程任务")
 	@RequestMapping(value = "/tasks")
     public @ResponseBody Page<AttenceDTO> findTodoTasks(HttpSession session,ExtjsPageRequest pageable) {
 		Page<AttenceDTO> page = new PageImpl<AttenceDTO>(new ArrayList<AttenceDTO>(), pageable.getPageable(), 0);
@@ -257,6 +265,7 @@ public class AttenceController {
 	/**
      * 签收任务
      */
+	@SystemControllerLog(description="签收申诉任务")
     @RequestMapping(value = "claim/{id}")
     public @ResponseBody ExtAjaxResponse claim(@PathVariable("id") String taskId, HttpSession session) {
     	try{
@@ -273,6 +282,7 @@ public class AttenceController {
      * @param id
      * @return
      */
+	@SystemControllerLog(description="完成申诉任务")
     @RequestMapping(value = "complete/{id}")
     public @ResponseBody ExtAjaxResponse complete(@PathVariable("id") String taskId, WorkflowVariable var) {
     	try{

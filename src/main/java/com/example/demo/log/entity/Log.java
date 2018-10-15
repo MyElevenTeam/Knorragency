@@ -12,6 +12,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 import com.example.demo.employee.domain.Employee;
+import com.example.demo.log.utils.StringUtils;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 @Entity
@@ -22,21 +23,23 @@ public class Log {
 	
 	private Employee employee;
 	
-	private String title;
+	private String title;     //操作名
 	
-	private String type;
+	private String type;     //操作类型
 	
-	private String remoteAddr;
+	private String remoteAddr;   //请求的IP
 	
-	private String requestUri;
+	private String requestUri;   //请求的Uri
 	
-	private String method;
+	private String method;      //请求的方法类型
 	
-	private String params;
+	private String params;     //请求提交的参数
 	
-	private Date operateDate;
+	private Date operateDate;   //操作时间
 	
-	private String exception;           
+	private String exception; 
+	
+	private Long time;
 	
 	@Id
 	@GeneratedValue(strategy=GenerationType.IDENTITY)
@@ -74,7 +77,7 @@ public class Log {
 		return params;
 	}
 	
-	@JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
+	@JsonFormat(pattern="yyyy/MM/dd HH:mm:ss",timezone="GMT+8")
 	public Date getOperateDate() {
 		return operateDate;
 	}
@@ -82,6 +85,10 @@ public class Log {
 	
 	public String getException() {
 		return exception;
+	}
+	
+	public Long getTime() {
+		return time;
 	}
 
 	public void setId(Long id) {
@@ -124,21 +131,25 @@ public class Log {
 		this.exception = exception;
 	}
 	
+	public void setTime(Long time) {
+		this.time = time;
+	}
+
 	/**
      * 设置请求参数
      * @param paramMap
      */
     public void setMapToParams(Map<String, String[]> paramMap) {
-        if (paramMap == null){
-            return;
-        }
-        StringBuilder params = new StringBuilder();
-        for (Map.Entry<String, String[]> param : ((Map<String, String[]>)paramMap).entrySet()){
-            params.append(("".equals(params.toString()) ? "" : "&") + param.getKey() + "=");
-            String paramValue = (param.getValue() != null && param.getValue().length > 0 ? param.getValue()[0] : "");
-           // params.append(StringUtils.abbr(StringUtils.endsWithIgnoreCase(param.getKey(), "password") ? "" : paramValue, 100));
-        }
-        this.params = params.toString();
+    	if (paramMap == null){
+			return;
+		}
+		StringBuilder params = new StringBuilder();
+		for (Map.Entry<String, String[]> param : ((Map<String, String[]>)paramMap).entrySet()){
+			params.append(("".equals(params.toString()) ? "" : "&") + param.getKey() + "=");
+			String paramValue = (param.getValue() != null && param.getValue().length > 0 ? param.getValue()[0] : "");
+			params.append(StringUtils.abbr(StringUtils.endsWithIgnoreCase(param.getKey(), "password") ? "" : paramValue, 100));
+		}
+		this.params = params.toString();
     }
 }
 
