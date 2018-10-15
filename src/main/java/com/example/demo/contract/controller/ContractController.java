@@ -50,6 +50,7 @@ import com.example.demo.contract.entity.Contract;
 import com.example.demo.contract.entity.ContractDTO;
 import com.example.demo.contract.entity.ContractQueryDTO;
 import com.example.demo.contract.service.IContractService;
+import com.example.demo.log.config.SystemControllerLog;
 
 @RestController
 @RequestMapping("/contract")
@@ -61,6 +62,7 @@ public class ContractController {
 	
 	/*----------------------------------------------系统业务--------------------------------------------*/
 	/*save*/
+	@SystemControllerLog(description="保存合同信息")
 	@PostMapping
 	public ExtAjaxResponse saveOne(HttpSession session,@RequestBody Contract contract) {
 		
@@ -78,7 +80,8 @@ public class ContractController {
 		
 	}
 	
-	/*update user*/
+	/*update*/
+	@SystemControllerLog(description="更新合同信息")
 	@PutMapping(value="{id}")  
 	public ExtAjaxResponse update(@PathVariable("id") Long Id,@RequestBody Contract dto) {
 		
@@ -95,6 +98,7 @@ public class ContractController {
 	}
 	
 	/*delete one*/
+	@SystemControllerLog(description="删除一条合同信息")
 	@DeleteMapping(value="{id}")    
 	public ExtAjaxResponse deleteById(@PathVariable("id") Long id) {
 		
@@ -111,6 +115,7 @@ public class ContractController {
 	}
 	
 	/*delete rows*/
+	@SystemControllerLog(description="删除多条合同信息")
 	@PostMapping("/deletes")
 	public ExtAjaxResponse deleteRows(@RequestParam(name="ids") Long[] ids) {
 		
@@ -128,6 +133,7 @@ public class ContractController {
 	
 	
 	/*search one*/
+	@SystemControllerLog(description="查看合同信息")
 	@GetMapping(value="{id}")  
 	public Contract findById(@PathVariable("id") Long id){
 		return contractService.findById(id).get();
@@ -135,6 +141,7 @@ public class ContractController {
 	}
 	
 	/*动态查询*/
+	@SystemControllerLog(description="查看合同信息")
 	@GetMapping 
 	public Page<ContractDTO> getPage(HttpSession session,ContractQueryDTO contractQueryDTO,ExtjsPageRequest pageRequest) {
 		
@@ -147,6 +154,7 @@ public class ContractController {
 	}
 	
 	/*上传word文档*/
+	@SystemControllerLog(description="上传合同信息")
 	@PostMapping("/uploadWord")
     public @ResponseBody ExtAjaxResponse uploadWord(@RequestParam(value = "file", required = true) MultipartFile file) {
 		// 获取上传的文件名
@@ -187,7 +195,7 @@ public class ContractController {
 		
 	}
 	
-	
+	@SystemControllerLog(description="下载合同信息")
 	@RequestMapping("/downloadWord")
     public void downloadWord(HttpServletRequest request, HttpServletResponse response)throws IOException{
 		String tmpFile = "classpath:template.doc";
@@ -220,6 +228,7 @@ public class ContractController {
 	
 	
 	/*下载excel文档*/
+	@SystemControllerLog(description="下载合同信息")
 	@RequestMapping("/downloadExcel")
     public void downloadExcel(HttpServletRequest request, HttpServletResponse response)throws IOException
     {  
@@ -277,6 +286,7 @@ public class ContractController {
 	 * @param session	通过会话获取登录用户(请假人)
 	 * @return
 	 */
+	@SystemControllerLog(description="启动合同审批流程")
 	@RequestMapping(value = "/start")
     public @ResponseBody ExtAjaxResponse start(@RequestParam(name="id") Long contractId,HttpSession session) {
     	try {
@@ -299,6 +309,7 @@ public class ContractController {
 	 * @param session	通过会话获取登录用户(请假人)
 	 * @return
 	 */
+	@SystemControllerLog(description="查询待处理合同审批任务")
 	@RequestMapping(value = "/tasks")
     public @ResponseBody Page<ContractDTO> findTodoTasks(HttpSession session,ExtjsPageRequest pageable) {
 		Page<ContractDTO> page = new PageImpl<ContractDTO>(new ArrayList<ContractDTO>(), pageable.getPageable(), 0);
@@ -313,6 +324,7 @@ public class ContractController {
 	/**
      * 签收任务
      */
+	@SystemControllerLog(description="签收合同审批任务")
     @RequestMapping(value = "claim/{id}")
     public @ResponseBody ExtAjaxResponse claim(@PathVariable("id") String taskId, HttpSession session) {
     	try{
@@ -329,6 +341,7 @@ public class ContractController {
      * @param id
      * @return
      */
+	@SystemControllerLog(description="完成合同审批任务")
     @RequestMapping(value = "complete/{id}")
     public @ResponseBody ExtAjaxResponse complete(@PathVariable("id") String taskId, WorkflowVariable var) {
     	try{

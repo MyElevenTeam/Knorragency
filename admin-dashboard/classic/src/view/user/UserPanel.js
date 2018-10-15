@@ -72,23 +72,30 @@ Ext.define('Admin.view.user.UserPanel', {
             },'-',{
                 xtype: 'combobox',
                 reference:'searchFieldName',
+                id:'user_combobox',
                 hideLabel: true,
                 store:Ext.create("Ext.data.Store", {
+                    id:'xxStroe',
                     fields: ["name", "value"],
                     data: [
                         { name: '用户名', value: 'userName' },
                         { name: '创建时间', value: 'createTime' }
-                    ]
+                    ]  
                 }),
                 displayField: 'name',
                 valueField:'value',
-                value:'userName',
+                value:'{name}',
                 editable: false,
-                queryMode: 'local',
-                triggerAction: 'all',
+                
+                triggerAction: 'all',   //点击下拉列表时执行的操作
+                queryMode: 'local',    //store的查询模式
                 //emptyText: 'Select a state...',
                 width: 135,
                 listeners:{
+                    afterRender:function(combo){
+                        var record=combo.store.getAt(0);
+                        combo.setValue(record.data);
+                    },
                     select: 'searchComboboxSelectChange'
                 }
             }, '-',{

@@ -2,16 +2,20 @@ package com.example.demo.log.service;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.example.demo.log.entity.Log;
+import com.example.demo.log.entity.LogDTO;
 import com.example.demo.log.repository.LogRepository;
 
 @Service
@@ -47,8 +51,22 @@ public class LogService implements ILogService {
 	}
 
 	@Override
-	public Page<Log> findAll(Specification<Log> spec, Pageable pageable) {
-		return logRepository.findAll(spec, pageable);
+	public Page<LogDTO> findAll(Specification<Log> spec, Pageable pageable) {
+		Page<Log> list =  logRepository.findAll(spec, pageable);
+		List<LogDTO> dtoLists = new ArrayList<LogDTO>();
+		for (Log entity : list.getContent()) {
+			LogDTO dto = new LogDTO();
+			BeanUtils.copyProperties(entity, dto);
+			if(entity.getEmployee()!=null) {
+				dto.setEmployeeName(entity.getEmployee().getEmployeeName());
+				if(entity.getEmployee().getLocalStore()!=null) {
+					dto.setStoreName(entity.getEmployee().getLocalStore().getStoreName());
+				}
+			}
+			dto.setDay(new Date());
+			dtoLists.add(dto);
+		}
+		return new PageImpl<LogDTO>(dtoLists, pageable, list.getTotalElements());
 	}
 
 }

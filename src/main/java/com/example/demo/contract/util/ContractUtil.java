@@ -48,6 +48,7 @@ public class ContractUtil {
 			dto.setTotal((double)sumList.get(i));
 			Employee e=(Employee)employeeList.get(i);
 			dto.setEmployeeName(e.getEmployeeName());
+			dto.setQuotation(e.getQuotation());
 			dtoLists.add(dto);
 		}
 		return dtoLists;

@@ -35,6 +35,8 @@ public class ContractDTO {
 	
 	private String storeName;           //地方
 	
+	private String quotation;
+	
 	private ProcessStatus processStatus;//流程状态
 	
 	/**------------流程数据--------------**/
@@ -147,6 +149,10 @@ public class ContractDTO {
 	public String getProcessDefinitionId() {
 		return processDefinitionId;
 	}
+	
+	public String getQuotation() {
+		return quotation;
+	}
 
 	public boolean isSuspended() {
 		return suspended;
@@ -254,6 +260,10 @@ public class ContractDTO {
 
 	public void setManreason(String manreason) {
 		this.manreason = manreason;
+	}
+	
+	public void setQuotation(String quotation) {
+		this.quotation = quotation;
 	}
 
 	@Override

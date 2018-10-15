@@ -29,6 +29,7 @@ import com.example.demo.employee.domain.EmployeeQueryDTO;
 import com.example.demo.employee.service.IEmployeeService;
 import com.example.demo.employee.util.ExtAjaxResponse;
 import com.example.demo.employee.util.ExtjsPageRequest;
+import com.example.demo.log.config.SystemControllerLog;
 
 
 @RestController
@@ -43,6 +44,7 @@ public class EmployeeController {
 	private IEmployeeService employeeService;
 	
 	//查询个人信息
+	@SystemControllerLog(description="查询个人信息")
 	@GetMapping(value="/getPerson")
 	public EmployeeDTO getPerson(HttpSession session) {
 		
@@ -50,6 +52,7 @@ public class EmployeeController {
 	}
 	
 	//多条件动态查询employee
+	@SystemControllerLog(description="查询员工信息")
 	@GetMapping
 	public Page<EmployeeDTO> findAll(EmployeeQueryDTO employeeQueryDTO,HttpSession session,ExtjsPageRequest pageable)
 	{
@@ -62,6 +65,7 @@ public class EmployeeController {
 	
 	//  /employee/1
 	//删除一个employee数据，通过id
+	@SystemControllerLog(description="删除员工信息")
 	@DeleteMapping(value="{id}")
 	public ExtAjaxResponse deleteById(@PathVariable("id") Long id) 
 	{
@@ -69,11 +73,13 @@ public class EmployeeController {
 	}
 	
 	//插入一条employee数据
+	@SystemControllerLog(description="保存员工信息")
 	@RequestMapping(method=RequestMethod.POST)
 	public ExtAjaxResponse saveEmployee(@RequestBody EmployeeDTO employeeDTO) {
 		return employeeService.saveEmployee(employeeDTO);
 	}
 	//修改一条employee数据
+	@SystemControllerLog(description="修改员工信息")
 	@RequestMapping(value="{id}",method=RequestMethod.PUT)
 	public ExtAjaxResponse updateById(@PathVariable("id") Long id,@RequestBody EmployeeDTO employeeDTO,HttpSession session) {
 		String post=(String) session.getAttribute("post");
