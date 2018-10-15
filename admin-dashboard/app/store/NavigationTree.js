@@ -85,6 +85,12 @@ Ext.define('Admin.store.NavigationTree', {
                 viewType: 'processDefinition',
                 leaf: true
             },{
+                text: '企业信箱',
+                iconCls: 'x-fa fa-envelope',
+                //rowCls: 'nav-tree-badge nav-tree-badge-new',
+                viewType: 'email',
+                leaf: true
+            },{
                 text: '业务排行',
                 iconCls: 'x-fa fa-fax',
                 viewType: 'achievement',

@@ -15,9 +15,13 @@ public class AttenceDTO {
 	
 	private String location;
 	
+	private String storeName;
+	
 	private Date workinTime;
 	
 	private Date workoutTime;
+	
+	private Date day;
 	
 	private AttenceStatus attenceStatus;
 	
@@ -63,6 +67,10 @@ public class AttenceDTO {
 		return location;
 	}
 	
+	public String getStoreName() {
+		return storeName;
+	}
+
 	@JsonFormat(pattern="yyyy/MM/dd HH:mm:ss",timezone="GMT+8")
 	public Date getWorkinTime() {
 		return workinTime;
@@ -71,6 +79,11 @@ public class AttenceDTO {
 	@JsonFormat(pattern="yyyy/MM/dd HH:mm:ss",timezone="GMT+8")
 	public Date getWorkoutTime() {
 		return workoutTime;
+	}
+	
+	@JsonFormat(pattern="yyyy/MM/dd HH:mm:ss",timezone="GMT+8")
+	public Date getDay() {
+		return day;
 	}
 
 	public AttenceStatus getAttenceStatus() {
@@ -137,6 +150,10 @@ public class AttenceDTO {
 	public void setEmployeeName(String employeeName) {
 		this.employeeName = employeeName;
 	}
+	
+	public void setStoreName(String storeName) {
+		this.storeName = storeName;
+	}
 
 	public void setLocation(String location) {
 		this.location = location;
@@ -148,6 +165,10 @@ public class AttenceDTO {
 
 	public void setWorkoutTime(Date workoutTime) {
 		this.workoutTime = workoutTime;
+	}
+	
+	public void setDay(Date day) {
+		this.day = day;
 	}
 
 	public void setAttenceStatus(AttenceStatus attenceStatus) {

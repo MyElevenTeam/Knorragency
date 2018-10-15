@@ -13,6 +13,8 @@ import com.example.demo.attence.entity.Attence;
 import com.example.demo.attence.entity.AttenceStatus;
 import com.example.demo.attence.service.IAttenceService;
 import com.example.demo.attence.utils.AttenceUtil;
+import com.example.demo.employee.domain.Employee;
+import com.example.demo.employee.service.IEmployeeService;
 import com.example.demo.leave.entity.Leave;
 import com.example.demo.leave.service.ILeaveService;
 
@@ -36,6 +38,9 @@ public class ReportBackEndProcessor implements TaskListener
 	
 	@Autowired
     private IAttenceService attenceService;
+	
+	@Autowired
+    private IEmployeeService employeeService;
 
     @Autowired
     private RuntimeService runtimeService;
@@ -60,7 +65,10 @@ public class ReportBackEndProcessor implements TaskListener
         List<Date> dList=AttenceUtil.findDates(dBegin, dEnd);
         for(Date date:dList) {
         	Attence attence=new Attence();
-			attence.setEmployeeName(userId);
+        	Employee e=employeeService.EmployeeName(userId);
+        	if(e!=null) {
+        		attence.setEmployee(e);
+        	}
 			attence.setLocation("广东省东莞市");
 			attence.setWorkinTime(date);
 			attence.setWorkoutTime(date);

@@ -18,7 +18,7 @@ Ext.define('Admin.store.contract.ContractGridStroe', {
 		},
 		simpleSortMode: true	//简单排序模式
 	},
-	groupField:'area',
+	groupField:'storeName',
 	autoLoad: 'true',
     autoSync:true,
     remoteSort:true,

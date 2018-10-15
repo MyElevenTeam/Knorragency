@@ -6,9 +6,12 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 import com.example.demo.activiti.entity.ProcessStatus;
+import com.example.demo.employee.domain.Employee;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 @Entity
@@ -17,7 +20,7 @@ public class Attence {
 	
 	private Long id;
 	
-	private String employeeName;
+	private Employee employee;
 	
 	private String location;
 	
@@ -46,9 +49,11 @@ public class Attence {
 	public Long getId() {
 		return id;
 	}
-
-	public String getEmployeeName() {
-		return employeeName;
+	
+	@ManyToOne
+	@JoinColumn(name="employee_id")
+	public Employee getEmployee() {
+		return employee;
 	}
 
 	public String getLocation() {
@@ -101,9 +106,9 @@ public class Attence {
 	public void setId(Long id) {
 		this.id = id;
 	}
-
-	public void setEmployeeName(String employeeName) {
-		this.employeeName = employeeName;
+	
+	public void setEmployee(Employee employee) {
+		this.employee = employee;
 	}
 
 	public void setLocation(String location) {
@@ -150,10 +155,4 @@ public class Attence {
 		this.hrBackReason = hrBackReason;
 	}
 
-	@Override
-	public String toString() {
-		return "Attence [id=" + id + ", employeeName=" + employeeName + ", location=" + location + ", workinTime="
-				+ workinTime + ", workoutTime=" + workoutTime + ", attenceStatus=" + attenceStatus + "]";
-	}
-	
 }

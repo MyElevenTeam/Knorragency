@@ -43,6 +43,8 @@ import com.example.demo.contract.entity.ContractDTO;
 import com.example.demo.contract.service.IContractService;
 import com.example.demo.employee.domain.Employee;
 import com.example.demo.employee.service.IEmployeeService;
+import com.example.demo.store.domain.Store;
+import com.example.demo.store.service.IStoreService;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -53,6 +55,9 @@ public class ContractServiceTest {
 	
 	@Autowired
 	private IEmployeeService employeeService;
+	
+	@Autowired
+	private IStoreService storeService;
 	
 	@Autowired
 	private AttenceService attenceService;
@@ -209,6 +214,7 @@ public class ContractServiceTest {
 		c.setStartTime(new Date());
 		c.setEmployee(e);
 		contractService.save(c);
+
 	}
 	
 	@Test

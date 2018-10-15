@@ -97,7 +97,7 @@ Ext.define('Admin.view.attence.AttencePanel', {
         {
             xtype: 'gridpanel',
             cls: 'has-border',
-            height:650,
+            flex: 2,
             bind: '{attenceLists}',
             scrollable: false,
             // selModel: {type: 'checkboxmodel',checkOnly: true},     //多选框checkbox
