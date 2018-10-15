@@ -7,4 +7,5 @@ Ext.define('Admin.view.achievement.AchievementController', {
 		Ext.apply(store.proxy.extraParams, {month:searchField,area:""});
 		store.load();
 	}
+
 });

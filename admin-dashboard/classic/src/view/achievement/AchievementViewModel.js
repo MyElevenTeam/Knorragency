@@ -4,6 +4,7 @@ Ext.define('Admin.view.achievement.AchievementViewModel', {
     stores:{
          barData:{type:'chartStore'},
          anlyseDate:{type:'analyseStore'},
-         sortDate:{type:'sortStore'}
+         sortDate:{type:'sortStore'},
+         storeDate:{type:'storeStore'}
     }
 });
