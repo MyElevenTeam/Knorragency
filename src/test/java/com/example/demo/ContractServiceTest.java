@@ -209,7 +209,7 @@ public class ContractServiceTest {
 	@Test
 	@Transactional
 	public void initData() {
-<<<<<<< HEAD
+
 		Store store=new Store();
 		store.setStoreArea("东莞");
 		store.setStoreNumber("1");
@@ -229,16 +229,7 @@ public class ContractServiceTest {
 				contractService.save(c);
 			}
 		}
-=======
-		Employee e=employeeService.findById(1L).get();
-		
-		Contract c=new Contract();
-		c.setContractNumber("C30");
-		c.setStartTime(new Date());
-		c.setEmployee(e);
-		contractService.save(c);
 
->>>>>>> branch 'master' of https://github.com/MyElevenTeam/Knorragency.git
 	}
 	
 	@Test

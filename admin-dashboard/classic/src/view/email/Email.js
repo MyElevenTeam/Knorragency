@@ -4,7 +4,7 @@ Ext.define('Admin.view.email.Email', {
     xtype: 'email',
 
     itemId: 'emailMainContainer',
-
+    controller: 'emailViewController',
     layout: {
         type: 'hbox',
         align: 'stretch'
@@ -33,7 +33,7 @@ Ext.define('Admin.view.email.Email', {
             items: [
                 {
                     xtype: 'emailMenu',
-                    height:800,
+                    height:300,
                     listeners: {
                         click: 'onMenuClick'
                     }

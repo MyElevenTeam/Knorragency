@@ -22,7 +22,7 @@ Ext.define('Admin.view.email.EmailMenu', {
                 },
                 windowCfg: {
                     // Any configs that you would like to apply for window popup goes here
-                    title: 'Compose Message'
+                    title: '草稿箱'
                 }
             },
             iconCls: 'x-fa fa-edit',
