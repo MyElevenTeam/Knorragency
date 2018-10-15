@@ -22,7 +22,7 @@ public interface IAttenceService {
 	
 	public Optional<Attence> findById(Long id);
 	
-	public Page<Attence> findAll(Specification<Attence> spec, Pageable pageable);
+	public Page<AttenceDTO> findAll(Specification<Attence> spec, Pageable pageable);
 	
 	public int findAttence(String employeeName);
 	

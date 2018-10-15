@@ -11,6 +11,8 @@ public class SessionUtil
 	public static final String USERNAME 	= "userName";
 	public static final String GROUPS 		= "groups";
 	public static final String GROUPNAMES 	= "groupNames";
+	public static final String EMPLOYEENUMBER = "employeeNumber";
+	public static final String POST = "post";
     /**
      * 设置用户到session
      */
@@ -76,9 +78,33 @@ public class SessionUtil
 	public static void removeAttribute(HttpSession session) {
 		session.removeAttribute(USER);
 		session.removeAttribute(USERNAME);
-         session.removeAttribute(GROUPS);
-         session.removeAttribute(GROUPNAMES);
+        session.removeAttribute(GROUPS);
+        session.removeAttribute(GROUPNAMES);
+        session.removeAttribute(EMPLOYEENUMBER);
+        session.removeAttribute(POST);
     }
+	
+	//设置employeeNumber到session
+	public static void setEmployeeNumber(HttpSession session, String employeeNumber) {
+    	session.setAttribute(EMPLOYEENUMBER, employeeNumber);
+	}
+
+     //从Session获取employeeNumber
+    public static String getEmployeeNumber(HttpSession session) {
+        	Object employeeNumber = session.getAttribute(EMPLOYEENUMBER);
+        	return employeeNumber == null ? null : (String) employeeNumber;
+    }
+	
+    //设置post到session
+  	public static void setPost(HttpSession session, String post) {
+      	session.setAttribute(POST, post);
+  	}
+
+    //从Session获取post
+  	public static String getPost(HttpSession session) {
+      	Object post = session.getAttribute(POST);
+      	return post == null ? null : (String) post;
+  	}
 }
 
 

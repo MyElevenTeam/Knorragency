@@ -83,7 +83,7 @@ Ext.define('Admin.view.allattence.AllAttencePanel', {
         {
             xtype: 'gridpanel',
             cls: 'has-border',
-            height:650,
+            flex: 2,
             bind: '{allAttenceLists}',
             scrollable: false,
             // selModel: {type: 'checkboxmodel',checkOnly: true},     //多选框checkbox
@@ -96,10 +96,8 @@ Ext.define('Admin.view.allattence.AllAttencePanel', {
             // },
             features: [{
                 ftype: 'grouping',
-                groupHeaderTpl: '{name}',
-                hideGroupedHeader: false,
                 startCollapsed: true,
-                // enableGroupingMenu: true
+                groupHeaderTpl: '{name}'+'店考勤情况：'+'  (共记录{rows.length}条)',
             }],
             columns: [
                 {xtype: 'gridcolumn',width: 40,dataIndex: 'id',text: 'id',hidden:true},
@@ -122,7 +120,7 @@ Ext.define('Admin.view.allattence.AllAttencePanel', {
                 {xtype: 'gridcolumn', cls: 'content-column',width:150,dataIndex: 'location',text: '打卡地点'},
                 {xtype: 'datecolumn',cls: 'content-column',width: 160,dataIndex: 'workinTime',text: '上班时间',flex:1,formatter: 'date("Y/m/d H:i:s")'},
                 {xtype: 'datecolumn',cls: 'content-column',width: 160,dataIndex: 'workoutTime',text: '下班时间',flex:1,formatter: 'date("Y/m/d H:i:s")'},
-                 {xtype: 'datecolumn',cls: 'content-column',width: 160,dataIndex: 'day',text: '考勤时间',flex:1,formatter: 'date("Y/m")'},
+                 {xtype: 'datecolumn',cls: 'content-column',width: 160,dataIndex: 'day',text: '考勤时间',flex:1,hidden:true,formatter: 'date("Y/m")'},
                 {xtype: 'actioncolumn',cls: 'content-column', width: 80,dataIndex: 'bool',text: '操作',tooltip: 'edit '}
             ],
             dockedItems: [{

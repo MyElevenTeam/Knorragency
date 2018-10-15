@@ -68,8 +68,21 @@ public class AttenceService implements IAttenceService {
 	}
 
 	@Override
-	public Page<Attence> findAll(Specification<Attence> spec, Pageable pageable) {
-		return attenceRepository.findAll(spec, pageable);
+	public Page<AttenceDTO> findAll(Specification<Attence> spec, Pageable pageable) {
+		Page<Attence> list =  attenceRepository.findAll(spec, pageable);
+		List<AttenceDTO> dtoLists = new ArrayList<AttenceDTO>();
+		for (Attence entity : list.getContent()) {
+			AttenceDTO dto = new AttenceDTO();
+			BeanUtils.copyProperties(entity, dto);
+			if(entity.getEmployee()!=null) {
+				dto.setEmployeeName(entity.getEmployee().getEmployeeName());
+				if(entity.getEmployee().getLocalStore()!=null) {
+					dto.setStoreName(entity.getEmployee().getLocalStore().getStoreName());
+				}
+			}
+			dtoLists.add(dto);
+		}
+		return new PageImpl<AttenceDTO>(dtoLists, pageable, list.getTotalElements());
 	}
 
 	@Override

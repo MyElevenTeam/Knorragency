@@ -27,37 +27,42 @@ import com.example.demo.attence.entity.Attence;
 import com.example.demo.attence.entity.AttenceDTO;
 import com.example.demo.attence.entity.AttenceQueryDTO;
 import com.example.demo.attence.entity.AttenceStatus;
-import com.example.demo.attence.service.AttenceService;
+import com.example.demo.attence.service.IAttenceService;
 import com.example.demo.attence.utils.AttenceUtil;
 import com.example.demo.common.controller.ExtAjaxResponse;
 import com.example.demo.common.controller.ExtjsPageRequest;
 import com.example.demo.common.controller.SessionUtil;
+import com.example.demo.employee.domain.Employee;
+import com.example.demo.employee.service.IEmployeeService;
 
 @RestController
 @RequestMapping("/attence")
 public class AttenceController {
 	
 	@Autowired
-	private AttenceService attenceService;
+	private IAttenceService attenceService;
+	
+	@Autowired
+	private IEmployeeService employeeService;
 	
 	@RequestMapping("/getAllAttence")
 	//查看所有的考勤记录
-	public Page<Attence> getAllAttence(ExtjsPageRequest pageRequest) {
+	public Page<AttenceDTO> getAllAttence(ExtjsPageRequest pageRequest) {
 		return attenceService.findAll(null,pageRequest.getPageable());
 	}
 	
 	/*----------------------------------------------考勤业务--------------------------------------------*/
 	//查看个人的考勤记录
 	@GetMapping 
-	public Page<Attence> getPersonAttence(HttpSession session,AttenceQueryDTO attenceQueryDTO,ExtjsPageRequest pageRequest) {
+	public Page<AttenceDTO> getPersonAttence(HttpSession session,AttenceQueryDTO attenceQueryDTO,ExtjsPageRequest pageRequest) {
 		
-		Page<Attence> page;
+		Page<AttenceDTO> page;
 		String userId = SessionUtil.getUserName(session);  //通过session查找userId
 		if(userId!=null) {
 			attenceQueryDTO.setEmployeeName(userId);
 			page=attenceService.findAll(AttenceQueryDTO.getWhereClause(attenceQueryDTO), pageRequest.getPageable());
 		}else {
-			page = new PageImpl<Attence>(new ArrayList<Attence>(),pageRequest.getPageable(),0);
+			page = new PageImpl<AttenceDTO>(new ArrayList<AttenceDTO>(),pageRequest.getPageable(),0);
 		}
 		return page;
 		
@@ -70,6 +75,7 @@ public class AttenceController {
 		ExtAjaxResponse response=new ExtAjaxResponse();
 		//获取打卡人姓名
 		String employeeName = SessionUtil.getUserName(session);
+		System.out.println(employeeName);
 		flag=attenceService.findAttence(employeeName);
 		try {
 			if(flag==0) {   //当天未打卡才允许打卡
@@ -104,7 +110,10 @@ public class AttenceController {
 					response.setMsg("打卡成功,今天要加油哦");
 					response.setSuccess(true);
 				}
-				attence.setEmployeeName(employeeName);
+				Employee e=employeeService.EmployeeName(employeeName);
+				if(e!=null) {
+					attence.setEmployee(e);
+				}
 				attence.setLocation(location);
 				attence.setWorkinTime(date);
 				attenceService.save(attence);

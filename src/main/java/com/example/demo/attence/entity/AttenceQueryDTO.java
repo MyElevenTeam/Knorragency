@@ -67,7 +67,7 @@ public class AttenceQueryDTO {
 				List<Predicate> predicate = new ArrayList<>();
 				
 				if(StringUtils.isNoneBlank(attenceQueryDTO.getEmployeeName())) {
-					predicate.add(criteriaBuilder.like(root.get("employeeName").as(String.class),
+					predicate.add(criteriaBuilder.like(root.get("employee").get("employeeName").as(String.class),
 							"%" + attenceQueryDTO.getEmployeeName() + "%"));
 				}
 				if(StringUtils.isNoneBlank(attenceQueryDTO.getLocation())) {

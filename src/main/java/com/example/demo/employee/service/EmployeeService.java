@@ -8,6 +8,9 @@ import java.util.Optional;
 
 import javax.servlet.http.HttpSession;
 
+import org.activiti.engine.IdentityService;
+import org.activiti.engine.identity.Group;
+import org.activiti.engine.identity.User;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -36,6 +39,9 @@ public class EmployeeService implements IEmployeeService {
 	
 	@Autowired
 	private StoreRepository storeRepository;
+	
+	@Autowired
+	private IdentityService identityService;
 	
 	@Override
 	public Employee save(Employee entity) {
@@ -69,6 +75,10 @@ public class EmployeeService implements IEmployeeService {
 				Employee employee=employeeRepository.findById(id).get();
 				employee.getLocalStore().getEmployeeList().remove(employee);
 				employee.setLocalStore(null);
+				/*-----------------修改工作流的操作---------------*/
+				identityService.deleteMembership(employee.getEmployeeNumber(), employee.getPost());
+				identityService.deleteUser(employee.getEmployeeNumber());
+				/*-----------------end---------------*/
 				employeeRepository.delete(employee);
 			}
 			return new ExtAjaxResponse(true,"删除成功！");
@@ -136,6 +146,7 @@ public class EmployeeService implements IEmployeeService {
 			if(StringUtils.isNotBlank(employeeDTO.getEmployeeName()) && 
 					StringUtils.isNotBlank(employeeDTO.getPost()) && 
 					StringUtils.isNotBlank(employeeDTO.getStoreName())) {
+				
 				Employee employee = new Employee();
 				
 				employee.setPicture("default.jpg");
@@ -157,6 +168,19 @@ public class EmployeeService implements IEmployeeService {
 				//否则无法保存employee的信息
 				employee.setLocalStore(entity);
 				entity.getEmployeeList().add(employee);
+				
+				/*--------------------保存到工作流的操作----------------------*/
+				Group group =identityService.newGroup(employee.getPost());
+				group.setName(employee.getPost());
+				identityService.saveGroup(group);
+				
+				User user=identityService.newUser(employee.getEmployeeNumber());
+				user.setPassword("123456");
+				identityService.saveUser(user);
+				
+				identityService.createMembership(employee.getEmployeeNumber(), employee.getPost());
+				/*--------------------end-------------------------*/
+				
 				storeRepository.save(entity);
 				//employeeRepository.save(employee);
 				return new ExtAjaxResponse(true,"添加成功！");
@@ -175,7 +199,17 @@ public class EmployeeService implements IEmployeeService {
 			Employee entity=employeeRepository.findById(id).get();
 			if(entity != null) {
 				if(StringUtils.isNotBlank(employeeDTO.getPost())) {
+					/*-----------------修改工作流的操作---------------*/
+					identityService.deleteMembership(entity.getEmployeeNumber(), entity.getPost());
+					
+					Group group=identityService.newGroup(employeeDTO.getPost());
+					group.setName(employeeDTO.getPost());
+					
+					identityService.createMembership(entity.getEmployeeName(), employeeDTO.getPost());
+					/*-----------------end-----------------------------*/
+					
 					entity.setPost(employeeDTO.getPost());
+					
 				}
 				if(employeeDTO.getStoreName()!=null) {
 					
@@ -215,7 +249,7 @@ public class EmployeeService implements IEmployeeService {
 	public Employee EmployeeNumber(String employeeNumber) {
 		return employeeRepository.findByEmployeeNumber(employeeNumber);
 	}
-
+	
 	@Override
 	public Employee EmployeeName(String employeeName) {
 		return employeeRepository.findByEmployeeName(employeeName);

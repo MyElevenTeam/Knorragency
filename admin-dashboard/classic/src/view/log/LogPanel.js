@@ -93,7 +93,7 @@ Ext.define('Admin.view.log.LogPanel', {
         {
             xtype: 'gridpanel',
             cls: 'has-border',
-            height:650,
+            flex: 2,
             bind: '{logLists}',
             scrollable: false,
            
