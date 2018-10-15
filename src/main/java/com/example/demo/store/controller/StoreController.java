@@ -45,6 +45,10 @@ public class StoreController {
 		return page;
 	}
 	
+	@GetMapping("/findAllStore")
+	public List<String> findAllStore() {
+		return storeService.findAllStoreName();
+	}
 	//获取可作为父store的storeName，子store不能作为父store
 	//注意，这里返回的是DTO而不是String，因为这里返回的数据是给下拉框的
 	//下拉框要有两个变量，一个是给用户看的变量，一个是实际的值，这里用DTO

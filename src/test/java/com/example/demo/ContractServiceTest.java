@@ -43,6 +43,8 @@ import com.example.demo.contract.entity.ContractDTO;
 import com.example.demo.contract.service.IContractService;
 import com.example.demo.employee.domain.Employee;
 import com.example.demo.employee.service.IEmployeeService;
+import com.example.demo.store.domain.Store;
+import com.example.demo.store.service.IStoreService;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -53,6 +55,9 @@ public class ContractServiceTest {
 	
 	@Autowired
 	private IEmployeeService employeeService;
+	
+	@Autowired
+	private IStoreService storeService;
 	
 	@Autowired
 	private AttenceService attenceService;
@@ -198,17 +203,31 @@ public class ContractServiceTest {
 		}
 	}
 	
-	
+	/**
+	 * 初始化三表数据
+	 */
 	@Test
 	@Transactional
 	public void initData() {
-		Employee e=employeeService.findById(1L).get();
-		
-		Contract c=new Contract();
-		c.setContractNumber("C30");
-		c.setStartTime(new Date());
-		c.setEmployee(e);
-		contractService.save(c);
+		Store store=new Store();
+		store.setStoreArea("东莞");
+		store.setStoreNumber("1");
+		store.setStoreName("常平分店");
+		for(int i=0;i<4;i++) {
+			Employee e=new Employee();
+			e.setEmail("ssa"+i);
+			e.setEmployeeName("admin"+i);
+			e.setEmployeeNumber("a"+i);
+			e.setPassword("ssa"+i);
+			e.setLocalStore(store);
+			for(int j=0;j<=i;j++) {
+				Contract c=new Contract();
+				c.setStartTime(new Date());
+				c.setTotal(j+1);
+				c.setEmployee(e);
+				contractService.save(c);
+			}
+		}
 	}
 	
 	@Test
@@ -226,6 +245,15 @@ public class ContractServiceTest {
 			System.out.println(dto.toString());
 		}
 	}
+	@Test
+	public void getSumbyMonthAndName() {
+		List<ContractDTO> tmps=contractService.getSumAndEmployeeNameByMonthAndStoreName("十月", "常平分店");
+		for(ContractDTO tmp:tmps) {
+			System.out.println(tmp);
+		}
+
+	}
+	
 	
 	
 

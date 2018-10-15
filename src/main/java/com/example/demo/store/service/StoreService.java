@@ -246,4 +246,12 @@ public class StoreService implements IStoreService {
 					}
 					return storeNameList;
 		}
+		@Override
+		public Store findOne(Long id) {
+			return storeRepository.findById(id).get();
+		}
+		
+		public List<String> findAllStoreName(){
+			return storeRepository.findAllStoreName();
+		}
 }		

@@ -22,7 +22,10 @@ public interface IStoreService {
 	public ExtAjaxResponse saveStore(StoreDTO storeDTO);
 	public ExtAjaxResponse updateById(Long id, StoreDTO storeDTO);
 	public ExtAjaxResponse deleteById(Long id);
+	public Store findOne(Long id);
 	//public List<String> findFatherStoreName(String storeName);
 	public List<StoreDTO2> findFatherStoreName(String storeName, HttpSession session);
 	public List<StoreDTO3> findstoreName(HttpSession session);
+	//查询全部店名
+	public List<String> findAllStoreName();
 }

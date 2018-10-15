@@ -24,3 +24,4 @@ Ext.define('Admin.Application', {
         );
     }
 });
+
