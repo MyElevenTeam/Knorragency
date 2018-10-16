@@ -86,8 +86,8 @@ public class Email {
 		this.emailSubject = emailSubject;
 	}
 
-	public void setEmailcontent(String emailcontent) {
-		this.emailContent = emailcontent;
+	public void setEmailContent(String emailContent) {
+		this.emailContent = emailContent;
 	}
 
 	public void setSendTime(Date sendTime) {

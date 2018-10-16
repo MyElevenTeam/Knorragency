@@ -23,7 +23,6 @@ Ext.define('Admin.view.contract.ContractViewController', {
     	btn.up('panel').up('container').add(Ext.widget('contractUploadWindow')).show();
     },
     onClickUploadFormSumbitButton: function (btn) {
-
   		var form = btn.up('window').down('form');
       if(form.isValid()){
           form.getForm().submit({       
@@ -44,7 +43,7 @@ Ext.define('Admin.view.contract.ContractViewController', {
       }else{
           Ext.Msg.alert('Error', '请选择文件');
       }
-    		
+      
     },
 
     /*删除合同信息*/

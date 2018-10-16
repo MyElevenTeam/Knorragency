@@ -80,4 +80,5 @@ Ext.define('Admin.view.email.EmailViewController', {
         view.down('#emailSubjectContainer').setData(record.data? record.data: {});
         view.down('#userImage').setSrc('resources/images/user-profile/'+ record.get('user_id') + '.png');
     }
+    
 });
