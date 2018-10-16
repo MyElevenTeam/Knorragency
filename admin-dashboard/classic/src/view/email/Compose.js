@@ -66,8 +66,7 @@ Ext.define('Admin.view.email.Compose', {
                 xtype: 'filebutton',
                 glyph:'',
                 iconCls: 'x-fa fa-cloud-upload',
-                text: '上传',
-                handler:'upload'
+                text: '上传'
             }
         }
     ],

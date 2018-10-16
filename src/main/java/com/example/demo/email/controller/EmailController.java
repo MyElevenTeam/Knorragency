@@ -20,6 +20,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.example.demo.common.controller.ExtAjaxResponse;
 import com.example.demo.common.controller.ExtjsPageRequest;
+import com.example.demo.email.entity.Email;
 import com.example.demo.email.entity.EmailDTO;
 import com.example.demo.email.entity.EmailQueryDTO;
 import com.example.demo.email.service.IEmailService;
@@ -56,29 +57,35 @@ public class EmailController {
 	@SystemControllerLog(description="上传附件")
 	@PostMapping("/uploadAttachment")
     @ResponseBody
-    public ExtAjaxResponse uploadAttachment(@RequestParam("file") MultipartFile file, HttpServletRequest request) {
-        if (!file.isEmpty()) {
-            String saveFileName = file.getOriginalFilename();
-            File saveFile = new File(request.getSession().getServletContext().getRealPath("/upload/") + saveFileName);
-            if (!saveFile.getParentFile().exists()) {
-                saveFile.getParentFile().mkdirs();
-            }
-            try {
-                BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(saveFile));
-                out.write(file.getBytes());
-                out.flush();
-                out.close();
-                return new ExtAjaxResponse(true,"文件上传成功");
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-                return new ExtAjaxResponse(false,"上传失败");
-            } catch (IOException e) {
-                e.printStackTrace();
-                return new ExtAjaxResponse(false,"上传失败");
-            }
-        } else {
-        	return new ExtAjaxResponse(false,"文件不能为空");
-        }
+    public ExtAjaxResponse uploadAttachment(HttpServletRequest request) {
+        String to=request.getAttribute("emailTo").toString();
+        System.out.println(to);
+        String file=request.getAttribute("file").toString();
+        System.out.println(file);
+//		if (!file.isEmpty()) {
+//            String saveFileName = file.getOriginalFilename();
+//            System.out.println(saveFileName);
+//            File saveFile = new File(request.getSession().getServletContext().getRealPath("/upload/") + saveFileName);
+//            if (!saveFile.getParentFile().exists()) {
+//                saveFile.getParentFile().mkdirs();
+//            }
+//            try {
+//                BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(saveFile));
+//                out.write(file.getBytes());
+//                out.flush();
+//                out.close();
+//                return new ExtAjaxResponse(true,"文件上传成功");
+//            } catch (FileNotFoundException e) {
+//                e.printStackTrace();
+//                return new ExtAjaxResponse(false,"上传失败");
+//            } catch (IOException e) {
+//                e.printStackTrace();
+//                return new ExtAjaxResponse(false,"上传失败");
+//            }
+//        } else {
+//        	return new ExtAjaxResponse(false,"文件不能为空");
+//        }
+        return new ExtAjaxResponse(true,"文件不能为空");
     }
 
 }
