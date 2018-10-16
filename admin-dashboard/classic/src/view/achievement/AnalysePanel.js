@@ -26,7 +26,7 @@ Ext.define('Admin.view.achievement.AnalysePanel', {
            xtype: 'dataview',
            bind: '{anlyseDate}',
            itemTpl:
-           "<br><br><div style='color:#919191;text-align:center;line-height:0.8em'><p style='font-size:3em'>￥{monthTotal}</p><br>"+
+           "<br><br><div style='color:#919191;text-align:center;line-height:0.8em'><p style='font-size:3em'>￥{total}</p><br>"+
            "<h2>销售总额</h2></div><br><br><br>",
            cls:'_boder',
            flex : 1              
@@ -35,7 +35,7 @@ Ext.define('Admin.view.achievement.AnalysePanel', {
            xtype: 'dataview',
            bind: '{anlyseDate}',
            itemTpl:
-           "<br><br><div style='color:#919191;text-align:center;line-height:0.8em'><p style='font-size:3em'>{monthRate}%</p><br>"+
+           "<br><br><div style='color:#919191;text-align:center;line-height:0.8em'><p style='font-size:3em'>{rate}%</p><br>"+
            "<h2>月增长率</h2></div><br><br><br>",
            cls:'_boder',
            flex : 1
