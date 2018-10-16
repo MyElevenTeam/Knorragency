@@ -208,11 +208,10 @@ public class ContractServiceTest {
 	 * @throws ParseException 
 	 */
 	@Test
-	@Transactional
 
+	@Transactional
 	public void initData() throws ParseException {
 		SimpleDateFormat dateTmp = new SimpleDateFormat("yyyy-MM-dd");
-
 		Store store=new Store();
 		store.setStoreArea("东莞");
 		store.setStoreNumber("1");
@@ -238,7 +237,6 @@ public class ContractServiceTest {
 				
 			}
 		}
-
 	}
 	
 	@Test
