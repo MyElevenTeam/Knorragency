@@ -5,7 +5,7 @@
 		btn.up('panel').up('container').add(Ext.widget('processDefinitionUploadWindow')).show();
     },
 	onClickUploadFormSumbitButton: function (btn) {
-		var form = btn.up('window').down('form');;
+		var form = btn.up('window').down('form');
 		form.getForm().submit({       
 			url:'/process-definition',
 			method : 'POST',
