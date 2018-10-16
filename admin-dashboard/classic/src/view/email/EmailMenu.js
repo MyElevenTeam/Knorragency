@@ -22,24 +22,24 @@ Ext.define('Admin.view.email.EmailMenu', {
                 },
                 windowCfg: {
                     // Any configs that you would like to apply for window popup goes here
-                    title: '草稿箱'
+                    title: '写信'
                 }
             },
             iconCls: 'x-fa fa-edit',
+            text: '撰写邮件'
+        },
+        {
+            routeId: 'edit',
+            iconCls: 'x-fa fa-inbox',
             text: '草稿箱'
         },
         {
-            routeId: '',
-            iconCls: 'x-fa fa-inbox',
-            text: '收件箱'
-        },
-        {
-            routeId: '',
+            routeId: 'send',
             iconCls: 'x-fa fa-check-circle',
             text: '已发送'
         },
         {
-            routeId: '',
+            routeId: 'trash',
             iconCls: 'x-fa fa-trash-o',
             text: '回收站'
         }

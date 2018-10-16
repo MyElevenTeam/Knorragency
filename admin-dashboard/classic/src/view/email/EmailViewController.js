@@ -4,17 +4,27 @@ Ext.define('Admin.view.email.EmailViewController', {
     alias: 'controller.emailViewController',
 
     init: function() {
-        this.setCurrentView('inbox');
+        this.setCurrentView('edit');
     },
 
     onBackBtnClick: function() {
-        this.setCurrentView('inbox');
+        this.setCurrentView('edit');
     },
 
     onMenuClick: function (menu, item) {
         if (item && item.routeId === 'emailcompose') {
             this.setCurrentView(item.routeId, item.params);
         }
+        if (item && item.routeId === 'edit') {
+            this.setCurrentView('edit');
+        }
+        if (item && item.routeId === 'send') {
+            this.setCurrentView('send');
+        }
+        if (item && item.routeId === 'trash') {
+            this.setCurrentView('trash');
+        }
+        
     },
 
     setCurrentView: function(view, params) {
