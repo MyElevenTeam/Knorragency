@@ -108938,7 +108938,11 @@ Ext.define('Admin.model.Base', {extend:Ext.data.Model, schema:{namespace:'Admin.
 Ext.define('Admin.model.achievement.AnalyseModel', {extend:Admin.model.Base, fields:[{type:'string', name:'winner'}, {type:'float', name:'total'}, {type:'float', name:'rate'}, {type:'int', name:'peopleNum'}]});
 Ext.define('Admin.model.achievement.ChartModel', {extend:Admin.model.Base, fields:[{name:'total'}, {name:'employeeName'}]});
 Ext.define('Admin.model.achievement.SortModel', {extend:Admin.model.Base, fields:[{type:'int', name:'rank'}, {type:'string', name:'employeeName'}, {type:'string', name:'word'}]});
+<<<<<<< HEAD
 Ext.define('Admin.model.achievement.StoreModel', {extend:Admin.model.Base, fields:[{name:'storeName'}]});
+=======
+Ext.define('Admin.model.achievement.StoreModel', {extend:Admin.model.Base, fields:[{type:'string', name:'storeName'}]});
+>>>>>>> branch 'master' of https://github.com/MyElevenTeam/Knorragency.git
 Ext.define('Admin.model.addressList.AddListModel', {extend:Admin.model.Base, fields:[{type:'int', name:'id'}, {type:'string', name:'employeeName'}, {type:'string', name:'employeeNumber'}, {type:'string', name:'employeeArea'}, {type:'string', name:'post'}, {type:'string', name:'email'}], proxy:{type:'rest', url:'/addressList'}});
 Ext.define('Admin.model.allattence.AllAttenceModel', {extend:Admin.model.Base, fields:[{type:'int', name:'id'}, {type:'string', name:'employeeName'}, {type:'string', name:'location'}, {type:'date', name:'workinTime', dateFormat:'Y/m/d H:i:s'}, {type:'date', name:'workoutTime', dateFormat:'Y/m/d H:i:s'}, {type:'string', name:'attenceStatus'}]});
 Ext.define('Admin.model.attence.AttenceModel', {extend:Admin.model.Base, fields:[{type:'int', name:'id'}, {type:'string', name:'employeeName'}, {type:'string', name:'location'}, {type:'date', name:'workinTime', dateFormat:'Y/m/d H:i:s'}, {type:'date', name:'workoutTime', dateFormat:'Y/m/d H:i:s'}, {type:'date', name:'day', dateFormat:'Y/m/d H:i:s'}, {type:'string', name:'attenceStatus'}, {type:'string', name:'processInstanceId'}, {type:'string', name:'processStatus'}, {type:'string', name:'userId'}, 
@@ -108951,6 +108955,7 @@ Ext.define('Admin.model.contract.ContractModel', {extend:Admin.model.Base, field
 {type:'string', name:'processStatus'}], proxy:{type:'rest', url:'/contract'}});
 Ext.define('Admin.model.contractapprove.ContractApproveModel', {extend:Admin.model.Base, fields:[{type:'int', name:'id'}, {type:'string', name:'userId'}, {type:'string', name:'contractNumber'}, {type:'string', name:'customerName'}, {type:'string', name:'hoseName'}, {type:'string', name:'employeeName'}, {type:'date', name:'startTime'}, {type:'date', name:'endTime'}, {type:'string', name:'contractType'}, {type:'float', name:'total'}, {type:'string', name:'area'}, {type:'string', name:'processStatus'}, 
 {type:'string', name:'processInstanceId'}, {type:'string', name:'taskId'}, {type:'string', name:'taskName'}, {type:'date', name:'taskCreateTime'}, {type:'string', name:'assignee'}, {type:'string', name:'taskDefinitionKey'}, {type:'string', name:'processDefinitionId'}, {type:'boolean', name:'suspended'}, {type:'int', name:'version'}, {type:'string', name:'depreason'}, {type:'string', name:'manreason'}]});
+Ext.define('Admin.model.email.EmailModel', {extend:Admin.model.Base, fields:[{type:'int', name:'id'}, {type:'string', name:'emailTo'}, {type:'string', name:'emailFrom'}, {type:'string', name:'emailSubject'}, {type:'string', name:'emailContent'}, {type:'date', name:'sendTime', dateFormat:'Y/m/d H:i:s'}, {type:'string', name:'employeeName'}], proxy:{type:'rest', url:'/email'}});
 Ext.define('Admin.model.leave.LeaveModel', {extend:Admin.model.Base, fields:[{type:'int', name:'id'}, {type:'string', name:'userId'}, {type:'date', name:'startTime', dateFormat:'Y/m/d H:i:s'}, {type:'date', name:'endTime', dateFormat:'Y/m/d H:i:s'}, {type:'date', name:'realityStartTime', dateFormat:'Y/m/d H:i:s'}, {type:'date', name:'realityEndTime', dateFormat:'Y/m/d H:i:s'}, {type:'date', name:'applyTime', dateFormat:'Y/m/d H:i:s'}, {type:'string', name:'leaveType'}, {type:'string', name:'processStatus'}, 
 {type:'string', name:'reason'}, {type:'string', name:'processInstanceId'}, {type:'string', name:'depReason'}, {type:'string', name:'hrReason'}], proxy:{type:'rest', url:'/leave'}});
 Ext.define('Admin.model.log.LogModel', {extend:Admin.model.Base, fields:[{type:'int', name:'id'}, {type:'string', name:'employeeName'}, {type:'string', name:'storeName'}, {type:'string', name:'title'}, {type:'string', name:'type'}, {type:'string', name:'remoteAddr'}, {type:'string', name:'requestUri'}, {type:'string', name:'method'}, {type:'string', name:'params'}, {type:'date', name:'operateDate', dateFormat:'Y/m/d H:i:s'}, {type:'date', name:'day', dateFormat:'Y/m/d H:i:s'}, {type:'int', name:'time'}], 
@@ -108972,6 +108977,9 @@ Ext.define('Admin.store.attenceapprove.AppealApproveStore', {extend:Ext.data.Sto
 Ext.define('Admin.store.attenceapprove.LeaveApproveStore', {extend:Ext.data.Store, storeId:'leaveApproveStore', alias:'store.leaveApproveStore', model:'Admin.model.attenceapprove.LeaveApproveModel', proxy:{type:'ajax', url:'leave/tasks', reader:new Ext.data.JsonReader({type:'json', rootProperty:'content', totalProperty:'totalElements'}), simpleSortMode:true}, remoteSort:true, sorters:[{property:'id', direction:'desc'}], autoLoad:true});
 Ext.define('Admin.store.contract.ContractGridStroe', {extend:Ext.data.Store, storeId:'contractGridStroe', alias:'store.contractGridStroe', model:'Admin.model.contract.ContractModel', proxy:{type:'rest', url:'/contract', reader:{type:'json', rootProperty:'content', totalProperty:'totalElements'}, writer:{type:'json'}, simpleSortMode:true}, groupField:'storeName', autoLoad:'true', autoSync:true, remoteSort:true, pageSize:20, sorters:{direction:'ASC', property:'id'}});
 Ext.define('Admin.store.contractapprove.ContractApproveStore', {extend:Ext.data.Store, storeId:'contractApproveStore', alias:'store.contractApproveStore', model:'Admin.model.contractapprove.ContractApproveModel', proxy:{type:'ajax', url:'contract/tasks', reader:new Ext.data.JsonReader({type:'json', rootProperty:'content', totalProperty:'totalElements'}), simpleSortMode:true}, remoteSort:true, sorters:[{property:'id', direction:'desc'}], autoLoad:true});
+Ext.define('Admin.store.email.EmailEditStroe', {extend:Ext.data.Store, storeId:'emailEditStroe', alias:'store.emailEditStroe', model:'Admin.model.email.EmailModel', proxy:{type:'rest', url:'/email/findEmailEdit', reader:{type:'json', rootProperty:'content', totalProperty:'totalElements'}, writer:{type:'json'}, simpleSortMode:true}, autoLoad:'true', autoSync:true, remoteSort:true, pageSize:20, sorters:{direction:'ASC', property:'id'}});
+Ext.define('Admin.store.email.EmailSendStroe', {extend:Ext.data.Store, storeId:'emailSendStroe', alias:'store.emailSendStroe', model:'Admin.model.email.EmailModel', proxy:{type:'rest', url:'/email/findEmailSend', reader:{type:'json', rootProperty:'content', totalProperty:'totalElements'}, writer:{type:'json'}, simpleSortMode:true}, autoLoad:'true', autoSync:true, remoteSort:true, pageSize:20, sorters:{direction:'ASC', property:'id'}});
+Ext.define('Admin.store.email.EmailTrashStroe', {extend:Ext.data.Store, storeId:'emailTrashStroe', alias:'store.emailTrashStroe', model:'Admin.model.email.EmailModel', proxy:{type:'rest', url:'/email/findEmailTrash', reader:{type:'json', rootProperty:'content', totalProperty:'totalElements'}, writer:{type:'json'}, simpleSortMode:true}, autoLoad:'true', autoSync:true, remoteSort:true, pageSize:20, sorters:{direction:'ASC', property:'id'}});
 Ext.define('Admin.store.leave.LeaveStroe', {extend:Ext.data.Store, storeId:'leaveStroe', alias:'store.leaveStroe', model:'Admin.model.leave.LeaveModel', proxy:{type:'rest', url:'/leave', reader:{type:'json', rootProperty:'content', totalProperty:'totalElements'}, writer:{type:'json'}, simpleSortMode:true}, autoLoad:true, autoSync:true, remoteSort:true, pageSize:15, sorters:{direction:'DESC', property:'id'}, listeners:{}});
 Ext.define('Admin.store.log.LogGridStroe', {extend:Ext.data.Store, storeId:'logGridStroe', alias:'store.logGridStroe', model:'Admin.model.log.LogModel', proxy:{type:'rest', url:'/log', reader:{type:'json', rootProperty:'content', totalProperty:'totalElements'}, writer:{type:'json'}, simpleSortMode:true}, groupField:'day', autoLoad:'true', autoSync:true, remoteSort:true, pageSize:20, sorters:{direction:'ASC', property:'id'}});
 Ext.define('Admin.store.processdefinition.ProcessDefinitionStroe', {extend:Ext.data.Store, storeId:'processDefinitionStroe', alias:'store.processDefinitionStroe', model:'Admin.model.processdefinition.ProcessDefinitionModel', pageSize:15, proxy:{type:'ajax', url:'/process-definition', reader:{type:'json', rootProperty:'content', totalProperty:'totalElements'}, simpleSortMode:true}, remoteSort:true, sorters:[{property:'id', direction:'desc'}], autoLoad:true, listeners:{}});
@@ -109221,12 +109229,21 @@ Ext.define('Admin.view.GridFilters.GridFilters', {extend:Ext.plugin.Abstract, lo
 }});
 Ext.define('Admin.view.achievement.AchievementViewModel', {extend:Ext.app.ViewModel, alias:'viewmodel.achievementViewModel', stores:{barData:{type:'chartStore'}, anlyseDate:{type:'analyseStore'}, sortDate:{type:'sortStore'}, storeDate:{type:'storeStore'}}});
 Ext.define('Admin.view.achievement.ChartPanel', {extend:Ext.Panel, xtype:'chartPanel', layout:'fit', items:[{xtype:'cartesian', colors:['#6aa5db'], bind:'{barData}', axes:[{type:'category', fields:['employeeName'], position:'bottom'}, {type:'numeric', fields:['total'], grid:{odd:{fill:'#e8e8e8'}}, position:'left'}], series:[{type:'bar', xField:'employeeName', yField:['total']}], tbar:['-\x3e', {xtype:'combobox', reference:'searchFieldName', hideLabel:true, store:Ext.create('Ext.data.Store', {fields:['value'], 
+<<<<<<< HEAD
 data:[{value:'一月'}, {value:'二月'}, {value:'三月'}, {value:'四月'}, {value:'五月'}, {value:'六月'}, {value:'七月'}, {value:'八月'}, {value:'九月'}, {value:'十月'}, {value:'十一月'}, {value:'十二月'}]}), displayField:'value', valueField:'value', value:'一月', editable:false, queryMode:'local', triggerAction:'all', emptyText:'Select a state...', width:135, listeners:{select:'searchCombobox'}}, {xtype:'combobox', reference:'searchFieldName2', hideLabel:true, store:Ext.create('Ext.data.Store', {model:'Admin.model.achievement.StoreModel', 
 proxy:{type:'rest', url:'/store/findAllStore', reader:{type:'json', rootProperty:'content'}, writer:{type:'json'}}, autoLoad:true, autoSync:true}), displayField:'storeName', valueField:'storeName', editable:false, queryMode:'local', triggerAction:'all', emptyText:'Select a state...', width:135, listeners:{render:function(combo) {
   combo.getStore().on('load', function(s, r, o) {
     combo.setValue(r[0].get('storeName'));
   });
   combo.getStore().load();
+=======
+data:[{value:'一月'}, {value:'二月'}, {value:'三月'}, {value:'四月'}, {value:'五月'}, {value:'六月'}, {value:'七月'}, {value:'八月'}, {value:'九月'}, {value:'十月'}, {value:'十一月'}, {value:'十二月'}]}), displayField:'value', valueField:'value', editable:false, queryMode:'local', triggerAction:'all', emptyText:'Select a state...', width:135, listeners:{afterRender:function(combo) {
+  var record = combo.store.getAt(0);
+  combo.setValue(record.data);
+}, select:'searchCombobox'}}, {xtype:'combobox', reference:'searchFieldName', hideLabel:true, bind:'{sortDate}', displayField:'winner', valueField:'winner', editable:false, queryMode:'local', triggerAction:'all', emptyText:'Select a state...', width:135, listeners:{afterRender:function(combo) {
+  var record = combo.store.getAt(0);
+  combo.setValue(record.data);
+>>>>>>> branch 'master' of https://github.com/MyElevenTeam/Knorragency.git
 }, select:'searchCombobox'}}]}]});
 Ext.define('Admin.view.achievement.Achievement', {extend:Ext.container.Container, xtype:'achievement', controller:'achievementController', viewModel:{type:'achievementViewModel'}, layout:{type:'vbox', align:'stretch'}, defaults:{defaults:{animation:!Ext.isIE9m && Ext.os.is.Desktop}}, items:[{xtype:'analysePanel', flex:1}, {xtype:'chartPanel', margin:'0 0 10 0', flex:1}, {xtype:'sortPanel', flex:1}]});
 Ext.define('Admin.view.achievement.AchievementController', {extend:Ext.app.ViewController, alias:'controller.achievementController', searchCombobox:function(combo, record, index) {
@@ -110054,11 +110071,8 @@ Ext.define('Admin.view.contract.ContractViewController', {extend:Ext.app.ViewCon
 }, onClickUploadFormSumbitButton:function(btn) {
   var form = btn.up('window').down('form');
   if (form.isValid()) {
-    form.getForm().submit({url:'/contract/uploadWord', method:'POST', waitMsg:'正在上传，请耐心等待....', success:function(form, action) {
-      Ext.Msg.alert('Success', action.result.msg, function() {
-        btn.up('window').close();
-        Ext.data.StoreManager.lookup('contractGridStroe').load();
-      });
+    form.getForm().submit({url:'/email/upload', method:'POST', waitMsg:'正在上传，请耐心等待....', success:function(form, action) {
+      Ext.Msg.alert('Success', '上传');
     }, failure:function(form, action) {
       Ext.Msg.alert('Error', '上传失败');
     }});
@@ -110345,15 +110359,100 @@ Ext.define('Admin.view.dashboard.Todos', {extend:Ext.panel.Panel, xtype:'todo', 
 Ext.define('Admin.view.dashboard.TopMovie', {extend:Ext.panel.Panel, xtype:'topmovies', title:'Top Movie', ui:'light', iconCls:'x-fa fa-video-camera', headerPosition:'bottom', cls:'quick-graph-panel shadow', height:130, layout:'fit', html:'Top Movie'});
 Ext.define('Admin.view.dashboard.Widgets', {extend:Ext.Panel, xtype:'dashboardwidgetspanel', cls:'dashboard-widget-block shadow', bodyPadding:15, title:'Widgets', layout:{type:'vbox', align:'stretch'}, items:[{xtype:'slider', width:400, fieldLabel:'Single Slider', value:40}, {xtype:'tbspacer', flex:0.3}, {xtype:'multislider', width:400, fieldLabel:'Range Slider', values:[10, 40]}, {xtype:'tbspacer', flex:0.3}, {xtype:'pagingtoolbar', width:360, displayInfo:false}, {xtype:'tbspacer', flex:0.3}, {xtype:'progressbar', 
 cls:'widget-progressbar', value:0.4}, {xtype:'tbspacer'}]});
-Ext.define('Admin.view.email.Email', {extend:Ext.container.Container, xtype:'email', itemId:'emailMainContainer', layout:{type:'hbox', align:'stretch'}, margin:'20 0 0 20', items:[{xtype:'container', itemId:'navigationPanel', layout:{type:'vbox', align:'stretch'}, width:300, defaults:{cls:'navigation-email', margin:'0 20 20 0'}, items:[{xtype:'emailMenu', height:800, listeners:{click:'onMenuClick'}}]}, {xtype:'container', itemId:'contentPanel', margin:'0 20 20 0', flex:1, layout:{type:'anchor', anchor:'100%'}}]});
-Ext.define('Admin.view.email.EmailMenu', {extend:Ext.menu.Menu, alias:'widget.emailMenu', viewModel:{type:'emailmenu'}, title:'企业信箱', iconCls:'x-fa fa-inbox', floating:false, items:[{routeId:'emailcompose', params:{openWindow:true, targetCfg:{}, windowCfg:{title:'Compose Message'}}, iconCls:'x-fa fa-edit', text:'草稿箱'}, {routeId:'', iconCls:'x-fa fa-inbox', text:'收件箱'}, {routeId:'', iconCls:'x-fa fa-check-circle', text:'已发送'}, {routeId:'', iconCls:'x-fa fa-trash-o', text:'回收站'}]});
-Ext.define('Admin.view.email.EmailPanel', {extend:Ext.panel.Panel, xtype:'emailPanel', layout:'fit', margin:'20 0 0 20'});
+Ext.define('Admin.view.email.Compose', {extend:Ext.form.Panel, alias:'widget.emailcompose', controller:'composeViewController', cls:'email-compose', layout:{type:'vbox', align:'stretch'}, bodyPadding:10, scrollable:true, defaults:{labelWidth:60, labelSeparator:''}, items:[{xtype:'textfield', name:'emailTo', fieldLabel:'收件人'}, {xtype:'textfield', name:'emailSubject', fieldLabel:'主题'}, {xtype:'htmleditor', name:'emailContent', buttonDefaults:{tooltip:{align:'t-b', anchor:true}}, flex:1, minHeight:100, 
+labelAlign:'top', fieldLabel:'内容'}, {xtype:'filefield', id:'email_attachment', width:80, labelWidth:80, emptyText:'请选择附件', labelSeparator:'', buttonConfig:{xtype:'filebutton', glyph:'', iconCls:'x-fa fa-cloud-upload', text:'上传', handler:'upload'}}], bbar:{overflowHandler:'menu', items:['-\x3e', {xtype:'button', ui:'soft-red', text:'清空', handler:'onComposeDiscardClick'}, {xtype:'button', ui:'gray', text:'保存', handler:'onSaveClick'}, {xtype:'button', ui:'soft-green', text:'发送'}]}});
+Ext.define('Admin.view.email.ComposeViewController', {extend:Ext.app.ViewController, alias:'controller.composeViewController', onComposeDiscardClick:function(bt) {
+  var win = bt.up('window');
+  if (win) {
+    win.close();
+  }
+}, onSaveClick:function(btn) {
+  var win = btn.up('window');
+  var form = win.down('form');
+  var values = form.getValues();
+  alert(values.emailTo);
+  alert(Ext.getCmp('email_attachment').getValue());
+}});
+Ext.define('Admin.view.email.Edit', {extend:Ext.panel.Panel, xtype:'edit', layout:'fit', items:[{xtype:'gridpanel', title:'草稿箱', bind:'{editLists}', scrollable:false, height:700, selModel:{type:'checkboxmodel', checkOnly:true}, listeners:{}, columns:[{xtype:'gridcolumn', width:40, dataIndex:'id', text:'id', hidden:true}, {xtype:'gridcolumn', cls:'content-column', width:150, dataIndex:'emailTo', text:'收件人'}, {xtype:'gridcolumn', cls:'content-column', width:150, dataIndex:'emailFrom', text:'发件人'}, 
+{xtype:'gridcolumn', cls:'content-column', width:150, dataIndex:'emailSubject', text:'主题'}, {xtype:'gridcolumn', cls:'content-column', width:150, dataIndex:'emailContent', text:'内容'}, {xtype:'gridcolumn', cls:'content-column', width:150, dataIndex:'sendTime', text:'发送时间'}, {xtype:'actioncolumn', cls:'content-column', width:250, dataIndex:'bool', text:'操作', tooltip:'edit ', items:[{xtype:'button', iconCls:'x-fa fa-close', handler:'onDeleteButton'}, {xtype:'button', iconCls:'x-fa fa-ban', handler:'onDisableButton'}]}], 
+dockedItems:[{xtype:'pagingtoolbar', dock:'bottom', itemId:'userPaginationToolbar', displayInfo:true, bind:'{editLists}'}]}]});
+Ext.define('Admin.view.email.Email', {extend:Ext.container.Container, xtype:'email', itemId:'emailMainContainer', controller:'emailViewController', layout:{type:'hbox', align:'stretch'}, margin:'20 0 0 20', items:[{xtype:'container', itemId:'navigationPanel', layout:{type:'vbox', align:'stretch'}, width:300, defaults:{cls:'navigation-email', margin:'0 20 20 0'}, items:[{xtype:'emailMenu', height:300, listeners:{click:'onMenuClick'}}]}, {xtype:'container', itemId:'contentPanel', margin:'0 20 20 0', 
+flex:1, layout:{type:'anchor', anchor:'100%'}}]});
+Ext.define('Admin.view.email.EmailMenu', {extend:Ext.menu.Menu, alias:'widget.emailMenu', viewModel:{type:'emailmenu'}, title:'企业信箱', iconCls:'x-fa fa-inbox', floating:false, items:[{routeId:'emailcompose', params:{openWindow:true, targetCfg:{}, windowCfg:{title:'写信'}}, iconCls:'x-fa fa-edit', text:'撰写邮件'}, {routeId:'edit', iconCls:'x-fa fa-inbox', text:'草稿箱'}, {routeId:'send', iconCls:'x-fa fa-check-circle', text:'已发送'}, {routeId:'trash', iconCls:'x-fa fa-trash-o', text:'回收站'}]});
+Ext.define('Admin.view.email.EmailViewController', {extend:Ext.app.ViewController, alias:'controller.emailViewController', init:function() {
+  this.setCurrentView('edit');
+}, onBackBtnClick:function() {
+  this.setCurrentView('edit');
+}, onMenuClick:function(menu, item) {
+  if (item && item.routeId === 'emailcompose') {
+    this.setCurrentView(item.routeId, item.params);
+  }
+  if (item && item.routeId === 'edit') {
+    this.setCurrentView('edit');
+  }
+  if (item && item.routeId === 'send') {
+    this.setCurrentView('send');
+  }
+  if (item && item.routeId === 'trash') {
+    this.setCurrentView('trash');
+  }
+}, setCurrentView:function(view, params) {
+  var contentPanel = this.getView().down('#contentPanel');
+  if (!contentPanel || view === '' || contentPanel.down() && contentPanel.down().xtype === view) {
+    return false;
+  }
+  if (params && params.openWindow) {
+    var cfg = Ext.apply({xtype:'emailwindow', items:[Ext.apply({xtype:view}, params.targetCfg)]}, params.windowCfg);
+    Ext.create(cfg);
+  } else {
+    Ext.suspendLayouts();
+    contentPanel.removeAll(true);
+    contentPanel.add(Ext.apply({xtype:view}, params));
+    Ext.resumeLayouts(true);
+  }
+}, onGridCellItemClick:function(view, td, cellIndex, record) {
+  if (cellIndex > 1) {
+    this.setCurrentView('emaildetails', {record:record});
+  } else {
+    if (cellIndex === 1) {
+      record.set('favorite', !record.get('favorite'));
+    }
+  }
+}, beforeDetailsRender:function(view) {
+  var record = view.record ? view.record : {};
+  view.down('#mailBody').setHtml(record.get('contents'));
+  view.down('#attachments').setData(record.get('attachments'));
+  view.down('#emailSubjectContainer').setData(record.data ? record.data : {});
+  view.down('#userImage').setSrc('resources/images/user-profile/' + record.get('user_id') + '.png');
+}});
+Ext.define('Admin.view.email.EmailViewModel', {extend:Ext.app.ViewModel, alias:'viewmodel.emailViewModel', stores:{editLists:{type:'emailEditStroe'}, sendLists:{type:'emailSendStroe'}, trashLists:{type:'emailTrashStroe'}}});
+Ext.define('Admin.view.email.Send', {extend:Ext.panel.Panel, xtype:'send', layout:'fit', items:[{xtype:'gridpanel', title:'已发送', bind:'{sendLists}', scrollable:false, height:700, selModel:{type:'checkboxmodel', checkOnly:true}, listeners:{}, columns:[{xtype:'gridcolumn', width:40, dataIndex:'id', text:'id', hidden:true}, {xtype:'gridcolumn', cls:'content-column', width:150, dataIndex:'emailTo', text:'收件人'}, {xtype:'gridcolumn', cls:'content-column', width:150, dataIndex:'emailSubject', text:'主题'}, 
+{xtype:'gridcolumn', cls:'content-column', width:150, dataIndex:'emailContent', text:'内容'}, {xtype:'gridcolumn', cls:'content-column', width:150, dataIndex:'sendTime', text:'发送时间'}, {xtype:'actioncolumn', cls:'content-column', width:250, dataIndex:'bool', text:'操作', tooltip:'edit ', items:[{xtype:'button', iconCls:'x-fa fa-close', handler:'onDeleteButton'}, {xtype:'button', iconCls:'x-fa fa-ban', handler:'onDisableButton'}]}], dockedItems:[{xtype:'pagingtoolbar', dock:'bottom', itemId:'userPaginationToolbar', 
+displayInfo:true, bind:'{sendLists}'}]}]});
+Ext.define('Admin.view.email.Trash', {extend:Ext.panel.Panel, xtype:'trash', layout:'fit', items:[{xtype:'gridpanel', title:'回收箱', bind:'{trashLists}', scrollable:false, height:700, selModel:{type:'checkboxmodel', checkOnly:true}, listeners:{}, columns:[{xtype:'gridcolumn', width:40, dataIndex:'id', text:'id', hidden:true}, {xtype:'gridcolumn', cls:'content-column', width:150, dataIndex:'emailTo', text:'收件人'}, {xtype:'gridcolumn', cls:'content-column', width:150, dataIndex:'emailFrom', text:'发件人'}, 
+{xtype:'gridcolumn', cls:'content-column', width:150, dataIndex:'emailSubject', text:'主题'}, {xtype:'gridcolumn', cls:'content-column', width:150, dataIndex:'emailContent', text:'内容'}, {xtype:'gridcolumn', cls:'content-column', width:150, dataIndex:'sendTime', text:'发送时间'}, {xtype:'actioncolumn', cls:'content-column', width:250, dataIndex:'bool', text:'操作', tooltip:'edit ', items:[{xtype:'button', iconCls:'x-fa fa-close', handler:'onDeleteButton'}, {xtype:'button', iconCls:'x-fa fa-ban', handler:'onDisableButton'}]}], 
+dockedItems:[{xtype:'pagingtoolbar', dock:'bottom', itemId:'userPaginationToolbar', displayInfo:true, bind:'{trashLists}'}]}]});
+Ext.define('Admin.view.email.Window', {extend:Ext.window.Window, alias:'widget.emailwindow', autoShow:true, modal:true, layout:'fit', width:200, height:200, afterRender:function() {
+  var me = this;
+  me.callParent(arguments);
+  me.syncSize();
+  Ext.on(me.resizeListeners = {resize:me.onViewportResize, scope:me, buffer:50});
+}, doDestroy:function() {
+  Ext.un(this.resizeListeners);
+  this.callParent();
+}, onViewportResize:function() {
+  this.syncSize();
+}, syncSize:function() {
+  var width = Ext.Element.getViewportWidth(), height = Ext.Element.getViewportHeight();
+  this.setSize(Math.floor(width * 0.9), Math.floor(height * 0.9));
+  this.setXY([Math.floor(width * 0.05), Math.floor(height * 0.05)]);
+}});
 Ext.define('Admin.view.log.Log', {extend:Ext.container.Container, xtype:'log', viewModel:{type:'LogViewModel'}, layout:'fit', items:[{xtype:'logPanel'}]});
 Ext.define('Admin.view.log.LogPanel', {extend:Ext.panel.Panel, xtype:'logPanel', layout:{type:'vbox', pack:'start', align:'stretch'}, items:[{title:'系统日志列表'}, {bodypadding:15, cls:'has-border', height:60, tbar:[{xtype:'splitbutton', id:'log_gridfilters', text:'请选择搜索条件', menu:[{xtype:'menucheckitem', text:'操作人姓名', menu:[{xtype:'textfield', id:'log_employeeName', listeners:{specialkey:'searchLog'}}]}, {xtype:'menucheckitem', text:'Log类型', menu:[{xtype:'textfield', id:'log_type', listeners:{specialkey:'searchLog'}}]}, 
 {xtype:'menucheckitem', text:'操作时间', menu:[{xtype:'datefield', id:'log_logTime', value:new Date, format:'Y/m/d H:i:s', listeners:{specialkey:'searchLog'}}]}]}, '-', {iconCls:'fa fa-search fa-5x', ui:'header', tooltip:'查找', id:'log_searchOpen', handler:'searchOpen'}, '-', {iconCls:'fa fa-close fa-5x', ui:'header', tooltip:'取消', id:'log_searchClose', handler:'searchClose'}, '-', {iconCls:'fa fa-download fa-5x', ui:'header', tooltip:'导出系统日志表'}]}, {xtype:'gridpanel', cls:'has-border', flex:2, bind:'{logLists}', 
 scrollable:false, features:[{ftype:'grouping', startCollapsed:true, groupHeaderTpl:'{name}' + '的系统使用情况：' + '  ({rows.length}条记录{[values.rows.length \x3e 1 ? "..." : ""]})'}], columns:[{xtype:'gridcolumn', width:40, dataIndex:'id', text:'id', hidden:true}, {xtype:'gridcolumn', cls:'content-column', width:120, dataIndex:'employeeName', text:'操作人姓名'}, {xtype:'gridcolumn', cls:'content-column', width:120, dataIndex:'storeName', text:'所属部门'}, {xtype:'gridcolumn', cls:'content-column', width:120, dataIndex:'title', 
-text:'操作名'}, {xtype:'gridcolumn', cls:'content-column', width:120, dataIndex:'type', text:'Log类型'}, {xtype:'gridcolumn', cls:'content-column', width:120, dataIndex:'remoteAddr', text:'请求的IP'}, {xtype:'gridcolumn', cls:'content-column', width:120, dataIndex:'requestUri', text:'请求的Uri'}, {xtype:'gridcolumn', cls:'content-column', width:120, dataIndex:'method', text:'求的方法类型'}, {xtype:'gridcolumn', cls:'content-column', width:150, dataIndex:'params', text:'请求提交的参数', hidden:true}, {xtype:'datecolumn', 
-cls:'content-column', width:150, dataIndex:'operateDate', text:'操作时间', flex:1, formatter:'date("Y/m/d H:i:s")'}, {xtype:'datecolumn', cls:'content-column', width:50, dataIndex:'day', text:'时间', flex:1, formatter:'date("Y/m/d")', hidden:true}, {xtype:'gridcolumn', cls:'content-column', width:100, dataIndex:'time', text:'操作时长', renderer:function(val) {
+text:'操作名'}, {xtype:'gridcolumn', cls:'content-column', width:120, dataIndex:'type', text:'Log类型'}, {xtype:'gridcolumn', cls:'content-column', width:120, dataIndex:'remoteAddr', text:'请求的IP'}, {xtype:'gridcolumn', cls:'content-column', width:120, dataIndex:'requestUri', text:'请求的Uri'}, {xtype:'gridcolumn', cls:'content-column', width:120, dataIndex:'method', text:'求的方法类型'}, {xtype:'gridcolumn', cls:'content-column', width:150, dataIndex:'params', text:'请求提交的参数'}, {xtype:'datecolumn', cls:'content-column', 
+width:150, dataIndex:'operateDate', text:'操作时间', flex:1, formatter:'date("Y/m/d H:i:s")'}, {xtype:'datecolumn', cls:'content-column', width:50, dataIndex:'day', text:'时间', flex:1, formatter:'date("Y/m/d")', hidden:true}, {xtype:'gridcolumn', cls:'content-column', width:100, dataIndex:'time', text:'操作时长', renderer:function(val) {
   return '\x3cspan\x3e' + val + '秒\x3c/span\x3e';
 }}, {xtype:'actioncolumn', cls:'content-column', width:100, dataIndex:'bool', text:'操作', tooltip:'edit ', items:[{xtype:'button', iconCls:'x-fa fa-arrow-circle-o-down', tooltip:'日志下载'}]}], dockedItems:[{xtype:'pagingtoolbar', dock:'bottom', itemId:'userPaginationToolbar', displayInfo:true, bind:'{logLists}'}]}]});
 Ext.define('Admin.view.log.LogViewModel', {extend:Ext.app.ViewModel, alias:'viewmodel.LogViewModel', stores:{logLists:{type:'logGridStroe'}}});

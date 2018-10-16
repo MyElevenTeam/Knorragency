@@ -209,8 +209,13 @@ public class ContractServiceTest {
 	 */
 	@Test
 	@Transactional
+<<<<<<< HEAD
 	public void initData() throws ParseException {
 		SimpleDateFormat dateTmp = new SimpleDateFormat("yyyy-MM-dd");
+=======
+	public void initData() {
+
+>>>>>>> branch 'master' of https://github.com/MyElevenTeam/Knorragency.git
 		Store store=new Store();
 		store.setStoreArea("东莞");
 		store.setStoreNumber("1");
@@ -236,9 +241,12 @@ public class ContractServiceTest {
 				
 			}
 		}
+<<<<<<< HEAD
 		
 		
 	
+=======
+>>>>>>> branch 'master' of https://github.com/MyElevenTeam/Knorragency.git
 
 	}
 	

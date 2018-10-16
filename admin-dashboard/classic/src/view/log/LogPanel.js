@@ -113,7 +113,7 @@ Ext.define('Admin.view.log.LogPanel', {
                 {xtype: 'gridcolumn', cls: 'content-column',width:120,dataIndex: 'remoteAddr',text: '请求的IP'},
                 {xtype: 'gridcolumn', cls: 'content-column',width:120,dataIndex: 'requestUri',text: '请求的Uri'},
                 {xtype: 'gridcolumn', cls: 'content-column',width:120,dataIndex: 'method',text: '求的方法类型'},
-                {xtype: 'gridcolumn', cls: 'content-column',width:150,dataIndex: 'params',text: '请求提交的参数',hidden:true},
+                {xtype: 'gridcolumn', cls: 'content-column',width:150,dataIndex: 'params',text: '请求提交的参数'},
                 {xtype: 'datecolumn',cls: 'content-column',width: 150,dataIndex: 'operateDate',text: '操作时间',flex:1,formatter: 'date("Y/m/d H:i:s")'},
                 {xtype: 'datecolumn',cls: 'content-column',width: 50,dataIndex: 'day',text: '时间',flex:1,formatter: 'date("Y/m/d")',hidden:true},
                 {xtype: 'gridcolumn', cls: 'content-column',width:100,dataIndex: 'time',text: '操作时长',

@@ -51,8 +51,8 @@ public class LogConfig {
 	private static final ThreadLocal<Log> logThreadLocal = new NamedThreadLocal<Log>("ThreadLocal log");
 	
 	@Pointcut("execution(* com.example.demo.*.controller.*.*(..)) and !execution(* com.example.demo.log.controller.*.*(..))")
-    public void excudeService(){}
-	
+	public void excudeService(){}
+		
 	/**
      * 前置通知 用于拦截Controller层记录用户的操作的开始时间
      * @param joinPoint 切点
@@ -127,7 +127,7 @@ public class LogConfig {
         log.setMapToParams(params);
         log.setOperateDate(operateDate);
         log.setTime(endTime-beginTime);
-        logService.save(log);
+        //logService.save(log);
        
     }
     
@@ -142,7 +142,7 @@ public class LogConfig {
 		if(log != null){
 			log.setType("error");
 			log.setException(e.toString());
-			logService.save(log);			
+			//logService.save(log);			
 		}
     }
 

@@ -12,6 +12,7 @@ public class EmployeeDTO {
 	private String storeNumber;
 	private String storeArea;
 	private String post;
+	private String quotation;
 	/*public String getPassword() {
 		return password;
 	}
@@ -71,6 +72,12 @@ public class EmployeeDTO {
 	}
 	public void setPost(String post) {
 		this.post = post;
+	}
+	public String getQuotation() {
+		return quotation;
+	}
+	public void setQuotation(String quotation) {
+		this.quotation = quotation;
 	}
 	
 	
