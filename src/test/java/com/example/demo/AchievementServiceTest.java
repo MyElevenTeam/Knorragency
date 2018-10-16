@@ -9,10 +9,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import com.example.demo.achievement.entity.ResponseDTO;
-import com.example.demo.achievement.service.AchievementService;
-import com.example.demo.achievement.service.IAchievementService;
+
 import com.example.demo.contract.entity.Contract;
+import com.example.demo.contract.service.IContractService;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -21,13 +20,10 @@ public class AchievementServiceTest {
 	/**
 	 * 业绩排行测试
 	 */
-	@Autowired
-	IAchievementService achievementService;
-	@Test
-	public void achievementTest() {
-		List<ResponseDTO> tmps=achievementService.findByMonth("十月");
-		for(ResponseDTO tmp:tmps) {
-			System.out.println(tmp);	
-		}	
-	}
+//	@Autowired
+//	private IContractService contractService;
+//	@Test
+//	public void achievementTest() {
+//		contractService.find
+//	}
 }

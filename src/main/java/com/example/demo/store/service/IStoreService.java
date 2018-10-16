@@ -12,6 +12,7 @@ import com.example.demo.store.domain.Store;
 import com.example.demo.store.domain.StoreDTO;
 import com.example.demo.store.domain.StoreDTO2;
 import com.example.demo.store.domain.StoreDTO3;
+import com.example.demo.store.domain.StoreName;
 import com.example.demo.store.util.ExtAjaxResponse;
 
 
@@ -27,5 +28,5 @@ public interface IStoreService {
 	public List<StoreDTO2> findFatherStoreName(String storeName, HttpSession session);
 	public List<StoreDTO3> findstoreName(HttpSession session);
 	//查询全部店名
-	public List<String> findAllStoreName();
+	public List<StoreName> findAllStoreName();
 }

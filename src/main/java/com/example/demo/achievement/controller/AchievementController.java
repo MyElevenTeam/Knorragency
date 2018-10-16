@@ -1,6 +1,13 @@
 package com.example.demo.achievement.controller;
 
+import java.math.BigDecimal;
+import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
+import java.util.ListIterator;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -10,23 +17,64 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.demo.achievement.entity.AnalyseRequestDTO;
 import com.example.demo.achievement.entity.RequestDTO;
-import com.example.demo.achievement.entity.ResponseDTO;
-import com.example.demo.achievement.service.AchievementService;
-import com.example.demo.achievement.service.IAchievementService;
+import com.example.demo.contract.entity.ContractDTO;
+import com.example.demo.contract.service.IContractService;
+import com.example.demo.log.config.SystemControllerLog;
 
 @RestController
 @RequestMapping("/achievement")
 public class AchievementController {
 	@Autowired
-	IAchievementService achievementService;
+	private IContractService contractService;
+	@SystemControllerLog(description="查询销售员月销售额")
     @GetMapping
-	public List<ResponseDTO> findByMonth(RequestDTO requestDTO) {
-    	if(requestDTO.getMonth()==null) {
-		   return achievementService.findByMonth("一月");
+	public List<ContractDTO> findByMonthAndArea(RequestDTO requestDTO) {
+    	if(requestDTO.getArea()==null||requestDTO.getMonth()==null) {
+		    return contractService.getSumAndEmployeeNameByMonthAndStoreName("十月", "常平分店");
     	}else {
-    		return achievementService.findByMonth(requestDTO.getMonth());
+    		 return  contractService.getSumAndEmployeeNameByMonthAndStoreName(requestDTO.getMonth(), requestDTO.getArea());
     	}
+	}
+	@SystemControllerLog(description="数据分析")
+	@GetMapping("/analyse")
+	public List<AnalyseRequestDTO> dataAnalyse(RequestDTO requestDTO) {
+		List<AnalyseRequestDTO> listTmp=new ArrayList<AnalyseRequestDTO>();
+		try {
+			AnalyseRequestDTO dto=new AnalyseRequestDTO();
+			List<ContractDTO> tmps=contractService.getSumAndEmployeeNameByMonthAndStoreName(requestDTO.getMonth(), requestDTO.getArea());
+			dto.setPeopleNum(tmps.size());
+			dto.setWinner(tmps.get(0).getEmployeeName());
+			double total = 0;
+			for(ContractDTO tmp:tmps) {
+				total+=tmp.getTotal();
+			}
+			dto.setTotal(total);
+			if(requestDTO.getMonth().equals("一月")) {
+				dto.setPeopleNum(0);
+			}else {
+				List<String> monthList = new ArrayList<String>(Arrays.asList("一月","二月","三月","四月","五月","六月","七月","八月","九月","十月","十一月","十二月"));
+				int monthIndex=monthList.indexOf(requestDTO.getMonth());
+				String monthName=monthList.get(monthIndex-1);
+				List<ContractDTO> lastMonth=contractService.getSumAndEmployeeNameByMonthAndStoreName(monthName, requestDTO.getArea());
+				double lastTotal=0;
+				for(ContractDTO tmp:lastMonth) {
+					lastTotal+=tmp.getTotal();
+				}
+				double rate=(total-lastTotal)/lastTotal;
+				BigDecimal bd = new BigDecimal(rate); 
+				Double d = bd.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue(); 
+				dto.setRate(d);			
+			}
+			
+			listTmp.add(dto);
+			return listTmp;	
+		}catch(Exception e) {
+			e.printStackTrace();
+		}finally {
+			return listTmp;
+		}
 	}
 	
 

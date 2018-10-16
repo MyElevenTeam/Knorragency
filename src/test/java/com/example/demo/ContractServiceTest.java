@@ -205,11 +205,12 @@ public class ContractServiceTest {
 	
 	/**
 	 * 初始化三表数据
+	 * @throws ParseException 
 	 */
 	@Test
 	@Transactional
-	public void initData() {
-<<<<<<< HEAD
+	public void initData() throws ParseException {
+		SimpleDateFormat dateTmp = new SimpleDateFormat("yyyy-MM-dd");
 		Store store=new Store();
 		store.setStoreArea("东莞");
 		store.setStoreNumber("1");
@@ -222,23 +223,23 @@ public class ContractServiceTest {
 			e.setPassword("ssa"+i);
 			e.setLocalStore(store);
 			for(int j=0;j<=i;j++) {
-				Contract c=new Contract();
-				c.setStartTime(new Date());
-				c.setTotal(j+1);
-				c.setEmployee(e);
-				contractService.save(c);
+				Contract c1=new Contract();
+				c1.setStartTime(new Date());
+				c1.setTotal(j+1);
+				c1.setEmployee(e);
+				contractService.save(c1);
+				Contract c2=new Contract();
+				c2.setStartTime(dateTmp.parse("2018-09-08"));
+				c2.setTotal(j+8);
+				c2.setEmployee(e);
+				contractService.save(c2);
+				
 			}
 		}
-=======
-		Employee e=employeeService.findById(1L).get();
 		
-		Contract c=new Contract();
-		c.setContractNumber("C30");
-		c.setStartTime(new Date());
-		c.setEmployee(e);
-		contractService.save(c);
+		
+	
 
->>>>>>> branch 'master' of https://github.com/MyElevenTeam/Knorragency.git
 	}
 	
 	@Test

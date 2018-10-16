@@ -21,6 +21,7 @@ import com.example.demo.store.domain.Store;
 import com.example.demo.store.domain.StoreDTO;
 import com.example.demo.store.domain.StoreDTO2;
 import com.example.demo.store.domain.StoreDTO3;
+import com.example.demo.store.domain.StoreName;
 import com.example.demo.store.repository.StoreRepository;
 import com.example.demo.store.util.BeanUtils;
 import com.example.demo.store.util.ExtAjaxResponse;
@@ -251,7 +252,14 @@ public class StoreService implements IStoreService {
 			return storeRepository.findById(id).get();
 		}
 		
-		public List<String> findAllStoreName(){
-			return storeRepository.findAllStoreName();
+		public List<StoreName> findAllStoreName(){
+			List<StoreName> nameList=new ArrayList<StoreName>();
+			List<String> tmps=storeRepository.findAllStoreName();	
+			for(String tmp:tmps) {
+				StoreName storeName=new StoreName();
+				storeName.setStoreName(tmp);	
+				nameList.add(storeName);
+			}
+			return nameList;
 		}
 }		

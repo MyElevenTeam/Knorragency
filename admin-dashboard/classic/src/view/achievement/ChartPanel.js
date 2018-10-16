@@ -1,7 +1,7 @@
 Ext.define('Admin.view.achievement.ChartPanel', {
     extend: 'Ext.Panel',
     xtype: 'chartPanel',
-
+    
     requires: [
         'Ext.chart.CartesianChart',
         'Ext.chart.axis.Category',
@@ -9,7 +9,6 @@ Ext.define('Admin.view.achievement.ChartPanel', {
         'Ext.chart.series.Bar'
     ],
     layout: 'fit',
-
     items: [{
         xtype: 'cartesian',  //笛卡尔坐标的图表
         colors: [
@@ -64,46 +63,50 @@ Ext.define('Admin.view.achievement.ChartPanel', {
                 }),
                 displayField: 'value',
                 valueField:'value',
-                // value:
+                value:"一月",
                 editable: false,
                 queryMode: 'local',
                 triggerAction: 'all',
                 emptyText: 'Select a state...',
                 width: 135,
                 listeners:{
-                	afterRender: function(combo) {
-                        var record = combo.store.getAt(0);
-                        combo.setValue(record.data);
-                    },  
                     select: 'searchCombobox'
                 },
             },{
-                   xtype: 'combobox',
-                   reference:'searchFieldName',
-                   hideLabel: true,
-            //     store:Ext.create("Ext.data.Store", {
-            //         fields: ["value"],
-            //         data: [
-            //             {value: '虎门分店' },
-            //             {value: '常平分店' }
-                        
-            //         ]
-            //     }),
-                bind:'{sortDate}',
-                displayField: 'winner',
-                valueField:'winner',
-                // value:
+               xtype: 'combobox',
+               reference:'searchFieldName2',
+               hideLabel: true,
+               store:Ext.create("Ext.data.Store", {
+                    model:'Admin.model.achievement.StoreModel',
+                    proxy: {
+                        type: 'rest',
+                        url: '/store/findAllStore',
+                        reader:{
+                            type:'json',
+                            rootProperty:'content',//对应后台返回的结果集名称
+                        },
+                        writer: {
+                            type: 'json'
+                        }
+                   },
+                   autoLoad: true,
+                   autoSync: true
+                }),
+                displayField: 'storeName',
+                valueField:'storeName',
                 editable: false,
                 queryMode: 'local',
                 triggerAction: 'all',
                 emptyText: 'Select a state...',
                 width: 135,
                 listeners:{
-                    afterRender: function(combo) {
-                        var record = combo.store.getAt(0);
-                        combo.setValue(record.data);
-                    },  
-                    select: 'searchCombobox'
+                    render: function(combo) {
+                        combo.getStore().on("load", function(s, r, o) { 
+                            combo.setValue(r[0].get('storeName'));
+                        });
+                        combo.getStore().load();
+                    },
+                    select: 'searchCombobox'  
                 }
             }]
 

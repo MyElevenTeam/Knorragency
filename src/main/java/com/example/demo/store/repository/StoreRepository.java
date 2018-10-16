@@ -8,6 +8,7 @@ import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.stereotype.Repository;
 
 import com.example.demo.store.domain.Store;
+import com.example.demo.store.domain.StoreName;
 
 
 @Repository

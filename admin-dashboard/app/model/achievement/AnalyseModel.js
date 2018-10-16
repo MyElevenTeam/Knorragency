@@ -3,8 +3,8 @@ Ext.define('Admin.model.achievement.AnalyseModel', {
 
     fields: [
       {type:'string',name:'winner'},
-      {type:'int',name:'monthTotal'},
-      {type:'int',name:'monthRate'},
-      {type:'int',name:'peopleNum'},
+      {type:'float',name:'total'},
+      {type:'float',name:'rate'},
+      {type:'int',name:'peopleNum'}
     ]
 });

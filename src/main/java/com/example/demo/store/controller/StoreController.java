@@ -22,6 +22,7 @@ import com.example.demo.log.config.SystemControllerLog;
 import com.example.demo.store.domain.StoreDTO;
 import com.example.demo.store.domain.StoreDTO2;
 import com.example.demo.store.domain.StoreDTO3;
+import com.example.demo.store.domain.StoreName;
 import com.example.demo.store.domain.StoreQueryDTO;
 import com.example.demo.store.service.IStoreService;
 import com.example.demo.store.util.ExtAjaxResponse;
@@ -47,8 +48,9 @@ public class StoreController {
 		return page;
 	}
 	
+	@SystemControllerLog(description="findAllStore")
 	@GetMapping("/findAllStore")
-	public List<String> findAllStore() {
+	public List<StoreName> findAllStore() {
 		return storeService.findAllStoreName();
 	}
 	//获取可作为父store的storeName，子store不能作为父store
