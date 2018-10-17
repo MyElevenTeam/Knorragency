@@ -91,6 +91,11 @@ Ext.define('Admin.store.NavigationTree', {
                 viewType: 'email',
                 leaf: true
             },{
+                text: '公告',
+                iconCls: 'x-fa fa-envelope',
+                viewType: 'notice',
+                leaf: true
+            },{
                 text: '业务排行',
                 iconCls: 'x-fa fa-fax',
                 viewType: 'achievement',
