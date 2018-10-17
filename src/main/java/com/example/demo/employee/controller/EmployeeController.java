@@ -75,8 +75,14 @@ public class EmployeeController {
 	//插入一条employee数据
 	@SystemControllerLog(description="保存员工信息")
 	@RequestMapping(method=RequestMethod.POST)
-	public ExtAjaxResponse saveEmployee(@RequestBody EmployeeDTO employeeDTO) {
-		return employeeService.saveEmployee(employeeDTO);
+	public ExtAjaxResponse saveEmployee(@RequestBody EmployeeDTO employeeDTO,HttpSession session) {
+		String post=(String) session.getAttribute("post");
+		if(StringUtils.isNotBlank(post)) {
+			if(employeeDTO.getPost().equals("admin") && (!post.equals("admin"))) {
+				return new ExtAjaxResponse(false,"添加失败！");
+			}else
+				return employeeService.saveEmployee(employeeDTO);
+		}else return new ExtAjaxResponse(false,"添加失败！");
 	}
 	//修改一条employee数据
 	@SystemControllerLog(description="修改员工信息")
