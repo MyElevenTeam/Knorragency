@@ -182,9 +182,20 @@ public class StoreService implements IStoreService {
 				List <StoreDTO2> storeList=new ArrayList<>();
 				String en=(String) session.getAttribute("employeeNumber");
 				if(StringUtils.isNotBlank(en)) {
-					Employee entity=employeeRepository.findByEmployeeNumber(en);
-					storeList=diguiFindFatherStoreNameList(storeList,entity.getLocalStore().getStoreName());
-					return storeList;
+					if(session.getAttribute("post").equals("admin")) {
+						List<Store> stores=(List<Store>) storeRepository.findAll();
+						for(Store store:stores) {
+							StoreDTO2 storeDTO2=new StoreDTO2();
+							storeDTO2.setFatherStoreName(store.getStoreName());
+							storeDTO2.setFatherStoreNameView(store.getStoreName());
+							storeList.add(storeDTO2);
+						}
+						return storeList;
+					}else {
+						Employee entity=employeeRepository.findByEmployeeNumber(en);
+						storeList=diguiFindFatherStoreNameList(storeList,entity.getLocalStore().getStoreName());
+						return storeList;
+					}
 				}else return null;
 			}
 		}
@@ -228,9 +239,20 @@ public class StoreService implements IStoreService {
 			List <StoreDTO3> storeList=new ArrayList<>();
 			String en=(String) session.getAttribute("employeeNumber");
 			if(StringUtils.isNotBlank(en)) {
-				Employee entity=employeeRepository.findByEmployeeNumber(en);
-				storeList=diguiFindFatherStoreNameList2(storeList,entity.getLocalStore().getStoreName());
-				return storeList;
+				if(session.getAttribute("post").equals("admin")) {
+					List<Store> stores=(List<Store>) storeRepository.findAll();
+					for(Store store:stores) {
+						StoreDTO3 storeDTO3=new StoreDTO3();
+						storeDTO3.setStoreName(store.getStoreName());
+						storeDTO3.setStoreNameView(store.getStoreName());
+						storeList.add(storeDTO3);
+					}
+					return storeList;
+				}else {
+					Employee entity=employeeRepository.findByEmployeeNumber(en);
+					storeList=diguiFindFatherStoreNameList2(storeList,entity.getLocalStore().getStoreName());
+					return storeList;
+				}
 			}else return null;
 		}
 		public List<StoreDTO3> diguiFindFatherStoreNameList2(List<StoreDTO3> storeNameList,
