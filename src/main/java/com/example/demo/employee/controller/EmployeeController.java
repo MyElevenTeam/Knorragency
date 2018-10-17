@@ -83,9 +83,13 @@ public class EmployeeController {
 	@RequestMapping(value="{id}",method=RequestMethod.PUT)
 	public ExtAjaxResponse updateById(@PathVariable("id") Long id,@RequestBody EmployeeDTO employeeDTO,HttpSession session) {
 		String post=(String) session.getAttribute("post");
-		if(employeeDTO.getPost().equals("admin") && !post.equals("admin")) {
-			return new ExtAjaxResponse(true,"更新失败！");
-		}else
+		if(StringUtils.isNotBlank(employeeDTO.getPost())) {
+			if(employeeDTO.getPost().equals("admin") && (!post.equals("admin"))) {
+				return new ExtAjaxResponse(true,"更新失败！");
+			}else
+				return employeeService.updateById(id, employeeDTO);
+		}
+		else
 			return employeeService.updateById(id, employeeDTO);
 	}
 	
