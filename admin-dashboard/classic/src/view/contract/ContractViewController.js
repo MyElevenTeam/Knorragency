@@ -8,7 +8,7 @@ Ext.define('Admin.view.contract.ContractViewController', {
     onAddClick:function(toolbar){
         toolbar.up('grid').up('container').add(Ext.widget('contractAddWindow')).show();
     },
-    submitContractAddFormButton:function(btn){
+    submitContractEditFormButton:function(btn){
         var win    = btn.up('window');
         var form = win.down('form');
         var record = Ext.create('Admin.model.contract.ContractModel');

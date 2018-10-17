@@ -6,7 +6,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 
 public class EmailDTO {
 	
-   private String emailFrom;
+    private String emailFrom;
 	
 	private String emailTo;
 	
