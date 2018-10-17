@@ -4307,6 +4307,11 @@
     border-width: 1px;
     border-color: #c8d8d9;
 }
+/* C:/Users/Administrator/git/Knorragency/admin-dashboard/classic/src/view/main/Main.scss:308 */
+.top-user-name {
+    color: white;
+    font-size: 15px;
+}
 /* C:/Users/Administrator/git/Knorragency/admin-dashboard/classic/src/Application.scss:39 */
 .x-menu-header {
     z-index: 0 !important;

@@ -4,7 +4,10 @@ Ext.define('Admin.view.email.Email', {
     xtype: 'email',
 
     itemId: 'emailMainContainer',
+
+    viewModel: {type: 'emailViewModel'},   
     controller: 'emailViewController',
+    
     layout: {
         type: 'hbox',
         align: 'stretch'

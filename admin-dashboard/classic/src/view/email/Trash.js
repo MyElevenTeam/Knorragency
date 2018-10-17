@@ -19,11 +19,11 @@ Ext.define('Admin.view.email.Trash', {
             },
             columns: [
                 {xtype: 'gridcolumn',width: 40,dataIndex: 'id',text: 'id',hidden:true},
-                {xtype: 'gridcolumn', cls: 'content-column',width:150,dataIndex: 'emailTo',text: '收件人'},
-                 {xtype: 'gridcolumn', cls: 'content-column',width:150,dataIndex: 'emailFrom',text: '发件人'},
-                {xtype: 'gridcolumn', cls: 'content-column',width:150,dataIndex: 'emailSubject',text: '主题'},
+                {xtype: 'gridcolumn', cls: 'content-column',width:120,dataIndex: 'emailTo',text: '收件人'},
+                 {xtype: 'gridcolumn', cls: 'content-column',width:120,dataIndex: 'emailFrom',text: '发件人'},
+                {xtype: 'gridcolumn', cls: 'content-column',width:120,dataIndex: 'emailSubject',text: '主题'},
                 {xtype: 'gridcolumn', cls: 'content-column',width:150,dataIndex: 'emailContent',text: '内容'},
-                {xtype: 'gridcolumn', cls: 'content-column',width:150,dataIndex: 'sendTime',text: '发送时间'},
+                {xtype: 'gridcolumn', cls: 'content-column',width:150,dataIndex: 'sendTime',text: '发送时间',formatter: 'date("Y/m/d H:i:s")'},
                 {xtype: 'actioncolumn',cls: 'content-column', width: 250,dataIndex: 'bool',text: '操作',tooltip: 'edit ',
                     items: [
                         {xtype: 'button',iconCls: 'x-fa fa-close'   ,handler: 'onDeleteButton'},

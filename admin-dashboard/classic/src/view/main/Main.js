@@ -73,11 +73,11 @@ Ext.define('Admin.view.main.Main', {
                     handler:'signback',
                     hidden:true
                 },
-                /*{
+                {
                     xtype: 'tbtext',
-                    text: '用户名:Admin',
+                    id:'loginUserName',
                     cls: 'top-user-name'
-                },*/
+                },
                 {
                     xtype: 'image',
                     cls: 'header-right-profile-image',

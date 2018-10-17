@@ -10,7 +10,10 @@ requires: [
 		{type: 'string',name: 'emailSubject'},
 		{type: 'string',name: 'emailContent'},
 		{type: 'date', name: 'sendTime', dateFormat:'Y/m/d H:i:s'},
-		{type: 'string',name: 'employeeName'}
+		{type: 'string',name: 'employeeName'},
+		{type: 'string',name: 'emailStatus'},
+		{type: 'string',name: 'readStatus'},
+		{type: 'string',name: 'emailAttachment'}
 	],
 	proxy: {
 		type: 'rest',

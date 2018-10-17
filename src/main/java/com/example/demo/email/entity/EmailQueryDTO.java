@@ -18,6 +18,8 @@ public class EmailQueryDTO {
 	
 	private String emailFrom;
 	
+	private String emailTo;
+	
 	private Date startTime;
 	
 	private Date endTime;
@@ -38,6 +40,14 @@ public class EmailQueryDTO {
 
 	public void setEmailFrom(String emailFrom) {
 		this.emailFrom = emailFrom;
+	}
+	
+	public String getEmailTo() {
+		return emailTo;
+	}
+
+	public void setEmailTo(String emailTo) {
+		this.emailTo = emailTo;
 	}
 
 	public Date getStartTime() {
@@ -77,10 +87,13 @@ public class EmailQueryDTO {
 							"%" + emailQueryDTO.getEmployeeName() + "%"));
 				}
 				if(StringUtils.isNoneBlank(emailQueryDTO.getEmailFrom())) {
-					predicate.add(criteriaBuilder.like(root.get("from").as(String.class),
+					predicate.add(criteriaBuilder.like(root.get("emailFrom").as(String.class),
 							"%" + emailQueryDTO.getEmailFrom() + "%"));
 				}
-				
+				if(StringUtils.isNoneBlank(emailQueryDTO.getEmailTo())) {
+					predicate.add(criteriaBuilder.like(root.get("emailTo").as(String.class),
+							"%" + emailQueryDTO.getEmailTo() + "%"));
+				}
 				if (null!=emailQueryDTO.getStartTime()) {
 					predicate.add(criteriaBuilder.greaterThanOrEqualTo(root.get("sendTime").as(Date.class),
 							emailQueryDTO.getStartTime()));

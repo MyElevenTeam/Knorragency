@@ -33,16 +33,19 @@ Ext.define('Admin.view.email.Compose', {
         {
             xtype: 'textfield',
             name:'emailTo',
+            id:'email_emailTo',
             fieldLabel: '收件人'
         },
         {
             xtype: 'textfield',
             name:'emailSubject',
+            id:'email_emailSubject',
             fieldLabel: '主题'
         },
         {
             xtype: 'htmleditor',
             name:'emailContent',
+            id:'email_emailContent',
             buttonDefaults: {
                 tooltip: {
                     align: 't-b',
@@ -60,8 +63,23 @@ Ext.define('Admin.view.email.Compose', {
         overflowHandler: 'menu',
         items: [
             {
+                xtype: 'textfield',
+                id:'email_attachmentName',
+                hidden:true
+            },'-',
+            {
+                text: '删除附件',
+                tooltip: '删除附件',
+                id:'email_attachmentDelete',
+                ui: 'soft-red',
+                iconCls:'fa fa-close',
+                hidden:true,
+                handler: 'deleteAttachment' 
+            },
+            {
                 text: '上传附件',
                 tooltip: '上传附件',
+                id:'email_attachmentUpload',
                 ui: 'soft-blue',
                 iconCls:'fa fa-cloud-upload',
                 handler: 'opendUploadWindow' 
@@ -82,7 +100,8 @@ Ext.define('Admin.view.email.Compose', {
             {
                 xtype: 'button',
                 ui: 'soft-green',
-                text: '发送'
+                text: '发送',
+                handler: 'onSendClick'
             }
         ]
     }

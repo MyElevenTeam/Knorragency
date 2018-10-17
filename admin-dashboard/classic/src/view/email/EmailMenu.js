@@ -14,14 +14,12 @@ Ext.define('Admin.view.email.EmailMenu', {
 
     items: [
         {
-            routeId: 'emailcompose', //xtype and used for url routing
+            routeId: 'emailcompose', 
             params: {
-                openWindow: true, // Let the controller know that we want this component in the window,
+                openWindow: true, 
                 targetCfg: {
-                    //put any extra configs for your view here
                 },
                 windowCfg: {
-                    // Any configs that you would like to apply for window popup goes here
                     title: '写信'
                 }
             },
