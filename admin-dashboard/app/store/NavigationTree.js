@@ -90,7 +90,15 @@ Ext.define('Admin.store.NavigationTree', {
                 //rowCls: 'nav-tree-badge nav-tree-badge-new',
                 viewType: 'email',
                 leaf: true
-            }*/,{
+
+            }*/
+            ,{
+                text: '公告',
+                iconCls: 'x-fa fa-envelope',
+                viewType: 'notice',
+                leaf: true
+            },{
+
                 text: '业务排行',
                 iconCls: 'x-fa fa-fax',
                 viewType: 'achievement',
