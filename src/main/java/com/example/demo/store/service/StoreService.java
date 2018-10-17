@@ -171,7 +171,7 @@ public class StoreService implements IStoreService {
 		@Override
 		public List<StoreDTO2> findFatherStoreName(String storeName,HttpSession session) {
 			if(StringUtils.isNotBlank(storeName)) {
-				List <StoreDTO2> storeList=new ArrayList<>();
+				List <StoreDTO2> storeList=new ArrayList<StoreDTO2>();
 				String en=(String) session.getAttribute("employeeNumber");
 				if(StringUtils.isNotBlank(en)) {
 					Employee entity=employeeRepository.findByEmployeeNumber(en);
@@ -179,7 +179,7 @@ public class StoreService implements IStoreService {
 					return storeList;
 				}else return null;
 			}else {
-				List <StoreDTO2> storeList=new ArrayList<>();
+				List <StoreDTO2> storeList=new ArrayList<StoreDTO2>();
 				String en=(String) session.getAttribute("employeeNumber");
 				if(StringUtils.isNotBlank(en)) {
 					if(session.getAttribute("post").equals("admin")) {
