@@ -13,6 +13,6 @@
     ],
 
     stores: {
-		noticeDate: {type: 'noticePanelStroe'}
+		noticeDate: {type: 'noticePanelStore'}
     }
 });

@@ -1,4 +1,4 @@
-Ext.define('Admin.view.notice.NoticeViewController', {
+Ext.define('Admin.view.notice.NoticeController', {
     extend: 'Ext.app.ViewController',
     alias: 'controller.noticeViewController',
 	/*Quick Search*/	

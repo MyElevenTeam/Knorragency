@@ -1,6 +1,6 @@
-Ext.define('Admin.store.notice.NoticePanelStroe', {
+Ext.define('Admin.store.notice.NoticePanelStore', {
     extend: 'Ext.data.Store',
-    alias: 'store.noticePanelStroe',
+    alias: 'store.noticePanelStore',
 	model:'Admin.model.notice.NoticeModel',
 
     //连接后台数据
