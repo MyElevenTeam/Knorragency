@@ -20,6 +20,8 @@ public class EmailDTO {
 	
 	private EmailStatus emailStatus;
 	
+	private EmailStatus readStatus;
+	
 	private String emailAttachment;
 	
 	public String getEmailFrom() {
@@ -77,6 +79,14 @@ public class EmailDTO {
 
 	public void setEmailStatus(EmailStatus emailStatus) {
 		this.emailStatus = emailStatus;
+	}
+	
+	public EmailStatus getReadStatus() {
+		return readStatus;
+	}
+
+	public void setReadStatus(EmailStatus readStatus) {
+		this.readStatus = readStatus;
 	}
 
 	public String getEmailAttachment() {

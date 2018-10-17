@@ -19,11 +19,11 @@ Ext.define('Admin.view.email.Send', {
             },
             columns: [
                 {xtype: 'gridcolumn',width: 40,dataIndex: 'id',text: 'id',hidden:true},
-                {xtype: 'gridcolumn', cls: 'content-column',width:150,dataIndex: 'emailTo',text: '收件人'},
-                {xtype: 'gridcolumn', cls: 'content-column',width:150,dataIndex: 'emailSubject',text: '主题'},
-                {xtype: 'gridcolumn', cls: 'content-column',width:150,dataIndex: 'emailContent',text: '内容'},
-                {xtype: 'gridcolumn', cls: 'content-column',width:150,dataIndex: 'sendTime',text: '发送时间'},
-                {xtype: 'actioncolumn',cls: 'content-column', width: 250,dataIndex: 'bool',text: '操作',tooltip: 'edit ',
+                {xtype: 'gridcolumn', cls: 'content-column',width:120,dataIndex: 'emailTo',text: '收件人'},
+                {xtype: 'gridcolumn', cls: 'content-column',width:120,dataIndex: 'emailSubject',text: '主题'},
+                {xtype: 'gridcolumn', cls: 'content-column',width:120,dataIndex: 'emailContent',text: '内容'},
+                {xtype: 'gridcolumn', cls: 'content-column',width:150,dataIndex: 'sendTime',text: '发送时间',formatter: 'date("Y/m/d H:i:s")'},
+                {xtype: 'actioncolumn',cls: 'content-column', width: 150,dataIndex: 'bool',text: '操作',tooltip: 'edit ',
                     items: [
                         {xtype: 'button',iconCls: 'x-fa fa-close'   ,handler: 'onDeleteButton'},
                         {xtype: 'button',iconCls: 'x-fa fa-ban'     ,handler: 'onDisableButton'}
