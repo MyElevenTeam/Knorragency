@@ -108951,7 +108951,7 @@ Ext.define('Admin.model.contract.ContractModel', {extend:Admin.model.Base, field
 {type:'string', name:'processStatus'}], proxy:{type:'rest', url:'/contract'}});
 Ext.define('Admin.model.contractapprove.ContractApproveModel', {extend:Admin.model.Base, fields:[{type:'int', name:'id'}, {type:'string', name:'userId'}, {type:'string', name:'contractNumber'}, {type:'string', name:'customerName'}, {type:'string', name:'hoseName'}, {type:'string', name:'employeeName'}, {type:'date', name:'startTime'}, {type:'date', name:'endTime'}, {type:'string', name:'contractType'}, {type:'float', name:'total'}, {type:'string', name:'area'}, {type:'string', name:'processStatus'}, 
 {type:'string', name:'processInstanceId'}, {type:'string', name:'taskId'}, {type:'string', name:'taskName'}, {type:'date', name:'taskCreateTime'}, {type:'string', name:'assignee'}, {type:'string', name:'taskDefinitionKey'}, {type:'string', name:'processDefinitionId'}, {type:'boolean', name:'suspended'}, {type:'int', name:'version'}, {type:'string', name:'depreason'}, {type:'string', name:'manreason'}]});
-Ext.define('Admin.model.email.EmailModel', {extend:Admin.model.Base, fields:[{type:'int', name:'id'}, {type:'string', name:'emailTo'}, {type:'string', name:'emailFrom'}, {type:'string', name:'emailSubject'}, {type:'string', name:'emailContent'}, {type:'date', name:'sendTime', dateFormat:'Y/m/d H:i:s'}, {type:'string', name:'employeeName'}], proxy:{type:'rest', url:'/email'}});
+Ext.define('Admin.model.email.EmailModel', {extend:Admin.model.Base, fields:[{type:'int', name:'id'}, {type:'string', name:'emailTo'}, {type:'string', name:'emailFrom'}, {type:'string', name:'emailSubject'}, {type:'string', name:'emailContent'}, {type:'date', name:'sendTime', dateFormat:'Y/m/d H:i:s'}, {type:'string', name:'employeeName'}, {type:'string', name:'emailStatus'}, {type:'string', name:'emailAttachment'}], proxy:{type:'rest', url:'/email'}});
 Ext.define('Admin.model.leave.LeaveModel', {extend:Admin.model.Base, fields:[{type:'int', name:'id'}, {type:'string', name:'userId'}, {type:'date', name:'startTime', dateFormat:'Y/m/d H:i:s'}, {type:'date', name:'endTime', dateFormat:'Y/m/d H:i:s'}, {type:'date', name:'realityStartTime', dateFormat:'Y/m/d H:i:s'}, {type:'date', name:'realityEndTime', dateFormat:'Y/m/d H:i:s'}, {type:'date', name:'applyTime', dateFormat:'Y/m/d H:i:s'}, {type:'string', name:'leaveType'}, {type:'string', name:'processStatus'}, 
 {type:'string', name:'reason'}, {type:'string', name:'processInstanceId'}, {type:'string', name:'depReason'}, {type:'string', name:'hrReason'}], proxy:{type:'rest', url:'/leave'}});
 Ext.define('Admin.model.log.LogModel', {extend:Admin.model.Base, fields:[{type:'int', name:'id'}, {type:'string', name:'employeeName'}, {type:'string', name:'storeName'}, {type:'string', name:'title'}, {type:'string', name:'type'}, {type:'string', name:'remoteAddr'}, {type:'string', name:'requestUri'}, {type:'string', name:'method'}, {type:'string', name:'params'}, {type:'date', name:'operateDate', dateFormat:'Y/m/d H:i:s'}, {type:'date', name:'day', dateFormat:'Y/m/d H:i:s'}, {type:'int', name:'time'}], 
@@ -109013,8 +109013,8 @@ Ext.define('Admin.view.dashboard.DashboardController', {extend:Ext.app.ViewContr
 Ext.define('Admin.view.dashboard.DashboardModel', {extend:Ext.app.ViewModel, alias:'viewmodel.dashboard', stores:{}});
 Ext.define('Admin.view.main.Main', {extend:Ext.container.Viewport, controller:'main', viewModel:'main', cls:'sencha-dash-viewport', itemId:'mainView', layout:{type:'vbox', align:'stretch'}, listeners:{render:'onMainViewRender'}, items:[{xtype:'toolbar', cls:'sencha-dash-dash-headerbar shadow', height:64, itemId:'headerBar', items:[{xtype:'component', reference:'senchaLogo', cls:'sencha-logo', html:'\x3cdiv class\x3d"main-logo"\x3e\x3cimg src\x3d"resources/images/company-logo.png"\x3eKnorr Agency\x3c/div\x3e', 
 width:250}, {margin:'0 0 0 8', ui:'header', iconCls:'x-fa fa-navicon', id:'main-navigation-btn', handler:'onToggleNavigationSize'}, '-\x3e', {iconCls:'fa fa-envelope fa-5x', ui:'header', href:'#email', hrefTarget:'_self', tooltip:'查看 email'}, {iconCls:'fa fa-th-large fa-5x', ui:'header', href:'#profile', hrefTarget:'_self', tooltip:'个人空间'}, {iconCls:'fa fa-fax fa-5x', id:'work', ui:'header', tooltip:'上班打卡', handler:'attence'}, {iconCls:'fa fa-share-square fa-5x', id:'out', ui:'header', tooltip:'下班签退', 
-handler:'signback', hidden:true}, {xtype:'image', cls:'header-right-profile-image', id:'loginUserImage', height:35, width:35, alt:'current user image', src:'resources/images/user-profile/2.png'}, {iconCls:'x-fa fa-sign-out', ui:'header', tooltip:'Logout', handler:'logoutButton'}]}, {xtype:'maincontainerwrap', id:'main-view-detail-wrap', reference:'mainContainerWrap', flex:1, items:[{xtype:'treelist', reference:'navigationTreeList', itemId:'navigationTreeList', ui:'nav', store:'NavigationTree', width:250, 
-expanderFirst:false, expanderOnly:false, listeners:{selectionchange:'onNavigationTreeSelectionChange'}}, {xtype:'container', flex:1, reference:'mainCardPanel', cls:'sencha-dash-right-main-container', itemId:'contentPanel', layout:{type:'card', anchor:'100%'}}]}]});
+handler:'signback', hidden:true}, {xtype:'tbtext', id:'loginUserName', cls:'top-user-name'}, {xtype:'image', cls:'header-right-profile-image', id:'loginUserImage', height:35, width:35, alt:'current user image', src:'resources/images/user-profile/2.png'}, {iconCls:'x-fa fa-sign-out', ui:'header', tooltip:'Logout', handler:'logoutButton'}]}, {xtype:'maincontainerwrap', id:'main-view-detail-wrap', reference:'mainContainerWrap', flex:1, items:[{xtype:'treelist', reference:'navigationTreeList', itemId:'navigationTreeList', 
+ui:'nav', store:'NavigationTree', width:250, expanderFirst:false, expanderOnly:false, listeners:{selectionchange:'onNavigationTreeSelectionChange'}}, {xtype:'container', flex:1, reference:'mainCardPanel', cls:'sencha-dash-right-main-container', itemId:'contentPanel', layout:{type:'card', anchor:'100%'}}]}]});
 Ext.define('Admin.Application', {extend:Ext.app.Application, name:'Admin', stores:['NavigationTree'], defaultToken:'login', mainView:'Admin.view.main.Main', onAppUpdate:function() {
   Ext.Msg.confirm('Application Update', 'This application has an update, reload?', function(choice) {
     if (choice === 'yes') {
@@ -110349,28 +110349,78 @@ Ext.define('Admin.view.dashboard.Todos', {extend:Ext.panel.Panel, xtype:'todo', 
 Ext.define('Admin.view.dashboard.TopMovie', {extend:Ext.panel.Panel, xtype:'topmovies', title:'Top Movie', ui:'light', iconCls:'x-fa fa-video-camera', headerPosition:'bottom', cls:'quick-graph-panel shadow', height:130, layout:'fit', html:'Top Movie'});
 Ext.define('Admin.view.dashboard.Widgets', {extend:Ext.Panel, xtype:'dashboardwidgetspanel', cls:'dashboard-widget-block shadow', bodyPadding:15, title:'Widgets', layout:{type:'vbox', align:'stretch'}, items:[{xtype:'slider', width:400, fieldLabel:'Single Slider', value:40}, {xtype:'tbspacer', flex:0.3}, {xtype:'multislider', width:400, fieldLabel:'Range Slider', values:[10, 40]}, {xtype:'tbspacer', flex:0.3}, {xtype:'pagingtoolbar', width:360, displayInfo:false}, {xtype:'tbspacer', flex:0.3}, {xtype:'progressbar', 
 cls:'widget-progressbar', value:0.4}, {xtype:'tbspacer'}]});
-Ext.define('Admin.view.email.Compose', {extend:Ext.form.Panel, alias:'widget.emailcompose', controller:'composeViewController', cls:'email-compose', layout:{type:'vbox', align:'stretch'}, bodyPadding:10, scrollable:true, defaults:{labelWidth:60, labelSeparator:''}, items:[{xtype:'textfield', name:'emailTo', fieldLabel:'收件人'}, {xtype:'textfield', name:'emailSubject', fieldLabel:'主题'}, {xtype:'htmleditor', name:'emailContent', buttonDefaults:{tooltip:{align:'t-b', anchor:true}}, flex:1, minHeight:100, 
-labelAlign:'top', fieldLabel:'内容'}, {xtype:'filefield', id:'email_attachment', width:80, labelWidth:80, emptyText:'请选择附件', labelSeparator:'', buttonConfig:{xtype:'filebutton', glyph:'', iconCls:'x-fa fa-cloud-upload', text:'上传'}}], bbar:{overflowHandler:'menu', items:['-\x3e', {xtype:'button', ui:'soft-red', text:'清空', handler:'onComposeDiscardClick'}, {xtype:'button', ui:'gray', text:'保存', handler:'onSaveClick'}, {xtype:'button', ui:'soft-green', text:'发送'}]}});
-var email_attachmentRebackId;
-Ext.define('Admin.view.email.ComposeViewController', {extend:Ext.app.ViewController, alias:'controller.composeViewController', onComposeDiscardClick:function(bt) {
-  var win = bt.up('window');
-  if (win) {
-    win.close();
-  }
-}, onSaveClick:function(btn) {
+Ext.define('Admin.view.email.Compose', {extend:Ext.form.Panel, alias:'widget.emailcompose', controller:'composeViewController', cls:'email-compose', layout:{type:'vbox', align:'stretch'}, bodyPadding:10, scrollable:true, defaults:{labelWidth:60, labelSeparator:''}, items:[{xtype:'textfield', name:'emailTo', id:'email_emailTo', fieldLabel:'收件人'}, {xtype:'textfield', name:'emailSubject', id:'email_emailSubject', fieldLabel:'主题'}, {xtype:'htmleditor', name:'emailContent', id:'email_emailContent', buttonDefaults:{tooltip:{align:'t-b', 
+anchor:true}}, flex:1, minHeight:100, labelAlign:'top', fieldLabel:'内容'}], bbar:{overflowHandler:'menu', items:[{xtype:'textfield', id:'email_attachmentName', hidden:true}, '-', {text:'删除附件', tooltip:'删除附件', id:'email_attachmentDelete', ui:'soft-red', iconCls:'fa fa-close', hidden:true, handler:'deleteAttachment'}, {text:'上传附件', tooltip:'上传附件', id:'email_attachmentUpload', ui:'soft-blue', iconCls:'fa fa-cloud-upload', handler:'opendUploadWindow'}, '-\x3e', {xtype:'button', ui:'soft-red', text:'清空', 
+handler:'onComposeDiscardClick'}, {xtype:'button', ui:'gray', text:'保存', handler:'onSaveClick'}, {xtype:'button', ui:'soft-green', text:'发送', handler:'onSendClick'}]}});
+Ext.define('Admin.view.email.ComposeViewController', {extend:Ext.app.ViewController, alias:'controller.composeViewController', opendUploadWindow:function(btn) {
+  btn.up('panel').add(Ext.widget('emailUploadWindow')).show();
+}, onClickUploadAttachment:function(btn) {
   var form = btn.up('window').down('form');
   if (form.isValid()) {
-    form.getForm().submit({url:'/contract/uploadWord', method:'POST', waitMsg:'正在上传，请耐心等待....', success:function(form, action) {
-      Ext.Msg.alert('Success', action.result.msg, function() {
+    form.getForm().submit({url:'/email/uploadAttachment', method:'POST', waitMsg:'正在上传，请耐心等待....', success:function(form, action) {
+      var file = action.result.msg;
+      Ext.Msg.alert('提示', '文件上传成功！', function() {
         btn.up('window').close();
-        Ext.data.StoreManager.lookup('contractGridStroe').load();
+        Ext.getCmp('email_attachmentName').setValue(file);
+        Ext.getCmp('email_attachmentName').show();
+        Ext.getCmp('email_attachmentDelete').show();
+        Ext.getCmp('email_attachmentUpload').hide();
       });
     }, failure:function(form, action) {
-      Ext.Msg.alert('Error', '上传失败');
+      Ext.Msg.alert('提示', '上传失败！');
     }});
   } else {
-    Ext.Msg.alert('Error', '请选择文件');
+    Ext.Msg.alert('提示', '请选择文件');
   }
+}, deleteAttachment:function(btn) {
+  Ext.getCmp('email_attachmentName').setValue('');
+  Ext.getCmp('email_attachmentName').hide();
+  Ext.getCmp('email_attachmentDelete').hide();
+  Ext.getCmp('email_attachmentUpload').show();
+}, onSaveClick:function(btn) {
+  var win = btn.up('window');
+  var form = btn.up('window').down('form');
+  if (form.isValid()) {
+    var values = form.getValues();
+    Ext.Ajax.request({url:'/email/save', method:'post', params:{emailTo:values.emailTo, emailSubject:values.emailSubject, emailContent:values.emailContent, emailStatus:'EDIT', emailAttachment:Ext.getCmp('email_attachmentName').getValue()}, success:function(response, options) {
+      var json = Ext.util.JSON.decode(response.responseText);
+      if (json.success) {
+        Ext.Msg.alert('操作成功', json.msg, function() {
+          win.close();
+        });
+      } else {
+        Ext.Msg.alert('操作失败', json.msg);
+      }
+    }});
+  } else {
+    Ext.Msg.alert('提示', '请填写正确格式');
+  }
+}, onSendClick:function(btn) {
+  var win = btn.up('window');
+  var form = btn.up('window').down('form');
+  if (form.isValid()) {
+    var values = form.getValues();
+    Ext.Ajax.request({url:'/email/save', method:'post', params:{emailTo:values.emailTo, emailSubject:values.emailSubject, emailContent:values.emailContent, emailStatus:'SEND', emailAttachment:Ext.getCmp('email_attachmentName').getValue()}, success:function(response, options) {
+      var json = Ext.util.JSON.decode(response.responseText);
+      if (json.success) {
+        Ext.Msg.alert('操作成功', json.msg, function() {
+          win.close();
+        });
+      } else {
+        Ext.Msg.alert('操作失败', json.msg);
+      }
+    }});
+  } else {
+    Ext.Msg.alert('提示', '请填写正确格式');
+  }
+}, onComposeDiscardClick:function(bt) {
+  Ext.getCmp('email_emailTo').setValue('');
+  Ext.getCmp('email_emailSubject').setValue('');
+  Ext.getCmp('email_emailContent').setValue('');
+  Ext.getCmp('email_attachmentName').setValue('');
+  Ext.getCmp('email_attachmentName').hide();
+  Ext.getCmp('email_attachmentDelete').hide();
+  Ext.getCmp('email_attachmentUpload').show();
 }});
 Ext.define('Admin.view.email.Edit', {extend:Ext.panel.Panel, xtype:'edit', layout:'fit', items:[{xtype:'gridpanel', title:'草稿箱', bind:'{editLists}', scrollable:false, height:700, selModel:{type:'checkboxmodel', checkOnly:true}, listeners:{}, columns:[{xtype:'gridcolumn', width:40, dataIndex:'id', text:'id', hidden:true}, {xtype:'gridcolumn', cls:'content-column', width:150, dataIndex:'emailTo', text:'收件人'}, {xtype:'gridcolumn', cls:'content-column', width:150, dataIndex:'emailFrom', text:'发件人'}, 
 {xtype:'gridcolumn', cls:'content-column', width:150, dataIndex:'emailSubject', text:'主题'}, {xtype:'gridcolumn', cls:'content-column', width:150, dataIndex:'emailContent', text:'内容'}, {xtype:'gridcolumn', cls:'content-column', width:150, dataIndex:'sendTime', text:'发送时间'}, {xtype:'actioncolumn', cls:'content-column', width:250, dataIndex:'bool', text:'操作', tooltip:'edit ', items:[{xtype:'button', iconCls:'x-fa fa-close', handler:'onDeleteButton'}, {xtype:'button', iconCls:'x-fa fa-ban', handler:'onDisableButton'}]}], 
@@ -110378,6 +110428,10 @@ dockedItems:[{xtype:'pagingtoolbar', dock:'bottom', itemId:'userPaginationToolba
 Ext.define('Admin.view.email.Email', {extend:Ext.container.Container, xtype:'email', itemId:'emailMainContainer', controller:'emailViewController', layout:{type:'hbox', align:'stretch'}, margin:'20 0 0 20', items:[{xtype:'container', itemId:'navigationPanel', layout:{type:'vbox', align:'stretch'}, width:300, defaults:{cls:'navigation-email', margin:'0 20 20 0'}, items:[{xtype:'emailMenu', height:300, listeners:{click:'onMenuClick'}}]}, {xtype:'container', itemId:'contentPanel', margin:'0 20 20 0', 
 flex:1, layout:{type:'anchor', anchor:'100%'}}]});
 Ext.define('Admin.view.email.EmailMenu', {extend:Ext.menu.Menu, alias:'widget.emailMenu', viewModel:{type:'emailmenu'}, title:'企业信箱', iconCls:'x-fa fa-inbox', floating:false, items:[{routeId:'emailcompose', params:{openWindow:true, targetCfg:{}, windowCfg:{title:'写信'}}, iconCls:'x-fa fa-edit', text:'撰写邮件'}, {routeId:'edit', iconCls:'x-fa fa-inbox', text:'草稿箱'}, {routeId:'send', iconCls:'x-fa fa-check-circle', text:'已发送'}, {routeId:'trash', iconCls:'x-fa fa-trash-o', text:'回收站'}]});
+Ext.define('Admin.view.email.EmailUploadWindow', {extend:Ext.window.Window, alias:'widget.emailUploadWindow', height:180, minHeight:100, minWidth:300, width:500, scrollable:true, title:'附件上传', closable:true, constrain:true, defaultFocus:'textfield', modal:true, layout:'fit', items:[{xtype:'form', layout:'form', padding:'10px', items:[{xtype:'filefield', width:400, labelWidth:80, name:'file', emptyText:'请选择附件!', allowBlank:false, fieldLabel:'上传文件:', labelSeparator:'', buttonConfig:{xtype:'filebutton', 
+glyph:'', iconCls:'x-fa fa-cloud-upload', text:'Browse'}}]}], buttons:['-\x3e', {xtype:'button', text:'Upload', handler:'onClickUploadAttachment'}, {xtype:'button', text:'Close', handler:function(btn) {
+  btn.up('window').close();
+}}, '-\x3e']});
 Ext.define('Admin.view.email.EmailViewController', {extend:Ext.app.ViewController, alias:'controller.emailViewController', init:function() {
   this.setCurrentView('edit');
 }, onBackBtnClick:function() {

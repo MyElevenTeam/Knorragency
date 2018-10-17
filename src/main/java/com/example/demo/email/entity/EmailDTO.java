@@ -19,7 +19,9 @@ public class EmailDTO {
     private String employeeName;
 	
 	private EmailStatus emailStatus;
-
+	
+	private String emailAttachment;
+	
 	public String getEmailFrom() {
 		return emailFrom;
 	}
@@ -75,6 +77,18 @@ public class EmailDTO {
 
 	public void setEmailStatus(EmailStatus emailStatus) {
 		this.emailStatus = emailStatus;
+	}
+
+	public String getEmailAttachment() {
+		return emailAttachment;
+	}
+
+	public void setEmailAttachment(String emailAttachment) {
+		this.emailAttachment = emailAttachment;
+	}
+
+	public void setEmailContent(String emailContent) {
+		this.emailContent = emailContent;
 	}
 	
 }

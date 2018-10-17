@@ -12,18 +12,23 @@ import javax.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.example.demo.common.beans.BeanUtils;
 import com.example.demo.common.controller.ExtAjaxResponse;
 import com.example.demo.common.controller.ExtjsPageRequest;
+import com.example.demo.common.controller.SessionUtil;
 import com.example.demo.email.entity.Email;
 import com.example.demo.email.entity.EmailDTO;
 import com.example.demo.email.entity.EmailQueryDTO;
 import com.example.demo.email.service.IEmailService;
+import com.example.demo.employee.domain.Employee;
+import com.example.demo.employee.service.IEmployeeService;
 import com.example.demo.log.config.SystemControllerLog;
 
 @RestController
@@ -32,6 +37,9 @@ public class EmailController {
 	
 	@Autowired
 	private IEmailService emailService;
+	
+	@Autowired
+	private IEmployeeService employeeService;
 	
 	@SystemControllerLog(description="查询草稿箱")
 	@RequestMapping("/findEmailEdit")
@@ -54,10 +62,28 @@ public class EmailController {
 		return emailService.findAll(EmailQueryDTO.getWhereClause(emailQueryDTO), pageRequest.getPageable());
 	}
 	
+	@SystemControllerLog(description="增加")
+	@RequestMapping("/save")
+    public ExtAjaxResponse save(HttpSession session,Email email) {
+    	try {
+    		String userId = SessionUtil.getUserName(session);
+    		Employee employee=employeeService.EmployeeName(userId);
+    		if(employee!=null) {
+    			email.setEmailFrom(userId);
+    			email.setEmployee(employee);
+    			emailService.save(email);
+    		}
+    		return new ExtAjaxResponse(true,"保存成功!");
+	    } catch (Exception e) {
+	    	e.printStackTrace();
+	        return new ExtAjaxResponse(false,"保存失败!");
+	    }
+    }
+	
 	@SystemControllerLog(description="上传附件")
 	@PostMapping("/uploadAttachment")
     @ResponseBody
-    public ExtAjaxResponse uploadAttachment(@RequestParam("file") MultipartFile file, HttpServletRequest request) {
+    public ExtAjaxResponse uploadAttachment(@RequestParam("file") MultipartFile file, HttpServletRequest request,HttpSession session) {
 		if (!file.isEmpty()) {
             String saveFileName = file.getOriginalFilename();
             System.out.println(saveFileName);
@@ -70,7 +96,7 @@ public class EmailController {
                 out.write(file.getBytes());
                 out.flush();
                 out.close();
-                return new ExtAjaxResponse(true,"文件上传成功");
+                return new ExtAjaxResponse(true,saveFileName);
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
                 return new ExtAjaxResponse(false,"上传失败");

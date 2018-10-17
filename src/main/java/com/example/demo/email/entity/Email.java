@@ -33,6 +33,8 @@ public class Email {
 	
 	private EmailStatus emailStatus;
 	
+	private String emailAttachment;
+	
 	@Id
 	@GeneratedValue(strategy=GenerationType.IDENTITY)
 	public Long getId() {
@@ -69,6 +71,10 @@ public class Email {
 	public EmailStatus getEmailStatus() {
 		return emailStatus;
 	}
+	
+	public String getEmailAttachment() {
+		return emailAttachment;
+	}
 
 	public void setId(Long id) {
 		this.id = id;
@@ -100,6 +106,10 @@ public class Email {
 
 	public void setEmailStatus(EmailStatus emailStatus) {
 		this.emailStatus = emailStatus;
+	}
+
+	public void setEmailAttachment(String emailAttachment) {
+		this.emailAttachment = emailAttachment;
 	}
 	
 }

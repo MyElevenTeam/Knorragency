@@ -14,6 +14,7 @@ Ext.define('Admin.view.email.EmailViewController', {
     onMenuClick: function (menu, item) {
         if (item && item.routeId === 'emailcompose') {
             this.setCurrentView(item.routeId, item.params);
+            //Ext.getCmp('emailFrom').setValue(Ext.getCmp('loginUserName').getValue());
         }
         if (item && item.routeId === 'edit') {
             this.setCurrentView('edit');
