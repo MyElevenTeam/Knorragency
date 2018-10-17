@@ -109238,10 +109238,14 @@ Ext.define('Admin.view.achievement.AchievementController', {extend:Ext.app.ViewC
   var searchField2 = this.lookupReference('searchFieldName2').getValue();
   var store = combo.up('cartesian').getStore();
   var store2 = combo.findParentByType('achievement').items.first().items.first().getStore();
+  var store3 = combo.findParentByType('achievement').items.last().items.first().getStore();
+  console.log(store3);
   Ext.apply(store.proxy.extraParams, {month:searchField, area:searchField2});
   Ext.apply(store2.proxy.extraParams, {month:searchField, area:searchField2});
+  Ext.apply(store3.proxy.extraParams, {month:searchField, area:searchField2});
   store.load();
   store2.load();
+  store3.load();
 }});
 Ext.define('Admin.view.achievement.AnalysePanel', {extend:Ext.container.Container, xtype:'analysePanel', dataIndex:'fullname', layout:{type:'hbox', align:'stretch'}, margin:'0 0 10 0', items:[{xtype:'dataview', bind:'{anlyseDate}', itemTpl:"\x3cimg src\x3d'resources/images/user-profile/1.png' alt\x3d'Profile Pic'  style\x3d'height:100px ;width:100px;border-radius:500px;position: absolute;left:33%;top: 25%;'\x3e" + "\x3cimg src\x3d'resources/images/icons/crown1.png' alt\x3d'Profile Pic'  style\x3d'height:120px ;width:200px;position: absolute;left:16%;top: -18%;'\x3e" + 
 "\x3cimg src\x3d'resources/images/icons/crown2.png' alt\x3d'Profile Pic'  style\x3d'height:120px ;width:200px;position: absolute;left:16%;top: 26%;'\x3e" + "\x3ctpl for\x3d'.'\x3e\x3ch2 style\x3d'position: absolute;bottom:0px;text-align: center;left: 0;right: 0;color:#919191;'\x3e" + '{winner}' + '\x3c/h2\x3e\x3c/tpl\x3e', cls:'_boder', flex:1}, {xtype:'dataview', bind:'{anlyseDate}', itemTpl:"\x3cbr\x3e\x3cbr\x3e\x3cdiv style\x3d'color:#919191;text-align:center;line-height:0.8em'\x3e\x3cp style\x3d'font-size:3em'\x3e￥{total}\x3c/p\x3e\x3cbr\x3e" + 

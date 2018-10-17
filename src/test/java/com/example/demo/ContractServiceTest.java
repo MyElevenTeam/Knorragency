@@ -208,7 +208,6 @@ public class ContractServiceTest {
 	 * @throws ParseException 
 	 */
 	@Test
-
 	@Transactional
 	public void initData() throws ParseException {
 		SimpleDateFormat dateTmp = new SimpleDateFormat("yyyy-MM-dd");
