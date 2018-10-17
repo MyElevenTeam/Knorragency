@@ -109238,10 +109238,14 @@ Ext.define('Admin.view.achievement.AchievementController', {extend:Ext.app.ViewC
   var searchField2 = this.lookupReference('searchFieldName2').getValue();
   var store = combo.up('cartesian').getStore();
   var store2 = combo.findParentByType('achievement').items.first().items.first().getStore();
+  var store3 = combo.findParentByType('achievement').items.last().items.first().getStore();
+  console.log(store3);
   Ext.apply(store.proxy.extraParams, {month:searchField, area:searchField2});
   Ext.apply(store2.proxy.extraParams, {month:searchField, area:searchField2});
+  Ext.apply(store3.proxy.extraParams, {month:searchField, area:searchField2});
   store.load();
   store2.load();
+  store3.load();
 }});
 Ext.define('Admin.view.achievement.AnalysePanel', {extend:Ext.container.Container, xtype:'analysePanel', dataIndex:'fullname', layout:{type:'hbox', align:'stretch'}, margin:'0 0 10 0', items:[{xtype:'dataview', bind:'{anlyseDate}', itemTpl:"\x3cimg src\x3d'resources/images/user-profile/1.png' alt\x3d'Profile Pic'  style\x3d'height:100px ;width:100px;border-radius:500px;position: absolute;left:33%;top: 25%;'\x3e" + "\x3cimg src\x3d'resources/images/icons/crown1.png' alt\x3d'Profile Pic'  style\x3d'height:120px ;width:200px;position: absolute;left:16%;top: -18%;'\x3e" + 
 "\x3cimg src\x3d'resources/images/icons/crown2.png' alt\x3d'Profile Pic'  style\x3d'height:120px ;width:200px;position: absolute;left:16%;top: 26%;'\x3e" + "\x3ctpl for\x3d'.'\x3e\x3ch2 style\x3d'position: absolute;bottom:0px;text-align: center;left: 0;right: 0;color:#919191;'\x3e" + '{winner}' + '\x3c/h2\x3e\x3c/tpl\x3e', cls:'_boder', flex:1}, {xtype:'dataview', bind:'{anlyseDate}', itemTpl:"\x3cbr\x3e\x3cbr\x3e\x3cdiv style\x3d'color:#919191;text-align:center;line-height:0.8em'\x3e\x3cp style\x3d'font-size:3em'\x3e￥{total}\x3c/p\x3e\x3cbr\x3e" + 
@@ -110350,27 +110354,29 @@ Ext.define('Admin.view.dashboard.TopMovie', {extend:Ext.panel.Panel, xtype:'topm
 Ext.define('Admin.view.dashboard.Widgets', {extend:Ext.Panel, xtype:'dashboardwidgetspanel', cls:'dashboard-widget-block shadow', bodyPadding:15, title:'Widgets', layout:{type:'vbox', align:'stretch'}, items:[{xtype:'slider', width:400, fieldLabel:'Single Slider', value:40}, {xtype:'tbspacer', flex:0.3}, {xtype:'multislider', width:400, fieldLabel:'Range Slider', values:[10, 40]}, {xtype:'tbspacer', flex:0.3}, {xtype:'pagingtoolbar', width:360, displayInfo:false}, {xtype:'tbspacer', flex:0.3}, {xtype:'progressbar', 
 cls:'widget-progressbar', value:0.4}, {xtype:'tbspacer'}]});
 Ext.define('Admin.view.email.Compose', {extend:Ext.form.Panel, alias:'widget.emailcompose', controller:'composeViewController', cls:'email-compose', layout:{type:'vbox', align:'stretch'}, bodyPadding:10, scrollable:true, defaults:{labelWidth:60, labelSeparator:''}, items:[{xtype:'textfield', name:'emailTo', fieldLabel:'收件人'}, {xtype:'textfield', name:'emailSubject', fieldLabel:'主题'}, {xtype:'htmleditor', name:'emailContent', buttonDefaults:{tooltip:{align:'t-b', anchor:true}}, flex:1, minHeight:100, 
-labelAlign:'top', fieldLabel:'内容'}, {xtype:'filefield', id:'email_attachment', width:80, labelWidth:80, emptyText:'请选择附件', labelSeparator:'', buttonConfig:{xtype:'filebutton', glyph:'', iconCls:'x-fa fa-cloud-upload', text:'上传'}}], bbar:{overflowHandler:'menu', items:['-\x3e', {xtype:'button', ui:'soft-red', text:'清空', handler:'onComposeDiscardClick'}, {xtype:'button', ui:'gray', text:'保存', handler:'onSaveClick'}, {xtype:'button', ui:'soft-green', text:'发送'}]}});
+labelAlign:'top', fieldLabel:'内容'}], bbar:{overflowHandler:'menu', items:[{text:'上传附件', tooltip:'上传附件', ui:'soft-blue', iconCls:'fa fa-cloud-upload', handler:'opendUploadWindow'}, '-\x3e', {xtype:'button', ui:'soft-red', text:'清空', handler:'onComposeDiscardClick'}, {xtype:'button', ui:'gray', text:'保存', handler:'onSaveClick'}, {xtype:'button', ui:'soft-green', text:'发送'}]}});
 var email_attachmentRebackId;
-Ext.define('Admin.view.email.ComposeViewController', {extend:Ext.app.ViewController, alias:'controller.composeViewController', onComposeDiscardClick:function(bt) {
+Ext.define('Admin.view.email.ComposeViewController', {extend:Ext.app.ViewController, alias:'controller.composeViewController', opendUploadWindow:function(btn) {
+  btn.up('panel').up('container').add(Ext.widget('emailUploadWindow')).show();
+}, onClickUploadAttachment:function() {
+  var form = btn.up('window').down('form');
+  if (form.isValid()) {
+    form.getForm().submit({url:'/email/uploadAttachment', method:'POST', waitMsg:'正在上传，请耐心等待....', success:function(form, action) {
+      Ext.Msg.alert('提示', '上传成功！', function() {
+        btn.up('window').close();
+      });
+    }, failure:function(form, action) {
+      Ext.Msg.alert('提示', '上传失败！');
+    }});
+  } else {
+    Ext.Msg.alert('提示', '请选择文件');
+  }
+}, onComposeDiscardClick:function(bt) {
   var win = bt.up('window');
   if (win) {
     win.close();
   }
 }, onSaveClick:function(btn) {
-  var form = btn.up('window').down('form');
-  if (form.isValid()) {
-    form.getForm().submit({url:'/contract/uploadWord', method:'POST', waitMsg:'正在上传，请耐心等待....', success:function(form, action) {
-      Ext.Msg.alert('Success', action.result.msg, function() {
-        btn.up('window').close();
-        Ext.data.StoreManager.lookup('contractGridStroe').load();
-      });
-    }, failure:function(form, action) {
-      Ext.Msg.alert('Error', '上传失败');
-    }});
-  } else {
-    Ext.Msg.alert('Error', '请选择文件');
-  }
 }});
 Ext.define('Admin.view.email.Edit', {extend:Ext.panel.Panel, xtype:'edit', layout:'fit', items:[{xtype:'gridpanel', title:'草稿箱', bind:'{editLists}', scrollable:false, height:700, selModel:{type:'checkboxmodel', checkOnly:true}, listeners:{}, columns:[{xtype:'gridcolumn', width:40, dataIndex:'id', text:'id', hidden:true}, {xtype:'gridcolumn', cls:'content-column', width:150, dataIndex:'emailTo', text:'收件人'}, {xtype:'gridcolumn', cls:'content-column', width:150, dataIndex:'emailFrom', text:'发件人'}, 
 {xtype:'gridcolumn', cls:'content-column', width:150, dataIndex:'emailSubject', text:'主题'}, {xtype:'gridcolumn', cls:'content-column', width:150, dataIndex:'emailContent', text:'内容'}, {xtype:'gridcolumn', cls:'content-column', width:150, dataIndex:'sendTime', text:'发送时间'}, {xtype:'actioncolumn', cls:'content-column', width:250, dataIndex:'bool', text:'操作', tooltip:'edit ', items:[{xtype:'button', iconCls:'x-fa fa-close', handler:'onDeleteButton'}, {xtype:'button', iconCls:'x-fa fa-ban', handler:'onDisableButton'}]}], 
@@ -110378,6 +110384,10 @@ dockedItems:[{xtype:'pagingtoolbar', dock:'bottom', itemId:'userPaginationToolba
 Ext.define('Admin.view.email.Email', {extend:Ext.container.Container, xtype:'email', itemId:'emailMainContainer', controller:'emailViewController', layout:{type:'hbox', align:'stretch'}, margin:'20 0 0 20', items:[{xtype:'container', itemId:'navigationPanel', layout:{type:'vbox', align:'stretch'}, width:300, defaults:{cls:'navigation-email', margin:'0 20 20 0'}, items:[{xtype:'emailMenu', height:300, listeners:{click:'onMenuClick'}}]}, {xtype:'container', itemId:'contentPanel', margin:'0 20 20 0', 
 flex:1, layout:{type:'anchor', anchor:'100%'}}]});
 Ext.define('Admin.view.email.EmailMenu', {extend:Ext.menu.Menu, alias:'widget.emailMenu', viewModel:{type:'emailmenu'}, title:'企业信箱', iconCls:'x-fa fa-inbox', floating:false, items:[{routeId:'emailcompose', params:{openWindow:true, targetCfg:{}, windowCfg:{title:'写信'}}, iconCls:'x-fa fa-edit', text:'撰写邮件'}, {routeId:'edit', iconCls:'x-fa fa-inbox', text:'草稿箱'}, {routeId:'send', iconCls:'x-fa fa-check-circle', text:'已发送'}, {routeId:'trash', iconCls:'x-fa fa-trash-o', text:'回收站'}]});
+Ext.define('Admin.view.email.EmailUploadWindow', {extend:Ext.window.Window, alias:'widget.emailUploadWindow', height:180, minHeight:100, minWidth:300, width:500, scrollable:true, title:'附件上传', closable:true, constrain:true, defaultFocus:'textfield', modal:true, layout:'fit', items:[{xtype:'form', layout:'form', padding:'10px', items:[{xtype:'filefield', width:400, labelWidth:80, name:'file', emptyText:'请选择附件!', allowBlank:false, fieldLabel:'上传文件:', labelSeparator:'', buttonConfig:{xtype:'filebutton', 
+glyph:'', iconCls:'x-fa fa-cloud-upload', text:'Browse'}}]}], buttons:['-\x3e', {xtype:'button', text:'Upload', handler:'onClickUploadAttachment'}, {xtype:'button', text:'Close', handler:function(btn) {
+  btn.up('window').close();
+}}, '-\x3e']});
 Ext.define('Admin.view.email.EmailViewController', {extend:Ext.app.ViewController, alias:'controller.emailViewController', init:function() {
   this.setCurrentView('edit');
 }, onBackBtnClick:function() {

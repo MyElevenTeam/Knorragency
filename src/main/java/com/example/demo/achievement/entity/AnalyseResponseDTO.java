@@ -1,6 +1,6 @@
 package com.example.demo.achievement.entity;
 
-public class AnalyseRequestDTO {
+public class AnalyseResponseDTO {
 	private String winner;
 	private double total;
 	private double rate;
