@@ -43,7 +43,6 @@ Ext.define('Admin.view.email.Compose', {
         {
             xtype: 'htmleditor',
             name:'emailContent',
-            // Make tips align neatly below buttons.
             buttonDefaults: {
                 tooltip: {
                     align: 't-b',
@@ -54,27 +53,19 @@ Ext.define('Admin.view.email.Compose', {
             minHeight: 100,
             labelAlign: 'top',
             fieldLabel: '内容'
-        },
-        {
-            xtype: 'filefield',
-            id:'email_attachment',
-            width: 80,
-            labelWidth: 80,
-            emptyText: '请选择附件',
-            labelSeparator: '',
-            buttonConfig: {
-                xtype: 'filebutton',
-                glyph:'',
-                iconCls: 'x-fa fa-cloud-upload',
-                text: '上传',
-                handler:'upload'
-            }
         }
     ],
 
     bbar: {
         overflowHandler: 'menu',
         items: [
+            {
+                text: '上传附件',
+                tooltip: '上传附件',
+                ui: 'soft-blue',
+                iconCls:'fa fa-cloud-upload',
+                handler: 'opendUploadWindow' 
+            },
             '->',
             {
                 xtype: 'button',

@@ -208,6 +208,10 @@ public class ContractServiceTest {
 	 * @throws ParseException 
 	 */
 	@Test
+<<<<<<< HEAD
+=======
+
+>>>>>>> branch 'master' of https://github.com/MyElevenTeam/Knorragency.git
 	@Transactional
 	public void initData() throws ParseException {
 		SimpleDateFormat dateTmp = new SimpleDateFormat("yyyy-MM-dd");

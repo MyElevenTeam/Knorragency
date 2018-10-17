@@ -20,6 +20,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.example.demo.common.controller.ExtAjaxResponse;
 import com.example.demo.common.controller.ExtjsPageRequest;
+import com.example.demo.email.entity.Email;
 import com.example.demo.email.entity.EmailDTO;
 import com.example.demo.email.entity.EmailQueryDTO;
 import com.example.demo.email.service.IEmailService;
@@ -57,8 +58,9 @@ public class EmailController {
 	@PostMapping("/uploadAttachment")
     @ResponseBody
     public ExtAjaxResponse uploadAttachment(@RequestParam("file") MultipartFile file, HttpServletRequest request) {
-        if (!file.isEmpty()) {
+		if (!file.isEmpty()) {
             String saveFileName = file.getOriginalFilename();
+            System.out.println(saveFileName);
             File saveFile = new File(request.getSession().getServletContext().getRealPath("/upload/") + saveFileName);
             if (!saveFile.getParentFile().exists()) {
                 saveFile.getParentFile().mkdirs();
