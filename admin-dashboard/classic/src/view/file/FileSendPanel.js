@@ -6,9 +6,7 @@ Ext.define('Admin.view.file.FileSendPanel', {
         'Ext.grid.Panel',
         'Ext.toolbar.Paging',
         'Ext.form.field.ComboBox',
-        'Ext.grid.column.Date',
-        'Ext.selection.CheckboxModel',
-        'Ext.grid.feature.Grouping'
+        'Ext.grid.column.Date'
     ],
 
     controller: 'fileViewController',               //viewController:代码与视图分离。声明视图绑定的事件，可以多个视图共享。
@@ -24,13 +22,11 @@ Ext.define('Admin.view.file.FileSendPanel', {
             title: '已发送'
         },
         {
-        	//margin: '10 0 0 0',
             bodypadding:15,
             cls: 'has-border',
-        	height:60,
-        	tbar: [
-        		
-        	]   
+            height:60,
+            tbar: [
+            ]
         },
         {
             xtype: 'gridpanel',
@@ -43,7 +39,7 @@ Ext.define('Admin.view.file.FileSendPanel', {
                 {xtype: 'gridcolumn', cls: 'content-column',width:150,dataIndex: 'emailTo',text: '收件人'},
                 {xtype: 'gridcolumn', cls: 'content-column',width:150,dataIndex: 'emailSubject',text: '主题'},
                 {xtype: 'gridcolumn', cls: 'content-column',width:150,dataIndex: 'emailContent',text: '内容'},
-                {xtype: 'datecolumn',cls: 'content-column',width: 150,dataIndex: 'sendTime',text: '保存时间',formatter: 'date("Y/m/d H:i:s")'},
+                {xtype: 'datecolumn',cls: 'content-column',width: 150,dataIndex: 'sendTime',text: '发送时间',formatter: 'date("Y/m/d H:i:s")'},
                 {xtype: 'actioncolumn',cls: 'content-column', width: 150,dataIndex: 'bool',text: 'Actions',tooltip: 'edit ',
                     items: [
                         {xtype: 'button', iconCls: 'x-fa fa-pencil' ,handler: 'onEditButton'},
@@ -56,10 +52,8 @@ Ext.define('Admin.view.file.FileSendPanel', {
                 dock: 'bottom',
                 itemId: 'userPaginationToolbar',
                 displayInfo: true,
-                bind: '{sendLists}'
+                bind: '{sendLists}',
             }]
         }
     ]
 });
-
-

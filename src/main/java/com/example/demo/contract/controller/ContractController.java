@@ -50,6 +50,8 @@ import com.example.demo.contract.entity.Contract;
 import com.example.demo.contract.entity.ContractDTO;
 import com.example.demo.contract.entity.ContractQueryDTO;
 import com.example.demo.contract.service.IContractService;
+import com.example.demo.employee.domain.Employee;
+import com.example.demo.employee.service.IEmployeeService;
 import com.example.demo.log.config.SystemControllerLog;
 
 @RestController
@@ -59,6 +61,8 @@ public class ContractController {
 	@Autowired
 	private IContractService contractService;
 	
+	@Autowired
+	private IEmployeeService employeeService;
 	
 	/*----------------------------------------------系统业务--------------------------------------------*/
 	/*save*/
@@ -71,6 +75,8 @@ public class ContractController {
 			if(userId!=null) {
 				contract.setUserId(userId);
 				contract.setProcessStatus(ProcessStatus.NEW);
+				Employee employee=employeeService.EmployeeName(userId);
+				contract.setEmployee(employee);
 				contractService.save(contract);
     		}
 			return new ExtAjaxResponse(true,"保存成功！");
@@ -105,6 +111,7 @@ public class ContractController {
 		try {
 			Optional<Contract> contract=contractService.findById(id);
 			if(contract.get()!=null) {
+				contract.get().setEmployee(null);
 				contractService.deleteById(id);
 			}
 			return new ExtAjaxResponse(true,"删除成功！");

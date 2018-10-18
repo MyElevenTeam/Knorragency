@@ -30,7 +30,7 @@ Ext.define('Admin.view.file.FileInboxPanel', {
                     xtype: 'button',
                     ui: 'gray',
                     text: '写草稿',
-                    //iconCls:'fa fa-file-text-o',
+                    iconCls:'fa fa-file-text-o',
                     handler: 'openFileWindow'
                 },
                 '->',

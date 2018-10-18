@@ -24,14 +24,21 @@ Ext.define('Admin.view.file.FileWindow', {
             xtype: 'textfield',
             fieldLabel: 'emailStatus',
             name:'emailStatus',
-            value:'EDIT',
+            value:'',
             hidden: true,
             readOnly: true
         },{
             xtype: 'textfield',
             fieldLabel: 'readStatus',
             name:'readStatus',
-            value:'NOREAD',
+            value:'',
+            hidden: true,
+            readOnly: true
+        },{
+            xtype: 'textfield',
+            fieldLabel: 'inboxStatus',
+            name:'inboxStatus',
+            value:'',
             hidden: true,
             readOnly: true
         },{
@@ -94,7 +101,7 @@ Ext.define('Admin.view.file.FileWindow', {
     },{
         xtype: 'button',
         text: '保存',
-        iconCls:'fa fa-file-text-o',
+        iconCls:'fa fa-save',
         ui: 'gray',
         handler: 'submitEditFormButton'//预留提交事件，在ViewController中实现。
     },{

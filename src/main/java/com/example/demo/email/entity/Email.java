@@ -31,9 +31,11 @@ public class Email {
 	
 	private Employee employee;
 	
-	private EmailStatus emailStatus;
+	private EmailStatus emailStatus;   //标识是发送还是草稿
 	
-	private EmailStatus readStatus;
+	private EmailStatus readStatus;   //标识收件箱里是否已读
+	
+	private EmailStatus inboxStatus;   //用于区别已发送到收件箱
 	
 	private String emailAttachment;
 	
@@ -77,6 +79,10 @@ public class Email {
 	public EmailStatus getReadStatus() {
 		return readStatus;
 	}
+	
+	public EmailStatus getInboxStatus() {
+		return inboxStatus;
+	}
 
 	public String getEmailAttachment() {
 		return emailAttachment;
@@ -116,6 +122,10 @@ public class Email {
 	
 	public void setReadStatus(EmailStatus readStatus) {
 		this.readStatus = readStatus;
+	}
+	
+	public void setInboxStatus(EmailStatus inboxStatus) {
+		this.inboxStatus = inboxStatus;
 	}
 
 	public void setEmailAttachment(String emailAttachment) {

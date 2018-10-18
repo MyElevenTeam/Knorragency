@@ -26,6 +26,8 @@ public class EmailQueryDTO {
 	
 	private int emailStatus;
 	
+	private int inboxStatus;
+	
 	public String getEmployeeName() {
 		return employeeName;
 	}
@@ -73,6 +75,14 @@ public class EmailQueryDTO {
 	public void setEmailStatus(int emailStatus) {
 		this.emailStatus = emailStatus;
 	}
+	
+	public int getInboxStatus() {
+		return inboxStatus;
+	}
+
+	public void setInboxStatus(int inboxStatus) {
+		this.inboxStatus = inboxStatus;
+	}
 
 	@SuppressWarnings({ "serial"})
 	public static Specification<Email> getWhereClause(final EmailQueryDTO emailQueryDTO) {
@@ -102,6 +112,8 @@ public class EmailQueryDTO {
 					predicate.add(criteriaBuilder.lessThanOrEqualTo(root.get("sendTime").as(Date.class),
 							emailQueryDTO.getEndTime()));
 				}
+				predicate.add(criteriaBuilder.equal(root.get("inboxStatus").as(Integer.class),
+						emailQueryDTO.getInboxStatus()));
 				predicate.add(criteriaBuilder.equal(root.get("emailStatus").as(Integer.class),
 						emailQueryDTO.getEmailStatus()));
 				//predicate.add(criteriaBuilder.equal(root.get("id").as(Integer.class), userQueryDTO.getId()));

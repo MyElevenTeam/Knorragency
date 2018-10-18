@@ -1,7 +1,7 @@
-Ext.define('Admin.store.file.EditGridStroe', {
+Ext.define('Admin.store.file.SendGridStroe', {
     extend: 'Ext.data.Store',
-    storeId:'editGridStroe',
-    alias: 'store.editGridStroe',
+    storeId:'sendGridStroe',
+    alias: 'store.sendGridStroe',
 	model:'Admin.model.file.FileModel',
 
     //连接后台数据
