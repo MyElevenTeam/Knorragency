@@ -1,17 +1,32 @@
 package com.example.demo.email.controller;
 
+import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import javax.xml.ws.spi.http.HttpHandler;
 
+import org.apache.poi.hwpf.HWPFDocument;
+import org.apache.poi.hwpf.usermodel.Range;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseEntity;
+import org.springframework.util.ResourceUtils;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -36,6 +51,8 @@ import com.example.demo.email.service.IEmailService;
 import com.example.demo.employee.domain.Employee;
 import com.example.demo.employee.service.IEmployeeService;
 import com.example.demo.log.config.SystemControllerLog;
+
+import jodd.net.HttpStatus;
 
 @RestController
 @RequestMapping("/email")
@@ -245,6 +262,30 @@ public class EmailController {
         }
     }
 	
+	@SystemControllerLog(description="下载附件")
+	@RequestMapping("/downloadAttachment")
+	public void downloadAttachment(@RequestParam("fileName") String fileName,HttpServletRequest request, HttpServletResponse response) throws IOException  {
+		//获取用户下载的文件名称
+		fileName = new String(fileName.getBytes("ISO8859-1"),"UTF-8");
+		//获取文件上传路径
+		String basePath = request.getSession().getServletContext().getRealPath("/upload/");
+		//获取一个文件流
+		InputStream in = new FileInputStream(new File(basePath, fileName));
+		//进行中文处理
+		fileName = URLEncoder.encode(fileName, "UTF-8");
+		//设置下载的响应头
+		response.setHeader("content-disposition", "attachment;fileName="+fileName);
+		//获取response字节流
+		OutputStream out = response.getOutputStream();
+		byte[] b = new byte[1024];
+		int len = -1;
+		while ((len = in.read(b)) != -1) {
+			out.write(b, 0, len);
+		}
+		//关闭
+		out.close();
+		in.close();
+	}
 	
 	@SystemControllerLog(description="删除附件")
 	@PostMapping("/deleteAttachment")
