@@ -93,7 +93,7 @@ Ext.define('Admin.store.NavigationTree', {
                     {
                         text: '收信',
                         iconCls: 'x-fa fa-envelope',
-                        //viewType: 'fileInboxPanel',
+                        viewType: 'fileInboxPanel',
                         leaf: true
                     },
                     {
@@ -105,7 +105,7 @@ Ext.define('Admin.store.NavigationTree', {
                     {
                         text: '草稿箱',
                         iconCls: 'x-fa fa-envelope',
-                        //viewType: 'fileEditPanel',
+                        viewType: 'fileEditPanel',
                         leaf: true
                     }
                 ]
