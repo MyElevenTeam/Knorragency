@@ -92,19 +92,19 @@ Ext.define('Admin.store.NavigationTree', {
                 children: [
                     {
                         text: '收信',
-                        iconCls: 'x-fa fa-envelope',
+                        iconCls: 'x-fa fa-inbox',
                         viewType: 'fileInboxPanel',
                         leaf: true
                     },
                     {
                         text: '已发送',
-                        iconCls: 'x-fa fa-envelope',
-                        //viewType: 'fileSendPanel',
+                        iconCls: 'x-fa fa-send-o',
+                        viewType: 'fileSendPanel',
                         leaf: true
                     },
                     {
                         text: '草稿箱',
-                        iconCls: 'x-fa fa-envelope',
+                        iconCls: 'x-fa fa-tags',
                         viewType: 'fileEditPanel',
                         leaf: true
                     }

@@ -12,7 +12,8 @@ requires: [
 		{type: 'string',name: 'emailAttachment'},
 		{type: 'date', name: 'sendTime', dateFormat:'Y/m/d H:i:s'},
 		{type: 'string',name: 'emailStatus'},
-		{type:'string',name:'readStatus'}
+		{type:'string',name:'readStatus'},
+		{type:'string',name:'inboxStatus'}
 	],
 	proxy: {
 		type: 'rest',

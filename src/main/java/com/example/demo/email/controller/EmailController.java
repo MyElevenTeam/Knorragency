@@ -12,8 +12,11 @@ import javax.servlet.http.HttpSession;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -21,12 +24,14 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.example.demo.common.beans.BeanUtils;
 import com.example.demo.common.controller.ExtAjaxResponse;
 import com.example.demo.common.controller.ExtjsPageRequest;
 import com.example.demo.common.controller.SessionUtil;
 import com.example.demo.email.entity.Email;
 import com.example.demo.email.entity.EmailDTO;
 import com.example.demo.email.entity.EmailQueryDTO;
+import com.example.demo.email.entity.EmailStatus;
 import com.example.demo.email.service.IEmailService;
 import com.example.demo.employee.domain.Employee;
 import com.example.demo.employee.service.IEmployeeService;
@@ -51,6 +56,7 @@ public class EmailController {
 		if(userId!=null) {
 			emailQueryDTO.setEmployeeName(userId);
 			emailQueryDTO.setEmailStatus(0);
+			emailQueryDTO.setInboxStatus(0);
 		}
 		return emailService.findAll(EmailQueryDTO.getWhereClause(emailQueryDTO), pageRequest.getPageable());
 	}
@@ -64,7 +70,8 @@ public class EmailController {
 		String userId = SessionUtil.getUserName(session);  //通过session查找userId
 		if(userId!=null) {
 			emailQueryDTO.setEmailTo(userId);
-			emailQueryDTO.setEmailStatus(2);
+			emailQueryDTO.setEmailStatus(1);
+			emailQueryDTO.setInboxStatus(2);
 		}
 		return emailService.findAll(EmailQueryDTO.getWhereClause(emailQueryDTO), pageRequest.getPageable());
 	}
@@ -78,6 +85,7 @@ public class EmailController {
 		if(userId!=null) {
 			emailQueryDTO.setEmployeeName(userId);
 			emailQueryDTO.setEmailStatus(1);
+			emailQueryDTO.setInboxStatus(2);
 		}
 		return emailService.findAll(EmailQueryDTO.getWhereClause(emailQueryDTO), pageRequest.getPageable());
 	}
@@ -99,6 +107,99 @@ public class EmailController {
 			return new ExtAjaxResponse(true,"保存成功！");
 		} catch (Exception e) {
 			return new ExtAjaxResponse(false,"保存失败！");
+		}
+		
+	}
+	/*update*/
+	@SystemControllerLog(description="更新信息")
+	@PutMapping(value="{id}")  
+	public ExtAjaxResponse update(@PathVariable("id") Long Id,@RequestBody Email dto) {
+		
+		try {
+			Email entity = emailService.findOne(Id);
+			if(entity!=null) {
+				BeanUtils.copyProperties(dto, entity);//使用自定义的BeanUtils
+				entity.setSendTime(new Date());
+				emailService.save(entity);
+			}
+			return new ExtAjaxResponse(true,"更新成功！");
+		} catch (Exception e) {
+			return new ExtAjaxResponse(true,"更新失败！");
+		}
+	}
+	/*send one*/
+	@SystemControllerLog(description="发送一条")
+	@PostMapping("/sendOne")
+	public ExtAjaxResponse sendOne(@RequestParam(name="id") Long id) {
+		
+		try {
+			Email email=emailService.findOne(id);
+			if(email!=null) {
+				email.setEmailStatus(EmailStatus.SEND);
+				email.setInboxStatus(EmailStatus.INBOX);
+				email.setReadStatus(EmailStatus.NOREAD);
+				email.setSendTime(new Date());
+				emailService.save(email);
+			}
+			return new ExtAjaxResponse(true,"发送成功！");
+		} catch (Exception e) {
+			return new ExtAjaxResponse(false,"发送失败！");
+		}
+		
+	}
+	
+	/*send More*/
+	@SystemControllerLog(description="发送多条")
+	@PostMapping("/sendMore")
+	public ExtAjaxResponse sendMore(@RequestParam(name="ids") Long[] ids) {
+		
+		try {
+			for (int i = 0; i < ids.length; i++) {
+				Email email=emailService.findOne(ids[i]);
+				if(email!=null) {
+					email.setEmailStatus(EmailStatus.SEND);
+					email.setInboxStatus(EmailStatus.INBOX);
+					email.setReadStatus(EmailStatus.NOREAD);
+					email.setSendTime(new Date());
+					emailService.save(email);
+				}
+			}
+			return new ExtAjaxResponse(true,"批量发送成功！");
+		} catch (Exception e) {
+			return new ExtAjaxResponse(false,"批量发送失败！");
+		}
+		
+	}
+	
+	/*delete one*/
+	@SystemControllerLog(description="删除一条信息")
+	@DeleteMapping(value="{id}")    
+	public ExtAjaxResponse deleteById(@PathVariable("id") Long id) {
+		
+		try {
+			Email email=emailService.findOne(id);
+			if(email!=null) {
+				email.setEmployee(null);
+				emailService.delete(id);
+			}
+			return new ExtAjaxResponse(true,"删除成功！");
+		} catch (Exception e) {
+			return new ExtAjaxResponse(false,"删除失败！");
+		}
+		
+	}
+	/*delete rows*/
+	@SystemControllerLog(description="删除多条信息")
+	@PostMapping("/deletes")
+	public ExtAjaxResponse deleteRows(@RequestParam(name="ids") Long[] ids) {
+		
+		try {
+			if(ids!=null) {
+				emailService.deleteAll(ids);
+			}
+			return new ExtAjaxResponse(true,"批量删除成功！");
+		} catch (Exception e) {
+			return new ExtAjaxResponse(false,"批量删除失败！");
 		}
 		
 	}

@@ -24,6 +24,8 @@ public class EmailDTO {
 	
 	private EmailStatus readStatus;
 	
+	private EmailStatus inboxStatus;
+	
 	private String emailAttachment;
 	
 	public Long getId() {
@@ -97,6 +99,14 @@ public class EmailDTO {
 
 	public void setReadStatus(EmailStatus readStatus) {
 		this.readStatus = readStatus;
+	}
+	
+	public EmailStatus getInboxStatus() {
+		return inboxStatus;
+	}
+
+	public void setInboxStatus(EmailStatus inboxStatus) {
+		this.inboxStatus = inboxStatus;
 	}
 
 	public String getEmailAttachment() {
