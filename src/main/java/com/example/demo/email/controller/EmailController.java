@@ -12,6 +12,7 @@ import javax.servlet.http.HttpSession;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -20,15 +21,12 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.example.demo.activiti.entity.ProcessStatus;
 import com.example.demo.common.controller.ExtAjaxResponse;
 import com.example.demo.common.controller.ExtjsPageRequest;
 import com.example.demo.common.controller.SessionUtil;
-import com.example.demo.contract.entity.Contract;
 import com.example.demo.email.entity.Email;
 import com.example.demo.email.entity.EmailDTO;
 import com.example.demo.email.entity.EmailQueryDTO;
-import com.example.demo.email.entity.EmailStatus;
 import com.example.demo.email.service.IEmailService;
 import com.example.demo.employee.domain.Employee;
 import com.example.demo.employee.service.IEmployeeService;
@@ -44,60 +42,48 @@ public class EmailController {
 	@Autowired
 	private IEmployeeService employeeService;
 	
+	/*findEdit*/
 	@SystemControllerLog(description="查询草稿箱")
-	@RequestMapping("/findEmailEdit")
-	public Page<EmailDTO> findEmailEdit(HttpSession session,EmailQueryDTO emailQueryDTO,ExtjsPageRequest pageRequest){
-		String userId = SessionUtil.getUserName(session);
+	@GetMapping 
+	public Page<EmailDTO> findEdit(HttpSession session,EmailQueryDTO emailQueryDTO,ExtjsPageRequest pageRequest) {
+		
+		String userId = SessionUtil.getUserName(session);  //通过session查找userId
 		if(userId!=null) {
-			Employee employee=employeeService.EmployeeName(userId);
-			if(employee!=null) {
-				emailQueryDTO.setEmployeeName(employee.getEmployeeName());
-				emailQueryDTO.setEmailStatus(0);
-			}
+			emailQueryDTO.setEmployeeName(userId);
+			emailQueryDTO.setEmailStatus(0);
 		}
 		return emailService.findAll(EmailQueryDTO.getWhereClause(emailQueryDTO), pageRequest.getPageable());
 	}
 	
-	@SystemControllerLog(description="查询已发送邮件")
-	@RequestMapping("/findEmailSend")
-	public Page<EmailDTO> findEmailSend(HttpSession session,EmailQueryDTO emailQueryDTO,ExtjsPageRequest pageRequest){
-		String userId = SessionUtil.getUserName(session);
-		if(userId!=null) {
-			Employee employee=employeeService.EmployeeName(userId);
-			if(employee!=null) {
-				emailQueryDTO.setEmployeeName(employee.getEmployeeName());
-				emailQueryDTO.setEmailStatus(1);
-			}
-		}
-		return emailService.findAll(EmailQueryDTO.getWhereClause(emailQueryDTO), pageRequest.getPageable());
-	}
 	
-	@SystemControllerLog(description="查询回收站")
-	@RequestMapping("/findEmailTrash")
-	public Page<EmailDTO> findEmailTrash(HttpSession session,EmailQueryDTO emailQueryDTO,ExtjsPageRequest pageRequest){
-		String userId = SessionUtil.getUserName(session);
-		if(userId!=null) {
-			Employee employee=employeeService.EmployeeName(userId);
-			if(employee!=null) {
-				emailQueryDTO.setEmployeeName(employee.getEmployeeName());
-				emailQueryDTO.setEmailStatus(2);
-			}
-		}
-		return emailService.findAll(EmailQueryDTO.getWhereClause(emailQueryDTO), pageRequest.getPageable());
-	}
-	
+	/*findInbox*/
 	@SystemControllerLog(description="查询收件箱")
-	@RequestMapping("/findEmailInbox")
-	public Page<EmailDTO> findEmailInbox(HttpSession session,EmailQueryDTO emailQueryDTO,ExtjsPageRequest pageRequest){
-		String userId = SessionUtil.getUserName(session);
+	@RequestMapping("/findInbox") 
+	public Page<EmailDTO> findInbox(HttpSession session,EmailQueryDTO emailQueryDTO,ExtjsPageRequest pageRequest) {
+		
+		String userId = SessionUtil.getUserName(session);  //通过session查找userId
 		if(userId!=null) {
 			emailQueryDTO.setEmailTo(userId);
+			emailQueryDTO.setEmailStatus(2);
+		}
+		return emailService.findAll(EmailQueryDTO.getWhereClause(emailQueryDTO), pageRequest.getPageable());
+	}
+	
+	/*findSend*/
+	@SystemControllerLog(description="查询已发送")
+	@RequestMapping("/findSend") 
+	public Page<EmailDTO> findSend(HttpSession session,EmailQueryDTO emailQueryDTO,ExtjsPageRequest pageRequest) {
+		
+		String userId = SessionUtil.getUserName(session);  //通过session查找userId
+		if(userId!=null) {
+			emailQueryDTO.setEmployeeName(userId);
 			emailQueryDTO.setEmailStatus(1);
 		}
 		return emailService.findAll(EmailQueryDTO.getWhereClause(emailQueryDTO), pageRequest.getPageable());
 	}
 	
-	@SystemControllerLog(description="保存邮件信息")
+	/*save*/
+	@SystemControllerLog(description="保存信息")
 	@PostMapping
 	public ExtAjaxResponse saveOne(HttpSession session,@RequestBody Email email) {
 		
@@ -105,11 +91,10 @@ public class EmailController {
 			String userId = SessionUtil.getUserName(session);
 			if(userId!=null) {
 				Employee employee=employeeService.EmployeeName(userId);
-				if(employee!=null) {
-					email.setEmployee(employee);
-					email.setEmailStatus(EmailStatus.EDIT);
-					emailService.save(email);
-				}
+				email.setEmailFrom(userId);
+				email.setEmployee(employee);
+				email.setSendTime(new Date());
+				emailService.save(email);
     		}
 			return new ExtAjaxResponse(true,"保存成功！");
 		} catch (Exception e) {
