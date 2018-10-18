@@ -1,6 +1,7 @@
 Ext.define('Admin.store.notice.NoticePanelStore', {
     extend: 'Ext.data.Store',
     alias: 'store.noticePanelStore',
+    storeId:'noticePanelStore',
 	model:'Admin.model.notice.NoticeModel',
 
     //连接后台数据
@@ -19,4 +20,4 @@ Ext.define('Admin.store.notice.NoticePanelStore', {
 	},
 	autoLoad: true,
     autoSync: true
-});
+ });

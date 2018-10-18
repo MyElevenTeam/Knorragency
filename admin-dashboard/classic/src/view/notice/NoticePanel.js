@@ -5,6 +5,17 @@
     }else{
         EXT.Msg.alert('Not support websocket');
     }
+    //接收到消息的回调方法
+    websocket.onmessage = function(event){
+        // console.log(event.date);
+         Ext.getCmp("notice_panel").getStore().load();
+    }
+
+    //监听窗口关闭事件，当窗口关闭时，主动去关闭websocket连接，防止连接还没断开就关闭窗口，server端会抛异常。
+    window.onbeforeunload = function(){
+        websocket.close();
+    }
+
 });
 Ext.define('Admin.view.notice.NoticePanel', {
     extend: 'Ext.panel.Panel',
@@ -19,6 +30,7 @@ Ext.define('Admin.view.notice.NoticePanel', {
     layout: 'fit',
     items: [{
             xtype: 'gridpanel',
+            id:"notice_panel",
             cls: 'user-grid',
             title: '历史公告',
             //routeId: 'user',

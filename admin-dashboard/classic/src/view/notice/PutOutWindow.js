@@ -18,6 +18,12 @@ Ext.define('Aria.view.notice.PutOutWindow', {
         padding: '10px',
         ariaLabel: 'Enter your name',
         items: [{
+            xtype: 'textfield',
+            fieldLabel: 'id',
+            name:'id',
+            hidden: true,
+            readOnly: true
+        },{
             xtype: 'datefield',
             fieldLabel: 'Create Time',
             name:'time',
@@ -41,11 +47,3 @@ Ext.define('Aria.view.notice.PutOutWindow', {
         handler: 'submitAddForm'
     }]
 });
-// xtype     : 'textareafield',
-//             grow      : true,
-//             name      : 'reason',
-//             fieldLabel: '请假原因',
-//             anchor    : '100%',
-//             emptyText:'请填写请假原因',
-//             allowBlank: false,
-//             blankText:'请填写请假原因'
