@@ -84,14 +84,33 @@ Ext.define('Admin.store.NavigationTree', {
                 //rowCls: 'nav-tree-badge nav-tree-badge-new',
                 viewType: 'processDefinition',
                 leaf: true
-            }/*,{
-                text: '企业信箱',
+            },{
+                text: '文件传送',
                 iconCls: 'x-fa fa-envelope',
-                //rowCls: 'nav-tree-badge nav-tree-badge-new',
-                viewType: 'email',
-                leaf: true
+                expanded: false,
+                selectable: false,
+                children: [
+                    {
+                        text: '收信',
+                        iconCls: 'x-fa fa-envelope',
+                        //viewType: 'fileInboxPanel',
+                        leaf: true
+                    },
+                    {
+                        text: '已发送',
+                        iconCls: 'x-fa fa-envelope',
+                        //viewType: 'fileSendPanel',
+                        leaf: true
+                    },
+                    {
+                        text: '草稿箱',
+                        iconCls: 'x-fa fa-envelope',
+                        //viewType: 'fileEditPanel',
+                        leaf: true
+                    }
+                ]
 
-            }*/
+            }
             ,{
                 text: '公告',
                 iconCls: 'x-fa fa-envelope',
