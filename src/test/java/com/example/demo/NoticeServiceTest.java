@@ -28,10 +28,5 @@ public class NoticeServiceTest {
 			noticeService.save(tmp);
 		}
 	}
-	@Test
-	public void findAll() {
-		noticeService.findAll(null, null);
-		//noticeRepository.findAll();
-	}
-
+	
 }

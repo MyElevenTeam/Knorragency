@@ -41,6 +41,10 @@ public class Notice {
 	public void setTime(Date time) {
 		this.time = time;
 	}
+	@Override
+	public String toString() {
+		return "Notice [id=" + id + ", message=" + message + ", time=" + time + "]";
+	}
 	
 		
 }
