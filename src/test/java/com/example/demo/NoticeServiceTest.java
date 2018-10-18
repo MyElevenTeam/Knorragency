@@ -2,6 +2,8 @@ package com.example.demo;
 
 import java.util.Date;
 
+import javax.transaction.Transactional;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,8 +19,7 @@ import com.example.demo.notice.service.INoticeService;
 public class NoticeServiceTest {
 	@Autowired
 	INoticeService noticeService;
-	@Autowired
-	NoticeRepository noticeRepository;
+
 	@Test
 	public void saveData() {
 		for(int i=0;i<10;i++) {
