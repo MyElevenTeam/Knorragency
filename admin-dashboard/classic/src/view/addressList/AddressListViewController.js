@@ -8,14 +8,14 @@ Ext.define('Admin.view.addressList.AddressListViewController', {
 		
 		var store =	btn.up('gridpanel').getStore();
 		//var store = Ext.getCmp('userGridPanel').getStore();// Ext.getCmp(）需要在OrderPanel设置id属性
-		Ext.apply(store.proxy.extraParams, {employeeName:"",employeeNumber:"",employeeArea:"",post:""});
+		Ext.apply(store.proxy.extraParams, {employeeName:"",storeNumber:"",storeArea:"",post:""});
 		
 		if(searchField==='employeeName'){
 			Ext.apply(store.proxy.extraParams, {employeeName:searchValue});
 		}else if(searchField==='employeeNumber'){
-			Ext.apply(store.proxy.extraParams, {employeeNumber:searchValue});
+			Ext.apply(store.proxy.extraParams, {storeNumber:searchValue});
 		}else if(searchField==='employeeArea'){
-			Ext.apply(store.proxy.extraParams, {employeeArea:searchValue});
+			Ext.apply(store.proxy.extraParams, {storeArea:searchValue});
 		}else if(searchField==='post'){
 			Ext.apply(store.proxy.extraParams, {post:searchValue});
 		}

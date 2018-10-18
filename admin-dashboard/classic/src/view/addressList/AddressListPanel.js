@@ -19,8 +19,8 @@
             columns: [
                 {xtype: 'gridcolumn',width: 40,dataIndex: 'id',text: '#',hidden:true},
                 {xtype: 'gridcolumn', cls: 'content-column',dataIndex: 'employeeName',text: 'Name',flex: 1},
-                {xtype: 'gridcolumn',cls: 'content-column',dataIndex: 'employeeNumber',text: 'Number',flex: 1},
-                {xtype: 'gridcolumn',cls: 'content-column',dataIndex: 'employeeArea',text: 'Area',flex: 1},
+                {xtype: 'gridcolumn',cls: 'content-column',dataIndex: 'storeNumber',text: 'Number',flex: 1},
+                {xtype: 'gridcolumn',cls: 'content-column',dataIndex: 'storeArea',text: 'Area',flex: 1},
                 {xtype: 'gridcolumn',cls: 'content-column',dataIndex: 'post',text: 'post',flex: 1},
                 {xtype: 'gridcolumn',cls: 'content-column',dataIndex: 'email',text: 'email',flex: 1},
                 {xtype: 'actioncolumn',cls: 'content-column', width: 120,dataIndex: 'bool',text: 'Actions',tooltip: 'edit ',
