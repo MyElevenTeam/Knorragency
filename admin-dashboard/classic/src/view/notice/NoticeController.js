@@ -6,7 +6,14 @@ Ext.define('Admin.view.notice.NoticeController', {
 		btn.up('panel').up('container').add(Ext.widget('putOutWindow')).show();
 	},
 	submitAddForm:function(btn){
-		var store=btn.up('window').down('form').getValues();
-		websocket.send(JSON.stringify({"message":store["message"],"time":store["time"]}));
+		 var values=btn.up('window').down('form').getValues();
+		 websocket.send("成功");
+		 var record = Ext.create('Admin.model.notice.NoticeModel');
+         record.set(values);
+         record.save();
+         // Ext.getCmp("notice_panel").getStore().load();
+         // Ext.data.StoreManager.lookup('noticePanelStore').load();
+         // var store=Ext.data.StoreManager.lookup('noticeDate');
+         // setTimeout(store.load(),'1000');
 	}
 });

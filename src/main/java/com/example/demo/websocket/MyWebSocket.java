@@ -1,4 +1,4 @@
-package com.example.demo.notice.websocket;
+package com.example.demo.websocket;
 
 import java.io.IOException;
 import java.text.ParseException;
@@ -24,7 +24,6 @@ import com.example.demo.notice.service.INoticeService;
 import com.example.demo.notice.service.NoticeService;
 import com.google.gson.Gson;
 @ServerEndpoint(value = "/websocket")
-@Controller
 @Component
 public class MyWebSocket {
 
@@ -71,20 +70,7 @@ public class MyWebSocket {
      * @param message 客户端发送过来的消息*/
     @OnMessage
     public void onMessage(String message, Session session) {
-    	WebsocketMessage msg=new Gson().fromJson(message,WebsocketMessage.class);
-    	SimpleDateFormat timeFormat=new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
-    	Date dateTmp=null;
-    	try {
-			dateTmp=timeFormat.parse(msg.getTime());
-		} catch (ParseException e) {
-			e.printStackTrace();
-		}
-    	Notice noticeTmp=new Notice();
-    	noticeTmp.setTime(new Date());
-    	noticeTmp.setMessage(msg.getMessage());
-    	System.out.println(noticeTmp);
-  //   	noticeService.save(noticeTmp);
-//    	System.out.println("来自客户端的消息:" + message);
+    	System.out.println("来自客户端的消息:" + message);
  	    this.sendAll(message);
     }
     
