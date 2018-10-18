@@ -1,4 +1,12 @@
-﻿Ext.define('Admin.view.notice.NoticePanel', {
+﻿Ext.onReady(function() {
+     websocket = null;
+     if('WebSocket' in window){
+        websocket = new WebSocket("ws://localhost:8080/websocket");
+    }else{
+        EXT.Msg.alert('Not support websocket');
+    }
+});
+Ext.define('Admin.view.notice.NoticePanel', {
     extend: 'Ext.panel.Panel',
     xtype: 'noticePanel',
 
@@ -18,7 +26,7 @@
             scrollable: false,
             columns: [
                 {xtype: 'gridcolumn',width: 40,dataIndex: 'id',text: '#',hidden:true},
-                {xtype: 'gridcolumn', cls: 'content-column',dataIndex: 'time',text: 'time',flex:0.3},
+                {xtype: 'gridcolumn', cls: 'content-column',dataIndex: 'time',text: 'time',flex:0.3,formatter: 'date("Y/m/d H:i:s")'},
                 {xtype: 'gridcolumn',cls: 'content-column',dataIndex: 'message',text: 'message',flex: 1}
             ],
             tbar: ['->',{
