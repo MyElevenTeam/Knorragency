@@ -189,7 +189,7 @@ public class EmployeeService implements IEmployeeService {
 					employeeNumber=entity.getStoreNumber()+id.toString().substring(id.toString().length()-6);
 				}
 				employee.setEmployeeNumber(employeeNumber);
-				employee.setEmail(employeeNumber+"@knorr.com");
+				//employee.setEmail(employeeNumber+"@knorr.com");
 				
 				//这里要先把entity添加到employee里的localStore，再把employee添加到entity里的List里
 				//否则无法保存employee的信息
