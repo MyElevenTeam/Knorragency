@@ -37,6 +37,8 @@ public class Email {
 	
 	private EmailStatus inboxStatus;   //用于区别已发送到收件箱
 	
+	private EmailStatus replyStatus;   //用于区别是否已回复
+	
 	private String emailAttachment;
 	
 	@Id
@@ -83,6 +85,10 @@ public class Email {
 	public EmailStatus getInboxStatus() {
 		return inboxStatus;
 	}
+	
+	public EmailStatus getReplyStatus() {
+		return replyStatus;
+	}
 
 	public String getEmailAttachment() {
 		return emailAttachment;
@@ -126,6 +132,10 @@ public class Email {
 	
 	public void setInboxStatus(EmailStatus inboxStatus) {
 		this.inboxStatus = inboxStatus;
+	}
+	
+	public void setReplyStatus(EmailStatus replyStatus) {
+		this.replyStatus = replyStatus;
 	}
 
 	public void setEmailAttachment(String emailAttachment) {

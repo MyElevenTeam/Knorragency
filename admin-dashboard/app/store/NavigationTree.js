@@ -91,6 +91,12 @@ Ext.define('Admin.store.NavigationTree', {
                 selectable: false,
                 children: [
                     {
+                        text: '写信',
+                        iconCls: 'x-fa  fa-leaf ',
+                        viewType: 'fileWritePanel',
+                        leaf: true
+                    },
+                    {
                         text: '收信',
                         iconCls: 'x-fa fa-inbox',
                         viewType: 'fileInboxPanel',

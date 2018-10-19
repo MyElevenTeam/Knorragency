@@ -1,6 +1,5 @@
 Ext.define('Admin.store.file.SendGridStroe', {
     extend: 'Ext.data.Store',
-    storeId:'sendGridStroe',
     alias: 'store.sendGridStroe',
 	model:'Admin.model.file.FileModel',
 
