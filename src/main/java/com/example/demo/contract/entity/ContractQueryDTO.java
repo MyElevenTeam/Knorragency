@@ -23,7 +23,9 @@ public class ContractQueryDTO {
 	
 	private String contractType;     //合同类型
 	
-	private String storeName;            //地方
+	private String storeName;       //门店
+	
+	private String houseName;
 	
 	@DateTimeFormat(pattern="yyyy/MM/dd HH:mm:ss")  
 	private Date timeStart;
@@ -70,6 +72,14 @@ public class ContractQueryDTO {
 	public void setStoreName(String storeName) {
 		this.storeName = storeName;
 	}
+	
+	public String getHouseName() {
+		return houseName;
+	}
+
+	public void setHouseName(String houseName) {
+		this.houseName = houseName;
+	}
 
 	public Date getTimeStart() {
 		return timeStart;
@@ -114,6 +124,10 @@ public class ContractQueryDTO {
 				if(StringUtils.isNoneBlank(contractQueryDTO.getStoreName())) {
 					predicate.add(criteriaBuilder.like(root.get("employee").get("localStore").get("storeName").as(String.class),
 							"%" + contractQueryDTO.getStoreName() + "%"));
+				}
+				if(StringUtils.isNoneBlank(contractQueryDTO.getHouseName())) {
+					predicate.add(criteriaBuilder.like(root.get("houseName").as(String.class),
+							"%" + contractQueryDTO.getHouseName() + "%"));
 				}
 				if (null!=contractQueryDTO.getTimeStart()) {
 					predicate.add(criteriaBuilder.greaterThanOrEqualTo(root.get("time").as(Date.class),

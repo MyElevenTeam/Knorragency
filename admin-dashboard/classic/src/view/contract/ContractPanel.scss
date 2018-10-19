@@ -3,15 +3,6 @@
 }
 
 .has-border .fa {
-    &.fa-cloud-download{
-        background-color: $grid-item-close-btn-color;
-        color: $lightest-color;
-    }
-
-    &.fa-cloud-upload{
-        background-color: $grid-item-ban-btn-color;
-        color: $lightest-color;
-    }
 
     &.fa-trash{
         font-size: 13px !important;

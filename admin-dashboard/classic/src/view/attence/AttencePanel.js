@@ -40,62 +40,41 @@ Ext.define('Admin.view.attence.AttencePanel', {
                 },
                 '->',
                 {
-                        xtype:'splitbutton',
-                        id:'attence_gridfilters',
-                        text:'请选择搜索条件',
-                        menu:[
-                        {
-                            xtype: 'menucheckitem',
-                            text: '上班时间',
-                            menu:[
-                                {
-                                    xtype: 'datefield',
-                                    id:'attence_workinTime',
-                                    value:new Date(),
-                                    format: 'Y/m/d H:i:s',
-                                    listeners:{
-                                        specialkey: 'searchAttence'
-                                    }
-                                }
-                            ]
-                        },{
-                            xtype: 'menucheckitem',                           
-                            text: '下班时间',
-                            menu:[
-                                {
-                                    xtype: 'datefield',
-                                    id:'attence_workoutTime',
-                                    value:new Date(),
-                                    format: 'Y/m/d H:i:s',
-                                    listeners:{
-                                        specialkey: 'searchAttence'
-                                    }
-                                }
-                            ]
-                        }]
-                    },'-',{
-                        iconCls:'fa fa-search fa-5x',
-                        ui: 'header',
-                        tooltip: '查找',
-                        id:'attence_searchOpen',
-                        handler:'searchOpen'   
-                    },'-',{
-                        iconCls:'fa fa-close fa-5x',
-                        ui: 'header',
-                        tooltip: '取消',
-                        id:'attence_searchClose',
-                        handler:'searchClose'   
-                    },
+                    xtype: 'datefield',
+                    hideLabel: true,
+                    format: 'Y/m/d H:i:s',
+                    reference:'searchDataFieldValue',
+                    fieldLabel: 'From',
+                    emptyText:'-----开始时间-----',
+                    name: 'from_date'
+                },{
+                    xtype: 'datefield',
+                    hideLabel: true,
+                    format: 'Y/m/d H:i:s',
+                    reference:'searchDataFieldValue2',
+                    fieldLabel: 'To',
+                    emptyText:'-----结束时间-----',
+                    name: 'to_date'
+                },
+                {
+                    iconCls:'fa fa-search fa-5x',
+                    ui: 'header',
+                    tooltip: '查找',
+                    handler:'searchAttence'   
+                },
                 '-',
                 {
-                    iconCls:'fa fa-download fa-5x',
-                    ui: 'header',
+                    xtype: 'button',
+                    text: '导出个人考勤表',
+                    iconCls:'fa fa-download',
+                    ui: 'soft-green',
                     tooltip: '导出个人考勤表'
                 }
         	]   
         },
         {
             xtype: 'gridpanel',
+            id:'attence_gridpanel',
             cls: 'has-border',
             flex: 2,
             bind: '{attenceLists}',

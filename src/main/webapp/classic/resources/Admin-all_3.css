@@ -4653,21 +4653,11 @@
 .has-border {
     border: solid 8px #dfdfdf;
 }
-/* C:/Users/Administrator/git/Knorragency/admin-dashboard/classic/src/view/contract/ContractPanel.scss:6 */
-.has-border .fa.fa-cloud-download {
-    background-color: #fc8999;
-    color: #fff;
-}
-/* C:/Users/Administrator/git/Knorragency/admin-dashboard/classic/src/view/contract/ContractPanel.scss:11 */
-.has-border .fa.fa-cloud-upload {
-    background-color: #ffc000;
-    color: #fff;
-}
-/* C:/Users/Administrator/git/Knorragency/admin-dashboard/classic/src/view/contract/ContractPanel.scss:16 */
+/* C:/Users/Administrator/git/Knorragency/admin-dashboard/classic/src/view/contract/ContractPanel.scss:7 */
 .has-border .fa.fa-trash {
     font-size: 13px !important;
 }
-/* C:/Users/Administrator/git/Knorragency/admin-dashboard/classic/src/view/contract/ContractPanel.scss:21 */
+/* C:/Users/Administrator/git/Knorragency/admin-dashboard/classic/src/view/contract/ContractPanel.scss:12 */
 .has-border .x-fa {
     height: 20px;
     width: 20px;
@@ -4676,27 +4666,27 @@
     float: left;
     margin-right: 10px;
 }
-/* C:/Users/Administrator/git/Knorragency/admin-dashboard/classic/src/view/contract/ContractPanel.scss:29 */
+/* C:/Users/Administrator/git/Knorragency/admin-dashboard/classic/src/view/contract/ContractPanel.scss:20 */
 .has-border .x-fa:before {
     display: block;
     line-height: 20px;
     text-align: center;
 }
-/* C:/Users/Administrator/git/Knorragency/admin-dashboard/classic/src/view/contract/ContractPanel.scss:35 */
+/* C:/Users/Administrator/git/Knorragency/admin-dashboard/classic/src/view/contract/ContractPanel.scss:26 */
 .has-border .x-fa.fa-close {
     background-color: #fc8999;
     color: #fff;
 }
-/* C:/Users/Administrator/git/Knorragency/admin-dashboard/classic/src/view/contract/ContractPanel.scss:40 */
+/* C:/Users/Administrator/git/Knorragency/admin-dashboard/classic/src/view/contract/ContractPanel.scss:31 */
 .has-border .x-fa.fa-ban {
     background-color: #ffc000;
     color: #fff;
 }
-/* C:/Users/Administrator/git/Knorragency/admin-dashboard/classic/src/view/contract/ContractPanel.scss:45 */
+/* C:/Users/Administrator/git/Knorragency/admin-dashboard/classic/src/view/contract/ContractPanel.scss:36 */
 .has-border .x-fa.x-action-col-icon {
     font-size: 13px !important;
 }
-/* C:/Users/Administrator/git/Knorragency/admin-dashboard/classic/src/view/contract/ContractPanel.scss:50 */
+/* C:/Users/Administrator/git/Knorragency/admin-dashboard/classic/src/view/contract/ContractPanel.scss:41 */
 .has-border .x-column-header {
     line-height: 25px;
     font-family: Microsoft Yahei;
@@ -4704,6 +4694,19 @@
     font-weight: bold;
     color: #32a3a7;
     background-color: #f5f5f5;
+}
+/* C:/Users/Administrator/git/Knorragency/admin-dashboard/classic/src/view/contract/ContractSearchWindow.scss:1 */
+.search .x-form-trigger-wrap {
+    width: 170px;
+    height: 32px;
+    position: absolute;
+    top: 88%;
+    left: 38%;
+}
+/* C:/Users/Administrator/git/Knorragency/admin-dashboard/classic/src/view/contract/ContractSearchWindow.scss:8 */
+.searchinput .x-form-trigger-wrap {
+    width: 250px;
+    height: 32px;
 }
 /* C:/Users/Administrator/git/Knorragency/admin-dashboard/classic/src/view/contract/LookContractWindow.scss:1 */
 .lookcontract .x-form-trigger-wrap {
@@ -4983,25 +4986,25 @@
 .x-tool-wrench:before {
     content: "\f0ad";
 }
-/* C:/Users/Administrator/git/Knorragency/admin-dashboard/classic/src/view/file/file/FileInboxPanel.scss:1 */
+/* C:/Users/Administrator/git/Knorragency/admin-dashboard/classic/src/view/file/FileInboxPanel.scss:1 */
 .has-border {
     border: solid 8px #dfdfdf;
 }
-/* C:/Users/Administrator/git/Knorragency/admin-dashboard/classic/src/view/file/file/FileInboxPanel.scss:6 */
+/* C:/Users/Administrator/git/Knorragency/admin-dashboard/classic/src/view/file/FileInboxPanel.scss:6 */
 .has-border .fa.fa-cloud-download {
     background-color: #fc8999;
     color: #fff;
 }
-/* C:/Users/Administrator/git/Knorragency/admin-dashboard/classic/src/view/file/file/FileInboxPanel.scss:11 */
+/* C:/Users/Administrator/git/Knorragency/admin-dashboard/classic/src/view/file/FileInboxPanel.scss:11 */
 .has-border .fa.fa-cloud-upload {
     background-color: #ffc000;
     color: #fff;
 }
-/* C:/Users/Administrator/git/Knorragency/admin-dashboard/classic/src/view/file/file/FileInboxPanel.scss:16 */
+/* C:/Users/Administrator/git/Knorragency/admin-dashboard/classic/src/view/file/FileInboxPanel.scss:16 */
 .has-border .fa.fa-trash {
     font-size: 13px !important;
 }
-/* C:/Users/Administrator/git/Knorragency/admin-dashboard/classic/src/view/file/file/FileInboxPanel.scss:21 */
+/* C:/Users/Administrator/git/Knorragency/admin-dashboard/classic/src/view/file/FileInboxPanel.scss:21 */
 .has-border .x-fa {
     height: 20px;
     width: 20px;
@@ -5010,27 +5013,27 @@
     float: left;
     margin-right: 10px;
 }
-/* C:/Users/Administrator/git/Knorragency/admin-dashboard/classic/src/view/file/file/FileInboxPanel.scss:29 */
+/* C:/Users/Administrator/git/Knorragency/admin-dashboard/classic/src/view/file/FileInboxPanel.scss:29 */
 .has-border .x-fa:before {
     display: block;
     line-height: 20px;
     text-align: center;
 }
-/* C:/Users/Administrator/git/Knorragency/admin-dashboard/classic/src/view/file/file/FileInboxPanel.scss:35 */
+/* C:/Users/Administrator/git/Knorragency/admin-dashboard/classic/src/view/file/FileInboxPanel.scss:35 */
 .has-border .x-fa.fa-close {
     background-color: #fc8999;
     color: #fff;
 }
-/* C:/Users/Administrator/git/Knorragency/admin-dashboard/classic/src/view/file/file/FileInboxPanel.scss:40 */
+/* C:/Users/Administrator/git/Knorragency/admin-dashboard/classic/src/view/file/FileInboxPanel.scss:40 */
 .has-border .x-fa.fa-ban {
     background-color: #ffc000;
     color: #fff;
 }
-/* C:/Users/Administrator/git/Knorragency/admin-dashboard/classic/src/view/file/file/FileInboxPanel.scss:45 */
+/* C:/Users/Administrator/git/Knorragency/admin-dashboard/classic/src/view/file/FileInboxPanel.scss:45 */
 .has-border .x-fa.x-action-col-icon {
     font-size: 13px !important;
 }
-/* C:/Users/Administrator/git/Knorragency/admin-dashboard/classic/src/view/file/file/FileInboxPanel.scss:50 */
+/* C:/Users/Administrator/git/Knorragency/admin-dashboard/classic/src/view/file/FileInboxPanel.scss:50 */
 .has-border .x-column-header {
     line-height: 25px;
     font-family: Microsoft Yahei;

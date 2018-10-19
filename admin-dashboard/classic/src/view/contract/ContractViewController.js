@@ -9,14 +9,24 @@ Ext.define('Admin.view.contract.ContractViewController', {
         toolbar.up('grid').up('container').add(Ext.widget('contractAddWindow')).show();
     },
     submitContractEditFormButton:function(btn){
-        var win    = btn.up('window');
+        var win  = btn.up('window');
         var form = win.down('form');
-        var record = Ext.create('Admin.model.contract.ContractModel');
-        var values  =form.getValues();//获取form数据
-        record.set(values);
-        record.save();
-        Ext.data.StoreManager.lookup('contractGridStroe').load();
-        win.close();
+        if(form.isValid()){
+            var record = Ext.create('Admin.model.contract.ContractModel');
+            var values  =form.getValues();//获取form数据
+            if(Ext.getCmp('contractType').getRawValue()=='--------请选择合同类型---------'){
+                Ext.Msg.alert('提示', '请选择合同类型');
+            }else{
+                values.contractType=Ext.getCmp('contractType').getRawValue();
+                record.set(values);
+                record.save();
+                Ext.data.StoreManager.lookup('contractGridStroe').load();
+                win.close();
+            }
+        }else{
+          Ext.Msg.alert('提示', '请填写正确的合同格式');
+        }
+        
     },
     /*上传合同信息*/
     uploadContract:function(btn){
@@ -44,9 +54,19 @@ Ext.define('Admin.view.contract.ContractViewController', {
           Ext.Msg.alert('Error', '请选择文件');
       }
       
-    },
-
-    /*删除合同信息*/
+  },
+  /*下载合同信息*/
+  onDownloadButton:function(grid, rowIndex, colIndex){
+      var store = grid.getStore();
+      var record = store.getAt(rowIndex);
+      if(record.data.processStatus=="NEW"||record.data.processStatus=="COMPLETE"){
+          var id=record.data.id;
+          window.location = "/contract/downloadWord?id="+id;
+      }else{
+         Ext.Msg.alert('提示', "该合同处于审核状态无法下载！");
+      }
+  },
+  /*删除合同信息*/
 	onDeleteButton:function(grid, rowIndex, colIndex){
 
     var store = grid.getStore();
@@ -102,43 +122,30 @@ Ext.define('Admin.view.contract.ContractViewController', {
 		
    },
 
-   
-
-  searchOpen:function(btn){
-    Ext.getCmp('contract_searchOpen').hide();
-    Ext.getCmp('contract_gridfilters').show();
-  },
   /*查询*/
-  searchContract:function(textfield,e){
-      if(e.getKey() == Ext.EventObject.ENTER){
-          var contractNumber=Ext.getCmp('contract_contractNumber').getValue();
-          var customerName=Ext.getCmp('contract_customerName').getValue();
-          // var employeeName=Ext.getCmp('contract_employeeName').getValue();
-          // var contractType=Ext.getCmp('contract_contractType').getValue();
-          // var timeStart=Ext.getCmp('contract_timeStart').getValue();
-          // var timeEnd=Ext.getCmp('contract_timeEnd').getValue();
-
-          alert(contractNumber);
-          alert(customerName);
-          //alert(employeeName);
-          /*var store = Ext.data.StoreManager.lookup('contractGridStroe');
-          Ext.apply(store.proxy.extraParams, {contractNumber:"",customerName:"",employeeName:"",contractType:"",timeStart:"",timeEnd:""});
-          Ext.apply(store.proxy.extraParams,{
-            contractNumber:contractNumber,
-            customerName:customerName,
-            employeeName:employeeName,
-            contractType:contractType,
-            timeStart:Ext.util.Format.date(timeStart, 'Y/m/d H:i:s'),
-            timeEnd:Ext.util.Format.date(timeEnd, 'Y/m/d H:i:s')
-          });
-          store.load({params:{start:0, limit:20, page:1}});*/
-      }
+  searchOpen:function(btn){
+    btn.up('panel').up('container').add(Ext.widget('contractSearchWindow')).show();
   },
-  searchClose:function(btn){
-    Ext.getCmp('contract_searchClose').hide();
-    Ext.getCmp('contract_searchClose').show();
+  searchContract:function(btn){
+      var store = Ext.data.StoreManager.lookup('contractGridStroe');
+      var win = btn.up('window');
+      var form = win.down('form');
+      var values  =form.getValues();
+
+      Ext.apply(store.proxy.extraParams, {contractNumber:"",customerName:"",contractType:"",houseName:"",timeStart:"",timeEnd:""});
+      Ext.apply(store.proxy.extraParams,{
+        contractNumber:values.contractNumber,
+        customerName:values.customerName,
+        contractType:values.contractType,
+        houseName:values.houseName,
+        timeStart:Ext.util.Format.date(values.timeStart, 'Y/m/d H:i:s'),
+        timeEnd:Ext.util.Format.date(values.timeEnd, 'Y/m/d H:i:s')
+      });
+      store.load({params:{start:0, limit:20, page:1}});
+      win.close();
   },
 
+  /*************************************************合同审核******************************************************/
    /*Star Leave Process*/ 
   starLeaveProcess:function(grid, rowIndex, colIndex){
     var record = grid.getStore().getAt(rowIndex);
@@ -172,6 +179,4 @@ Ext.define('Admin.view.contract.ContractViewController', {
      win.show();
      win.down('form').getForm().loadRecord(record);
   }
-  
-
 });

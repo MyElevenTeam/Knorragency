@@ -50,6 +50,7 @@ import com.example.demo.contract.entity.Contract;
 import com.example.demo.contract.entity.ContractDTO;
 import com.example.demo.contract.entity.ContractQueryDTO;
 import com.example.demo.contract.service.IContractService;
+import com.example.demo.contract.util.ContractUtil;
 import com.example.demo.employee.domain.Employee;
 import com.example.demo.employee.service.IEmployeeService;
 import com.example.demo.log.config.SystemControllerLog;
@@ -69,14 +70,15 @@ public class ContractController {
 	@SystemControllerLog(description="保存合同信息")
 	@PostMapping
 	public ExtAjaxResponse saveOne(HttpSession session,@RequestBody Contract contract) {
-		
 		try {
 			String userId = SessionUtil.getUserName(session);
+			String contractNumber=ContractUtil.getContractNumber(contract.getContractType());
 			if(userId!=null) {
 				contract.setUserId(userId);
 				contract.setProcessStatus(ProcessStatus.NEW);
 				Employee employee=employeeService.EmployeeName(userId);
 				contract.setEmployee(employee);
+				contract.setContractNumber(contractNumber);
 				contractService.save(contract);
     		}
 			return new ExtAjaxResponse(true,"保存成功！");
@@ -204,16 +206,27 @@ public class ContractController {
 	
 	@SystemControllerLog(description="下载合同信息")
 	@RequestMapping("/downloadWord")
-    public void downloadWord(HttpServletRequest request, HttpServletResponse response)throws IOException{
+    public void downloadWord(@RequestParam("id")Long id,HttpServletRequest request, HttpServletResponse response)throws IOException{
+		
+		Contract contract=contractService.findById(id).get();
+		
 		String tmpFile = "classpath:template.doc";
 		FileInputStream tempFileInputStream = new FileInputStream(ResourceUtils.getFile(tmpFile));
 		
 		Map<String, String> datas = new HashMap<String, String>();
-	    datas.put("title", "标题部份");
-	    datas.put("content", "这里是内容，测试使用POI导出到Word的内容！");
-	    datas.put("author", "知识林");
-	    datas.put("url", "http://www.zslin.com");
-		
+	    datas.put("contractNumber", contract.getContractNumber());
+	    datas.put("startTime", contract.getStartTime().toString());
+	    datas.put("endTime", contract.getEndTime().toString());
+	    datas.put("houseName", contract.getHoseName());
+	    datas.put("customerName", contract.getCustomerName());
+	    datas.put("employeeName", contract.getEmployee().getEmployeeName());
+	    datas.put("total", String.valueOf(contract.getTotal()));
+	    if(contract.getProcessStatus()==ProcessStatus.NEW) {
+	    	datas.put("processStatus", "未通过审核");
+	    }
+	    if(contract.getProcessStatus()==ProcessStatus.COMPLETE) {
+	    	datas.put("processStatus", "已通过审核");
+	    }
 		@SuppressWarnings("resource")
 		HWPFDocument document = new HWPFDocument(tempFileInputStream);
 	    // 读取文本内容
@@ -223,11 +236,11 @@ public class ContractController {
 	        bodyRange.replaceText("${" + entry.getKey() + "}", entry.getValue());
 	    }
 	    
-	    //导出到文件
-	    /*ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-	    document.write(byteArrayOutputStream);*/
+	    //下载后的文件名
+	    String fileName="KnorrContract"+contract.getContractNumber()+".doc";
+	    fileName = new String(fileName.getBytes("ISO8859-1"),"UTF-8");
 	    
-	    response.setHeader("Content-disposition", "attachment;filename=createList.doc");//默认Excel名称
+	    response.setHeader("Content-disposition", "attachment;filename="+fileName);
         response.flushBuffer();
         document.write(response.getOutputStream());
 	}

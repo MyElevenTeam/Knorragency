@@ -67,5 +67,18 @@ public class ContractUtil {
 		}
 		return dtoLists;
 	}
+	
+	//生成合同编号
+	public static String getContractNumber(String contractType) {
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
+		Date date=new Date();
+		String contractNumber=sdf.format(date);
+		if(contractType.equals("出租合同")) {
+			contractNumber="Knorr"+contractNumber+"R";
+		}else {
+			contractNumber="Knorr"+contractNumber+"S";
+		}
+		return contractNumber;
+	}
 
 }

@@ -1,6 +1,5 @@
 Ext.define('Admin.store.file.EditGridStroe', {
     extend: 'Ext.data.Store',
-    storeId:'editGridStroe',
     alias: 'store.editGridStroe',
 	model:'Admin.model.file.FileModel',
 

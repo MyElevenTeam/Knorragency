@@ -104,6 +104,7 @@
     },'->',{
         xtype: 'button',
         text: '取消',
+        ui:'soft-red',
         handler: function(btn) {
             btn.up('window').close();
         }
