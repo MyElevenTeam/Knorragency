@@ -59,6 +59,7 @@ public class LoginController {
             SessionUtil.setEmployeeNumber(session, employee.getEmployeeNumber());
             SessionUtil.setPost(session, employee.getPost());
             
+            session.setAttribute("id", employee.getId());
             String[] groupNames = new String[groupList.size()];
             for (int i = 0; i < groupNames.length; i++) {
                 groupNames[i] = groupList.get(i).getName();
@@ -81,6 +82,7 @@ public class LoginController {
     {
     	try {
     		SessionUtil.removeAttribute(session);
+    		session.removeAttribute("id");
         	return new ExtAjaxResponse(true,"登出成功!");
 		} catch (Exception e) {
 			return new ExtAjaxResponse(false,"登出失败!");
