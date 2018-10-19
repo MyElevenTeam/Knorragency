@@ -81,7 +81,8 @@ public class MyWebSocket {
     	for (MyWebSocket item : webSocketSet) {
         	synchronized (item){
 	            try {
-	                item.sendMessage(message);
+	            	if(!item.equals(this))
+	                  item.sendMessage(message);
 	            } catch (IOException e) {
 	                e.printStackTrace();
 	            }
