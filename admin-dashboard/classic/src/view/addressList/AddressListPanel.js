@@ -1,4 +1,4 @@
-﻿Ext.define('Admin.view.addressList.AddressListPanel', {
+Ext.define('Admin.view.addressList.AddressListPanel', {
     extend: 'Ext.panel.Panel',
     xtype: 'addressListPanel',
 
@@ -16,6 +16,12 @@
             //routeId: 'user',
             bind: '{addressListLists}',
             scrollable: false,
+            selModel: {type: 'checkboxmodel',checkOnly: true},     //多选框checkbox
+            listeners: {                            
+                    selectionchange: function(selModel, selections){
+                        this.down('#videoMeeting').setDisabled(selections.length === 0);
+                    }
+            },
             columns: [
                 {xtype: 'gridcolumn',width: 40,dataIndex: 'id',text: '#',hidden:true},
                 {xtype: 'gridcolumn', cls: 'content-column',dataIndex: 'employeeName',text: 'Name',flex: 1},
@@ -62,9 +68,11 @@
 		        handler: 'quickSearch'
 		    },'->',{
 		        text: '视频会议',
+                itemId:'videoMeeting',
 		        tooltip: 'Add a new row',
 		        iconCls: 'fa fa-plus',
-		        handler: 'openAddWindow'	
+                disabled: true,
+		        handler: 'sponsorVidwoMeeting'	
 		    }],
             dockedItems: [{
                 xtype: 'pagingtoolbar',

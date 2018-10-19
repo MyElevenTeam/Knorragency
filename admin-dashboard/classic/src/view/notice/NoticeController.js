@@ -11,6 +11,7 @@ Ext.define('Admin.view.notice.NoticeController', {
 		 var record = Ext.create('Admin.model.notice.NoticeModel');
          record.set(values);
          record.save();
+         Ext.getCmp("notice_panel").getStore().load();
          // Ext.getCmp("notice_panel").getStore().load();
          // Ext.data.StoreManager.lookup('noticePanelStore').load();
          // var store=Ext.data.StoreManager.lookup('noticeDate');

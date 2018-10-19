@@ -3,11 +3,10 @@
      if('WebSocket' in window){
         websocket = new WebSocket("ws://localhost:8080/websocket");
     }else{
-        EXT.Msg.alert('Not support websocket');
+        Ext.Msg.alert('Not support websocket');
     }
     //接收到消息的回调方法
     websocket.onmessage = function(event){
-        // console.log(event.date);
          Ext.getCmp("notice_panel").getStore().load();
     }
 
