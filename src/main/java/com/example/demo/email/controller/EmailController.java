@@ -236,11 +236,12 @@ public class EmailController {
 	@SystemControllerLog(description="上传附件")
 	@PostMapping("/uploadAttachment")
     @ResponseBody
-    public ExtAjaxResponse uploadAttachment(@RequestParam("file") MultipartFile file, HttpServletRequest request) {
+    public ExtAjaxResponse uploadAttachment(@RequestParam("file") MultipartFile file, HttpServletRequest request,HttpSession session) {
+		String userId = SessionUtil.getUserName(session);
 		if (!file.isEmpty()) {
             String saveFileName = file.getOriginalFilename();
             System.out.println(saveFileName);
-            File saveFile = new File(request.getSession().getServletContext().getRealPath("/upload/") + saveFileName);
+            File saveFile = new File(request.getSession().getServletContext().getRealPath("/upload/"+userId+"/") + saveFileName);
             if (!saveFile.getParentFile().exists()) {
                 saveFile.getParentFile().mkdirs();
             }
@@ -264,11 +265,12 @@ public class EmailController {
 	
 	@SystemControllerLog(description="下载附件")
 	@RequestMapping("/downloadAttachment")
-	public void downloadAttachment(@RequestParam("fileName") String fileName,HttpServletRequest request, HttpServletResponse response) throws IOException  {
+	public void downloadAttachment(@RequestParam("fileName") String fileName,HttpServletRequest request, HttpServletResponse response,HttpSession session) throws IOException  {
+		String userId = SessionUtil.getUserName(session);
 		//获取用户下载的文件名称
 		fileName = new String(fileName.getBytes("ISO8859-1"),"UTF-8");
 		//获取文件上传路径
-		String basePath = request.getSession().getServletContext().getRealPath("/upload/");
+		String basePath = request.getSession().getServletContext().getRealPath("/upload/"+userId+"/");
 		//获取一个文件流
 		InputStream in = new FileInputStream(new File(basePath, fileName));
 		//进行中文处理
@@ -290,8 +292,9 @@ public class EmailController {
 	@SystemControllerLog(description="删除附件")
 	@PostMapping("/deleteAttachment")
     @ResponseBody
-    public ExtAjaxResponse deleteAttachment(@RequestParam("fileName") String fileName, HttpServletRequest request) {
-		String path=request.getSession().getServletContext().getRealPath("/upload/");
+    public ExtAjaxResponse deleteAttachment(@RequestParam("fileName") String fileName, HttpServletRequest request,HttpSession session) {
+		String userId = SessionUtil.getUserName(session);
+		String path=request.getSession().getServletContext().getRealPath("/upload/"+userId+"/");
 		String realPath=path+fileName;
 		try {
 			File fileTemp=new File(realPath);
