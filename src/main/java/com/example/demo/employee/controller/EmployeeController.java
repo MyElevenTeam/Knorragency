@@ -56,10 +56,8 @@ public class EmployeeController {
 	@GetMapping
 	public Page<EmployeeDTO> findAll(EmployeeQueryDTO employeeQueryDTO,HttpSession session,ExtjsPageRequest pageable)
 	{
-		
 		Page<EmployeeDTO> page;
-		page = employeeService.findAll(EmployeeQueryDTO.getWhereClause(employeeQueryDTO), pageable.getPageable(),session);
-		
+		page = employeeService.findAll(null, pageable.getPageable(),session);
 		return page;
 	}
 	
