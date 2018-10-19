@@ -23,7 +23,7 @@ Ext.define('Admin.view.addressList.AddressListViewController', {
 	},
 	//发起视频会议	
 	sponsorVidwoMeeting:function(btn, rowIndex, colIndex){
-      	//	window.open('http://localhost:8080/test');
+      	
             var grid = btn.up('gridpanel');
             var selModel = grid.getSelectionModel();
             var selectIds = []; //选中的id
@@ -33,7 +33,7 @@ Ext.define('Admin.view.addressList.AddressListViewController', {
                       selectIds.push(row.data.id);
                });
             }
- 
+            window.open('http://localhost:8080/test');
       // if (selModel.hasSelection()){
       //     Ext.Msg.confirm("警告", "确定要删除吗？", function (button) {
       //         if (button == "yes") {
