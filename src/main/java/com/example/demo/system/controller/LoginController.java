@@ -37,7 +37,7 @@ public class LoginController {
 	@Autowired
     private IdentityService identityService;
     /**
-     * 登录系统
+       * 登录系统
      **/
     @SystemControllerLog(description="登录系统")
 	@RequestMapping(value="/login")
