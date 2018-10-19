@@ -33,7 +33,8 @@ Ext.define('Admin.view.addressList.AddressListViewController', {
                       selectIds.push(row.data.id);
                });
             }
-            window.open('http://localhost:8080/test');
+            sessionStorage.setItem("lastname", "Smith");
+            window.open('http://localhost:8080/a');
       // if (selModel.hasSelection()){
       //     Ext.Msg.confirm("警告", "确定要删除吗？", function (button) {
       //         if (button == "yes") {
