@@ -60,6 +60,7 @@ public class LoginController {
             SessionUtil.setPost(session, employee.getPost());
             
             session.setAttribute("id", employee.getId());
+            
             String[] groupNames = new String[groupList.size()];
             for (int i = 0; i < groupNames.length; i++) {
                 groupNames[i] = groupList.get(i).getName();
