@@ -1,7 +1,7 @@
 Ext.define('Admin.view.contract.ContractAddWindow', {
     extend: 'Ext.window.Window',
     alias: 'widget.contractAddWindow',
-    height: 650,
+    height: 450,
     // minHeight: 200,
     // minWidth: 300,
     width: 500,
@@ -60,17 +60,32 @@ Ext.define('Admin.view.contract.ContractAddWindow', {
             allowBlank: false,
             blankText:'请选择失效时间'
         }, {
-            xtype: 'textfield',
+            xtype: 'combobox',
             fieldLabel: '合同类型',
             name:'contractType',
+            id:'contractType',
+            hideLabel: true,
+            store:Ext.create("Ext.data.Store", {
+                fields: ["contractType"],
+                data: [
+                    { contractType: '出租合同'},
+                    { contractType: '出售合同'}
+                ]  
+            }),
+            displayField: 'contractType',
+            valueField:'contractType',
+            value:'--------请选择合同类型---------',
             allowBlank: false,
             emptyText:'请填写合同类型',
             blankText:'请填写合同类型'
         }, {
-            xtype: 'textfield',
-            fieldLabel: '金额',
+            xtype: 'numberfield',
+            fieldLabel: '金额(单位:万元)',
             name:'total',
             allowBlank: false,
+            value:1.0,
+            minValue:0.00,
+            step: 1.0,
             emptyText:'请填写金额',
             blankText:'请填写金额'
         }]

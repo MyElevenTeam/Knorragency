@@ -15,29 +15,6 @@
         'Ext.form.field.*',
         'Ext.grid.plugin.RowEditing'
     ],
-    header: {
-        items:[
-            {
-                iconCls:'fa fa-search',
-                ui: 'header',
-                tooltip: '查找',
-                handler:'hhh'  
-            },
-            {
-                iconCls:'fa fa-trash',
-                ui: 'header',
-                id: 'leaveGridPanelRemove',
-                disabled: true,
-                tooltip: '删除多条',
-                handler:'deleteMoreRows'  
-            }
-        ]
-    },  
-    listeners: {                            
-            selectionchange: function(selModel, selections){
-                this.up('window').down('#leaveGridPanelRemove').setDisabled(selections.length === 0);
-            }
-    },
     modal:true,
     layout: 'fit',
     items: [
@@ -47,6 +24,11 @@
             //scrollable: false,
             autoScroll:true,
             selModel: {type: 'checkboxmodel'},
+            listeners: {                            
+                selectionchange: function(selModel, selections){
+                    this.down('#leaveGridPanelRemove').setDisabled(selections.length === 0);
+                }
+            },
             plugins: {
                 rowediting:{
                     saveBtnText: '保存', 
@@ -156,6 +138,42 @@
                     ]
                 }
             ],
+            tbar: [
+                {
+                    xtype: 'datefield',
+                    hideLabel: true,
+                    format: 'Y/m/d H:i:s',
+                    reference:'searchDataFieldValue',
+                    fieldLabel: 'From',
+                    emptyText:'-----开始时间-----',
+                    name: 'from_date'
+                },{
+                    xtype: 'datefield',
+                    hideLabel: true,
+                    format: 'Y/m/d H:i:s',
+                    reference:'searchDataFieldValue2',
+                    fieldLabel: 'To',
+                    emptyText:'-----结束时间-----',
+                    name: 'to_date'
+                },
+                {
+                    iconCls:'fa fa-search fa-5x',
+                    ui: 'header',
+                    tooltip: '查找',
+                    handler:'searchAttence'   
+                },
+                '->',
+                {
+                    xtype: 'button',
+                    ui: 'soft-red',
+                    text: '批量删除',
+                    disabled: true,
+                    id:'leaveGridPanelRemove',
+                    iconCls:'fa fa-close',
+                    disabled: true,
+                    handler: 'onRemoveMore'
+                }
+            ],   
             dockedItems: [{
                 xtype: 'pagingtoolbar',
                 dock: 'bottom',

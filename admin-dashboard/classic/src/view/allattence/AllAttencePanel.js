@@ -24,59 +24,19 @@ Ext.define('Admin.view.allattence.AllAttencePanel', {
             cls: 'has-border',
         	height:60,
         	tbar: [
-                '->',
                 {
-                        xtype:'splitbutton',
-                        id:'allattence_gridfilters',
-                        text:'请选择搜索条件',
-                        menu:[
-                        {
-                            xtype: 'menucheckitem',
-                            text: '签约时间',
-                            menu:[
-                                {
-                                    xtype: 'datefield',
-                                    id:'allattence_workinTime',
-                                    value:new Date(),
-                                    format: 'Y/m/d H:i:s',
-                                    listeners:{
-                                        specialkey: 'searchAllAttence'
-                                    }
-                                }
-                            ]
-                        },{
-                            xtype: 'menucheckitem',                           
-                            text: '失效时间',
-                            menu:[
-                                {
-                                    xtype: 'datefield',
-                                    id:'allattence_workoutTime',
-                                    value:new Date(),
-                                    format: 'Y/m/d H:i:s',
-                                    listeners:{
-                                        specialkey: 'searchAllAttence'
-                                    }
-                                }
-                            ]
-                        }]
-                },'-',{
                     iconCls:'fa fa-search fa-5x',
                     ui: 'header',
                     tooltip: '查找',
-                    id:'allattence_searchOpen',
-                    handler:'searchOpen'   
-                },'-',{
-                    iconCls:'fa fa-close fa-5x',
-                    ui: 'header',
-                    tooltip: '取消',
-                    id:'allattence_searchClose',
-                    handler:'searchClose'   
+                    handler:'searchAttence'   
                 },
-                '-',
+                '->',
                 {
-                    iconCls:'fa fa-download fa-5x',
-                    ui: 'header',
-                    tooltip: '导出考勤表'
+                    xtype: 'button',
+                    text: '导出个人考勤表',
+                    iconCls:'fa fa-download',
+                    ui: 'soft-green',
+                    tooltip: '导出个人考勤表'
                 }
         	]   
         },

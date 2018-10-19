@@ -1,6 +1,5 @@
 package com.example.demo.email.controller;
 
-import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -9,7 +8,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.Date;
 
@@ -193,6 +191,7 @@ public class EmailController {
 				reply.setEmailFrom(userId);
 				reply.setEmailTo(email.getEmailFrom());
 				reply.setEmailContent(replyEmailContent);
+				reply.setEmailSubject("<"+userId+">"+"<回复件>");
 				reply.setEmailAttachment(replyEmailAttachment);
 				reply.setSendTime(new Date());
 				Employee employee=employeeService.EmployeeName(userId);

@@ -68,6 +68,7 @@ Ext.define('Admin.view.file.FileWriteViewController', {
         values.emailStatus='SEND';
         values.readStatus='NOREAD';
         values.inboxStatus='INBOX';
+        values.replyStatus='NOREPLY';
         record.set(values);
         record.save();
 
@@ -89,6 +90,7 @@ Ext.define('Admin.view.file.FileWriteViewController', {
         values.emailStatus='EDIT';
         values.readStatus='EDIT';
         values.inboxStatus='EDIT';
+        values.inboxStatus='NOREPLY';
         record.set(values);
         record.save();
 
