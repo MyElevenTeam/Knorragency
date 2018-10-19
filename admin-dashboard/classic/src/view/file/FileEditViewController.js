@@ -14,9 +14,10 @@ Ext.define('Admin.view.file.FileEditViewController', {
         values.emailStatus='EDIT';
         values.readStatus='EDIT';
         values.inboxStatus='EDIT';
+        values.replyStatus='EDIT';
         record.set(values);
         record.save();
-        Ext.data.StoreManager.lookup('editGridStroe').load();
+        //Ext.data.StoreManager.lookup('editGridStroe').load();
         win.close();
     },
     /*编辑窗口发送*/
@@ -28,10 +29,11 @@ Ext.define('Admin.view.file.FileEditViewController', {
         values.emailStatus='SEND';
         values.readStatus='NOREAD';
         values.inboxStatus='INBOX';
+        values.replyStatus='NOREPLY';
         record.set(values);
         record.save();
-        Ext.data.StoreManager.lookup('sendGridStroe').load();
-        Ext.data.StoreManager.lookup('inboxGridStroe').load();
+        // Ext.data.StoreManager.lookup('sendGridStroe').load();
+        // Ext.data.StoreManager.lookup('inboxGridStroe').load();
         win.close();
     },
     /*上传附件*/
@@ -195,7 +197,7 @@ Ext.define('Admin.view.file.FileEditViewController', {
         /*打开窗口*/
         var record = grid.getStore().getAt(rowIndex);
         if (record ) {
-          var win = grid.up('panel').add(Ext.widget('editWindow'));
+          var win = grid.up('panel').up('container').add(Ext.widget('editWindow'));
           if(record.data.emailAttachment!=''){
               Ext.getCmp('file_attachmentName').setValue(record.data.emailAttachment);
               Ext.getCmp('file_attachmentName').show();

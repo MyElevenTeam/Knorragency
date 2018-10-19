@@ -38,7 +38,7 @@ Ext.define('Admin.view.file.FileSendViewController', {
     },
 
     /*删除一条*/
-    onDeleteButton:function(grid, rowIndex, colIndex){
+    onDelete:function(grid, rowIndex, colIndex){
         Ext.MessageBox.confirm('提示','确定删除吗？',
           function(btn,text){
             if(btn=='yes'){
@@ -59,12 +59,22 @@ Ext.define('Admin.view.file.FileSendViewController', {
             Ext.Msg.alert("错误", "此邮件无发件不能进行下载！");
         }
     },
-    onGridCellItemClick: function(grid, rowIndex, colIndex,cellIndex){
-        var record = grid.getStore().getAt(rowIndex);
-        if (record ) {
-            var win = grid.up('panel').add(Ext.widget('detailWindow'));
+    /*打开详情窗口*/
+    onGridCellItemClick: function(view, td, cellIndex, record){
+        if(cellIndex > 1){
+            var view=this.getView();
+            var win=view.add(Ext.widget('detailWindow'));
+            if(record.data.emailAttachment!=''){
+                Ext.getCmp('detail_attachmentName').show();
+                Ext.getCmp('detail_attachmentDownload').show();
+            }
             win.show();
             win.down('form').getForm().loadRecord(record);
         }
+    },
+    /*详情窗口中的下载*/
+    onDownload:function(btn){
+        var fileName=Ext.getCmp('detail_attachmentName').getValue();
+        window.location = "/email/downloadAttachment?fileName="+fileName;
     }
 });

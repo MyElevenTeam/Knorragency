@@ -13,7 +13,8 @@ requires: [
 		{type: 'date', name: 'sendTime', dateFormat:'Y/m/d H:i:s'},
 		{type: 'string',name: 'emailStatus'},
 		{type:'string',name:'readStatus'},
-		{type:'string',name:'inboxStatus'}
+		{type:'string',name:'inboxStatus'},
+		{type:'string',name:'replyStatus'}
 	],
 	proxy: {
 		type: 'rest',

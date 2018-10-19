@@ -51,6 +51,7 @@ Ext.define('Admin.view.file.DetailWindow', {
         },{
             xtype: 'datefield',
             fieldLabel: '发送时间:',
+            format: 'Y/m/d H:i:s', 
             name:'sendTime',
             readOnly:true
         },{
@@ -81,7 +82,8 @@ Ext.define('Admin.view.file.DetailWindow', {
         id:'detail_attachmentDownload',
         iconCls:'fa fa-cloud-upload',
         ui: 'soft-blue',
-        handler:'onDownload'
+        handler:'onDownload',
+        hidden:true
     },'->',{
         xtype: 'button',
         text: '关闭',

@@ -26,6 +26,8 @@ public class EmailDTO {
 	
 	private EmailStatus inboxStatus;
 	
+	private EmailStatus replyStatus;
+	
 	private String emailAttachment;
 	
 	public Long getId() {
@@ -107,6 +109,14 @@ public class EmailDTO {
 
 	public void setInboxStatus(EmailStatus inboxStatus) {
 		this.inboxStatus = inboxStatus;
+	}
+	
+	public EmailStatus getReplyStatus() {
+		return replyStatus;
+	}
+
+	public void setReplyStatus(EmailStatus replyStatus) {
+		this.replyStatus = replyStatus;
 	}
 
 	public String getEmailAttachment() {

@@ -50,10 +50,12 @@ Ext.define('Admin.view.file.FileInboxPanel', {
         {
             xtype: 'gridpanel',
             cls: 'has-border',
+            id:'file_inboxgridpanel',
             flex: 2,
             bind: '{inboxLists}',
             scrollable: false,
-            listeners: {                            
+            selModel: {type: 'checkboxmodel',checkOnly: true},
+            listeners: {                         
                 selectionchange: function(selModel, selections){
                     this.up('panel').down('#file_inboxPanelRemove').setDisabled(selections.length === 0);
                     this.up('panel').down('#file_haveRead').setDisabled(selections.length === 0);
@@ -67,6 +69,16 @@ Ext.define('Admin.view.file.FileInboxPanel', {
                             return '<span class="x-fa fa-envelope"></span>';
                         } else if (val =='READ') {
                             return '<span class="x-fa fa-envelope-open"></span>';
+                        } 
+                        return val;
+                    }
+                },
+                {xtype: 'gridcolumn', cls: 'content-column',width:120,dataIndex: 'replyStatus',text: '回复状态',
+                    renderer: function(val) {
+                        if (val =='NOREPLY') {
+                            return '<span style="color:red;">未回复</span>';
+                        } else if (val =='REPLY') {
+                            return '<span style="color:green;">已回复</span>';
                         } 
                         return val;
                     }

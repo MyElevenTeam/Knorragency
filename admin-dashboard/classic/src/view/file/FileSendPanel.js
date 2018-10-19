@@ -46,16 +46,15 @@ Ext.define('Admin.view.file.FileSendPanel', {
             bind: '{sendLists}',
             scrollable: false,
             selModel: {type: 'checkboxmodel',checkOnly: true},
-            listeners: {                            
+            listeners: { 
+                cellclick: 'onGridCellItemClick',                           
                 selectionchange: function(selModel, selections){
                     this.up('panel').down('#file_sendPanelRemove').setDisabled(selections.length === 0);
-                },
-                cellclick: 'onGridCellItemClick'
-
+                }
             },
             columns: [
                 {xtype: 'gridcolumn',width: 40,dataIndex: 'id',text: 'id',hidden:true},
-                {xtype: 'gridcolumn', cls: 'content-column',width:150,dataIndex: 'emailFrom',text: '发件人'},
+                {xtype: 'gridcolumn', cls: 'content-column',width:150,dataIndex: 'emailTo',text: '发件人'},
                 {xtype: 'gridcolumn', cls: 'content-column',width:180,dataIndex: 'emailSubject',text: '主题'},
                 {xtype: 'gridcolumn', cls: 'content-column',width:180,dataIndex: 'emailContent',flex: 1,text: '内容'},
                 {xtype: 'gridcolumn', cls: 'content-column',width:80,dataIndex: 'emailAttachment',text: '<span class="x-fa fa-paperclip"></span>',
@@ -70,7 +69,7 @@ Ext.define('Admin.view.file.FileSendPanel', {
                 {xtype: 'actioncolumn',cls: 'content-column', width: 150,dataIndex: 'bool',text: '操作',tooltip: 'edit ',
                     items: [
                     	{xtype: 'button', iconCls: 'x-fa fa-download' ,tooltip:'点击下载附件',handler: 'onDownloadButton'},
-                        {xtype: 'button', iconCls: 'x-fa fa-close' ,tooltip:'点击删除',handler: 'onDeleteButton'}
+                        {xtype: 'button', iconCls: 'x-fa fa-close' ,tooltip:'点击删除',handler: 'onDelete'}
                     ]
                 }
             ],

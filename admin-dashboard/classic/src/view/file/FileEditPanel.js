@@ -79,7 +79,7 @@ Ext.define('Admin.view.file.FileEditPanel', {
                 {xtype: 'gridcolumn', cls: 'content-column',width:180,dataIndex: 'emailContent',flex: 1,text: '内容'},
                 {xtype: 'gridcolumn', cls: 'content-column',width:80,dataIndex: 'emailAttachment',text: '<span class="x-fa fa-paperclip"></span>',
                     renderer: function(value) {
-                        return value ? '<span class="x-fa fa-paperclip">'+value+'</span>' : '';
+                        return value ? '<span class="x-fa fa-paperclip"></span>' : '';
                     }
                 },
                 {xtype: 'datecolumn',cls: 'content-column',width: 200,dataIndex: 'sendTime',text: '保存时间',formatter: 'date("Y/m/d H:i:s")'},

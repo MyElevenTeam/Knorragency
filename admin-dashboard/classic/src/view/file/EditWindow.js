@@ -40,6 +40,12 @@ Ext.define('Admin.view.file.EditWindow', {
             readOnly: true
         },{
             xtype: 'textfield',
+            fieldLabel: 'replyStatus',
+            name:'replyStatus',
+            hidden: true,
+            readOnly: true
+        },{
+            xtype: 'textfield',
             fieldLabel: '收件人:',
             name:'emailTo'
         }, {

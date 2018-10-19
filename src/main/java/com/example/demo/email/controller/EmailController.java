@@ -12,21 +12,13 @@ import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-import javax.xml.ws.spi.http.HttpHandler;
 
-import org.apache.poi.hwpf.HWPFDocument;
-import org.apache.poi.hwpf.usermodel.Range;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.ResponseEntity;
-import org.springframework.util.ResourceUtils;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -51,8 +43,6 @@ import com.example.demo.email.service.IEmailService;
 import com.example.demo.employee.domain.Employee;
 import com.example.demo.employee.service.IEmployeeService;
 import com.example.demo.log.config.SystemControllerLog;
-
-import jodd.net.HttpStatus;
 
 @RestController
 @RequestMapping("/email")
@@ -155,6 +145,7 @@ public class EmailController {
 				email.setEmailStatus(EmailStatus.SEND);
 				email.setInboxStatus(EmailStatus.INBOX);
 				email.setReadStatus(EmailStatus.NOREAD);
+				email.setReplyStatus(EmailStatus.NOREPLY);
 				email.setSendTime(new Date());
 				emailService.save(email);
 			}
@@ -177,6 +168,7 @@ public class EmailController {
 					email.setEmailStatus(EmailStatus.SEND);
 					email.setInboxStatus(EmailStatus.INBOX);
 					email.setReadStatus(EmailStatus.NOREAD);
+					email.setReplyStatus(EmailStatus.NOREPLY);
 					email.setSendTime(new Date());
 					emailService.save(email);
 				}
@@ -184,6 +176,77 @@ public class EmailController {
 			return new ExtAjaxResponse(true,"批量发送成功！");
 		} catch (Exception e) {
 			return new ExtAjaxResponse(false,"批量发送失败！");
+		}
+		
+	}
+	
+	/*回复*/
+	@SystemControllerLog(description="回复")
+	@PostMapping("/reply")
+	public ExtAjaxResponse reply(HttpSession session,@RequestParam(name="id") Long id,@RequestParam(name="replyEmailContent") String replyEmailContent,@RequestParam(name="replyEmailAttachment")String replyEmailAttachment) {
+		String userId = SessionUtil.getUserName(session);
+		try {
+			Email email=emailService.findOne(id);
+			email.setReplyStatus(EmailStatus.REPLY);
+			if(email!=null) {
+				Email reply=new Email();
+				reply.setEmailFrom(userId);
+				reply.setEmailTo(email.getEmailFrom());
+				reply.setEmailContent(replyEmailContent);
+				reply.setEmailAttachment(replyEmailAttachment);
+				reply.setSendTime(new Date());
+				Employee employee=employeeService.EmployeeName(userId);
+				reply.setEmployee(employee);
+				reply.setEmailStatus(EmailStatus.SEND);
+				reply.setInboxStatus(EmailStatus.INBOX);
+				reply.setReadStatus(EmailStatus.NOREAD);
+				reply.setReplyStatus(EmailStatus.NOREPLY);
+				emailService.save(email);
+				emailService.save(reply);
+				
+			}
+			return new ExtAjaxResponse(true,"回复成功！");
+		} catch (Exception e) {
+			return new ExtAjaxResponse(false,"回复失败！");
+		}
+		
+	}
+	
+	
+	/*已读一条*/
+	@SystemControllerLog(description="已读一条")
+	@PostMapping("/readOne")
+	public ExtAjaxResponse readOne(@RequestParam(name="id") Long id) {
+		
+		try {
+			Email email=emailService.findOne(id);
+			if(email!=null) {
+				email.setReadStatus(EmailStatus.READ);
+				emailService.save(email);
+			}
+			return new ExtAjaxResponse(true,"打开成功！");
+		} catch (Exception e) {
+			return new ExtAjaxResponse(false,"打开失败！");
+		}
+		
+	}
+	
+	/*已读一条*/
+	@SystemControllerLog(description="已读多条")
+	@PostMapping("/readMore")
+	public ExtAjaxResponse readMore(@RequestParam(name="ids") Long[] ids) {
+		
+		try {
+			for (int i = 0; i < ids.length; i++) {
+				Email email=emailService.findOne(ids[i]);
+				if(email!=null) {
+					email.setReadStatus(EmailStatus.READ);
+					emailService.save(email);
+				}
+			}
+			return new ExtAjaxResponse(true,"已读成功！");
+		} catch (Exception e) {
+			return new ExtAjaxResponse(false,"已读失败！");
 		}
 		
 	}
