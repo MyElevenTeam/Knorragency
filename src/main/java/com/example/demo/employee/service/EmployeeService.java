@@ -3,6 +3,7 @@ package com.example.demo.employee.service;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 
@@ -20,6 +21,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.example.demo.common.utils.ListPageUtil;
 import com.example.demo.employee.domain.Employee;
 import com.example.demo.employee.domain.EmployeeDTO;
 import com.example.demo.employee.repository.EmployeeRepository;
@@ -90,59 +92,68 @@ public class EmployeeService implements IEmployeeService {
 	//适用于各种条件的查询employee方法
 	@Override
 	public Page<EmployeeDTO> findAll(Specification<Employee> spec, Pageable pageable,HttpSession session) {
-		// TODO Auto-generated method stub
-				int unSearchNum=0;
-				List<EmployeeDTO> results=null;
-				Page<Employee> employees = null;
-				//判断是admin还是manager，admin就查找所有，manager就查找当前store及旗下所有store的员工
-				if(session.getAttribute("post").equals("admin")) {
-					employees=employeeRepository.findAll(spec,pageable);
-				}else {
-					Employee entity=employeeRepository.findByEmployeeNumber((String) session.getAttribute("employeeNumber"));
-					List<Store> storeList=new ArrayList<Store>();
-					storeList=diguiFindStoreNameList(storeList,entity.getLocalStore());
-					List<Employee> employeeList=new ArrayList<Employee>();
-					for(Store store:storeList) {
-						employeeList.addAll(store.getEmployeeList());
-					}
-					employees=employeeRepository.findAll(spec,pageable);
-					List<Employee> foundEmployeesList=new ArrayList<Employee>();
-					for(Employee entity1:employees) {
-						foundEmployeesList.add(entity1);
-					}
-					employeeList.retainAll(foundEmployeesList);
-					employees=new PageImpl<Employee>(employeeList);
+		List<EmployeeDTO> results=null;
+		List<Employee> employees = null;
+		List<Employee> pageList=null;
+		ListPageUtil<Employee> listPageUtil=null;//分页工具List
+		
+		//判断是admin还是manager，admin就查找所有，manager就查找当前store及旗下所有store的员工
+		if(session.getAttribute("post").equals("admin")) {
+			employees=employeeRepository.findAll(spec);
+			Employee employee=employeeRepository.findByEmployeeNumber((String) session.getAttribute("employeeNumber"));
+			employees.remove(employee);
+			listPageUtil = new ListPageUtil<Employee>(employees
+					,pageable.getPageNumber()+1, pageable.getPageSize());
+			pageList=listPageUtil.getPagedList();
+		}else {
+			Employee entity=employeeRepository.findByEmployeeNumber((String) session.getAttribute("employeeNumber"));
+			List<Store> storeList=new ArrayList<Store>();
+			//找到所有旗下门店
+			storeList=diguiFindStoreNameList(storeList,entity.getLocalStore());
+			//将所有门店的员工加到employeeList中
+			List<Employee> employeeList=new ArrayList<Employee>();
+			for(Store store:storeList) {
+				employeeList.addAll(store.getEmployeeList());
+			}
+			//查询表中所有员工
+			employees=employeeRepository.findAll(spec);
+			//移除自己的信息
+			employees.remove(entity);
+			//取employees和employeeList的交集
+			employees.retainAll(employeeList);
+			//除去post为admin的员工
+			//增强循环遍历删除会出现迭代删除错误
+			Iterator<Employee> it=employees.iterator();
+			while(it.hasNext()) {
+				Employee employee=it.next();
+				if(employee.getPost().equals("admin")) {
+					it.remove();
 				}
+			}
+			
+			listPageUtil = new ListPageUtil<Employee>(employees
+					,pageable.getPageNumber()+1, pageable.getPageSize());
+			pageList=listPageUtil.getPagedList();
+		}
+
+		if(null!=pageList) {
+			results=new ArrayList<EmployeeDTO>();
+			for(Employee entity : pageList) {
 				
-				String en=(String) session.getAttribute("employeeNumber");
-				if(null!=employees) {
-					results=new ArrayList<EmployeeDTO>();
-					for(Employee entity : employees) {
-						if(!session.getAttribute("post").equals("admin")) {
-							if((StringUtils.isNotBlank(en) && entity.getEmployeeNumber().equals(en)) || entity.getPost().equals("admin")) {
-								unSearchNum++;
-								continue;
-							}
-						}else {
-							if(entity.getEmployeeNumber().equals(en)) {
-								unSearchNum++;
-								continue;
-							}
-						}
-						EmployeeDTO employeeDTO=new EmployeeDTO();
-						//注意，因为BeanUtils.copyProperties是让source把target里面相同的属性名的属性覆盖掉
-						//即便source里相同属性名中有null，这里先让entity.getLocalStore()覆盖是因为
-						//entity.getLocalStore()与entity中主键都叫id
-						if(entity.getLocalStore()!=null) {
-							BeanUtils.copyProperties(entity.getLocalStore(), employeeDTO);
-						}
-						BeanUtils.copyProperties(entity, employeeDTO);
-						results.add(employeeDTO);
-					}
+				EmployeeDTO employeeDTO=new EmployeeDTO();
+				//注意，因为BeanUtils.copyProperties是让source把target里面相同的属性名的属性覆盖掉
+				//即便source里相同属性名中有null，这里先让entity.getLocalStore()覆盖是因为
+				//entity.getLocalStore()与entity中主键都叫id
+				if(entity.getLocalStore()!=null) {
+					BeanUtils.copyProperties(entity.getLocalStore(), employeeDTO);
 				}
-				//results是List，pageable是分页条件
-				//employees.getTotalElements()是查询得到的结果的总数量，切记，这里踩过坑
-				return new PageImpl<EmployeeDTO>(results, pageable, employees.getTotalElements()-unSearchNum);
+				BeanUtils.copyProperties(entity, employeeDTO);
+				results.add(employeeDTO);
+			}
+		}
+		//results是List，pageable是分页条件
+		//employees.getTotalElements()是查询得到的结果的总数量，切记，这里踩过坑
+		return new PageImpl<EmployeeDTO>(results, pageable, employees.size());
 	}
 	//通过递归查找当前manager的门店及其旗下所有门店
 	private List<Store> diguiFindStoreNameList(List<Store> storeList, Store localStore) {
