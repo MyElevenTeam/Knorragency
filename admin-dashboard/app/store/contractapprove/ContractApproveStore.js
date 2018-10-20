@@ -14,6 +14,7 @@
         })
         ,simpleSortMode: true
     },
+    groupField: 'taskName',
     remoteSort: true,
     sorters: [{ property: 'id',direction: 'desc'}],
     autoLoad: true

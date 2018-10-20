@@ -68,7 +68,8 @@ Ext.define('Admin.view.attence.AttencePanel', {
                     text: '导出个人考勤表',
                     iconCls:'fa fa-download',
                     ui: 'soft-green',
-                    tooltip: '导出个人考勤表'
+                    tooltip: '导出个人考勤表',
+                    handler:'openMonthSelectWindow'
                 }
         	]   
         },

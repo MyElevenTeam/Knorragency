@@ -22,6 +22,7 @@
 	            if(json.success){
                     me.redirectTo('dashboard', true);
                     Ext.getCmp('loginUserName').setText(json.map.userName);
+                    Ext.getCmp('Login_SessionUserName').setValue(json.map.userName);
 		        }else{
 		        	Ext.Msg.alert('登录失败', json.msg);
 		        }

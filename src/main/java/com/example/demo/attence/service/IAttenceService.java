@@ -1,5 +1,6 @@
 package com.example.demo.attence.service;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -27,6 +28,12 @@ public interface IAttenceService {
 	public int findAttence(String employeeName);
 	
 	public List<Attence> findByEmployeeName(Specification<Attence> spec);
+	
+	//按月份和部门查出该部门某月的考勤情况
+	public List<Attence> findByMonthAndStoreName(Date month,String storeName);
+	
+	//查出某员工某月的考勤情况
+	public List<Attence> findByMonth(Date month,String employeeName);
 	
 	
 	/*申诉业务*/

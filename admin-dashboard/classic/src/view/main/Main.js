@@ -79,6 +79,11 @@ Ext.define('Admin.view.main.Main', {
                     cls: 'top-user-name'
                 },
                 {
+                    xtype: 'textfield',
+                    id:'Login_SessionUserName',
+                    hidden:true
+                },
+                {
                     xtype: 'image',
                     cls: 'header-right-profile-image',
                     id:'loginUserImage',

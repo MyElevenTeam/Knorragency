@@ -1,5 +1,6 @@
 package com.example.demo.attence.controller;
 
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -7,8 +8,16 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.util.CellRangeAddress;
+import org.apache.poi.xssf.usermodel.XSSFCellStyle;
+import org.apache.poi.xssf.usermodel.XSSFRow;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -32,6 +41,7 @@ import com.example.demo.attence.utils.AttenceUtil;
 import com.example.demo.common.controller.ExtAjaxResponse;
 import com.example.demo.common.controller.ExtjsPageRequest;
 import com.example.demo.common.controller.SessionUtil;
+import com.example.demo.contract.util.ContractUtil;
 import com.example.demo.employee.domain.Employee;
 import com.example.demo.employee.service.IEmployeeService;
 import com.example.demo.log.config.SystemControllerLog;
@@ -212,6 +222,168 @@ public class AttenceController {
 		}	
 	}
 	
+	/*下载个人考勤表*/
+	@SystemControllerLog(description="下载考勤信息")
+	@RequestMapping("/downloadMyAttenceExcel")
+    public void downloadMyAttenceExcel(@RequestParam(name="month") String month,HttpSession session,HttpServletRequest request, HttpServletResponse response)throws IOException
+    {  
+		//获取打卡人姓名
+		String employeeName = SessionUtil.getUserName(session);
+		
+		List<Attence> attenceList=new ArrayList<Attence>();
+		Date dmonth=ContractUtil.toDate(month);
+		attenceList=attenceService.findByMonth(dmonth, employeeName);
+		
+	    //创建工作簿
+		@SuppressWarnings("resource")
+		XSSFWorkbook wb = new XSSFWorkbook();
+		//创建一个sheet
+		XSSFSheet sheet = wb.createSheet();
+		
+		// 创建单元格样式
+		XSSFCellStyle style =  wb.createCellStyle();	
+		
+		//为单元格添加背景样式
+		for (int i = 0; i < attenceList.size()+2; i++) { //需要6行表格
+		    Row  row =	sheet.createRow(i); //创建行
+			for (int j = 0; j < 5; j++) {//需要5列
+				row.createCell(j).setCellStyle(style);
+			}
+		}
+		
+		//合并单元格
+		sheet.addMergedRegion(new CellRangeAddress(0, 0, 0, 4));//合并单元格，cellRangAddress四个参数，第一个起始行，第二终止行，第三个起始列，第四个终止列
+		
+		//填入数据
+		XSSFRow row = sheet.getRow(0); //获取第一行
+		row.getCell(0).setCellValue(employeeName+month+"考勤情况表"); //在第一行中创建一个单元格并赋值
+		XSSFRow row1 = sheet.getRow(1);//获取第二行，为每一列添加字段
+		row1.getCell(0).setCellValue("员工姓名");
+		row1.getCell(1).setCellValue("打卡地点");
+		row1.getCell(2).setCellValue("上班时间");
+		row1.getCell(3).setCellValue("下班时间");
+		row1.getCell(4).setCellValue("上班状态");
+		
+		//从第三行开始插数据
+		for (int i = 2; i < attenceList.size()+2; i++) {
+			XSSFRow Row = sheet.getRow(i);
+			
+			Attence attence=(Attence)attenceList.get(i-2);
+			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+			Row.getCell(0).setCellValue(attence.getEmployee().getEmployeeName());
+			Row.getCell(1).setCellValue(attence.getLocation());
+			if(attence.getWorkinTime()!=null) {
+				Row.getCell(2).setCellValue(sdf.format(attence.getWorkinTime()));
+			}else{
+				Row.getCell(2).setCellValue("");
+			}
+			if(attence.getWorkoutTime()!=null) {
+				Row.getCell(3).setCellValue(sdf.format(attence.getWorkoutTime()));
+			}else{
+				Row.getCell(3).setCellValue("");
+			}
+			if(attence.getAttenceStatus()==AttenceStatus.EARLY) {
+				Row.getCell(4).setCellValue("早退");
+			}
+			if(attence.getAttenceStatus()==AttenceStatus.LATER) {
+				Row.getCell(4).setCellValue("迟到");
+			}
+			if(attence.getAttenceStatus()==AttenceStatus.LEAVE) {
+				Row.getCell(4).setCellValue("请假");
+			}
+			if(attence.getAttenceStatus()==AttenceStatus.NORMAL) {
+				Row.getCell(4).setCellValue("正常");
+			}
+			if(attence.getAttenceStatus()==AttenceStatus.TRIP) {
+				Row.getCell(4).setCellValue("出差");
+			}
+			
+		}
+        response.setHeader("Content-disposition", "attachment;filename=attenceList.xlsx");//默认Excel名称
+        response.flushBuffer();
+        wb.write(response.getOutputStream());
+    }
+	
+	/*下载部门考勤表*/
+	@SystemControllerLog(description="下载考勤信息")
+	@RequestMapping("/downloadAttenceExcel")
+    public void downloadAttenceExcel(@RequestParam(name="month") String month,@RequestParam(name="storeName") String storeName,HttpServletRequest request, HttpServletResponse response)throws IOException
+    {  
+		List<Attence> attenceList=new ArrayList<Attence>();
+		Date dmonth=ContractUtil.toDate(month);
+		attenceList=attenceService.findByMonthAndStoreName(dmonth, storeName);
+		
+	    //创建工作簿
+		@SuppressWarnings("resource")
+		XSSFWorkbook wb = new XSSFWorkbook();
+		//创建一个sheet
+		XSSFSheet sheet = wb.createSheet();
+		
+		// 创建单元格样式
+		XSSFCellStyle style =  wb.createCellStyle();	
+		
+		//为单元格添加背景样式
+		for (int i = 0; i < attenceList.size()+2; i++) { //需要6行表格
+		    Row  row =	sheet.createRow(i); //创建行
+			for (int j = 0; j < 6; j++) {//需要6列
+				row.createCell(j).setCellStyle(style);
+			}
+		}
+		
+		//合并单元格
+		sheet.addMergedRegion(new CellRangeAddress(0, 0, 0, 4));//合并单元格，cellRangAddress四个参数，第一个起始行，第二终止行，第三个起始列，第四个终止列
+		
+		//填入数据
+		XSSFRow row = sheet.getRow(0); //获取第一行
+		row.getCell(0).setCellValue(storeName+month+"考勤情况表"); //在第一行中创建一个单元格并赋值
+		XSSFRow row1 = sheet.getRow(1);//获取第二行，为每一列添加字段
+		row1.getCell(0).setCellValue("员工姓名");
+		row1.getCell(1).setCellValue("部门名");
+		row1.getCell(2).setCellValue("打卡地点");
+		row1.getCell(3).setCellValue("上班时间");
+		row1.getCell(4).setCellValue("下班时间");
+		row1.getCell(5).setCellValue("上班状态");
+		
+		//从第三行开始插数据
+		for (int i = 2; i < attenceList.size()+2; i++) {
+			XSSFRow Row = sheet.getRow(i);
+			
+			Attence attence=(Attence)attenceList.get(i-2);
+			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+			Row.getCell(0).setCellValue(attence.getEmployee().getEmployeeName());
+			Row.getCell(1).setCellValue(attence.getEmployee().getLocalStore().getStoreName());
+			Row.getCell(2).setCellValue(attence.getLocation());
+			if(attence.getWorkinTime()!=null) {
+				Row.getCell(3).setCellValue(sdf.format(attence.getWorkinTime()));
+			}else{
+				Row.getCell(3).setCellValue("");
+			}
+			if(attence.getWorkoutTime()!=null) {
+				Row.getCell(4).setCellValue(sdf.format(attence.getWorkoutTime()));
+			}else{
+				Row.getCell(4).setCellValue("");
+			}
+			if(attence.getAttenceStatus()==AttenceStatus.EARLY) {
+				Row.getCell(5).setCellValue("早退");
+			}
+			if(attence.getAttenceStatus()==AttenceStatus.LATER) {
+				Row.getCell(5).setCellValue("迟到");
+			}
+			if(attence.getAttenceStatus()==AttenceStatus.LEAVE) {
+				Row.getCell(5).setCellValue("请假");
+			}
+			if(attence.getAttenceStatus()==AttenceStatus.NORMAL) {
+				Row.getCell(5).setCellValue("正常");
+			}
+			if(attence.getAttenceStatus()==AttenceStatus.TRIP) {
+				Row.getCell(5).setCellValue("出差");
+			}
+			
+		}
+        response.setHeader("Content-disposition", "attachment;filename=allAttenceList.xlsx");//默认Excel名称
+        response.flushBuffer();
+        wb.write(response.getOutputStream());
+    }
 	
 	/*----------------------------------------------申诉业务--------------------------------------------*/
 	/**

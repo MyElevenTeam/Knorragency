@@ -13,7 +13,8 @@
     
     requires: [
         'Ext.form.field.*',
-        'Ext.grid.plugin.RowEditing'
+        'Ext.grid.plugin.RowEditing',
+        'Ext.grid.feature.Grouping'
     ],
     modal:true,
     layout: 'fit',
@@ -21,6 +22,7 @@
         {
             xtype:'gridpanel',
             bind: '{leaveLists}',
+            cls:'leave',
             //scrollable: false,
             autoScroll:true,
             selModel: {type: 'checkboxmodel'},
@@ -37,9 +39,15 @@
                     clicksToMoveEditor: 1
                 }
             },
+            features: [{
+                ftype: 'grouping',
+                // enableGroupingMenu: true,
+                startCollapsed: true,
+                groupHeaderTpl: '共请'+'{name}'+'  ({rows.length}天)',
+            }],
             columns: [
                  {header: 'id',dataIndex:'id',width: 60,sortable: true,hidden:true}
-                ,{header: '审核状态',dataIndex: 'processStatus',width: 60,sortable: true,
+                ,{header: '审核状态',dataIndex: 'processStatus',width: 100,sortable: true,
                     renderer: function(val) {
                         if (val =='NEW') {
                             return '<span style="color:green;">新建</span>';
@@ -53,7 +61,7 @@
                         return val;
                     }
                 }
-                ,{header: '申请人',dataIndex: 'userId',width: 60,sortable: true}
+                ,{header: '申请人',dataIndex: 'userId',width: 100,sortable: true}
                 ,{header: '开始时间',dataIndex: 'startTime',width: 180,sortable: true,renderer:Ext.util.Format.dateRenderer('Y/m/d H:i:s'),
                     editor: {
                         xtype:'datefield',
@@ -72,7 +80,7 @@
                         altFormats : "Y/m/d|Ymd"
                     }
                  }
-                ,{header: '请假类型',dataIndex: 'leaveType',width: 120,sortable: true,
+                ,{header: '请假类型',dataIndex: 'leaveType',width: 150,sortable: true,
                     renderer: function(val) {
                         if (val =='A') {
                             return '<span style="color:green;">带薪假期</span>';
@@ -101,10 +109,10 @@
                 ,{header: '请假原因',dataIndex: 'reason',width: 220,sortable: true,editor: 'textfield'}
                 ,{header: '部门经理审批意见',dataIndex: 'depReason',width: 220,sortable: true,hidden:true}
                 ,{header: '人事经理审批意见',dataIndex: 'hrReason',width: 220,sortable: true,hidden:true}
-                ,{xtype: 'actioncolumn',cls: 'content-column', width: 120,text: '操作',tooltip: 'edit ',
+                ,{xtype: 'actioncolumn',cls: 'content-column', width: 120,flex:1,text: '操作',tooltip: 'edit ',
                     items: [
                         //{xtype: 'button', iconCls: 'x-fa fa-pencil',handler: 'openEditWindow'},
-                        {xtype: 'button',iconCls: 'x-fa fa-close',handler: 'deleteOneRow'},
+                        {xtype: 'button',iconCls: 'x-fa fa-close',tooltip: '删除请假单',handler: 'deleteOneRow'},
                         {
                             xtype: 'button',iconCls: 'x-fa fa-star',tooltip: '发起请假',
                             getClass: function(v, meta, rec) {

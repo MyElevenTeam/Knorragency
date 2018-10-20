@@ -3,6 +3,7 @@ package com.example.demo.attence.service;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -120,6 +121,15 @@ public class AttenceService implements IAttenceService {
 		return attenceRepository.findAll(spec);
 	}
 	
+	@Override
+	public List<Attence> findByMonthAndStoreName(Date month, String storeName) {
+		return attenceRepository.findByMonthAndStoreName(month, storeName);
+	}
+
+	@Override
+	public List<Attence> findByMonth(Date month, String employeeName) {
+		return attenceRepository.findByMonth(month, employeeName);
+	}
 	
 	/**************************************申诉业务*****************************************/
 	/**
