@@ -159,10 +159,12 @@ Ext.define('Admin.view.contract.ContractPanel', {
                         {
                             xtype: 'button',iconCls: 'x-fa fa-ban',tooltip: '取消审核',
                             getClass: function(v, meta, rec) {
-                                if (rec.get('processInstanceId')=="") {
+                                if (rec.get('processInstanceId')==""||rec.get('processStatus')=='COMPLETE') {
                                     return 'x-hidden';
+                                }else{
+                                    return 'x-fa fa-ban';
                                 }
-                                return 'x-fa fa-ban';
+
                             },
                             handler: 'cancelLeaveProcess'
                         },
@@ -194,15 +196,6 @@ Ext.define('Admin.view.contract.ContractPanel', {
                         handler:'onAddClick'   
                     },'-',{
                         xtype: 'button',
-                        ui: 'soft-red',
-                        text: '批量删除',
-                        tooltip:'批量删除',
-                        itemId: 'contractPanelRemove',
-                        iconCls:'fa fa-trash fa-5x',
-                        disabled: true,
-                        handler: 'deleteMoreRows'   
-                    },'-',{
-                        xtype: 'button',
                         text: '导入合同信息',
                         tooltip:'导入合同信息',
                         ui: 'soft-blue',
@@ -215,10 +208,17 @@ Ext.define('Admin.view.contract.ContractPanel', {
                         tooltip:'合同模板下载',
                         ui: 'soft-green',
                         iconCls: 'fa fa-arrow-circle-down',
-                        href:'/contract/downloadWord',
-                        hrefTarget: '_self'
-
-                            
+                        href:'/contract/downloadTemplate',
+                        hrefTarget: '_self'     
+                    },'-',{
+                        xtype: 'button',
+                        ui: 'soft-red',
+                        text: '批量删除',
+                        tooltip:'批量删除',
+                        itemId: 'contractPanelRemove',
+                        iconCls:'fa fa-trash fa-5x',
+                        disabled: true,
+                        handler: 'deleteMoreRows'   
                     }
              ],
             dockedItems: [{

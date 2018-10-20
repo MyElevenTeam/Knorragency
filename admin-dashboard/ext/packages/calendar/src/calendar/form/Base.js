@@ -71,10 +71,8 @@ Ext.define('Ext.calendar.form.Base', {
      */
     fireSave: function(data) {
         this.fireEvent('save', this, {
-            data: data,
-
+            data: data
         });
-       // console.log(data);
     },
 
     /**

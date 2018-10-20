@@ -47,7 +47,7 @@ Ext.define('Ext.calendar.model.CalendarBase', {
         if (!store) {
             cfg = Ext.merge({
                 calendar: me
-            }, me.config.eventStoreDefaults, me.eventStoreDefaults);
+            }, me.config.eventStoreDefaults, me.eventStoreDefaults, me.get('eventCfg'));
             me._eventStore = store = Ext.Factory.store(me.getEventStoreConfig(cfg));
         }
         return store;

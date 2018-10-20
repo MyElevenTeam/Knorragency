@@ -136,12 +136,7 @@ Ext.define('Ext.calendar.model.Event', {
         'Ext.data.field.Boolean'
     ],
 
-    fields: [
-    {
-        name: 'id',
-        type: 'int'
-    },
-    {
+    fields: [{
         name: 'title',
         type: 'string'
     }, {
@@ -178,10 +173,6 @@ Ext.define('Ext.calendar.model.Event', {
             return ms / 60000;
         }
     }],
-
-    getId: function() {
-        return this.data.id;
-    },
 
     getAllDay: function() {
         return this.data.allDay;
@@ -284,9 +275,5 @@ Ext.define('Ext.calendar.model.Event', {
 
     setTitle: function(title) {
         this.set('title', title);
-    },
-
-    setId: function(id) {
-        this.set('id', id);
     }
 });

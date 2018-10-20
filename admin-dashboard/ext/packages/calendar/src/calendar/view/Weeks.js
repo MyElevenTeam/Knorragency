@@ -756,11 +756,15 @@ Ext.define('Ext.calendar.view.Weeks', {
             var me = this,
                 daysInWeek = Ext.Date.DAYS_IN_WEEK,
                 rows = [],
-                i, j, cells, style;
+                height, i, j, cells, style;
 
             if (setHeights) {
+                height = (100 / numRows);
+                if (Ext.isGecko) {
+                    height = parseInt(height, 10);
+                }
                 style = {
-                    height: (100 / numRows) + '%'
+                    height: height + '%'
                 };
             }
 

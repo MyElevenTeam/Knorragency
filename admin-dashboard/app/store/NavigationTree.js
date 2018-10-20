@@ -119,13 +119,13 @@ Ext.define('Admin.store.NavigationTree', {
             }
             ,{
                 text: '公告',
-                iconCls: 'x-fa fa-envelope',
+                iconCls: 'x-fa fa-bullhorn',
                 viewType: 'notice',
                 leaf: true
             },{
 
                 text: '业务排行',
-                iconCls: 'x-fa fa-fax',
+                iconCls: 'x-fa fa-bar-chart',
                 viewType: 'achievement',
                 leaf: true
             },{

@@ -23,8 +23,23 @@ Ext.define('Admin.view.attence.AttenceViewController', {
         var win  = btn.up('window');
         var form = win.down('form');
         var values  =form.getValues();
-        win.close();
-        window.location = "/attence/downloadMyAttenceExcel?month="+values.month;
+        Ext.Ajax.request({ 
+            url : '/attence/judgeMyAttenceExcel', 
+            method : 'post', 
+            params : { 
+              month :values.month
+            }, 
+            success: function(response, options) {
+              var json = Ext.util.JSON.decode(response.responseText);
+              if(json.success){
+                  win.close();
+                  window.location = "/attence/downloadMyAttenceExcel?month="+values.month;
+              }else{
+                Ext.Msg.alert('下载失败', "无该月考勤信息");
+              }
+            }
+        });
+        
     },
 
     /***********************************************请假的增删改查***********************************************************/

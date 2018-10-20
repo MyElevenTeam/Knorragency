@@ -40,7 +40,6 @@ Ext.define('Ext.calendar.form.Form', {
             endDate = allDay ? D.utcToLocal(end) : view.utcToLocal(end),
             ignoreTimes = allDay || startDate.getTime() === endDate.getTime(),
             data = {
-                id: event.getId(),
                 calendarId: event.getCalendarId(),
                 title: event.getTitle(),
                 description: event.getDescription(),
@@ -84,7 +83,7 @@ Ext.define('Ext.calendar.form.Form', {
             eYear = endDate.getFullYear(),
             eMonth = endDate.getMonth(),
             eDate = endDate.getDate();
-            id = values.id;
+
         if (values.allDay) {
             // All day events are always GMT.
             startDate = D.utc(sYear, sMonth, sDate);

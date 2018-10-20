@@ -32,7 +32,29 @@ Ext.define('Admin.view.allattence.AllAttenceViewController', {
         var win  = btn.up('window');
         var form = win.down('form');
         var values  =form.getValues();
-        win.close();
-        window.location = "/attence/downloadAttenceExcel?month="+values.month+"&storeName="+values.storeName;
+
+        Ext.Ajax.request({ 
+            url : '/attence/judgeAttenceExcel', 
+            method : 'post', 
+            params : { 
+              month :values.month,
+              storeName:values.storeName
+            }, 
+            success: function(response, options) {
+              var json = Ext.util.JSON.decode(response.responseText);
+              if(json.success){
+                  win.close();
+                  window.location = "/attence/downloadAttenceExcel?month="+values.month+"&storeName="+values.storeName;
+              }else{
+                Ext.Msg.alert('下载失败', "无该月考勤信息");
+              }
+            }
+        });
+
+
+
+
+
+        
     }
 });

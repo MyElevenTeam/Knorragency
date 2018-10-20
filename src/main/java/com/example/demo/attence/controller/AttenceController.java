@@ -222,6 +222,22 @@ public class AttenceController {
 		}	
 	}
 	
+	@SystemControllerLog(description="判断有无该考勤列表")
+	@RequestMapping("/judgeMyAttenceExcel")
+	public ExtAjaxResponse judgeMyAttenceExcel(@RequestParam(name="month") String month,HttpSession session) {
+		//获取打卡人姓名
+		String employeeName = SessionUtil.getUserName(session);
+		
+		List<Attence> attenceList=new ArrayList<Attence>();
+		Date dmonth=ContractUtil.toDate(month);
+		attenceList=attenceService.findByMonth(dmonth, employeeName);
+		if(attenceList!=null && !attenceList.isEmpty()) {
+			return new ExtAjaxResponse(true,"success");
+		}else {
+			return new ExtAjaxResponse(false,"false");
+		}
+	}
+	
 	/*下载个人考勤表*/
 	@SystemControllerLog(description="下载考勤信息")
 	@RequestMapping("/downloadMyAttenceExcel")
@@ -303,6 +319,20 @@ public class AttenceController {
         response.flushBuffer();
         wb.write(response.getOutputStream());
     }
+	
+	@SystemControllerLog(description="判断有无该考勤列表")
+	@RequestMapping("/judgeAttenceExcel")
+	public ExtAjaxResponse judgeAttenceExcel(@RequestParam(name="month") String month,@RequestParam(name="storeName") String storeName) {
+		
+		List<Attence> attenceList=new ArrayList<Attence>();
+		Date dmonth=ContractUtil.toDate(month);
+		attenceList=attenceService.findByMonthAndStoreName(dmonth, storeName);
+		if(attenceList!=null && !attenceList.isEmpty()) {
+			return new ExtAjaxResponse(true,"success");
+		}else {
+			return new ExtAjaxResponse(false,"false");
+		}
+	}
 	
 	/*下载部门考勤表*/
 	@SystemControllerLog(description="下载考勤信息")

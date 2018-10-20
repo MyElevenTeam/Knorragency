@@ -12,5 +12,6 @@ Ext.define('Ext.calendar.form.Add', {
      * The title for the dialog.
      * @locale
      */
-    title: '添加事件'
+    title: 'Add Event'
+    
 });

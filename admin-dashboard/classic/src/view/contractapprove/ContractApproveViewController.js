@@ -151,7 +151,7 @@
             }];
             this.complete(url,variables,form);
         }else{
-            Ext.Msg.alert('提示','不允许为空');
+            Ext.Msg.alert('提示','请填写完整的姓名进行确认');
         }
      	
     }

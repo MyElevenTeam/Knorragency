@@ -132,7 +132,9 @@ public class ContractService implements IContractService {
 	        	String str=lines[i];
 	        	
 	        	if(i==1) {  //获取合同号
-					String contractNumber=str.substring(5, 8);
+					String contractType=str.substring(5, 9);
+					c.setContractType(contractType);
+					String contractNumber=ContractUtil.getContractNumber(contractType);
 					c.setContractNumber(contractNumber);
 				}
 	        	
@@ -234,6 +236,7 @@ public class ContractService implements IContractService {
 	            	
 	            	contractDTO.setDepreason(depreason);
 	            	contractDTO.setManreason(manreason);
+	            	contractDTO.setEmployeeName(contract.getEmployee().getEmployeeName());
 	            	contract.setDepreason(depreason);
 	            	contract.setManreason(manreason);
 	            	

@@ -38,7 +38,7 @@
     <serviceTask id="mail" name="审核通过通知" activiti:type="mail">
       <extensionElements>
         <activiti:field name="to">
-          <activiti:string><![CDATA[727124726@qq.com]]></activiti:string>
+          <activiti:expression><![CDATA[${to}]]></activiti:expression>
         </activiti:field>
         <activiti:field name="from">
           <activiti:string><![CDATA[lig727124726@163.com]]></activiti:string>

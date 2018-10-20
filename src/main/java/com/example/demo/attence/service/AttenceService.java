@@ -184,6 +184,7 @@ public class AttenceService implements IAttenceService {
 	            	
 	            	attenceDTO.setDepreason(depreason);
 	            	attenceDTO.setHrreason(hrreason);
+	            	attenceDTO.setEmployeeName(attence.getEmployee().getEmployeeName());
 	            	attence.setDeptLeaderBackReason(depreason);
 	            	attence.setHrBackReason(hrreason);
 	            	
