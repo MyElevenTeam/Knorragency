@@ -13,7 +13,7 @@ requires: [
 	],
 	proxy: {
 		type: 'rest',
-		url: '/employee',
+		url: '/addressList',
 	}
 });
 
