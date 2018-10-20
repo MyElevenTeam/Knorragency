@@ -51,9 +51,9 @@ Ext.define('Ext.calendar.view.WeeksRenderer', {
         Ext.apply(me, config);
 
         start = me.start;
-        me.end = end = D.add(start, D.DAY, me.days, true);
+        me.end = end = D.add(start, D.DAY, me.days);
         me.utcStart = this.view.utcTimezoneOffset(start);
-        me.utcEnd = D.add(me.utcStart, D.DAY, me.days, true);
+        me.utcEnd = D.add(me.utcStart, D.DAY, me.days);
 
         me.hasMaxEvents = me.maxEvents !== null;
 
@@ -112,8 +112,8 @@ Ext.define('Ext.calendar.view.WeeksRenderer', {
             hasAnyOverflows, overflow, map, prev, dayOverflows;
 
         for (i = 0; i < days; ++i) {
-            end = D.add(start, D.DAY, 1, true);
-            utcEnd = D.add(utcStart, D.DAY, 1, true);
+            end = D.add(start, D.DAY, 1);
+            utcEnd = D.add(utcStart, D.DAY, 1);
             dayEvents = [];
 
             for (j = 0; j < len; ++j) {
@@ -252,10 +252,9 @@ Ext.define('Ext.calendar.view.WeeksRenderer', {
             days = this.days,
             count = 0,
             i = 0,
-            inc, item;
+            item;
 
         while (i < days) {
-            inc = 1;
             item = row[i];
             if (item.event) {
                 if (count > 0) {

@@ -4344,6 +4344,30 @@
     height: 100%;
     vertical-align: middle;
 }
+<<<<<<< HEAD
+=======
+/* C:/Users/Administrator/git/Knorragency/admin-dashboard/classic/src/view/allattence/AllAttenceSearchWindow.scss:1 */
+.attencesearch .x-form-trigger-wrap {
+    width: 170px;
+    height: 32px;
+    position: absolute;
+    top: 80%;
+    left: 38%;
+}
+/* C:/Users/Administrator/git/Knorragency/admin-dashboard/classic/src/view/allattence/AllAttenceSearchWindow.scss:8 */
+.searchinput .x-form-trigger-wrap {
+    width: 250px;
+    height: 32px;
+}
+/* C:/Users/Administrator/git/Knorragency/admin-dashboard/classic/src/view/allattence/SelectWindow.scss:1 */
+.select .x-form-trigger-wrap {
+    width: 170px;
+    height: 32px;
+    position: absolute;
+    top: 80%;
+    left: 30%;
+}
+>>>>>>> branch 'master' of https://github.com/MyElevenTeam/Knorragency.git
 /* C:/Users/Administrator/git/Knorragency/admin-dashboard/classic/src/view/attence/AppealWindow.scss:1 */
 .appeal .x-form-trigger-wrap {
     border: none;
@@ -4404,6 +4428,17 @@
     color: #32a3a7;
     background-color: #f5f5f5;
 }
+<<<<<<< HEAD
+=======
+/* C:/Users/Administrator/git/Knorragency/admin-dashboard/classic/src/view/attence/LeaveGridWindow.scss:1 */
+.leave .x-column-header {
+    font-family: Microsoft Yahei;
+    font-size: 10px;
+    font-weight: bold;
+    color: #32a3a7;
+    background-color: #f5f5f5;
+}
+>>>>>>> branch 'master' of https://github.com/MyElevenTeam/Knorragency.git
 /* C:/Users/Administrator/git/Knorragency/admin-dashboard/classic/src/view/attence/LookAppealWindow.scss:1 */
 .lookqppeal .x-form-trigger-wrap {
     border: none;
@@ -4762,9 +4797,9 @@
 }
 /* C:/Users/Administrator/git/Knorragency/admin-dashboard/classic/src/view/contractapprove/ContractApprovePanel.scss:44 */
 .process-definition-grid .x-column-header {
-    line-height: 30px;
+    line-height: 25px;
     font-family: Microsoft Yahei;
-    font-size: 15px;
+    font-size: 12px;
     font-weight: bold;
     color: #32a3a7;
     background-color: #f5f5f5;

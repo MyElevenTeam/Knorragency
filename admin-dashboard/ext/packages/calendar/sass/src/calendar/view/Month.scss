@@ -25,5 +25,8 @@
 .#{$prefix}calendar-month-6weeks {
     .#{$prefix}calendar-weeks-row {
         height: 16.66%;
+        .#{$prefix}gecko & {
+            height: 16%;
+        }
     }
 }

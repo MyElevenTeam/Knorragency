@@ -68,7 +68,8 @@ Ext.define('Admin.view.attence.AttencePanel', {
                     text: '导出个人考勤表',
                     iconCls:'fa fa-download',
                     ui: 'soft-green',
-                    tooltip: '导出个人考勤表'
+                    tooltip: '导出个人考勤表',
+                    handler:'openMonthSelectWindow'
                 }
         	]   
         },
@@ -148,7 +149,7 @@ Ext.define('Admin.view.attence.AttencePanel', {
                         {
                             xtype: 'button',iconCls: 'x-fa fa-ban',tooltip: '取消申诉',
                             getClass: function(v, meta, rec) {
-                                if (rec.get('processInstanceId')=="") {
+                                if (rec.get('processInstanceId')==""||rec.get('processStatus')=='COMPLETE') {
                                     return 'x-hidden';
                                 }
                                 return 'x-fa fa-ban';

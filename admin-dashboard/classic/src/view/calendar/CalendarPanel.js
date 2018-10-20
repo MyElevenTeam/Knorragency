@@ -72,5 +72,5 @@ Ext.define('Admin.view.calendar.CalendarPanel', {
             store: '{calStore}'
         }
     }]
-
+    
 });

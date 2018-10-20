@@ -28,7 +28,7 @@ Ext.define('Admin.view.allattence.AllAttencePanel', {
                     iconCls:'fa fa-search fa-5x',
                     ui: 'header',
                     tooltip: '查找',
-                    handler:'searchAttence'   
+                    handler:'openSearchAllAttenceWindow'   
                 },
                 '->',
                 {
@@ -36,7 +36,8 @@ Ext.define('Admin.view.allattence.AllAttencePanel', {
                     text: '导出个人考勤表',
                     iconCls:'fa fa-download',
                     ui: 'soft-green',
-                    tooltip: '导出个人考勤表'
+                    tooltip: '导出个人考勤表',
+                    handler:'openSelectWindow'
                 }
         	]   
         },

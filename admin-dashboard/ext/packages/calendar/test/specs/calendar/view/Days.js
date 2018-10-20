@@ -1,6 +1,7 @@
-describe("Ext.calendar.view.Days", function() {
+TODO(Ext.isClassic).topSuite("Ext.calendar.view.Days", ['Ext.calendar.*'], function() {
 
     var D = Ext.Date,
+        desktopDescribe = Ext.platformTags.desktop ? describe : xdescribe,
         view, tzOffset, oldTzOffset;
 
     function makeRange(start, end) {
@@ -120,45 +121,46 @@ describe("Ext.calendar.view.Days", function() {
             describe("visibleDays: 1", function() {
                 it("should return the visible range", function() {
                     makeView({
-                        visibleDays: 1,
+                        visibleDays: 2,
                         value: new Date(2010, 0, 1)
                     });
-                    expect(view.getVisibleRange()).toEqualRange(makeRange(D.utc(2010, 0, 1), D.utc(2010, 0, 2)));
+
+                    expect(view.getVisibleRange()).toEqualRange(makeRange(new Date(2010, 0, 1), new Date(2010, 0, 2)));
                 });
             });
 
             describe("visibleDays: 2", function() {
                 it("should return the visible range", function() {
                     makeView({
-                        visibleDays: 2,
+                        visibleDays: 3,
                         value: new Date(2010, 0, 1)
                     });
-                    expect(view.getVisibleRange()).toEqualRange(makeRange(D.utc(2010, 0, 1), D.utc(2010, 0, 3)));
+                    expect(view.getVisibleRange()).toEqualRange(makeRange(new Date(2010, 0, 1), new Date(2010, 0, 3)));
                 });
             });
 
             describe("visibleDays: 3", function() {
                 it("should return the visible range", function() {
                     makeView({
-                        visibleDays: 3,
+                        visibleDays: 4,
                         value: new Date(2010, 0, 1)
                     });
-                    expect(view.getVisibleRange()).toEqualRange(makeRange(D.utc(2010, 0, 1), D.utc(2010, 0, 4)));
+                    expect(view.getVisibleRange()).toEqualRange(makeRange(new Date(2010, 0, 1), new Date(2010, 0, 4)));
                 });
             });
 
             describe("visibleDays: 4", function() {
                 it("should return the visible range", function() {
                     makeView({
-                        visibleDays: 4,
+                        visibleDays: 5,
                         value: new Date(2010, 0, 1)
                     });
-                    expect(view.getVisibleRange()).toEqualRange(makeRange(D.utc(2010, 0, 1), D.utc(2010, 0, 5)));
+                    expect(view.getVisibleRange()).toEqualRange(makeRange(new Date(2010, 0, 1), new Date(2010, 0, 5)));
                 });
             });
         });
 
-        describe("timeFormat", function() {
+        desktopDescribe("timeFormat", function() {
             function format1(hour) {
                 return pad(hour) + ':00';
             }
@@ -225,21 +227,20 @@ describe("Ext.calendar.view.Days", function() {
                     makeView();
 
                     var childNodes = view.timeContainer.dom.childNodes,
-                        len = childNodes.length,
                         start = view.getStartTime(),
                         i;
 
-                    for (i = 0; i < len; ++i) {
+                    for (i = 0; i < childNodes.length; ++i) {
                         expect(childNodes[i]).hasHTML(format1(start + i));
                     }
 
                     view.setTimeFormat('g:i a');
-                    for (i = 0; i < len; ++i) {
+                    for (i = 0; i < childNodes.length; ++i) {
                         expect(childNodes[i]).hasHTML(format2(start + i));
                     }
 
                     view.setTimeFormat('H:i');
-                    for (i = 0; i < len; ++i) {
+                    for (i = 0; i < childNodes.length; ++i) {
                         expect(childNodes[i]).hasHTML(format1(start + i));
                     }
                 });
@@ -370,7 +371,7 @@ describe("Ext.calendar.view.Days", function() {
                         });
 
                         expect(view.getColumns().length).toBe(4);
-                        expect(view.getVisibleRange()).toEqualRange(makeRange(D.utc(2010, 0, 1), D.utc(2010, 0, 5)));
+                        expect(view.getVisibleRange()).toEqualRange(makeRange(new Date(2010, 0, 1), new Date(2010, 0, 4)));
                     });
 
                     it("should accept a custom value", function() {
@@ -381,7 +382,7 @@ describe("Ext.calendar.view.Days", function() {
                         });
 
                         expect(view.getColumns().length).toBe(2);
-                        expect(view.getVisibleRange()).toEqualRange(makeRange(D.utc(2010, 0, 1), D.utc(2010, 0, 3)));
+                        expect(view.getVisibleRange()).toEqualRange(makeRange(new Date(2010, 0, 1), new Date(2010, 0, 2)));
                     });
 
                     it("should update the range when the value changes", function() {
@@ -394,7 +395,7 @@ describe("Ext.calendar.view.Days", function() {
                         view.setValue(D.add(d, D.DAY, 2));
 
                         expect(view.getColumns().length).toBe(2);
-                        expect(view.getVisibleRange()).toEqualRange(makeRange(D.utc(2010, 0, 3), D.utc(2010, 0, 5)));
+                        expect(view.getVisibleRange()).toEqualRange(makeRange(new Date(2010, 0, 3), new Date(2010, 0, 4)));
                     });
                 });
             });
@@ -446,9 +447,9 @@ describe("Ext.calendar.view.Days", function() {
                             visibleDays: 2
                         });
 
-                        view.setVisibleDays(4);
-                        expect(view.getColumns().length).toBe(4);
-                        expect(view.getVisibleRange()).toEqualRange(makeRange(D.utc(2010, 0, 1), D.utc(2010, 0, 5)));
+                        view.setVisibleDays(5);
+                        expect(view.getColumns().length).toBe(5);
+                        expect(view.getVisibleRange()).toEqualRange(makeRange(new Date(2010, 0, 1), new Date(2010, 0, 5)));
                     });
 
                     it("should retain the new value after changing the value", function() {
@@ -458,17 +459,17 @@ describe("Ext.calendar.view.Days", function() {
                             visibleDays: 2
                         });
 
-                        view.setVisibleDays(4);
+                        view.setVisibleDays(5);
                         view.setValue(D.add(d, D.DAY, 2));
 
-                        expect(view.getColumns().length).toBe(4);
-                        expect(view.getVisibleRange()).toEqualRange(makeRange(D.utc(2010, 0, 3), D.utc(2010, 0, 7)));
+                        expect(view.getColumns().length).toBe(5);
+                        expect(view.getVisibleRange()).toEqualRange(makeRange(new Date(2010, 0, 3), new Date(2010, 0, 7)));
                     });
                 });
             });
         });
 
-        describe("startTime/endTime", function() {
+        desktopDescribe("startTime/endTime", function() {
             function format1(hour) {
                 return pad(hour) + ':00';
             }

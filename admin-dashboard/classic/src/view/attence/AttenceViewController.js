@@ -15,6 +15,32 @@ Ext.define('Admin.view.attence.AttenceViewController', {
         });
         store.load({params:{start:0, limit:20, page:1}});
     },
+    /*下载个人考勤表*/
+    openMonthSelectWindow:function(btn){
+        btn.up('panel').up('container').add(Ext.widget('monthSelectWindow')).show();
+    },
+    downloadMyAttenceExcel:function(btn){
+        var win  = btn.up('window');
+        var form = win.down('form');
+        var values  =form.getValues();
+        Ext.Ajax.request({ 
+            url : '/attence/judgeMyAttenceExcel', 
+            method : 'post', 
+            params : { 
+              month :values.month
+            }, 
+            success: function(response, options) {
+              var json = Ext.util.JSON.decode(response.responseText);
+              if(json.success){
+                  win.close();
+                  window.location = "/attence/downloadMyAttenceExcel?month="+values.month;
+              }else{
+                Ext.Msg.alert('下载失败', "无该月考勤信息");
+              }
+            }
+        });
+        
+    },
 
     /***********************************************请假的增删改查***********************************************************/
     /*Find All Leave*/
@@ -23,7 +49,9 @@ Ext.define('Admin.view.attence.AttenceViewController', {
     },
     /*Add*/
     openAddWindow:function(toolbar, rowIndex, colIndex){
-      toolbar.up('panel').up('container').add(Ext.widget('leaveAddWindow')).show();
+      var userId=Ext.getCmp('Login_SessionUserName').getValue();
+      var win=toolbar.up('panel').up('container').add(Ext.widget('leaveAddWindow'));
+      win.show();
     },
     /*Add Submit*/  
     submitAddForm:function(btn){
@@ -35,7 +63,6 @@ Ext.define('Admin.view.attence.AttenceViewController', {
         record.set(values);
         record.save();
         var store=Ext.data.StoreManager.lookup('leaveStroe');
-        setTimeout(store.load(),'1000');
         /*store.addListener('load', function() {
               Ext.Msg.alert('提示','添加成功');
         });*/

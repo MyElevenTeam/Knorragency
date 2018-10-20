@@ -1,8 +1,11 @@
 package com.example.demo.contract.controller;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -16,12 +19,6 @@ import org.apache.poi.POIXMLTextExtractor;
 import org.apache.poi.hwpf.HWPFDocument;
 import org.apache.poi.hwpf.extractor.WordExtractor;
 import org.apache.poi.hwpf.usermodel.Range;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.util.CellRangeAddress;
-import org.apache.poi.xssf.usermodel.XSSFCellStyle;
-import org.apache.poi.xssf.usermodel.XSSFRow;
-import org.apache.poi.xssf.usermodel.XSSFSheet;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.apache.poi.xwpf.extractor.XWPFWordExtractor;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -130,7 +127,11 @@ public class ContractController {
 		
 		try {
 			if(ids!=null) {
-				contractService.deleteAll(ids);
+				for (int i = 0; i < ids.length; i++) {
+					Contract contract=contractService.findById(ids[i]).get();
+					contract.setEmployee(null);
+					contractService.deleteById(ids[i]);
+				}
 			}
 			return new ExtAjaxResponse(true,"批量删除成功！");
 		} catch (Exception e) {
@@ -247,55 +248,33 @@ public class ContractController {
 	
 	
 	
-	/*下载excel文档*/
-	@SystemControllerLog(description="下载合同信息")
-	@RequestMapping("/downloadExcel")
-    public void downloadExcel(HttpServletRequest request, HttpServletResponse response)throws IOException
+	/*下载合同模板*/
+	@SystemControllerLog(description="下载合同模板")
+	@RequestMapping("/downloadTemplate")
+    public void downloadTemplate(HttpServletRequest request, HttpServletResponse response)throws IOException
     {  
-	   System.out.println("download");
-	    //创建工作簿
-		@SuppressWarnings("resource")
-		XSSFWorkbook wb = new XSSFWorkbook();
-		//创建一个sheet
-		XSSFSheet sheet = wb.createSheet();
-		
-		// 创建单元格样式
-		XSSFCellStyle style =  wb.createCellStyle();	
-		
-		//为单元格添加背景样式
-		for (int i = 0; i < 6; i++) { //需要6行表格
-		    Row  row =	sheet.createRow(i); //创建行
-			for (int j = 0; j < 6; j++) {//需要6列
-				row.createCell(j).setCellStyle(style);
-			}
+		String fileName="ContractTemplate.doc";
+		//获取用户下载的文件名称
+		fileName = new String(fileName.getBytes("ISO8859-1"),"UTF-8");
+		//获取文件上传路径
+		String basePath = request.getSession().getServletContext().getRealPath("/upload/");
+		//获取一个文件流
+		InputStream in = new FileInputStream(new File(basePath, fileName));
+		//进行中文处理
+		fileName = URLEncoder.encode(fileName, "UTF-8");
+		//设置下载的响应头
+		response.setHeader("content-disposition", "attachment;fileName="+fileName);
+		//获取response字节流
+		OutputStream out = response.getOutputStream();
+		byte[] b = new byte[1024];
+		int len = -1;
+		while ((len = in.read(b)) != -1) {
+			out.write(b, 0, len);
 		}
-		
-		//合并单元格
-		sheet.addMergedRegion(new CellRangeAddress(0, 1, 0, 0));//合并单元格，cellRangAddress四个参数，第一个起始行，第二终止行，第三个起始列，第四个终止列
-		sheet.addMergedRegion(new CellRangeAddress(0, 0, 1, 5));
-		
-		//tian入数据
-		XSSFRow row = sheet.getRow(0); //获取第一行
-		row.getCell(1).setCellValue("2018期末考试"); //在第一行中创建一个单元格并赋值
-		XSSFRow row1 = sheet.getRow(1); //获取第二行，为每一列添加字段
-		row1.getCell(1).setCellValue("语文");
-		row1.getCell(2).setCellValue("数学");
-		row1.getCell(3).setCellValue("英语");
-		row1.getCell(4).setCellValue("物理");
-		row1.getCell(5).setCellValue("化学");
-		XSSFRow row2 = sheet.getRow(2); //获取第三行
-		row2.getCell(0).setCellValue("张三");
-		XSSFRow row3 = sheet.getRow(3); //获取第四行
-		row3.getCell(0).setCellValue("张三");
-		XSSFRow row4 = sheet.getRow(4); //获取第五行
-		row4.getCell(0).setCellValue("张三");
-		XSSFRow row5 = sheet.getRow(5); //获取第五行
-		row5.getCell(0).setCellValue("张三");
-        
-        //response.setContentType("application/octet-stream");
-        response.setHeader("Content-disposition", "attachment;filename=createList.xls");//默认Excel名称
-        response.flushBuffer();
-        wb.write(response.getOutputStream());
+		//关闭
+		out.close();
+		in.close();
+	   
     }
 	
 	
@@ -311,10 +290,12 @@ public class ContractController {
     public @ResponseBody ExtAjaxResponse start(@RequestParam(name="id") Long contractId,HttpSession session) {
     	try {
     		String userId = SessionUtil.getUserName(session);
+    		Employee employee=employeeService.EmployeeName(userId);
     		Map<String, Object> variables = new HashMap<String, Object>();
     		variables.put("deptLeader", "financeManager");
     		variables.put("manLeader", "hrManager");
     		variables.put("applyUserId", userId);
+    		variables.put("to",employee.getEmail());
     		contractService.startWorkflow(userId,contractId, variables);
     		return new ExtAjaxResponse(true,"操作成功!");
 	    } catch (Exception e) {

@@ -54,7 +54,7 @@
 					tooltip: 'edit '
 				}
 				,{header: 'id' 			,dataIndex: 'id',width: 60,sortable: true	,hidden:true}
-				,{header: '审核状态',dataIndex: 'processStatus',width: 60,sortable: true,
+				,{header: '审核状态',dataIndex: 'processStatus',width: 100,sortable: true,
 		            renderer: function(val) {
 			            if (val =='NEW') {
 				            return '<span style="color:green;">新建</span>';
@@ -68,11 +68,11 @@
 				        return val;
 		            }
 				}
-				,{header: '申请人'  		,dataIndex: 'userId',width: 60,sortable: true}
+				,{header: '申请人'  		,dataIndex: 'userId',width:120,sortable: true}
 				,{header: '拟请假开始时间' 	,dataIndex: 'startTime',width: 150,sortable: true,renderer: Ext.util.Format.dateRenderer('Y/m/d H:i:s')}
 				,{header: '拟请假结束时间' 			,dataIndex: 'endTime',width: 150,sortable: true,renderer: Ext.util.Format.dateRenderer('Y/m/d H:i:s')}
-				,{header: '请假开始时间' 	,dataIndex: 'realityStartTime',width: 150,sortable: true,renderer: Ext.util.Format.dateRenderer('Y/m/d H:i:s')}
-				,{header: '请假结束时间' 	,dataIndex: 'realityEndTime',width: 150,sortable: true,renderer: Ext.util.Format.dateRenderer('Y/m/d H:i:s')}
+				,{header: '请假开始时间' 	,dataIndex: 'realityStartTime',hidden:true,width: 150,sortable: true,renderer: Ext.util.Format.dateRenderer('Y/m/d H:i:s')}
+				,{header: '请假结束时间' 	,dataIndex: 'realityEndTime',hidden:true,width: 150,sortable: true,renderer: Ext.util.Format.dateRenderer('Y/m/d H:i:s')}
 				,{header: '申请提交时间' 	,dataIndex: 'applyTime',width: 150,sortable: true,renderer: Ext.util.Format.dateRenderer('Y/m/d H:i:s')}
 				,{header: '请假类型'  	,dataIndex: 'leaveType',width: 80,sortable: true,
 		            renderer: function(val) {
@@ -90,14 +90,14 @@
 				,{header: 'processInstanceId' ,dataIndex: 'processInstanceId',width: 80,sortable: true,hidden:true}
 				,{header: 'taskId'  		,dataIndex: 'taskId',width: 80,sortable: true,hidden:true}
 				,{header: '审核名称'  		,dataIndex: 'taskName',width: 80,sortable: true}
-				,{header: '审核时间'  ,dataIndex: 'taskCreateTime',width: 150,sortable: true,renderer: Ext.util.Format.dateRenderer('Y/m/d H:i:s')}
+				,{header: '审核时间'  ,dataIndex: 'taskCreateTime',flex:1,width: 150,sortable: true,renderer: Ext.util.Format.dateRenderer('Y/m/d H:i:s')}
 				,{header: 'assignee'  		,dataIndex: 'assignee',width: 80,sortable: true,hidden:true}
 				,{header: 'taskDefinitionKey',dataIndex: 'taskDefinitionKey',width: 80,sortable: true,hidden:true}
 				,{header: 'processDefinitionId'	,dataIndex: 'processDefinitionId',width: 80,sortable: true,hidden:true}
 				,{header: 'suspended'  		,dataIndex: 'suspended',width: 80,sortable: true,hidden:true}
 				,{header: 'version'  		,dataIndex: 'version',width: 60,sortable: true,hidden:true}
-				,{header: '部门经理意见' ,dataIndex: 'depreason',width: 60,sortable: true}
-				,{header: '人事部经理意见' ,dataIndex: 'hrreason',width: 60,sortable: true}
+				,{header: '部门经理意见' ,dataIndex: 'depreason',hidden:true,width: 60,sortable: true}
+				,{header: '人事部经理意见' ,dataIndex: 'hrreason',hidden:true,width: 60,sortable: true}
 			],
 			dockedItems: [{
 			    xtype: 'pagingtoolbar',

@@ -72,6 +72,7 @@ public class ReportBackEndProcessor implements TaskListener
 			attence.setLocation("广东省东莞市");
 			attence.setWorkinTime(date);
 			attence.setWorkoutTime(date);
+			attence.setDay(AttenceUtil.getDateByYMD(date));
 			attence.setAttenceStatus(AttenceStatus.LEAVE);
 			attenceService.save(attence);
 		}

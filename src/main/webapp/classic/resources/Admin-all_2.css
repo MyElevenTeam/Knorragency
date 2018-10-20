@@ -6391,6 +6391,13 @@
 .x-calendar-month-6weeks .x-calendar-weeks-row {
     height: 16.66%;
 }
+<<<<<<< HEAD
+=======
+/* C:/Users/Administrator/git/Knorragency/admin-dashboard/ext/packages/calendar/sass/src/calendar/view/Month.scss:28 */
+.x-gecko .x-calendar-month-6weeks .x-calendar-weeks-row {
+    height: 16%;
+}
+>>>>>>> branch 'master' of https://github.com/MyElevenTeam/Knorragency.git
 /* C:/Users/Administrator/git/Knorragency/admin-dashboard/ext/classic/theme-neutral/sass/var/calendar/List.scss:27 */
 .x-calendar-list .x-calendar-list-item {
     margin: 0 0 5px 0;

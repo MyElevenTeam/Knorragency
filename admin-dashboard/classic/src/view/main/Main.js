@@ -47,9 +47,9 @@ Ext.define('Admin.view.main.Main', {
                     /*x-fa fa-envelope fa-5x*/
                     iconCls:'fa fa-envelope fa-5x',
                     ui: 'header',
-                    href: '#email',
+                    href: '#fileInboxPanel',
                     hrefTarget: '_self',
-                    tooltip: '查看 email'
+                    tooltip: '查看邮件'
                 },
                 {
                     iconCls:'fa fa-th-large fa-5x',
@@ -77,6 +77,11 @@ Ext.define('Admin.view.main.Main', {
                     xtype: 'tbtext',
                     id:'loginUserName',
                     cls: 'top-user-name'
+                },
+                {
+                    xtype: 'textfield',
+                    id:'Login_SessionUserName',
+                    hidden:true
                 },
                 {
                     xtype: 'image',

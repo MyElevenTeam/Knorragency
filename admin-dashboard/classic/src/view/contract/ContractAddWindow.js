@@ -1,7 +1,7 @@
 Ext.define('Admin.view.contract.ContractAddWindow', {
     extend: 'Ext.window.Window',
     alias: 'widget.contractAddWindow',
-    height: 450,
+    height: 400,
     // minHeight: 200,
     // minWidth: 300,
     width: 500,

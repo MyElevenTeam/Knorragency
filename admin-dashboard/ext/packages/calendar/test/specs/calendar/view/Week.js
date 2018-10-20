@@ -1,6 +1,7 @@
-describe("Ext.calendar.view.Week", function() {
+TODO(Ext.isClassic).topSuite("Ext.calendar.view.Week", ['Ext.calendar.*'], function() {
 
     var D = Ext.Date, 
+        desktopDescribe = Ext.platformTags.desktop ? describe : xdescribe,
         view, tzOffset, oldTzOffset;
 
     function makeRange(start, end) {
@@ -137,17 +138,17 @@ describe("Ext.calendar.view.Week", function() {
 
                     makeSuite("when the first day is at the start of the week", {
                         value: new Date(2016, 0, 10), // Sun
-                        visible: [D.utc(2016, 0, 10), D.utc(2016, 0, 17)]
+                        visible: [new Date(2016, 0, 10), new Date(2016, 0, 16)]
                     });
 
                     makeSuite("when the first day is at the end of the week", {
                         value: new Date(2016, 0, 16), // Sat
-                        visible: [D.utc(2016, 0, 10), D.utc(2016, 0, 17)]
+                        visible: [new Date(2016, 0, 10), new Date(2016, 0, 16)]
                     });
 
                     makeSuite("when the first day is in the middle of the week", {
                         value: new Date(2016, 0, 13), // Wed
-                        visible: [D.utc(2016, 0, 10), D.utc(2016, 0, 17)]
+                        visible: [new Date(2016, 0, 10), new Date(2016, 0, 16)]
                     });
                 });
 
@@ -158,17 +159,17 @@ describe("Ext.calendar.view.Week", function() {
 
                         makeSuite("when the first day is at the start of the week", {
                             value: new Date(2016, 0, 10), // Sun
-                            visible: [D.utc(2016, 0, 10), D.utc(2016, 0, 15)]
+                            visible: [new Date(2016, 0, 10), new Date(2016, 0, 14)]
                         });
 
                         makeSuite("when the first day is at the end of the week", {
                             value: new Date(2016, 0, 16), // Sat
-                            visible: [D.utc(2016, 0, 10), D.utc(2016, 0, 15)]
+                            visible: [new Date(2016, 0, 10), new Date(2016, 0, 14)]
                         });
 
                         makeSuite("when the first day is in the middle of the week", {
                             value: new Date(2016, 0, 13), // Wed
-                            visible: [D.utc(2016, 0, 10), D.utc(2016, 0, 15)]
+                            visible: [new Date(2016, 0, 10), new Date(2016, 0, 14)]
                         });
                 });
             });
@@ -185,17 +186,17 @@ describe("Ext.calendar.view.Week", function() {
 
                     makeSuite("when the first day is at the start of the week", {
                         value: new Date(2016, 0, 11), // Mon
-                        visible: [D.utc(2016, 0, 11), D.utc(2016, 0, 18)]
+                        visible: [new Date(2016, 0, 11), new Date(2016, 0, 17)]
                     });
 
                     makeSuite("when the first day is at the end of the week", {
                         value: new Date(2016, 0, 17), // Sun
-                        visible: [D.utc(2016, 0, 11), D.utc(2016, 0, 18)]
+                        visible: [new Date(2016, 0, 11), new Date(2016, 0, 17)]
                     });
 
                     makeSuite("when the first day is in the middle of the week", {
                         value: new Date(2016, 0, 13), // Wed
-                        visible: [D.utc(2016, 0, 11), D.utc(2016, 0, 18)]
+                        visible: [new Date(2016, 0, 11), new Date(2016, 0, 17)]
                     });
                 });
 
@@ -206,23 +207,23 @@ describe("Ext.calendar.view.Week", function() {
 
                     makeSuite("when the first day is at the start of the week", {
                         value: new Date(2016, 0, 11), // Mon
-                        visible: [D.utc(2016, 0, 11), D.utc(2016, 0, 16)]
+                        visible: [new Date(2016, 0, 11), new Date(2016, 0, 15)]
                     });
 
                     makeSuite("when the first day is at the end of the week", {
                         value: new Date(2016, 0, 17), // Sun
-                        visible: [D.utc(2016, 0, 11), D.utc(2016, 0, 16)]
+                        visible: [new Date(2016, 0, 11), new Date(2016, 0, 15)]
                     });
 
                     makeSuite("when the first day is in the middle of the week", {
                         value: new Date(2016, 0, 13), // Wed
-                        visible: [D.utc(2016, 0, 11), D.utc(2016, 0, 16)]
+                        visible: [new Date(2016, 0, 11), new Date(2016, 0, 15)]
                     });
                 });
             });
         });
 
-        describe("firstDayOfWeek", function() {
+        desktopDescribe("firstDayOfWeek", function() {
             function makeHeader() {
                 var h = new Ext.calendar.header.Days({
                     format: 'd-m'
@@ -251,7 +252,7 @@ describe("Ext.calendar.view.Week", function() {
                     expect(getHeaderCell(5)).hasHTML('15-01');
                     expect(getHeaderCell(6)).hasHTML('16-01');
 
-                    expect(view.getVisibleRange()).toEqualRange(makeRange(D.utc(2016, 0, 10), D.utc(2016, 0, 17)));
+                    expect(view.getVisibleRange()).toEqualRange(makeRange(new Date(2016, 0, 10), new Date(2016, 0, 16)));
                 });
 
                 it("should set days from a custom value", function() {
@@ -269,7 +270,7 @@ describe("Ext.calendar.view.Week", function() {
                     expect(getHeaderCell(5)).hasHTML('16-01');
                     expect(getHeaderCell(6)).hasHTML('17-01');
 
-                    expect(view.getVisibleRange()).toEqualRange(makeRange(D.utc(2016, 0, 11), D.utc(2016, 0, 18)));
+                    expect(view.getVisibleRange()).toEqualRange(makeRange(new Date(2016, 0, 11), new Date(2016, 0, 17)));
                 });
             });
 
@@ -291,7 +292,7 @@ describe("Ext.calendar.view.Week", function() {
                     expect(getHeaderCell(5)).hasHTML('02-01');
                     expect(getHeaderCell(6)).hasHTML('03-01');
 
-                    expect(view.getVisibleRange()).toEqualRange(makeRange(D.utc(2009, 11, 28), D.utc(2010, 0, 4)));
+                    expect(view.getVisibleRange()).toEqualRange(makeRange(new Date(2009, 11, 28), new Date(2010, 0, 3)));
                 });
 
                 it("should keep the change when the value changes", function() {
@@ -305,7 +306,7 @@ describe("Ext.calendar.view.Week", function() {
                     expect(getHeaderCell(5)).hasHTML('05-06');
                     expect(getHeaderCell(6)).hasHTML('06-06');
 
-                    expect(view.getVisibleRange()).toEqualRange(makeRange(D.utc(2010, 4, 31), D.utc(2010, 5, 7)));
+                    expect(view.getVisibleRange()).toEqualRange(makeRange(new Date(2010, 4, 31), new Date(2010, 5, 6)));
                 });
             });
         });

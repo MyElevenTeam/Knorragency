@@ -26,6 +26,8 @@ import com.example.demo.common.beans.BeanUtils;
 import com.example.demo.common.controller.ExtAjaxResponse;
 import com.example.demo.common.controller.ExtjsPageRequest;
 import com.example.demo.common.controller.SessionUtil;
+import com.example.demo.employee.domain.Employee;
+import com.example.demo.employee.service.IEmployeeService;
 import com.example.demo.leave.entity.Leave;
 import com.example.demo.leave.entity.LeaveDTO;
 import com.example.demo.leave.entity.LeaveQueryDTO;
@@ -39,6 +41,9 @@ public class LeaveController
 {
 	@Autowired
 	private ILeaveService leaveService;
+	
+	@Autowired
+	private IEmployeeService employeeService;
 	
 	@SystemControllerLog(description="填写请假单")
 	@PostMapping
@@ -130,9 +135,11 @@ public class LeaveController
     public @ResponseBody ExtAjaxResponse start(@RequestParam(name="id") Long leaveId,HttpSession session) {
     	try {
     		String userId = SessionUtil.getUserName(session);
+    		Employee employee=employeeService.EmployeeName(userId);
     		Map<String, Object> variables = new HashMap<String, Object>();
     		variables.put("deptLeader", "financeManager");
     		variables.put("applyUserId", userId);
+    		variables.put("to",employee.getEmail());
     		leaveService.startWorkflow(userId,leaveId, variables);
     		return new ExtAjaxResponse(true,"操作成功!");
 	    } catch (Exception e) {

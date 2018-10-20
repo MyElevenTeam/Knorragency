@@ -2458,7 +2458,16 @@ Ext.define('Ext.calendar.model.EventBase', {extend:'Ext.Mixin', requires:['Ext.c
 }, isContainedByRange:function(start, end) {
   return this.getRange().isContainedBy(start, end);
 }, isSpan:function() {
-  return this.getAllDay() || this.getDuration() >= 1440;
+  var me = this, DATE = Ext.Date, startTime = me.data.startTime, nextDayStart;
+  if (me.getAllDay()) {
+    return true;
+  } else {
+    if (!startTime) {
+      return me.getDuration() > 1440;
+    }
+  }
+  nextDayStart = DATE.add(DATE.clearTime(DATE.clone(startTime)), DATE.DAY, 1);
+  return DATE.diff(startTime, nextDayStart, 'mi') < me.getDuration();
 }, occursInRange:function(start, end) {
   return this.getRange().overlaps(start, end);
 }, setCalendar:function(calendar, dirty) {
@@ -2555,7 +2564,7 @@ Ext.define('Ext.calendar.store.Events', {extend:'Ext.data.Store', alias:'store.c
   }
   return ret;
 }, setRange:function(range) {
-  var me = this, D = Ext.Date, R = Ext.calendar.date.Range, current = me.range, prefetchSettings = me.getPrefetchSetting(), fullStart = D.subtract(range.start, prefetchSettings.unit, prefetchSettings.amount, true), fullEnd = D.add(range.end, prefetchSettings.unit, prefetchSettings.amount, true), newRange = {actual:range.clone(), full:new R(fullStart, fullEnd)}, fetchCount = 0, isLeading = false, fetchStart, fetchEnd;
+  var me = this, D = Ext.Date, R = Ext.calendar.date.Range, current = me.range, prefetchSettings = me.getPrefetchSetting(), fetchCount = 0, isLeading = false, fetchStart, fetchEnd, fullStart = D.subtract(range.start, prefetchSettings.unit, prefetchSettings.amount, true), fullEnd = D.add(range.end, prefetchSettings.unit, prefetchSettings.amount, true), newRange = {actual:range.clone(), full:new R(fullStart, fullEnd)};
   if (me.compareRange(current, newRange)) {
     return;
   }
@@ -2608,9 +2617,12 @@ Ext.define('Ext.calendar.store.Events', {extend:'Ext.data.Store', alias:'store.c
     this.setRecordCalendar(null, info.items, true);
   }
 }, privates:{isMoving:0, abortAll:function() {
-  var requests = this.requests, id;
+  var requests = this.requests, request, id;
   for (id in requests) {
-    requests[id].abort();
+    request = requests[id];
+    if (request && !request.destroyed) {
+      request.abort();
+    }
   }
   this.requests = {};
 }, compareRange:function(a, b) {
@@ -2715,7 +2727,7 @@ Ext.define('Ext.calendar.theme.Theme', {singleton:true, requires:['Ext.util.Colo
 Ext.define('Ext.calendar.model.CalendarBase', {extend:'Ext.Mixin', requires:['Ext.calendar.store.Events', 'Ext.calendar.theme.Theme'], config:{eventStoreDefaults:{type:'calendar-events', proxy:{type:'ajax'}}}, events:function() {
   var me = this, store = me._eventStore, cfg;
   if (!store) {
-    cfg = Ext.merge({calendar:me}, me.config.eventStoreDefaults, me.eventStoreDefaults);
+    cfg = Ext.merge({calendar:me}, me.config.eventStoreDefaults, me.eventStoreDefaults, me.get('eventCfg'));
     me._eventStore = store = Ext.Factory.store(me.getEventStoreConfig(cfg));
   }
   return store;
@@ -3519,18 +3531,18 @@ header:null, store:null, timezoneOffset:undefined, value:undefined}, platformCon
       tzOffset += dOffset - tzOffset;
     }
   }
-  return D.add(d, D.MINUTE, tzOffset, true);
+  return D.add(d, D.MINUTE, tzOffset);
 }, utcToLocal:function(d) {
   var D = Ext.Date, viewOffset = this.getTimezoneOffset(), localOffset = d.getTimezoneOffset(), ret;
   if (this.autoOffset) {
     ret = D.clone(d);
   } else {
-    ret = D.subtract(d, D.MINUTE, viewOffset - localOffset, true);
+    ret = D.subtract(d, D.MINUTE, viewOffset - localOffset);
   }
   return ret;
 }, utcTimezoneOffset:function(date) {
   var D = Ext.Date, tzOffset = this.autoOffset ? date.getTimezoneOffset() : this.getTimezoneOffset();
-  return D.subtract(date, D.MINUTE, tzOffset, true);
+  return D.subtract(date, D.MINUTE, tzOffset);
 }}});
 Ext.define('Ext.overrides.calendar.view.Base', {override:'Ext.calendar.view.Base', constructor:function(config) {
   this.callParent([config]);
@@ -4055,6 +4067,7 @@ compactOptions:{displayOverlap:false, showNowMarker:false, timeFormat:'g', timeR
 }, handleEventTap:function(e) {
   var event = this.getEvent(e);
   if (event) {
+    e.preventDefault();
     this.onEventTap(event);
   }
 }, handleResize:function() {
@@ -4270,7 +4283,7 @@ compactOptions:{displayOverlap:false, showNowMarker:false, timeFormat:'g', timeR
     me.allDayBackgroundWrap.setStyle(name, w);
   }
 }, updateTimeLabels:function() {
-  var times = this.generateTimeLabels(), nodes = this.timeContainer.dom.childNodes, i;
+  var times = this.generateTimeLabels(), nodes = this.timeContainer.dom.childNodes, len, i;
   if (times.length !== nodes.length) {
     Ext.raise('Number of generated times did not match');
   }
@@ -4290,9 +4303,9 @@ Ext.define('Ext.calendar.view.WeeksRenderer', {days:null, index:null, maxEvents:
   var me = this, D = Ext.Date, start, end;
   Ext.apply(me, config);
   start = me.start;
-  me.end = end = D.add(start, D.DAY, me.days, true);
+  me.end = end = D.add(start, D.DAY, me.days);
   me.utcStart = this.view.utcTimezoneOffset(start);
-  me.utcEnd = D.add(me.utcStart, D.DAY, me.days, true);
+  me.utcEnd = D.add(me.utcStart, D.DAY, me.days);
   me.hasMaxEvents = me.maxEvents !== null;
   me.rows = [];
   me.events = [];
@@ -4314,8 +4327,8 @@ Ext.define('Ext.calendar.view.WeeksRenderer', {days:null, index:null, maxEvents:
   var me = this, D = Ext.Date, view = me.view, seen = me.seen, events = me.events, len = events.length, days = me.days, rangeEnd = me.end, utcRangeEnd = me.utcEnd, start = D.clone(me.start), utcStart = D.clone(me.utcStart), maxEvents = me.maxEvents, hasMaxEvents = me.hasMaxEvents, overflows = me.overflows, overflowOffset = me.overflow ? 1 : 0, dayEventList = [], i, j, dayEvents, event, eLen, utcEnd, end, id, eventEnd, span, offsetStart, offsetEnd, offsetRangeEnd, allDay, item, offset, isSpan, dayLen, 
   hasAnyOverflows, overflow, map, prev, dayOverflows;
   for (i = 0; i < days; ++i) {
-    end = D.add(start, D.DAY, 1, true);
-    utcEnd = D.add(utcStart, D.DAY, 1, true);
+    end = D.add(start, D.DAY, 1);
+    utcEnd = D.add(utcStart, D.DAY, 1);
     dayEvents = [];
     for (j = 0; j < len; ++j) {
       event = events[j];
@@ -4410,9 +4423,8 @@ Ext.define('Ext.calendar.view.WeeksRenderer', {days:null, index:null, maxEvents:
     }
   }
 }, compress:function(rowIdx) {
-  var row = this.rows[rowIdx], ret = [], days = this.days, count = 0, i = 0, inc, item;
+  var row = this.rows[rowIdx], ret = [], days = this.days, count = 0, i = 0, item;
   while (i < days) {
-    inc = 1;
     item = row[i];
     if (item.event) {
       if (count > 0) {
@@ -4705,9 +4717,13 @@ clearSelected:function() {
   }
   return i;
 }, generateCells:function(numRows, setHeights) {
-  var me = this, daysInWeek = Ext.Date.DAYS_IN_WEEK, rows = [], i, j, cells, style;
+  var me = this, daysInWeek = Ext.Date.DAYS_IN_WEEK, rows = [], height, i, j, cells, style;
   if (setHeights) {
-    style = {height:100 / numRows + '%'};
+    height = 100 / numRows;
+    if (Ext.isGecko) {
+      height = parseInt(height, 10);
+    }
+    style = {height:height + '%'};
   }
   for (i = 0; i < numRows; ++i) {
     cells = [];

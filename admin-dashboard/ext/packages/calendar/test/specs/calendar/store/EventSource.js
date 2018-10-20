@@ -1,5 +1,4 @@
-describe("Ext.calendar.store.EventSource", function() {
-
+topSuite("Ext.calendar.store.EventSource", ["Ext.calendar.store.*"], function() {
     var D = Ext.Date,
         calendarData, cal1Data, cal2Data, cal3Data, store, source,
         asyncCalendar, asyncEvents, defaultRange;
@@ -134,7 +133,7 @@ describe("Ext.calendar.store.EventSource", function() {
     });
 
     function setDefaultRange() {
-        return source.setRange(defaultRange[0], defaultRange[1]);
+        return source.setRange(new Ext.calendar.date.Range(defaultRange[0], defaultRange[1]));
     }
 
     function setDefaultRangeAndComplete() {
@@ -172,7 +171,7 @@ describe("Ext.calendar.store.EventSource", function() {
         beforeEach(function() {
             spies = {};
             Ext.Array.forEach(['add', 'remove', 'load', 'refresh'], function(key) {
-                spies[key] = jasmine.createSpy();
+                spies[key] = jasmine.createSpy(key);
             });
         });
 
@@ -230,14 +229,14 @@ describe("Ext.calendar.store.EventSource", function() {
                     expect(spies.add).not.toHaveBeenCalled();
                     expect(spies.remove).not.toHaveBeenCalled();
                     expect(spies.load).not.toHaveBeenCalled();
-                    expect(spies.refresh).not.toHaveBeenCalled();
+                    expect(spies.refresh.callCount).toBe(1);
 
                     setDefaultRangeAndComplete(cal1Data, cal2Data);
 
                     expect(spies.add).not.toHaveBeenCalled();
                     expect(spies.remove).not.toHaveBeenCalled();
                     expect(spies.load.callCount).toBe(1);
-                    expect(spies.refresh.callCount).toBe(1);
+                    expect(spies.refresh.callCount).toBe(2);
                 });
 
                 it("should fire a single refresh/load event on subsequent reloads", function() {
@@ -267,7 +266,7 @@ describe("Ext.calendar.store.EventSource", function() {
                     expect(spies.add).not.toHaveBeenCalled();
                     expect(spies.remove).not.toHaveBeenCalled();
                     expect(spies.load.callCount).toBe(1);
-                    expect(spies.refresh.callCount).toBe(1);
+                    expect(spies.refresh.callCount).toBe(2);
                 });
             });
         });
@@ -289,7 +288,7 @@ describe("Ext.calendar.store.EventSource", function() {
                         }
                     }
                 });
-                cal3.events().setRange(defaultRange[0], defaultRange[1]);
+                cal3.events().setRange(new Ext.calendar.date.Range(defaultRange[0], defaultRange[1]));
                 doComplete([{
                     id: 11,
                     title: 'Cal3.1',
@@ -328,7 +327,7 @@ describe("Ext.calendar.store.EventSource", function() {
                     expect(spies.add).not.toHaveBeenCalled();
                     expect(spies.remove).not.toHaveBeenCalled();
                     expect(spies.load).not.toHaveBeenCalled();
-                    expect(spies.refresh.callCount).toBe(1);
+                    expect(spies.refresh.callCount).toBe(2);
                 });
             });
         });
@@ -352,7 +351,7 @@ describe("Ext.calendar.store.EventSource", function() {
                     expect(spies.add).not.toHaveBeenCalled();
                     expect(spies.remove).not.toHaveBeenCalled();
                     expect(spies.load).not.toHaveBeenCalled();
-                    expect(spies.refresh.callCount).toBe(1);
+                    expect(spies.refresh.callCount).toBe(2);
                 });
             });
         });
@@ -609,7 +608,7 @@ describe("Ext.calendar.store.EventSource", function() {
                         var event = store.getAt(0).events().getAt(0),
                             start = event.getStartDate();
 
-                        event.setRange(D.subtract(start, D.DAY, 1), event.getEndDate());
+                        event.setRange(new Ext.calendar.date.Range(D.subtract(start, D.DAY, 1), event.getEndDate()));
                         expect(spy).not.toHaveBeenCalled();
                     });
                 });
@@ -626,7 +625,7 @@ describe("Ext.calendar.store.EventSource", function() {
                         });
 
                         var event = store.getAt(0).events().getAt(0);
-                        event.setRange(new Date(2010, 0, 2), new Date(2010, 0, 3));
+                        event.setRange(new Ext.calendar.date.Range(new Date(2010, 0, 2), new Date(2010, 0, 3)));
                         expect(addSpy.callCount).toBe(1);
                         expect(spy).not.toHaveBeenCalled();
                     });
@@ -644,7 +643,7 @@ describe("Ext.calendar.store.EventSource", function() {
                         });
 
                         var event = store.getAt(0).events().getAt(2);
-                        event.setRange(new Date(2009, 0, 1), new Date(2009, 0, 2));
+                        event.setRange(new Ext.calendar.date.Range(new Date(2009, 0, 1), new Date(2009, 0, 2)));
                         expect(removeSpy.callCount).toBe(1);
                         expect(spy).not.toHaveBeenCalled();
                     });
@@ -663,7 +662,7 @@ describe("Ext.calendar.store.EventSource", function() {
                         });
 
                         var event = store.getAt(0).events().getAt(2);
-                        event.setRange(new Date(2010, 0, 28), new Date(2010, 0, 29));
+                        event.setRange(new Ext.calendar.date.Range(new Date(2010, 0, 28), new Date(2010, 0, 29)));
                         expect(updateSpy.callCount).toBe(1);
                         expect(spy).not.toHaveBeenCalled();
                     });
@@ -723,9 +722,9 @@ describe("Ext.calendar.store.EventSource", function() {
                         doComplete(calendarData);
                         expect(spy.callCount).toBe(2);
                         expect(spy.calls[0].object).toBe(store.getAt(0).events());
-                        expect(spy.calls[0].args).toEqual([defaultRange[0], defaultRange[1]]);
+                        expect([spy.calls[0].args[0].start, spy.calls[0].args[0].end]).toEqual([defaultRange[0], defaultRange[1]]);
                         expect(spy.calls[1].object).toBe(store.getAt(1).events());
-                        expect(spy.calls[1].args).toEqual([defaultRange[0], defaultRange[1]]);
+                        expect([spy.calls[1].args[0].start, spy.calls[1].args[0].end]).toEqual([defaultRange[0], defaultRange[1]]);
                         doComplete(cal1Data, cal2Data);
                     });
 
@@ -752,9 +751,9 @@ describe("Ext.calendar.store.EventSource", function() {
                     setDefaultRange();
                     expect(spy.callCount).toBe(2);
                     expect(spy.calls[0].object).toBe(store.getAt(0).events());
-                    expect(spy.calls[0].args).toEqual([defaultRange[0], defaultRange[1]]);
+                    expect([spy.calls[0].args[0].start, spy.calls[0].args[0].end]).toEqual([defaultRange[0], defaultRange[1]]);
                     expect(spy.calls[1].object).toBe(store.getAt(1).events());
-                    expect(spy.calls[1].args).toEqual([defaultRange[0], defaultRange[1]]);
+                    expect([spy.calls[1].args[0].start, spy.calls[1].args[0].end]).toEqual([defaultRange[0], defaultRange[1]]);
                     doComplete(cal1Data, cal2Data);
                 });
 
@@ -780,10 +779,10 @@ describe("Ext.calendar.store.EventSource", function() {
                         spy2 = spyOn(store.getAt(1).events(), 'setRange'),
                         newRange = increaseDefaultRange(1);
 
-                    source.setRange(newRange[0], newRange[1]);
+                    source.setRange(new Ext.calendar.date.Range(newRange[0], newRange[1]));
 
-                    expect(spy1).not.toHaveBeenCalled();
-                    expect(spy2).not.toHaveBeenCalled();
+                    expect(spy1.callCount).toBe(1);
+                    expect(spy2.callCount).toBe(1);
                 });
             });
 
@@ -794,15 +793,18 @@ describe("Ext.calendar.store.EventSource", function() {
 
                     var spy1 = spyOn(store.getAt(0).events(), 'setRange'),
                         spy2 = spyOn(store.getAt(1).events(), 'setRange'),
-                        newRange = increaseDefaultRange(600);
+                        newRange = increaseDefaultRange(600),
+                        spy1Args, spy2Args;
 
-                    source.setRange(newRange[0], newRange[1]);
+                    source.setRange(new Ext.calendar.date.Range(newRange[0], newRange[1]));
 
                     expect(spy1.callCount).toBe(1);
-                    expect(spy1.mostRecentCall.args).toEqual(newRange);
+                    var spy1Args = spy1.mostRecentCall.args[0];
+                    expect([spy1Args.start, spy1Args.end]).toEqual(newRange);
 
                     expect(spy2.callCount).toBe(1);
-                    expect(spy2.mostRecentCall.args).toEqual(newRange);
+                    var spy2Args = spy2.mostRecentCall.args[0];
+                    expect([spy2Args.start, spy2Args.end]).toEqual(newRange);
                 });
             });
         });
@@ -824,7 +826,7 @@ describe("Ext.calendar.store.EventSource", function() {
                         load: spy
                     });
 
-                    source.setRange(newRange[0], newRange[1]);
+                    source.setRange(new Ext.calendar.date.Range(newRange[0], newRange[1]));
                     // Prefetch
                     doComplete([], []);
                     expect(spy).not.toHaveBeenCalled();
@@ -837,7 +839,7 @@ describe("Ext.calendar.store.EventSource", function() {
                         spy = jasmine.createSpy();
 
                     source.on('beforeload', spy);
-                    source.setRange(newRange[0], newRange[1]);
+                    source.setRange(new Ext.calendar.date.Range(newRange[0], newRange[1]));
                     expect(spy.callCount).toBe(1);
                     doComplete([], []);
                 });
@@ -848,7 +850,7 @@ describe("Ext.calendar.store.EventSource", function() {
                         spy = jasmine.createSpy();
 
                     source.on('load', spy);
-                    source.setRange(newRange[0], newRange[1]);
+                    source.setRange(new Ext.calendar.date.Range(newRange[0], newRange[1]));
                     doComplete([{
                         id: 100,
                         startDate: D.add(newRange[0], D.DAY, 1),
@@ -875,7 +877,7 @@ describe("Ext.calendar.store.EventSource", function() {
                         spy = jasmine.createSpy();
 
                     source.on('load', spy);
-                    source.setRange(newRange[0], newRange[1]);
+                    source.setRange(new Ext.calendar.date.Range(newRange[0], newRange[1]));
                     doComplete([{
                         id: 100,
                         startDate: D.add(newRange[0], D.DAY, 1),

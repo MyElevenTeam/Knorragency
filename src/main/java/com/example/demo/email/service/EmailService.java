@@ -40,7 +40,11 @@ public class EmailService implements IEmailService {
 		
 		List<Email> emails = (List<Email>) emailRepository.findAllById(idLists);
 		if(emails!=null) {
-			emailRepository.deleteAll(emails);
+			for(Email email:emails) {
+				email.setEmployee(null);
+				emailRepository.delete(email);
+			}
+			
 		}
 	}
 

@@ -552,6 +552,10 @@
 .x-calendar-month-6weeks .x-calendar-weeks-row {
     height: 16.66%;
 }
+/* /home/teamcity/buildAgent/work/8cc7421dd8da164c/staging/packages/calendar/sass/src/calendar/view/Month.scss:28 */
+.x-gecko .x-calendar-month-6weeks .x-calendar-weeks-row {
+    height: 16%;
+}
 /* /home/teamcity/buildAgent/work/8cc7421dd8da164c/staging/modern/theme-neptune/sass/var/calendar/List.scss:30 */
 .x-calendar-list .x-calendar-list-item {
     margin: 0 0 6px 0;

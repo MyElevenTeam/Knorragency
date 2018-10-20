@@ -1400,7 +1400,7 @@ Ext.define('Ext.calendar.view.Base', {
                 }
             }
 
-            return D.add(d, D.MINUTE, tzOffset, true);
+            return D.add(d, D.MINUTE, tzOffset);
         },
 
         /**
@@ -1420,7 +1420,7 @@ Ext.define('Ext.calendar.view.Base', {
             if (this.autoOffset) {
                 ret = D.clone(d);
             } else {
-                ret = D.subtract(d, D.MINUTE, viewOffset - localOffset, true);
+                ret = D.subtract(d, D.MINUTE, viewOffset - localOffset);
             }
             return ret;
         },
@@ -1429,7 +1429,7 @@ Ext.define('Ext.calendar.view.Base', {
             var D = Ext.Date,
                 tzOffset = this.autoOffset ? date.getTimezoneOffset() : this.getTimezoneOffset();
 
-            return D.subtract(date, D.MINUTE, tzOffset, true);
+            return D.subtract(date, D.MINUTE, tzOffset);
         }
     }
 });

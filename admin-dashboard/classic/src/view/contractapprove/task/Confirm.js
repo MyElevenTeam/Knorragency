@@ -94,7 +94,8 @@ Ext.define('Admin.view.contractapprove.task.Confirm', {
     },{
         xtype: 'textfield',
         name:'confirmName',
-        fieldLabel: '请签名确认'
+        fieldLabel: '请签名确认',
+        allowBlank:false
     }],
    	bbar: [{
 		xtype: 'button',

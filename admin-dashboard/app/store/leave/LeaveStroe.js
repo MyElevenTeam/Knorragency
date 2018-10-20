@@ -16,6 +16,7 @@
 		},
 		simpleSortMode: true	//简单排序模式
 	},
+	groupField:'leaveType',
 	autoLoad: true,
 	autoSync: true,
 	remoteSort: true,//全局(远程)排序

@@ -1,4 +1,4 @@
-describe("Ext.calendar.view.Month", function() {
+TODO(Ext.isClassic).topSuite("Ext.calendar.view.Month", ['Ext.calendar.*'], function() {
 
     var D = Ext.Date,
         view, tzOffset, oldTzOffset;
@@ -59,7 +59,7 @@ describe("Ext.calendar.view.Month", function() {
     }
 
     function getCellByIndex(index) {
-        var d = D.add(view.active.visibleRange[0], D.DAY, index);
+        var d = D.add(view.getVisibleRange().start, D.DAY, index);
 
         return view.getCell(d);
     }
@@ -92,7 +92,7 @@ describe("Ext.calendar.view.Month", function() {
             expect(isVisible(cell)).toBe(visible);
 
             ++count;
-            current = D.add(current, D.DAY, 1);
+            current = D.add(current, D.DAY, 1, true);
         }
     }
 
@@ -102,12 +102,6 @@ describe("Ext.calendar.view.Month", function() {
 
     describe("view only, without events", function() {
         describe("value", function() {
-            it("should default to the first day of the current month with the time cleared", function() {
-                var d = new Date();
-                makeView();
-                expect(view.getValue()).toEqual(new Date(d.getFullYear(), d.getMonth(), 1));
-            });
-
             it("should accept a date object and clear the time", function() {
                 makeView({
                     value: new Date(2011, 4, 1, 3, 4, 5)
@@ -115,21 +109,14 @@ describe("Ext.calendar.view.Month", function() {
                 expect(view.getValue()).toEqual(new Date(2011, 4, 1));
             });
 
-            it("should choose the first date of the passed value", function() {
-                makeView({
-                    value: new Date(2011, 4, 5, 3, 4, 5)
-                });
-                expect(view.getValue()).toEqual(new Date(2011, 4, 1));
-            });
-
             it("should not modify a passed date", function() {
-                var d = new Date(2011, 4, 2, 13, 12, 11);
+                var d = new Date(2011, 4, 1, 13, 12, 11);
                 makeView({
                     value: d
                 });
                 expect(view.getValue()).not.toBe(d);
                 expect(view.getValue()).toEqual(new Date(2011, 4, 1));
-                expect(d).toEqual(new Date(2011, 4, 2, 13, 12, 11));
+                expect(d).toEqual(new Date(2011, 4, 1, 13, 12, 11));
             });
         });
 
@@ -233,19 +220,19 @@ describe("Ext.calendar.view.Month", function() {
                         describe("January", function() {
                             makeSuite("when the first is at the start of the week", {
                                 value: [2006, 0], // Sunday
-                                visible: [D.utc(2006, 0, 1), D.utc(2006, 1, 5)],
+                                visible: [new Date(2006, 0, 1), new Date(2006, 1, 5)],
                                 weeks: 5
                             });
 
                             makeSuite("when the first is at the end of the week", {
                                 value: [2005, 0], // Saturday
-                                visible: [D.utc(2004, 11, 26), D.utc(2005, 1, 6)],
+                                visible: [new Date(2004, 11, 26), new Date(2005, 1, 6)],
                                 weeks: 6
                             });
 
                             makeSuite("when the first day is in the middle of the week", {
                                 value: [2003, 0], // Wednesday
-                                visible: [D.utc(2002, 11, 29), D.utc(2003, 1, 2)],
+                                visible: [new Date(2002, 11, 29), new Date(2003, 1, 2)],
                                 weeks: 5
                             });
                         });
@@ -255,19 +242,19 @@ describe("Ext.calendar.view.Month", function() {
                             describe("in a leap year", function() {
                                 makeSuite("when the first is at the start of the week", {
                                     value: [2004, 1], // Sunday
-                                    visible: [D.utc(2004, 1, 1), D.utc(2004, 2, 7)],
+                                    visible: [new Date(2004, 1, 1), new Date(2004, 2, 7)],
                                     weeks: 5
                                 });
 
                                 makeSuite("when the first day is at the end of the week", {
                                     value: [2020, 1], // Saturday
-                                    visible: [D.utc(2020, 0, 26), D.utc(2020, 2, 1)],
+                                    visible: [new Date(2020, 0, 26), new Date(2020, 2, 1)],
                                     weeks: 5
                                 });
 
                                 makeSuite("when the first day is in the middle of the week", {
                                     value: [2012, 1], // Wednesday
-                                    visible: [D.utc(2012, 0, 29), D.utc(2012, 2, 4)],
+                                    visible: [new Date(2012, 0, 29), new Date(2012, 2, 4)],
                                     weeks: 5
                                 });
                             });
@@ -275,19 +262,19 @@ describe("Ext.calendar.view.Month", function() {
                             describe("not in a leap year", function() {
                                 makeSuite("when the first is at the start of the week", {
                                     value: [2009, 1], // Sunday
-                                    visible: [D.utc(2009, 1, 1), D.utc(2009, 2, 1)],
+                                    visible: [new Date(2009, 1, 1), new Date(2009, 2, 1)],
                                     weeks: 4
                                 });
 
                                 makeSuite("when the first day is at the end of the week", {
                                     value: [2014, 1], // Saturday
-                                    visible: [D.utc(2014, 0, 26), D.utc(2014, 2, 2)],
+                                    visible: [new Date(2014, 0, 26), new Date(2014, 2, 2)],
                                     weeks: 5
                                 });
 
                                 makeSuite("when the first day is in the middle of the week", {
                                     value: [2006, 1], // Wednesday
-                                    visible: [D.utc(2006, 0, 29),D.utc(2006, 2, 5)],
+                                    visible: [new Date(2006, 0, 29),new Date(2006, 2, 5)],
                                     weeks: 5
                                 });
                             });
@@ -297,19 +284,19 @@ describe("Ext.calendar.view.Month", function() {
                         describe("December", function() {
                             makeSuite("when the first is at the start of the week", {
                                 value: [2002, 11], // Sunday
-                                visible: [D.utc(2002, 11, 1), D.utc(2003, 0, 5)],
+                                visible: [new Date(2002, 11, 1), new Date(2003, 0, 5)],
                                 weeks: 5
                             });
 
                             makeSuite("when the first is at the end of the week", {
                                 value: [2001, 11], // Saturday
-                                visible: [D.utc(2001, 10, 25), D.utc(2002, 0, 6)],
+                                visible: [new Date(2001, 10, 25), new Date(2002, 0, 6)],
                                 weeks: 6
                             });
 
                             makeSuite("when the first day is in the middle of the week", {
                                 value: [2004, 11], // Wednesday
-                                visible: [D.utc(2004, 10, 28), D.utc(2005, 0, 2)],
+                                visible: [new Date(2004, 10, 28), new Date(2005, 0, 2)],
                                 weeks: 5
                             });
                         });
@@ -317,19 +304,19 @@ describe("Ext.calendar.view.Month", function() {
                         describe("30 day month", function() {
                             makeSuite("when the first is at the start of the week", {
                                 value: [2001, 3], // Sunday
-                                visible: [D.utc(2001, 3, 1), D.utc(2001, 4, 6)],
+                                visible: [new Date(2001, 3, 1), new Date(2001, 4, 6)],
                                 weeks: 5
                             });
 
                             makeSuite("when the first is at the end of the week", {
                                 value: [2006, 3], // Saturday
-                                visible: [D.utc(2006, 2, 26), D.utc(2006, 4, 7)],
+                                visible: [new Date(2006, 2, 26), new Date(2006, 4, 7)],
                                 weeks: 6
                             });
 
                             makeSuite("when the first day is in the middle of the week", {
                                 value: [2009, 3], // Wednesday
-                                visible: [D.utc(2009, 2, 29), D.utc(2009, 4, 3)],
+                                visible: [new Date(2009, 2, 29), new Date(2009, 4, 3)],
                                 weeks: 5
                             });
                         });
@@ -337,19 +324,19 @@ describe("Ext.calendar.view.Month", function() {
                         describe("31 day month", function() {
                             makeSuite("when the first is at the start of the week", {
                                 value: [2004, 7], // Sunday
-                                visible:[D.utc(2004, 7, 1), D.utc(2004, 8, 5)],
+                                visible:[new Date(2004, 7, 1), new Date(2004, 8, 5)],
                                 weeks: 5
                             });
 
                             makeSuite("when the first is at the end of the week", {
                                 value: [2009, 7], // Saturday
-                                visible: [D.utc(2009, 6, 26), D.utc(2009, 8, 6)],
+                                visible: [new Date(2009, 6, 26), new Date(2009, 8, 6)],
                                 weeks: 6
                             });
 
                             makeSuite("when the first day is in the middle of the week", {
                                 value: [2001, 7], // Wednesday
-                                visible: [D.utc(2001, 6, 29), D.utc(2001, 8, 2)],
+                                visible: [new Date(2001, 6, 29), new Date(2001, 8, 2)],
                                 weeks: 5
                             });
                         });
@@ -364,19 +351,19 @@ describe("Ext.calendar.view.Month", function() {
                         describe("January", function() {
                             makeSuite("when the first is at the start of the week", {
                                 value: [2006, 0], // Sunday
-                                visible: [D.utc(2006, 0, 1), D.utc(2006, 1, 3)],
+                                visible: [new Date(2006, 0, 1), new Date(2006, 1, 3)],
                                 weeks: 5
                             });
 
                             makeSuite("when the first is at the end of the week", {
                                 value: [2005, 0], // Saturday
-                                visible: [D.utc(2005, 0, 2), D.utc(2005, 1, 4)],
+                                visible: [new Date(2005, 0, 2), new Date(2005, 1, 4)],
                                 weeks: 5
                             });
 
                             makeSuite("when the first day is in the middle of the week", {
                                 value: [2003, 0], // Wednesday
-                                visible: [D.utc(2002, 11, 29), D.utc(2003, 0, 31)],
+                                visible: [new Date(2002, 11, 29), new Date(2003, 0, 31)],
                                 weeks: 5
                             });
                         });
@@ -386,19 +373,19 @@ describe("Ext.calendar.view.Month", function() {
                             describe("in a leap year", function() {
                                 makeSuite("when the first is at the start of the week", {
                                     value: [2004, 1], // Sunday
-                                    visible: [D.utc(2004, 1, 1), D.utc(2004, 2, 5)],
+                                    visible: [new Date(2004, 1, 1), new Date(2004, 2, 5)],
                                     weeks: 5
                                 });
 
                                 makeSuite("when the first day is at the end of the week", {
                                     value: [2020, 1], // Saturday
-                                    visible: [D.utc(2020, 1, 2), D.utc(2020, 1, 28)],
+                                    visible: [new Date(2020, 1, 2), new Date(2020, 1, 28)],
                                     weeks: 4
                                 });
 
                                 makeSuite("when the first day is in the middle of the week", {
                                     value: [2012, 1], // Wednesday
-                                    visible: [D.utc(2012, 0, 29), D.utc(2012, 2, 2)],
+                                    visible: [new Date(2012, 0, 29), new Date(2012, 2, 2)],
                                     weeks: 5
                                 });
                             });
@@ -406,19 +393,19 @@ describe("Ext.calendar.view.Month", function() {
                             describe("not in a leap year", function() {
                                 makeSuite("when the first is at the start of the week", {
                                     value: [2009, 1], // Sunday
-                                    visible: [D.utc(2009, 1, 1), D.utc(2009, 1, 27)],
+                                    visible: [new Date(2009, 1, 1), new Date(2009, 1, 27)],
                                     weeks: 4
                                 });
 
                                 makeSuite("when the first day is at the end of the week", {
                                     value: [2014, 1], // Saturday
-                                    visible: [D.utc(2014, 1, 2), D.utc(2014, 1, 28)],
+                                    visible: [new Date(2014, 1, 2), new Date(2014, 1, 28)],
                                     weeks: 4
                                 });
 
                                 makeSuite("when the first day is in the middle of the week", {
                                     value: [2006, 1], // Wednesday
-                                    visible: [D.utc(2006, 0, 29), D.utc(2006, 2, 3)],
+                                    visible: [new Date(2006, 0, 29), new Date(2006, 2, 3)],
                                     weeks: 5
                                 });
                             });
@@ -428,19 +415,19 @@ describe("Ext.calendar.view.Month", function() {
                         describe("December", function() {
                             makeSuite("when the first is at the start of the week", {
                                 value: [2002, 11], // Sunday
-                                visible: [D.utc(2002, 11, 1), D.utc(2003, 0, 3)],
+                                visible: [new Date(2002, 11, 1), new Date(2003, 0, 3)],
                                 weeks: 5
                             });
 
                             makeSuite("when the first is at the end of the week", {
                                 value: [2001, 11], // Saturday
-                                visible: [D.utc(2001, 11, 2), D.utc(2002, 0, 4)],
+                                visible: [new Date(2001, 11, 2), new Date(2002, 0, 4)],
                                 weeks: 5
                             });
 
                             makeSuite("when the first day is in the middle of the week", {
                                 value: [2004, 11], // Wednesday
-                                visible: [D.utc(2004, 10, 28), D.utc(2004, 11, 31)],
+                                visible: [new Date(2004, 10, 28), new Date(2004, 11, 31)],
                                 weeks: 5
                             });
                         });
@@ -448,19 +435,19 @@ describe("Ext.calendar.view.Month", function() {
                         describe("30 day month", function() {
                             makeSuite("when the first is at the start of the week", {
                                 value: [2001, 3], // Sunday
-                                visible: [D.utc(2001, 3, 1), D.utc(2001, 4, 4)],
+                                visible: [new Date(2001, 3, 1), new Date(2001, 4, 4)],
                                 weeks: 5
                             });
 
                             makeSuite("when the first is at the end of the week", {
                                 value: [2006, 3], // Saturday
-                                visible: [D.utc(2006, 3, 2), D.utc(2006, 4, 5)],
+                                visible: [new Date(2006, 3, 2), new Date(2006, 4, 5)],
                                 weeks: 5
                             });
 
                             makeSuite("when the first day is in the middle of the week", {
                                 value: [2009, 3], // Wednesday
-                                visible: [D.utc(2009, 2, 29), D.utc(2009, 4, 1)],
+                                visible: [new Date(2009, 2, 29), new Date(2009, 4, 1)],
                                 weeks: 5
                             });
                         });
@@ -468,19 +455,19 @@ describe("Ext.calendar.view.Month", function() {
                         describe("31 day month", function() {
                             makeSuite("when the first is at the start of the week", {
                                 value: [2004, 7], // Sunday
-                                visible:[D.utc(2004, 7, 1), D.utc(2004, 8, 3)],
+                                visible:[new Date(2004, 7, 1), new Date(2004, 8, 3)],
                                 weeks: 5
                             });
 
                             makeSuite("when the first is at the end of the week", {
                                 value: [2009, 7], // Saturday
-                                visible: [D.utc(2009, 7, 2), D.utc(2009, 8, 4)],
+                                visible: [new Date(2009, 7, 2), new Date(2009, 8, 4)],
                                 weeks: 5
                             });
 
                             makeSuite("when the first day is in the middle of the week", {
                                 value: [2001, 7], // Wednesday
-                                visible: [D.utc(2001, 6, 29), D.utc(2001, 7, 31)],
+                                visible: [new Date(2001, 6, 29), new Date(2001, 7, 31)],
                                 weeks: 5
                             });
                         });
@@ -501,19 +488,19 @@ describe("Ext.calendar.view.Month", function() {
                         describe("January", function() {
                             makeSuite("when the first is at the start of the week", {
                                 value: [2006, 0], // Sunday
-                                visible: [D.utc(2006, 0, 1), D.utc(2006, 1, 12)],
+                                visible: [new Date(2006, 0, 1), new Date(2006, 1, 12)],
                                 weeks: 6
                             });
 
                             makeSuite("when the first is at the end of the week", {
                                 value: [2005, 0], // Saturday
-                                visible: [D.utc(2004, 11, 26), D.utc(2005, 1, 6)],
+                                visible: [new Date(2004, 11, 26), new Date(2005, 1, 6)],
                                 weeks: 6
                             });
 
                             makeSuite("when the first day is in the middle of the week", {
                                 value: [2003, 0], // Wednesday
-                                visible: [D.utc(2002, 11, 29), D.utc(2003, 1, 9)],
+                                visible: [new Date(2002, 11, 29), new Date(2003, 1, 9)],
                                 weeks: 6
                             });
                         });
@@ -523,19 +510,19 @@ describe("Ext.calendar.view.Month", function() {
                             describe("in a leap year", function() {
                                 makeSuite("when the first is at the start of the week", {
                                     value: [2004, 1], // Sunday
-                                    visible: [D.utc(2004, 1, 1), D.utc(2004, 2, 14)],
+                                    visible: [new Date(2004, 1, 1), new Date(2004, 2, 14)],
                                     weeks: 6
                                 });
 
                                 makeSuite("when the first day is at the end of the week", {
                                     value: [2020, 1], // Saturday
-                                    visible: [D.utc(2020, 0, 26), D.utc(2020, 2, 8)],
+                                    visible: [new Date(2020, 0, 26), new Date(2020, 2, 8)],
                                     weeks: 6
                                 });
 
                                 makeSuite("when the first day is in the middle of the week", {
                                     value: [2012, 1], // Wednesday
-                                    visible: [D.utc(2012, 0, 29), D.utc(2012, 2, 11)],
+                                    visible: [new Date(2012, 0, 29), new Date(2012, 2, 11)],
                                     weeks: 6
                                 });
                             });
@@ -543,19 +530,19 @@ describe("Ext.calendar.view.Month", function() {
                             describe("not in a leap year", function() {
                                 makeSuite("when the first is at the start of the week", {
                                     value: [2009, 1], // Sunday
-                                    visible: [D.utc(2009, 1, 1), D.utc(2009, 2, 15)],
+                                    visible: [new Date(2009, 1, 1), new Date(2009, 2, 15)],
                                     weeks: 6
                                 });
 
                                 makeSuite("when the first day is at the end of the week", {
                                     value: [2014, 1], // Saturday
-                                    visible: [D.utc(2014, 0, 26), D.utc(2014, 2, 9)],
+                                    visible: [new Date(2014, 0, 26), new Date(2014, 2, 9)],
                                     weeks: 6
                                 });
 
                                 makeSuite("when the first day is in the middle of the week", {
                                     value: [2006, 1], // Wednesday
-                                    visible: [D.utc(2006, 0, 29), D.utc(2006, 2, 12)],
+                                    visible: [new Date(2006, 0, 29), new Date(2006, 2, 12)],
                                     weeks: 6
                                 });
                             });
@@ -565,19 +552,19 @@ describe("Ext.calendar.view.Month", function() {
                         describe("December", function() {
                             makeSuite("when the first is at the start of the week", {
                                 value: [2002, 11], // Sunday
-                                visible: [D.utc(2002, 11, 1), D.utc(2003, 0, 12)],
+                                visible: [new Date(2002, 11, 1), new Date(2003, 0, 12)],
                                 weeks: 6
                             });
 
                             makeSuite("when the first is at the end of the week", {
                                 value: [2001, 11], // Saturday
-                                visible: [D.utc(2001, 10, 25), D.utc(2002, 0, 6)],
+                                visible: [new Date(2001, 10, 25), new Date(2002, 0, 6)],
                                 weeks: 6
                             });
 
                             makeSuite("when the first day is in the middle of the week", {
                                 value: [2004, 11], // Wednesday
-                                visible: [D.utc(2004, 10, 28), D.utc(2005, 0, 9)],
+                                visible: [new Date(2004, 10, 28), new Date(2005, 0, 9)],
                                 weeks: 6
                             });
                         });
@@ -585,19 +572,19 @@ describe("Ext.calendar.view.Month", function() {
                         describe("30 day month", function() {
                             makeSuite("when the first is at the start of the week", {
                                 value: [2001, 3], // Sunday
-                                visible: [D.utc(2001, 3, 1), D.utc(2001, 4, 13)],
+                                visible: [new Date(2001, 3, 1), new Date(2001, 4, 13)],
                                 weeks: 6
                             });
 
                             makeSuite("when the first is at the end of the week", {
                                 value: [2006, 3], // Saturday
-                                visible: [D.utc(2006, 2, 26), D.utc(2006, 4, 7)],
+                                visible: [new Date(2006, 2, 26), new Date(2006, 4, 7)],
                                 weeks: 6
                             });
 
                             makeSuite("when the first day is in the middle of the week", {
                                 value: [2009, 3], // Wednesday
-                                visible: [D.utc(2009, 2, 29), D.utc(2009, 4, 10)],
+                                visible: [new Date(2009, 2, 29), new Date(2009, 4, 10)],
                                 weeks: 6
                             });
                         });
@@ -605,19 +592,19 @@ describe("Ext.calendar.view.Month", function() {
                         describe("31 day month", function() {
                             makeSuite("when the first is at the start of the week", {
                                 value: [2004, 7], // Sunday
-                                visible: [D.utc(2004, 7, 1), D.utc(2004, 8, 12)],
+                                visible: [new Date(2004, 7, 1), new Date(2004, 8, 12)],
                                 weeks: 6
                             });
 
                             makeSuite("when the first is at the end of the week", {
                                 value: [2009, 7], // Saturday
-                                visible: [D.utc(2009, 6, 26), D.utc(2009, 8, 6)],
+                                visible: [new Date(2009, 6, 26), new Date(2009, 8, 6)],
                                 weeks: 6
                             });
 
                             makeSuite("when the first day is in the middle of the week", {
                                 value: [2001, 7], // Wednesday
-                                visible: [D.utc(2001, 6, 29), D.utc(2001, 8, 9)],
+                                visible: [new Date(2001, 6, 29), new Date(2001, 8, 9)],
                                 weeks: 6
                             });
                         });
@@ -632,19 +619,19 @@ describe("Ext.calendar.view.Month", function() {
                         describe("January", function() {
                             makeSuite("when the first is at the start of the week", {
                                 value: [2006, 0], // Sunday
-                                visible: [D.utc(2006, 0, 1), D.utc(2006, 1, 10)],
+                                visible: [new Date(2006, 0, 1), new Date(2006, 1, 10)],
                                 weeks: 6
                             });
 
                             makeSuite("when the first is at the end of the week", {
                                 value: [2005, 0], // Saturday
-                                visible: [D.utc(2004, 11, 26), D.utc(2005, 1, 4)],
+                                visible: [new Date(2004, 11, 26), new Date(2005, 1, 4)],
                                 weeks: 6
                             });
 
                             makeSuite("when the first day is in the middle of the week", {
                                 value: [2003, 0], // Wednesday
-                                visible: [D.utc(2002, 11, 29), D.utc(2003, 1, 7)],
+                                visible: [new Date(2002, 11, 29), new Date(2003, 1, 7)],
                                 weeks: 6
                             });
                         });
@@ -654,19 +641,19 @@ describe("Ext.calendar.view.Month", function() {
                             describe("in a leap year", function() {
                                 makeSuite("when the first is at the start of the week", {
                                     value: [2004, 1], // Sunday
-                                    visible: [D.utc(2004, 1, 1), D.utc(2004, 2, 12)],
+                                    visible: [new Date(2004, 1, 1), new Date(2004, 2, 12)],
                                     weeks: 6
                                 });
 
                                 makeSuite("when the first day is at the end of the week", {
                                     value: [2020, 1], // Saturday
-                                    visible: [D.utc(2020, 0, 26), D.utc(2020, 2, 6)],
+                                    visible: [new Date(2020, 0, 26), new Date(2020, 2, 6)],
                                     weeks: 6
                                 });
 
                                 makeSuite("when the first day is in the middle of the week", {
                                     value: [2012, 1], // Wednesday
-                                    visible: [D.utc(2012, 0, 29), D.utc(2012, 2, 9)],
+                                    visible: [new Date(2012, 0, 29), new Date(2012, 2, 9)],
                                     weeks: 6
                                 });
                             });
@@ -674,19 +661,19 @@ describe("Ext.calendar.view.Month", function() {
                             describe("not in a leap year", function() {
                                 makeSuite("when the first is at the start of the week", {
                                     value: [2009, 1], // Sunday
-                                    visible: [D.utc(2009, 1, 1), D.utc(2009, 2, 13)],
+                                    visible: [new Date(2009, 1, 1), new Date(2009, 2, 13)],
                                     weeks: 6
                                 });
 
                                 makeSuite("when the first day is at the end of the week", {
                                     value: [2014, 1], // Saturday
-                                    visible: [D.utc(2014, 0, 26), D.utc(2014, 2, 7)],
+                                    visible: [new Date(2014, 0, 26), new Date(2014, 2, 7)],
                                     weeks: 6
                                 });
 
                                 makeSuite("when the first day is in the middle of the week", {
                                     value: [2006, 1], // Wednesday
-                                    visible: [D.utc(2006, 0, 29), D.utc(2006, 2, 10)],
+                                    visible: [new Date(2006, 0, 29), new Date(2006, 2, 10)],
                                     weeks: 6
                                 });
                             });
@@ -696,19 +683,19 @@ describe("Ext.calendar.view.Month", function() {
                         describe("December", function() {
                             makeSuite("when the first is at the start of the week", {
                                 value: [2002, 11], // Sunday
-                                visible: [D.utc(2002, 11, 1), D.utc(2003, 0, 10)],
+                                visible: [new Date(2002, 11, 1), new Date(2003, 0, 10)],
                                 weeks: 6
                             });
 
                             makeSuite("when the first is at the end of the week", {
                                 value: [2001, 11], // Saturday
-                                visible: [D.utc(2001, 10, 25), D.utc(2002, 0, 4)],
+                                visible: [new Date(2001, 10, 25), new Date(2002, 0, 4)],
                                 weeks: 6
                             });
 
                             makeSuite("when the first day is in the middle of the week", {
                                 value: [2004, 11], // Wednesday
-                                visible: [D.utc(2004, 10, 28), D.utc(2005, 0, 7)],
+                                visible: [new Date(2004, 10, 28), new Date(2005, 0, 7)],
                                 weeks: 6
                             });
                         });
@@ -716,19 +703,19 @@ describe("Ext.calendar.view.Month", function() {
                         describe("30 day month", function() {
                             makeSuite("when the first is at the start of the week", {
                                 value: [2001, 3], // Sunday
-                                visible: [D.utc(2001, 3, 1), D.utc(2001, 4, 11)],
+                                visible: [new Date(2001, 3, 1), new Date(2001, 4, 11)],
                                 weeks: 6
                             });
 
                             makeSuite("when the first is at the end of the week", {
                                 value: [2006, 3], // Saturday
-                                visible: [D.utc(2006, 2, 26), D.utc(2006, 4, 5)],
+                                visible: [new Date(2006, 2, 26), new Date(2006, 4, 5)],
                                 weeks: 6
                             });
 
                             makeSuite("when the first day is in the middle of the week", {
                                 value: [2009, 3], // Wednesday
-                                visible: [D.utc(2009, 2, 29), D.utc(2009, 4, 8)],
+                                visible: [new Date(2009, 2, 29), new Date(2009, 4, 8)],
                                 weeks: 6
                             });
                         });
@@ -736,19 +723,19 @@ describe("Ext.calendar.view.Month", function() {
                         describe("31 day month", function() {
                             makeSuite("when the first is at the start of the week", {
                                 value: [2004, 7], // Sunday
-                                visible: [D.utc(2004, 7, 1), D.utc(2004, 8, 10)],
+                                visible: [new Date(2004, 7, 1), new Date(2004, 8, 10)],
                                 weeks: 6
                             });
 
                             makeSuite("when the first is at the end of the week", {
                                 value: [2009, 7], // Saturday
-                                visible: [D.utc(2009, 6, 26), D.utc(2009, 8, 4)],
+                                visible: [new Date(2009, 6, 26), new Date(2009, 8, 4)],
                                 weeks: 6
                             });
 
                             makeSuite("when the first day is in the middle of the week", {
                                 value: [2001, 7], // Wednesday
-                                visible: [D.utc(2001, 6, 29), D.utc(2001, 8, 7)],
+                                visible: [new Date(2001, 6, 29), new Date(2001, 8, 7)],
                                 weeks: 6
                             });
                         });
@@ -775,19 +762,19 @@ describe("Ext.calendar.view.Month", function() {
                         describe("January", function() {
                             makeSuite("when the first is at the start of the week", {
                                 value: [2001, 0], // Monday
-                                visible: [D.utc(2001, 0, 1), D.utc(2001, 1, 5)],
+                                visible: [new Date(2001, 0, 1), new Date(2001, 1, 5)],
                                 weeks: 5
                             });
 
                             makeSuite("when the first is at the end of the week", {
                                 value: [2006, 0], // Sunday
-                                visible: [D.utc(2005, 11, 26), D.utc(2006, 1, 6)],
+                                visible: [new Date(2005, 11, 26), new Date(2006, 1, 6)],
                                 weeks: 6
                             });
 
                             makeSuite("when the first day is in the middle of the week", {
                                 value: [2003, 0], // Wednesday
-                                visible: [D.utc(2002, 11, 30), D.utc(2003, 1, 3)],
+                                visible: [new Date(2002, 11, 30), new Date(2003, 1, 3)],
                                 weeks: 5
                             });
                         });
@@ -797,19 +784,19 @@ describe("Ext.calendar.view.Month", function() {
                             describe("in a leap year", function() {
                                 makeSuite("when the first is at the start of the week", {
                                     value: [2016, 1], // Monday
-                                    visible: [D.utc(2016, 1, 1), D.utc(2016, 2, 7)],
+                                    visible: [new Date(2016, 1, 1), new Date(2016, 2, 7)],
                                     weeks: 5
                                 });
 
                                 makeSuite("when the first day is at the end of the week", {
                                     value: [2004, 1], // Sunday
-                                    visible: [D.utc(2004, 0, 26), D.utc(2004, 2, 1)],
+                                    visible: [new Date(2004, 0, 26), new Date(2004, 2, 1)],
                                     weeks: 5
                                 });
 
                                 makeSuite("when the first day is in the middle of the week", {
                                     value: [2012, 1], // Wednesday
-                                    visible: [D.utc(2012, 0, 30), D.utc(2012, 2, 5)],
+                                    visible: [new Date(2012, 0, 30), new Date(2012, 2, 5)],
                                     weeks: 5
                                 });
                             });
@@ -817,19 +804,19 @@ describe("Ext.calendar.view.Month", function() {
                             describe("not in a leap year", function() {
                                 makeSuite("when the first is at the start of the week", {
                                     value: [2010, 1], // Monday
-                                    visible: [D.utc(2010, 1, 1), D.utc(2010, 2, 1)],
+                                    visible: [new Date(2010, 1, 1), new Date(2010, 2, 1)],
                                     weeks: 4
                                 });
 
                                 makeSuite("when the first day is at the end of the week", {
                                     value: [2009, 1], // Sunday
-                                    visible: [D.utc(2009, 0, 26), D.utc(2009, 2, 2)],
+                                    visible: [new Date(2009, 0, 26), new Date(2009, 2, 2)],
                                     weeks: 5
                                 });
 
                                 makeSuite("when the first day is in the middle of the week", {
                                     value: [2006, 1], // Wednesday
-                                    visible: [D.utc(2006, 0, 30), D.utc(2006, 2, 6)],
+                                    visible: [new Date(2006, 0, 30), new Date(2006, 2, 6)],
                                     weeks: 5
                                 });
                             });
@@ -839,19 +826,19 @@ describe("Ext.calendar.view.Month", function() {
                         describe("December", function() {
                             makeSuite("when the first is at the start of the week", {
                                 value: [2003, 11], // Monday
-                                visible: [D.utc(2003, 11, 1), D.utc(2004, 0, 5)],
+                                visible: [new Date(2003, 11, 1), new Date(2004, 0, 5)],
                                 weeks: 5
                             });
 
                             makeSuite("when the first is at the end of the week", {
                                 value: [2002, 11], // Sunday
-                                visible: [D.utc(2002, 10, 25), D.utc(2003, 0, 6)],
+                                visible: [new Date(2002, 10, 25), new Date(2003, 0, 6)],
                                 weeks: 6
                             });
 
                             makeSuite("when the first day is in the middle of the week", {
                                 value: [2004, 11], // Wednesday
-                                visible: [D.utc(2004, 10, 29), D.utc(2005, 0, 3)],
+                                visible: [new Date(2004, 10, 29), new Date(2005, 0, 3)],
                                 weeks: 5
                             });
                         });
@@ -859,19 +846,19 @@ describe("Ext.calendar.view.Month", function() {
                         describe("30 day month", function() {
                             makeSuite("when the first is at the start of the week", {
                                 value: [2002, 3], // Monday
-                                visible: [D.utc(2002, 3, 1), D.utc(2002, 4, 6)],
+                                visible: [new Date(2002, 3, 1), new Date(2002, 4, 6)],
                                 weeks: 5
                             });
 
                             makeSuite("when the first is at the end of the week", {
                                 value: [2001, 3], // Sunday
-                                visible: [D.utc(2001, 2, 26), D.utc(2001, 4, 7)],
+                                visible: [new Date(2001, 2, 26), new Date(2001, 4, 7)],
                                 weeks: 6
                             });
 
                             makeSuite("when the first day is in the middle of the week", {
                                 value: [2009, 3], // Wednesday
-                                visible: [D.utc(2009, 2, 30), D.utc(2009, 4, 4)],
+                                visible: [new Date(2009, 2, 30), new Date(2009, 4, 4)],
                                 weeks: 5
                             });
                         });
@@ -879,19 +866,19 @@ describe("Ext.calendar.view.Month", function() {
                         describe("31 day month", function() {
                             makeSuite("when the first is at the start of the week", {
                                 value: [2005, 7], // Monday
-                                visible: [D.utc(2005, 7, 1), D.utc(2005, 8, 5)],
+                                visible: [new Date(2005, 7, 1), new Date(2005, 8, 5)],
                                 weeks: 5
                             });
 
                             makeSuite("when the first is at the end of the week", {
                                 value: [2004, 7], // Sunday
-                                visible: [D.utc(2004, 6, 26), D.utc(2004, 8, 6)],
+                                visible: [new Date(2004, 6, 26), new Date(2004, 8, 6)],
                                 weeks: 6
                             });
 
                             makeSuite("when the first day is in the middle of the week", {
                                 value: [2001, 7], // Wednesday
-                                visible: [D.utc(2001, 6, 30), D.utc(2001, 8, 3)],
+                                visible: [new Date(2001, 6, 30), new Date(2001, 8, 3)],
                                 weeks: 5
                             });
                         });
@@ -906,19 +893,19 @@ describe("Ext.calendar.view.Month", function() {
                         describe("January", function() {
                             makeSuite("when the first is at the start of the week", {
                                 value: [2001, 0], // Monday
-                                visible: [D.utc(2001, 0, 1), D.utc(2001, 1, 3)],
+                                visible: [new Date(2001, 0, 1), new Date(2001, 1, 3)],
                                 weeks: 5
                             });
 
                             makeSuite("when the first is at the end of the week", {
                                 value: [2006, 0], // Sunday
-                                visible: [D.utc(2006, 0, 2), D.utc(2006, 1, 4)],
+                                visible: [new Date(2006, 0, 2), new Date(2006, 1, 4)],
                                 weeks: 5
                             });
 
                             makeSuite("when the first day is in the middle of the week", {
                                 value: [2003, 0], // Wednesday
-                                visible: [D.utc(2002, 11, 30), D.utc(2003, 1, 1)],
+                                visible: [new Date(2002, 11, 30), new Date(2003, 1, 1)],
                                 weeks: 5
                             });
                         });
@@ -928,19 +915,19 @@ describe("Ext.calendar.view.Month", function() {
                             describe("in a leap year", function() {
                                 makeSuite("when the first is at the start of the week", {
                                     value: [2016, 1], // Monday
-                                    visible: [D.utc(2016, 1, 1), D.utc(2016, 2, 5)],
+                                    visible: [new Date(2016, 1, 1), new Date(2016, 2, 5)],
                                     weeks: 5
                                 });
 
                                 makeSuite("when the first day is at the end of the week", {
                                     value: [2004, 1], // Sunday
-                                    visible: [D.utc(2004, 1, 2), D.utc(2004, 1, 28)],
+                                    visible: [new Date(2004, 1, 2), new Date(2004, 1, 28)],
                                     weeks: 4
                                 });
 
                                 makeSuite("when the first day is in the middle of the week", {
                                     value: [2012, 1], // Wednesday
-                                    visible: [D.utc(2012, 0, 30), D.utc(2012, 2, 3)],
+                                    visible: [new Date(2012, 0, 30), new Date(2012, 2, 3)],
                                     weeks: 5
                                 });
                             });
@@ -948,19 +935,19 @@ describe("Ext.calendar.view.Month", function() {
                             describe("not in a leap year", function() {
                                 makeSuite("when the first is at the start of the week", {
                                     value: [2010, 1], // Monday
-                                    visible: [D.utc(2010, 1, 1), D.utc(2010, 1, 27)],
+                                    visible: [new Date(2010, 1, 1), new Date(2010, 1, 27)],
                                     weeks: 4
                                 });
 
                                 makeSuite("when the first day is at the end of the week", {
                                     value: [2009, 1], // Sunday
-                                    visible: [D.utc(2009, 1, 2), D.utc(2009, 1, 28)],
+                                    visible: [new Date(2009, 1, 2), new Date(2009, 1, 28)],
                                     weeks: 4
                                 });
 
                                 makeSuite("when the first day is in the middle of the week", {
                                     value: [2006, 1], // Wednesday
-                                    visible: [D.utc(2006, 0, 30), D.utc(2006, 2, 4)],
+                                    visible: [new Date(2006, 0, 30), new Date(2006, 2, 4)],
                                     weeks: 5
                                 });
                             });
@@ -970,19 +957,19 @@ describe("Ext.calendar.view.Month", function() {
                         describe("December", function() {
                             makeSuite("when the first is at the start of the week", {
                                 value: [2003, 11], // Monday
-                                visible: [D.utc(2003, 11, 1), D.utc(2004, 0, 3)],
+                                visible: [new Date(2003, 11, 1), new Date(2004, 0, 3)],
                                 weeks: 5
                             });
 
                             makeSuite("when the first is at the end of the week", {
                                 value: [2002, 11], // Sunday
-                                visible: [D.utc(2002, 11, 2), D.utc(2003, 0, 4)],
+                                visible: [new Date(2002, 11, 2), new Date(2003, 0, 4)],
                                 weeks: 5
                             });
 
                             makeSuite("when the first day is in the middle of the week", {
                                 value: [2004, 11], // Wednesday
-                                visible: [D.utc(2004, 10, 29), D.utc(2005, 0, 1)],
+                                visible: [new Date(2004, 10, 29), new Date(2005, 0, 1)],
                                 weeks: 5
                             });
                         });
@@ -990,19 +977,19 @@ describe("Ext.calendar.view.Month", function() {
                         describe("30 day month", function() {
                             makeSuite("when the first is at the start of the week", {
                                 value: [2002, 3], // Monday
-                                visible: [D.utc(2002, 3, 1), D.utc(2002, 4, 4)],
+                                visible: [new Date(2002, 3, 1), new Date(2002, 4, 4)],
                                 weeks: 5
                             });
 
                             makeSuite("when the first is at the end of the week", {
                                 value: [2001, 3], // Sunday
-                                visible: [D.utc(2001, 3, 2), D.utc(2001, 4, 5)],
+                                visible: [new Date(2001, 3, 2), new Date(2001, 4, 5)],
                                 weeks: 5
                             });
 
                             makeSuite("when the first day is in the middle of the week", {
                                 value: [2009, 3], // Wednesday
-                                visible: [D.utc(2009, 2, 30), D.utc(2009, 4, 2)],
+                                visible: [new Date(2009, 2, 30), new Date(2009, 4, 2)],
                                 weeks: 5
                             });
                         });
@@ -1010,19 +997,19 @@ describe("Ext.calendar.view.Month", function() {
                         describe("31 day month", function() {
                             makeSuite("when the first is at the start of the week", {
                                 value: [2005, 7], // Monday
-                                visible: [D.utc(2005, 7, 1), D.utc(2005, 8, 3)],
+                                visible: [new Date(2005, 7, 1), new Date(2005, 8, 3)],
                                 weeks: 5
                             });
 
                             makeSuite("when the first is at the end of the week", {
                                 value: [2004, 7], // Sunday
-                                visible: [D.utc(2004, 7, 2), D.utc(2004, 8, 4)],
+                                visible: [new Date(2004, 7, 2), new Date(2004, 8, 4)],
                                 weeks: 5
                             });
 
                             makeSuite("when the first day is in the middle of the week", {
                                 value: [2001, 7], // Wednesday
-                                visible: [D.utc(2001, 6, 30), D.utc(2001, 8, 1)],
+                                visible: [new Date(2001, 6, 30), new Date(2001, 8, 1)],
                                 weeks: 5
                             });
                         });
@@ -1043,19 +1030,19 @@ describe("Ext.calendar.view.Month", function() {
                         describe("January", function() {
                             makeSuite("when the first is at the start of the week", {
                                 value: [2001, 0], // Monday
-                                visible: [D.utc(2001, 0, 1), D.utc(2001, 1, 12)],
+                                visible: [new Date(2001, 0, 1), new Date(2001, 1, 12)],
                                 weeks: 6
                             });
 
                             makeSuite("when the first is at the end of the week", {
                                 value: [2006, 0], // Sunday
-                                visible: [D.utc(2005, 11, 26), D.utc(2006, 1, 6)],
+                                visible: [new Date(2005, 11, 26), new Date(2006, 1, 6)],
                                 weeks: 6
                             });
 
                             makeSuite("when the first day is in the middle of the week", {
                                 value: [2003, 0], // Wednesday
-                                visible: [D.utc(2002, 11, 30), D.utc(2003, 1, 10)],
+                                visible: [new Date(2002, 11, 30), new Date(2003, 1, 10)],
                                 weeks: 6
                             });
                         });
@@ -1065,19 +1052,19 @@ describe("Ext.calendar.view.Month", function() {
                             describe("in a leap year", function() {
                                 makeSuite("when the first is at the start of the week", {
                                     value: [2016, 1], // Monday
-                                    visible: [D.utc(2016, 1, 1), D.utc(2016, 2, 14)],
+                                    visible: [new Date(2016, 1, 1), new Date(2016, 2, 14)],
                                     weeks: 6
                                 });
 
                                 makeSuite("when the first day is at the end of the week", {
                                     value: [2004, 1], // Sunday
-                                    visible: [D.utc(2004, 0, 26), D.utc(2004, 2, 8)],
+                                    visible: [new Date(2004, 0, 26), new Date(2004, 2, 8)],
                                     weeks: 6
                                 });
 
                                 makeSuite("when the first day is in the middle of the week", {
                                     value: [2012, 1], // Wednesday
-                                    visible: [D.utc(2012, 0, 30), D.utc(2012, 2, 12)],
+                                    visible: [new Date(2012, 0, 30), new Date(2012, 2, 12)],
                                     weeks: 6
                                 });
                             });
@@ -1085,19 +1072,19 @@ describe("Ext.calendar.view.Month", function() {
                             describe("not in a leap year", function() {
                                 makeSuite("when the first is at the start of the week", {
                                     value: [2010, 1], // Monday
-                                    visible: [D.utc(2010, 1, 1), D.utc(2010, 2, 15)],
+                                    visible: [new Date(2010, 1, 1), new Date(2010, 2, 15)],
                                     weeks: 6
                                 });
 
                                 makeSuite("when the first day is at the end of the week", {
                                     value: [2009, 1], // Sunday
-                                    visible: [D.utc(2009, 0, 26), D.utc(2009, 2, 9)],
+                                    visible: [new Date(2009, 0, 26), new Date(2009, 2, 9)],
                                     weeks: 6
                                 });
 
                                 makeSuite("when the first day is in the middle of the week", {
                                     value: [2006, 1], // Wednesday
-                                    visible: [D.utc(2006, 0, 30), D.utc(2006, 2, 13)],
+                                    visible: [new Date(2006, 0, 30), new Date(2006, 2, 13)],
                                     weeks: 6
                                 });
                             });
@@ -1107,19 +1094,19 @@ describe("Ext.calendar.view.Month", function() {
                         describe("December", function() {
                             makeSuite("when the first is at the start of the week", {
                                 value: [2003, 11], // Monday
-                                visible: [D.utc(2003, 11, 1), D.utc(2004, 0, 12)],
+                                visible: [new Date(2003, 11, 1), new Date(2004, 0, 12)],
                                 weeks: 6
                             });
 
                             makeSuite("when the first is at the end of the week", {
                                 value: [2002, 11], // Sunday
-                                visible: [D.utc(2002, 10, 25), D.utc(2003, 0, 6)],
+                                visible: [new Date(2002, 10, 25), new Date(2003, 0, 6)],
                                 weeks: 6
                             });
 
                             makeSuite("when the first day is in the middle of the week", {
                                 value: [2004, 11], // Wednesday
-                                visible: [D.utc(2004, 10, 29), D.utc(2005, 0, 10)],
+                                visible: [new Date(2004, 10, 29), new Date(2005, 0, 10)],
                                 weeks: 6
                             });
                         });
@@ -1127,19 +1114,19 @@ describe("Ext.calendar.view.Month", function() {
                         describe("30 day month", function() {
                             makeSuite("when the first is at the start of the week", {
                                 value: [2002, 3], // Monday
-                                visible: [D.utc(2002, 3, 1), D.utc(2002, 4, 13)],
+                                visible: [new Date(2002, 3, 1), new Date(2002, 4, 13)],
                                 weeks: 6
                             });
 
                             makeSuite("when the first is at the end of the week", {
                                 value: [2001, 3], // Sunday
-                                visible: [D.utc(2001, 2, 26), D.utc(2001, 4, 7)],
+                                visible: [new Date(2001, 2, 26), new Date(2001, 4, 7)],
                                 weeks: 6
                             });
 
                             makeSuite("when the first day is in the middle of the week", {
                                 value: [2009, 3], // Wednesday
-                                visible: [D.utc(2009, 2, 30), D.utc(2009, 4, 11)],
+                                visible: [new Date(2009, 2, 30), new Date(2009, 4, 11)],
                                 weeks: 6
                             });
                         });
@@ -1147,19 +1134,19 @@ describe("Ext.calendar.view.Month", function() {
                         describe("31 day month", function() {
                             makeSuite("when the first is at the start of the week", {
                                 value: [2005, 7], // Monday
-                                visible: [D.utc(2005, 7, 1), D.utc(2005, 8, 12)],
+                                visible: [new Date(2005, 7, 1), new Date(2005, 8, 12)],
                                 weeks: 6
                             });
 
                             makeSuite("when the first is at the end of the week", {
                                 value: [2004, 7], // Sunday
-                                visible: [D.utc(2004, 6, 26), D.utc(2004, 8, 6)],
+                                visible: [new Date(2004, 6, 26), new Date(2004, 8, 6)],
                                 weeks: 6
                             });
 
                             makeSuite("when the first day is in the middle of the week", {
                                 value: [2001, 7], // Wednesday
-                                visible: [D.utc(2001, 6, 30), D.utc(2001, 8, 10)],
+                                visible: [new Date(2001, 6, 30), new Date(2001, 8, 10)],
                                 weeks: 6
                             });
                         });
@@ -1174,19 +1161,19 @@ describe("Ext.calendar.view.Month", function() {
                         describe("January", function() {
                             makeSuite("when the first is at the start of the week", {
                                 value: [2001, 0], // Monday
-                                visible: [D.utc(2001, 0, 1), D.utc(2001, 1, 10)],
+                                visible: [new Date(2001, 0, 1), new Date(2001, 1, 10)],
                                 weeks: 6
                             });
 
                             makeSuite("when the first is at the end of the week", {
                                 value: [2006, 0], // Sunday
-                                visible: [D.utc(2005, 11, 26), D.utc(2006, 1, 4)],
+                                visible: [new Date(2005, 11, 26), new Date(2006, 1, 4)],
                                 weeks: 6
                             });
 
                             makeSuite("when the first day is in the middle of the week", {
                                 value: [2003, 0], // Wednesday
-                                visible: [D.utc(2002, 11, 30), D.utc(2003, 1, 8)],
+                                visible: [new Date(2002, 11, 30), new Date(2003, 1, 8)],
                                 weeks: 6
                             });
                         });
@@ -1196,19 +1183,19 @@ describe("Ext.calendar.view.Month", function() {
                             describe("in a leap year", function() {
                                 makeSuite("when the first is at the start of the week", {
                                     value: [2016, 1], // Monday
-                                    visible: [D.utc(2016, 1, 1), D.utc(2016, 2, 12)],
+                                    visible: [new Date(2016, 1, 1), new Date(2016, 2, 12)],
                                     weeks: 6
                                 });
 
                                 makeSuite("when the first day is at the end of the week", {
                                     value: [2004, 1], // Sunday
-                                    visible: [D.utc(2004, 0, 26), D.utc(2004, 2, 6)],
+                                    visible: [new Date(2004, 0, 26), new Date(2004, 2, 6)],
                                     weeks: 6
                                 });
 
                                 makeSuite("when the first day is in the middle of the week", {
                                     value: [2012, 1], // Wednesday
-                                    visible: [D.utc(2012, 0, 30), D.utc(2012, 2, 10)],
+                                    visible: [new Date(2012, 0, 30), new Date(2012, 2, 10)],
                                     weeks: 6
                                 });
                             });
@@ -1216,19 +1203,19 @@ describe("Ext.calendar.view.Month", function() {
                             describe("not in a leap year", function() {
                                 makeSuite("when the first is at the start of the week", {
                                     value: [2010, 1], // Monday
-                                    visible: [D.utc(2010, 1, 1), D.utc(2010, 2, 13)],
+                                    visible: [new Date(2010, 1, 1), new Date(2010, 2, 13)],
                                     weeks: 6
                                 });
 
                                 makeSuite("when the first day is at the end of the week", {
                                     value: [2009, 1], // Sunday
-                                    visible: [D.utc(2009, 0, 26), D.utc(2009, 2, 7)],
+                                    visible: [new Date(2009, 0, 26), new Date(2009, 2, 7)],
                                     weeks: 6
                                 });
 
                                 makeSuite("when the first day is in the middle of the week", {
                                     value: [2006, 1], // Wednesday
-                                    visible: [D.utc(2006, 0, 30), D.utc(2006, 2, 11)],
+                                    visible: [new Date(2006, 0, 30), new Date(2006, 2, 11)],
                                     weeks: 6
                                 });
                             });
@@ -1238,19 +1225,19 @@ describe("Ext.calendar.view.Month", function() {
                         describe("December", function() {
                             makeSuite("when the first is at the start of the week", {
                                 value: [2003, 11], // Monday
-                                visible: [D.utc(2003, 11, 1), D.utc(2004, 0, 10)],
+                                visible: [new Date(2003, 11, 1), new Date(2004, 0, 10)],
                                 weeks: 6
                             });
 
                             makeSuite("when the first is at the end of the week", {
                                 value: [2002, 11], // Sunday
-                                visible: [D.utc(2002, 10, 25), D.utc(2003, 0, 4)],
+                                visible: [new Date(2002, 10, 25), new Date(2003, 0, 4)],
                                 weeks: 6
                             });
 
                             makeSuite("when the first day is in the middle of the week", {
                                 value: [2004, 11], // Wednesday
-                                visible: [D.utc(2004, 10, 29), D.utc(2005, 0, 8)],
+                                visible: [new Date(2004, 10, 29), new Date(2005, 0, 8)],
                                 weeks: 6
                             });
                         });
@@ -1258,19 +1245,19 @@ describe("Ext.calendar.view.Month", function() {
                         describe("30 day month", function() {
                             makeSuite("when the first is at the start of the week", {
                                 value: [2002, 3], // Monday
-                                visible: [D.utc(2002, 3, 1), D.utc(2002, 4, 11)],
+                                visible: [new Date(2002, 3, 1), new Date(2002, 4, 11)],
                                 weeks: 6
                             });
 
                             makeSuite("when the first is at the end of the week", {
                                 value: [2001, 3], // Sunday
-                                visible: [D.utc(2001, 2, 26), D.utc(2001, 4, 5)],
+                                visible: [new Date(2001, 2, 26), new Date(2001, 4, 5)],
                                 weeks: 6
                             });
 
                             makeSuite("when the first day is in the middle of the week", {
                                 value: [2009, 3], // Wednesday
-                                visible: [D.utc(2009, 2, 30), D.utc(2009, 4, 9)],
+                                visible: [new Date(2009, 2, 30), new Date(2009, 4, 9)],
                                 weeks: 6
                             });
                         });
@@ -1278,19 +1265,19 @@ describe("Ext.calendar.view.Month", function() {
                         describe("31 day month", function() {
                             makeSuite("when the first is at the start of the week", {
                                 value: [2005, 7], // Monday
-                                visible: [D.utc(2005, 7, 1), D.utc(2005, 8, 10)],
+                                visible: [new Date(2005, 7, 1), new Date(2005, 8, 10)],
                                 weeks: 6
                             });
 
                             makeSuite("when the first is at the end of the week", {
                                 value: [2004, 7], // Sunday
-                                visible: [D.utc(2004, 6, 26), D.utc(2004, 8, 4)],
+                                visible: [new Date(2004, 6, 26), new Date(2004, 8, 4)],
                                 weeks: 6
                             });
 
                             makeSuite("when the first day is in the middle of the week", {
                                 value: [2001, 7], // Wednesday
-                                visible: [D.utc(2001, 6, 30), D.utc(2001, 8, 8)],
+                                visible: [new Date(2001, 6, 30), new Date(2001, 8, 8)],
                                 weeks: 6
                             });
                         });
@@ -1365,14 +1352,14 @@ describe("Ext.calendar.view.Month", function() {
                     it("should move forward one month", function() {
                         view.nextMonth();
                         expect(view.getValue()).toEqual(new Date(2010, 7, 1));
-                        expectRange([D.utc(2010, 7, 1), D.utc(2010, 8, 12)]);
+                        expectRange([new Date(2010, 7, 1), new Date(2010, 8, 12)]);
                     });
 
                     it("should move past a year boundary", function() {
-                        view.setValue(D.utc(2010, 11, 1));
+                        view.setValue(new Date(2010, 11, 1));
                         view.nextMonth();
                         expect(view.getValue()).toEqual(new Date(2011, 0, 1));
-                        expectRange([D.utc(2010, 11, 26), D.utc(2011, 1, 6)]);
+                        expectRange([new Date(2010, 11, 26), new Date(2011, 1, 6)]);
                     });
                 });
 
@@ -1380,37 +1367,37 @@ describe("Ext.calendar.view.Month", function() {
                     it("should do nothing if the value is 0", function() {
                         view.nextMonth(0);
                         expect(view.getValue()).toEqual(new Date(2010, 6, 1));
-                        expectRange([D.utc(2010, 5, 27), D.utc(2010, 7, 8)]);
+                        expectRange([new Date(2010, 5, 27), new Date(2010, 7, 8)]);
                     });
 
                     it("should be able to move forward 1 month", function() {
                         view.nextMonth(1);
                         expect(view.getValue()).toEqual(new Date(2010, 7, 1));
-                        expectRange([D.utc(2010, 7, 1), D.utc(2010, 8, 12)]);
+                        expectRange([new Date(2010, 7, 1), new Date(2010, 8, 12)]);
                     });
 
                     it("should move forward less than a year boundary", function() {
                         view.nextMonth(3);
                         expect(view.getValue()).toEqual(new Date(2010, 9, 1));
-                        expectRange([D.utc(2010, 8, 26), D.utc(2010, 10, 7)]);
+                        expectRange([new Date(2010, 8, 26), new Date(2010, 10, 7)]);
                     });
 
                     it("should be able to move forward past a year boundary", function() {
                         view.nextMonth(6);
                         expect(view.getValue()).toEqual(new Date(2011, 0, 1));
-                        expectRange([D.utc(2010, 11, 26), D.utc(2011, 1, 6)]);
+                        expectRange([new Date(2010, 11, 26), new Date(2011, 1, 6)]);
                     });
 
                     it("should be able to move forward over 12 months", function() {
                         view.nextMonth(14);
                         expect(view.getValue()).toEqual(new Date(2011, 8, 1));
-                        expectRange([D.utc(2011, 7, 28), D.utc(2011, 9, 9)]);
+                        expectRange([new Date(2011, 7, 28), new Date(2011, 9, 9)]);
                     });
 
                     it("should move backward if passed a negative", function() {
                         view.nextMonth(-2);
                         expect(view.getValue()).toEqual(new Date(2010, 4, 1));
-                        expectRange([D.utc(2010, 3, 25), D.utc(2010, 5, 6)]);
+                        expectRange([new Date(2010, 3, 25), new Date(2010, 5, 6)]);
                     });
                 });
             });
@@ -1420,7 +1407,7 @@ describe("Ext.calendar.view.Month", function() {
                     it("should move forward one year", function() {
                         view.nextYear();
                         expect(view.getValue()).toEqual(new Date(2011, 6, 1));
-                        expectRange([D.utc(2011, 5, 26), D.utc(2011, 7, 7)]);
+                        expectRange([new Date(2011, 5, 26), new Date(2011, 7, 7)]);
                     });
                 });
 
@@ -1428,25 +1415,25 @@ describe("Ext.calendar.view.Month", function() {
                     it("should do nothing if the value is 0", function() {
                         view.nextYear(0);
                         expect(view.getValue()).toEqual(new Date(2010, 6, 1));
-                        expectRange([D.utc(2010, 5, 27), D.utc(2010, 7, 8)]);
+                        expectRange([new Date(2010, 5, 27), new Date(2010, 7, 8)]);
                     });
 
                     it("should be able to move forward 1 year", function() {
                         view.nextYear(1);
                         expect(view.getValue()).toEqual(new Date(2011, 6, 1));
-                        expectRange([D.utc(2011, 5, 26), D.utc(2011, 7, 7)]);
+                        expectRange([new Date(2011, 5, 26), new Date(2011, 7, 7)]);
                     });
 
                     it("should move forward more than 1 year", function() {
                         view.nextYear(3);
                         expect(view.getValue()).toEqual(new Date(2013, 6, 1));
-                        expectRange([D.utc(2013, 5, 30), D.utc(2013, 7, 11)]);
+                        expectRange([new Date(2013, 5, 30), new Date(2013, 7, 11)]);
                     });
 
                     it("should move backward if passed a negative", function() {
                         view.nextYear(-2);
                         expect(view.getValue()).toEqual(new Date(2008, 6, 1));
-                        expectRange([D.utc(2008, 5, 29), D.utc(2008, 7, 10)]);
+                        expectRange([new Date(2008, 5, 29), new Date(2008, 7, 10)]);
                     });
                 });
             });
@@ -1456,14 +1443,14 @@ describe("Ext.calendar.view.Month", function() {
                     it("should move backward one month", function() {
                         view.previousMonth();
                         expect(view.getValue()).toEqual(new Date(2010, 5, 1));
-                        expectRange([D.utc(2010, 4, 30), D.utc(2010, 6, 11)]);
+                        expectRange([new Date(2010, 4, 30), new Date(2010, 6, 11)]);
                     });
 
                     it("should go past a year boundary", function() {
-                        view.setValue(D.utc(2010, 0, 1));
+                        view.setValue(new Date(2010, 0, 1));
                         view.previousMonth();
                         expect(view.getValue()).toEqual(new Date(2009, 11, 1));
-                        expectRange([D.utc(2009, 10, 29), D.utc(2010, 0, 10)]);
+                        expectRange([new Date(2009, 10, 29), new Date(2010, 0, 10)]);
                     });
                 });
 
@@ -1471,37 +1458,37 @@ describe("Ext.calendar.view.Month", function() {
                     it("should do nothing if the value is 0", function() {
                         view.previousMonth(0);
                         expect(view.getValue()).toEqual(new Date(2010, 6, 1));
-                        expectRange([D.utc(2010, 5, 27), D.utc(2010, 7, 8)]);
+                        expectRange([new Date(2010, 5, 27), new Date(2010, 7, 8)]);
                     });
 
                     it("should be able to move backward 1 month", function() {
                         view.previousMonth(1);
                         expect(view.getValue()).toEqual(new Date(2010, 5, 1));
-                        expectRange([D.utc(2010, 4, 30), D.utc(2010, 6, 11)]);
+                        expectRange([new Date(2010, 4, 30), new Date(2010, 6, 11)]);
                     });
 
                     it("should advance less than a year boundary", function() {
                         view.previousMonth(3);
                         expect(view.getValue()).toEqual(new Date(2010, 3, 1));
-                        expectRange([D.utc(2010, 2, 28), D.utc(2010, 4, 9)]);
+                        expectRange([new Date(2010, 2, 28), new Date(2010, 4, 9)]);
                     });
 
                     it("should be able to move backward over a year boundary", function() {
                         view.previousMonth(7);
                         expect(view.getValue()).toEqual(new Date(2009, 11, 1));
-                        expectRange([D.utc(2009, 10, 29), D.utc(2010, 0, 10)]);
+                        expectRange([new Date(2009, 10, 29), new Date(2010, 0, 10)]);
                     });
 
                     it("should be able to move backward over 12 months", function() {
                         view.previousMonth(14);
                         expect(view.getValue()).toEqual(new Date(2009, 4, 1));
-                        expectRange([D.utc(2009, 3, 26), D.utc(2009, 5, 7)]);
+                        expectRange([new Date(2009, 3, 26), new Date(2009, 5, 7)]);
                     });
 
                     it("should move forward if passed a negative", function() {
                         view.previousMonth(-2);
                         expect(view.getValue()).toEqual(new Date(2010, 8, 1));
-                        expectRange([D.utc(2010, 7, 29), D.utc(2010, 9, 10)]);
+                        expectRange([new Date(2010, 7, 29), new Date(2010, 9, 10)]);
                     });
                 });
             });
@@ -1511,7 +1498,7 @@ describe("Ext.calendar.view.Month", function() {
                     it("should move backward one year", function() {
                         view.previousYear();
                         expect(view.getValue()).toEqual(new Date(2009, 6, 1));
-                        expectRange([D.utc(2009, 5, 28), D.utc(2009, 7, 9)]);
+                        expectRange([new Date(2009, 5, 28), new Date(2009, 7, 9)]);
                     });
                 });
 
@@ -1519,25 +1506,25 @@ describe("Ext.calendar.view.Month", function() {
                     it("should do nothing if the value is 0", function() {
                         view.previousYear(0);
                         expect(view.getValue()).toEqual(new Date(2010, 6, 1));
-                        expectRange([D.utc(2010, 5, 27), D.utc(2010, 7, 8)]);
+                        expectRange([new Date(2010, 5, 27), new Date(2010, 7, 8)]);
                     });
 
                     it("should be able to move backward 1 year", function() {
                         view.previousYear(1);
                         expect(view.getValue()).toEqual(new Date(2009, 6, 1));
-                        expectRange([D.utc(2009, 5, 28), D.utc(2009, 7, 9)]);
+                        expectRange([new Date(2009, 5, 28), new Date(2009, 7, 9)]);
                     });
 
                     it("should move backward more than 1 year", function() {
                         view.previousYear(3);
                         expect(view.getValue()).toEqual(new Date(2007, 6, 1));
-                        expectRange([D.utc(2007, 6, 1), D.utc(2007, 7, 12)]);
+                        expectRange([new Date(2007, 6, 1), new Date(2007, 7, 12)]);
                     });
 
                     it("should move forward if passed a negative", function() {
                         view.previousYear(-2);
                         expect(view.getValue()).toEqual(new Date(2012, 6, 1));
-                        expectRange([D.utc(2012, 6, 1), D.utc(2012, 7, 12)]);
+                        expectRange([new Date(2012, 6, 1), new Date(2012, 7, 12)]);
                     });
                 });
             });
@@ -1552,7 +1539,7 @@ describe("Ext.calendar.view.Month", function() {
                                 value: new Date(2009, 1, 1),
                                 visibleWeeks: null
                             });
-                            expectRange([D.utc(2009, 1, 1), D.utc(2009, 1, 29)], 4);
+                            expectRange([new Date(2009, 1, 1), new Date(2009, 1, 29)], 4);
                         });
                     });
 
@@ -1562,7 +1549,7 @@ describe("Ext.calendar.view.Month", function() {
                                 value: new Date(2009, 1, 1),
                                 visibleWeeks: 6
                             });
-                            expectRange([D.utc(2009, 1, 1), D.utc(2009, 2, 15)], 6);
+                            expectRange([new Date(2009, 1, 1), new Date(2009, 2, 15)], 6);
                         });
                     });
                 });
@@ -1574,7 +1561,7 @@ describe("Ext.calendar.view.Month", function() {
                                 value: new Date(2009, 11, 1),
                                 visibleWeeks: null
                             });
-                            expectRange([D.utc(2009, 10, 29), D.utc(2010, 0, 3)], 5);                               
+                            expectRange([new Date(2009, 10, 29), new Date(2010, 0, 3)], 5);
                         });
                     });
 
@@ -1584,7 +1571,7 @@ describe("Ext.calendar.view.Month", function() {
                                 value: new Date(2009, 11, 1),
                                 visibleWeeks: 6
                             });
-                            expectRange([D.utc(2009, 10, 29), D.utc(2010, 0, 10)], 6);
+                            expectRange([new Date(2009, 10, 29), new Date(2010, 0, 10)], 6);
                         });
                     });
                 });
@@ -1596,7 +1583,7 @@ describe("Ext.calendar.view.Month", function() {
                                 value: new Date(2010, 0, 1),
                                 visibleWeeks: null
                             });
-                            expectRange([D.utc(2009, 11, 27), D.utc(2010, 1, 7)], 6);
+                            expectRange([new Date(2009, 11, 27), new Date(2010, 1, 7)], 6);
                         });
                     });
 
@@ -1606,7 +1593,7 @@ describe("Ext.calendar.view.Month", function() {
                                 value: new Date(2010, 0, 1),
                                 visibleWeeks: 6
                             });
-                            expectRange([D.utc(2009, 11, 27), D.utc(2010, 1, 7)], 6);
+                            expectRange([new Date(2009, 11, 27), new Date(2010, 1, 7)], 6);
                         });
                     });
                 });
@@ -1621,7 +1608,7 @@ describe("Ext.calendar.view.Month", function() {
                                 value: new Date(2009, 1, 1)
                             });
                             view.setVisibleWeeks(6);
-                            expectRange([D.utc(2009, 1, 1), D.utc(2009, 2, 15)], 6);
+                            expectRange([new Date(2009, 1, 1), new Date(2009, 2, 15)], 6);
                         });
                     });
 
@@ -1632,7 +1619,7 @@ describe("Ext.calendar.view.Month", function() {
                                 value: new Date(2009, 1, 1)
                             });
                             view.setVisibleWeeks(null);
-                            expectRange([D.utc(2009, 1, 1), D.utc(2009, 1, 29)], 4);
+                            expectRange([new Date(2009, 1, 1), new Date(2009, 1, 29)], 4);
                         });
                     });
                 });
@@ -1645,7 +1632,7 @@ describe("Ext.calendar.view.Month", function() {
                                 value: new Date(2009, 11, 1)
                             });
                             view.setVisibleWeeks(6);
-                            expectRange([D.utc(2009, 10, 29), D.utc(2010, 0, 10)], 6);
+                            expectRange([new Date(2009, 10, 29), new Date(2010, 0, 10)], 6);
                         });
                     });
 
@@ -1656,7 +1643,7 @@ describe("Ext.calendar.view.Month", function() {
                                 value: new Date(2009, 11, 1)
                             });
                             view.setVisibleWeeks(null);
-                            expectRange([D.utc(2009, 10, 29), D.utc(2010, 0, 3)], 5);
+                            expectRange([new Date(2009, 10, 29), new Date(2010, 0, 3)], 5);
                         });
                     });
                 });
@@ -1669,7 +1656,7 @@ describe("Ext.calendar.view.Month", function() {
                                 value: new Date(2010, 0, 1)
                             });
                             view.setVisibleWeeks(6);
-                            expectRange([D.utc(2009, 11, 27), D.utc(2010, 1, 7)], 6);
+                            expectRange([new Date(2009, 11, 27), new Date(2010, 1, 7)], 6);
                         });
                     });
 
@@ -1680,7 +1667,7 @@ describe("Ext.calendar.view.Month", function() {
                                 value: new Date(2010, 0, 1)
                             });
                             view.setVisibleWeeks(null);
-                            expectRange([D.utc(2009, 11, 27), D.utc(2010, 1, 7)], 6);
+                            expectRange([new Date(2009, 11, 27), new Date(2010, 1, 7)], 6);
                         });
                     });
                 });
