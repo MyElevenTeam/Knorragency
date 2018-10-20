@@ -56,9 +56,36 @@ public class EmployeeController {
 	@GetMapping
 	public Page<EmployeeDTO> findAll(EmployeeQueryDTO employeeQueryDTO,HttpSession session,ExtjsPageRequest pageable)
 	{
-		Page<EmployeeDTO> page;
-		page = employeeService.findAll(EmployeeQueryDTO.getWhereClause(employeeQueryDTO), pageable.getPageable(),session);
-		return page;
+		String en=(String) session.getAttribute("employeeNumber");
+		String post=(String) session.getAttribute("post");
+		//判断session中employeeNumber和post是否都为空，是就返回null，不为空就执行
+		if(StringUtils.isNotBlank(en) && StringUtils.isNotBlank(post)) {
+			//判断是否是admin
+			if(session.getAttribute("post").equals("admin")) {
+				//查询条件中有employeeNumber且与session中employeeNumber相等，返回null
+				if(StringUtils.isNotBlank(employeeQueryDTO.getEmployeeNumber()) && employeeQueryDTO.getEmployeeNumber().equals(en)) {
+					return null;
+				}
+				pageable.setLimit(10);
+				Page<EmployeeDTO> page;
+				page = employeeService.findAll(EmployeeQueryDTO.getWhereClause(employeeQueryDTO), pageable.getPageable(),session);
+				return page;
+			}else {
+				//查询条件中有employeeNumber且与session中employeeNumber相等，返回null
+				if(StringUtils.isNotBlank(employeeQueryDTO.getEmployeeNumber()) && employeeQueryDTO.getEmployeeNumber().equals(en)) {
+					return null;
+				}
+				//查询条件中有post为admin的返回null
+				if(StringUtils.isNotBlank(employeeQueryDTO.getPost()) && employeeQueryDTO.equals("admin")) {
+					return null;
+				}
+				pageable.setLimit(10);
+				Page<EmployeeDTO> page;
+				page = employeeService.findAll(EmployeeQueryDTO.getWhereClause(employeeQueryDTO), pageable.getPageable(),session);
+				return page;
+			}
+		}
+		else return null;
 	}
 	
 	//  /employee/1
