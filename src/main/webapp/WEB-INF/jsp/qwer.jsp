@@ -15,8 +15,8 @@
 // 检测浏览器支持
 if (typeof(Storage) !== "undefined") {
    
-    console.log(sessionStorage.getItem("lastname"));
-    document.getElementById("result").innerHTML = sessionStorage.getItem("lastname"); 
+    console.log(sessionStorage.getItem("orderPage_ids"));
+/*     document.getElementById("result").innerHTML = sessionStorage.getItem("orderPage_ids");  */
 } else {
     document.getElementById("result").innerHTML = "Sorry, your browser does not support Web Storage...";
 }

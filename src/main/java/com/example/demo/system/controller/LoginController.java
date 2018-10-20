@@ -59,7 +59,7 @@ public class LoginController {
             SessionUtil.setEmployeeNumber(session, employee.getEmployeeNumber());
             SessionUtil.setPost(session, employee.getPost());
             
-            session.setAttribute("id", employee.getId());
+//            session.setAttribute("id", employee.getId());
             
             String[] groupNames = new String[groupList.size()];
             for (int i = 0; i < groupNames.length; i++) {
@@ -70,6 +70,7 @@ public class LoginController {
             Map<String,String> map=new HashMap<String, String>();
             map.put("userName", userName);
             map.put("msg", "登录成功!");
+            map.put("userId",employee.getId().toString());
             //map.put("loginUserImage", "imgUrl");
             return new ExtAjaxResponse(true,map);
         }

@@ -1,9 +1,6 @@
 package com.example.demo.websocket;
 
 import java.io.IOException;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.concurrent.CopyOnWriteArraySet;
 
 import javax.websocket.OnClose;
@@ -16,14 +13,11 @@ import javax.websocket.server.ServerEndpoint;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Controller;
 
-import com.example.demo.notice.entity.Notice;
-import com.example.demo.notice.entity.WebsocketMessage;
 import com.example.demo.notice.service.INoticeService;
-import com.example.demo.notice.service.NoticeService;
+import com.example.demo.websocket.entity.RequestDTO;
 import com.google.gson.Gson;
-@ServerEndpoint(value = "/websocket")
+@ServerEndpoint(value = "/websocket/{id}")
 @Component
 public class MyWebSocket {
 
@@ -36,6 +30,8 @@ public class MyWebSocket {
     //与某个客户端的连接会话，需要通过它来给客户端发送数据
     private Session session;
 
+    private String id;
+    
     @Autowired
     INoticeService noticeService;
     
@@ -45,8 +41,9 @@ public class MyWebSocket {
 	/**
      * 连接建立成功调用的方法*/
     @OnOpen
-    public void onOpen(Session session) {
+    public void onOpen(@PathParam(value="id") String id,Session session) {
         this.session = session;
+        this.id=id;
         webSocketSet.add(this);     //加入set中
         addOnlineCount();           //在线数加1
         System.out.println("有新连接加入！当前在线人数为" + getOnlineCount());
@@ -71,7 +68,17 @@ public class MyWebSocket {
     @OnMessage
     public void onMessage(String message, Session session) {
     	System.out.println("来自客户端的消息:" + message);
- 	    this.sendAll(message);
+    	 RequestDTO msg=new Gson().fromJson(message,RequestDTO.class);
+         //转发建立房间请求
+         if(msg.getEvent().equals("bulidRoom")){
+ 	        for(String idTmp:msg.getIdGroup()) {
+ 	        	if(!idTmp.equals(this.id))
+ 	        	sendOne(message, idTmp);
+ 	        }
+         }else { 
+        	 this.sendAll(message);
+         }
+ 	   
     }
     
     /*
@@ -90,6 +97,26 @@ public class MyWebSocket {
         }
 	}
     
+    /*
+     * 定向发送消息
+     */
+    public void sendOne(String message,String id) {
+    	if(message!=null&&id!=null) {	
+    		for(MyWebSocket item:webSocketSet) {
+    			if(item.id.equals(id)) {
+    				synchronized (item){
+    		            try {
+    		                item.sendMessage(message);
+    		            } catch (IOException e) {
+    		                e.printStackTrace();
+    		            }
+    	        	}
+    				break;
+    			}
+    		}
+    	}
+	
+	}
     
     /*
      * 发生错误时调用
