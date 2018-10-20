@@ -25,15 +25,13 @@ Ext.define('Admin.view.addressList.AddressListPanel', {
             columns: [
                 {xtype: 'gridcolumn',width: 40,dataIndex: 'id',text: '#',hidden:true},
                 {xtype: 'gridcolumn', cls: 'content-column',dataIndex: 'employeeName',text: 'Name',flex: 1},
-                {xtype: 'gridcolumn',cls: 'content-column',dataIndex: 'storeNumber',text: 'Number',flex: 1},
-                {xtype: 'gridcolumn',cls: 'content-column',dataIndex: 'storeArea',text: 'Area',flex: 1},
+                {xtype: 'gridcolumn',cls: 'content-column',dataIndex: 'employeeNumber',text: 'Number',flex: 1},
+                {xtype: 'gridcolumn',cls: 'content-column',dataIndex: 'storeName',text: 'Area',flex: 1},
                 {xtype: 'gridcolumn',cls: 'content-column',dataIndex: 'post',text: 'post',flex: 1},
                 {xtype: 'gridcolumn',cls: 'content-column',dataIndex: 'email',text: 'email',flex: 1},
                 {xtype: 'actioncolumn',cls: 'content-column', width: 120,dataIndex: 'bool',text: 'Actions',tooltip: 'edit ',
                     items: [
-                        {xtype: 'button', iconCls: 'x-fa fa-pencil' ,handler: 'onEditButton'},
-                        {xtype: 'button',iconCls: 'x-fa fa-close'	,handler: 'onDeleteButton'},
-                        {xtype: 'button',iconCls: 'x-fa fa-ban'	 	,handler: 'onDisableButton'}
+                        {xtype: 'button', iconCls: 'x-fa fa-pencil' ,handler: 'onEditButton'}
                     ]
                 }
             ],
@@ -46,7 +44,7 @@ Ext.define('Admin.view.addressList.AddressListPanel', {
 				    data: [
 				      	{ name: '姓名', value: 'employeeName' },
 						{ name: '工号', value: 'employeeNumber' },
-						{ name: '地域', value: 'employeeArea' },
+						{ name: '门店', value: 'storeName' },
 						{ name: '职称', value: 'post' }
 				    ]
 				}),

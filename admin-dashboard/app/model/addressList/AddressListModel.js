@@ -6,8 +6,8 @@ requires: [
 	fields: [
 		{type: 'int',name: 'id'},
 		{type: 'string',name: 'employeeName'},
-		{type: 'string', name: 'storeNumber'},
-		{type: 'string',name: 'storeArea'},
+		{type: 'string',name: 'employeeNumber'},
+		{type: 'string', name: 'storeName'},
 		{type: 'string', name: 'post'},
 		{type: 'string',name: 'email'}
 	],

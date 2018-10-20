@@ -7,7 +7,10 @@ Ext.define('Admin.view.notice.NoticeController', {
 	},
 	submitAddForm:function(btn){
 		 var values=btn.up('window').down('form').getValues();
-		 websocket.send("成功");
+		 websocket.send(JSON.stringify({
+                  "event":"notice",
+                  "idGroup":null
+          }));
 		 var record = Ext.create('Admin.model.notice.NoticeModel');
          record.set(values);
          record.save();

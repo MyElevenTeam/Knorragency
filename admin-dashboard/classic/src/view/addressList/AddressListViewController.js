@@ -8,14 +8,14 @@ Ext.define('Admin.view.addressList.AddressListViewController', {
 		
 		var store =	btn.up('gridpanel').getStore();
 		//var store = Ext.getCmp('userGridPanel').getStore();// Ext.getCmp(）需要在OrderPanel设置id属性
-		Ext.apply(store.proxy.extraParams, {employeeName:"",storeNumber:"",storeArea:"",post:""});
+		Ext.apply(store.proxy.extraParams, {employeeName:"",storeName:"",employeeNumber:"",post:""});
 		
 		if(searchField==='employeeName'){
 			Ext.apply(store.proxy.extraParams, {employeeName:searchValue});
 		}else if(searchField==='employeeNumber'){
-			Ext.apply(store.proxy.extraParams, {storeNumber:searchValue});
+			Ext.apply(store.proxy.extraParams, {storeName:searchValue});
 		}else if(searchField==='employeeArea'){
-			Ext.apply(store.proxy.extraParams, {storeArea:searchValue});
+			Ext.apply(store.proxy.extraParams, {employeeNumber:searchValue});
 		}else if(searchField==='post'){
 			Ext.apply(store.proxy.extraParams, {post:searchValue});
 		}
@@ -27,13 +27,21 @@ Ext.define('Admin.view.addressList.AddressListViewController', {
             var grid = btn.up('gridpanel');
             var selModel = grid.getSelectionModel();
             var selectIds = []; //选中的id
+            selectIds[0]=parseInt(video_userId);
             if (selModel.hasSelection()){
                var rows = selModel.getSelection();
                Ext.each(rows, function (row) {   
                       selectIds.push(row.data.id);
                });
             }
-            sessionStorage.setItem("lastname", "Smith");
+            var ids={
+                  "idGroup":selectIds
+            }
+            sessionStorage.setItem("orderPage_ids", JSON.stringify(ids));
+            websocket.send(JSON.stringify({
+                  "event":"bulidRoom",
+                  "idGroup":selectIds
+            }));
             window.open('http://localhost:8080/a');
       // if (selModel.hasSelection()){
       //     Ext.Msg.confirm("警告", "确定要删除吗？", function (button) {
