@@ -1,4 +1,4 @@
-﻿  
+﻿
 Ext.define('Admin.view.notice.NoticePanel', {
     extend: 'Ext.panel.Panel',
     xtype: 'noticePanel',

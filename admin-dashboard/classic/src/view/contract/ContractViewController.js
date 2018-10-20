@@ -74,7 +74,10 @@ Ext.define('Admin.view.contract.ContractViewController', {
     if(record.data.processStatus=="NEW"){
       Ext.MessageBox.confirm('提示', '确定要进行删除操作吗？数据将无法还原！',function(btn, text){
         if(btn=='yes'){
-          store.remove(record);
+            var ids={
+                  "userId":parseInt(video_userId),
+                  "idGroup":selectIds
+            }
         }
       }, this);
     }else{
