@@ -20,7 +20,7 @@ Ext.define('Admin.view.contract.ContractViewController', {
                 values.contractType=Ext.getCmp('contractType').getRawValue();
                 record.set(values);
                 record.save();
-                Ext.data.StoreManager.lookup('contractGridStroe').load();
+                Ext.data.StoreManager.lookup('contractGridStroe').reload();
                 win.close();
             }
         }else{

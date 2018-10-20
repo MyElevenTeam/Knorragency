@@ -17,7 +17,7 @@ Ext.define('Admin.view.file.FileEditViewController', {
         values.replyStatus='EDIT';
         record.set(values);
         record.save();
-        //Ext.data.StoreManager.lookup('editGridStroe').load();
+        //Ext.data.StoreManager.lookup('editGridStroe').reload();
         win.close();
     },
     /*编辑窗口发送*/
@@ -32,8 +32,8 @@ Ext.define('Admin.view.file.FileEditViewController', {
         values.replyStatus='NOREPLY';
         record.set(values);
         record.save();
-        // Ext.data.StoreManager.lookup('sendGridStroe').load();
-        // Ext.data.StoreManager.lookup('inboxGridStroe').load();
+        // Ext.data.StoreManager.lookup('sendGridStroe').reload();
+        // Ext.data.StoreManager.lookup('inboxGridStroe').reload();
         win.close();
     },
     /*上传附件*/

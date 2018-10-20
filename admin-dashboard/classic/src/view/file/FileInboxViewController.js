@@ -51,8 +51,8 @@ Ext.define('Admin.view.file.FileInboxViewController', {
                 var json = Ext.util.JSON.decode(response.responseText);
                 if(json.success){
                   Ext.Msg.alert('操作成功', json.msg, function() {
-                    //     Ext.data.StoreManager.lookup('sendGridStroe').load();
-        				        // Ext.data.StoreManager.lookup('inboxGridStroe').load();
+                    //     Ext.data.StoreManager.lookup('sendGridStroe').reload();
+        				        // Ext.data.StoreManager.lookup('inboxGridStroe').reload();
                       win.close();
                     });
                 }else{

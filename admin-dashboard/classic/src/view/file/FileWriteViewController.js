@@ -78,8 +78,7 @@ Ext.define('Admin.view.file.FileWriteViewController', {
               Ext.getCmp('write_attachmentDelete').hide();
               Ext.getCmp('write_attachmentUpload').show();
          });
-        // var store=Ext.data.StoreManager.lookup('sendGridStroe');
-        // store.load();
+        // var store=Ext.data.StoreManager.lookup('sendGridStroe').reload();
     },
     /*保存*/
     onEditFormButton:function(btn){
@@ -101,8 +100,7 @@ Ext.define('Admin.view.file.FileWriteViewController', {
             Ext.getCmp('write_attachmentUpload').show();
         });
 
-        // var store=Ext.data.StoreManager.lookup('editGridStroe');
-        // store.load();
+        //var store=Ext.data.StoreManager.lookup('editGridStroe').reload();
     },
     /*清空*/
     onDeleteFormButton:function(btn){

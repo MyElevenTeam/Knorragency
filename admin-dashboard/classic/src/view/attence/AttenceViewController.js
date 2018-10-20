@@ -62,7 +62,7 @@ Ext.define('Admin.view.attence.AttenceViewController', {
         var values  =form.getValues();//获取form数据
         record.set(values);
         record.save();
-        var store=Ext.data.StoreManager.lookup('leaveStroe');
+        var store=Ext.data.StoreManager.lookup('leaveStroe').reload();
         /*store.addListener('load', function() {
               Ext.Msg.alert('提示','添加成功');
         });*/
