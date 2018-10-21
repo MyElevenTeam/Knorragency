@@ -184,7 +184,11 @@ public class AttenceController {
 						response.setSuccess(true);
 					}else if(work==-3) {
 						//早退
-						attence.setAttenceStatus(AttenceStatus.EARLY);
+						if(AttenceStatus.LATER==attence.getAttenceStatus()) {
+							attence.setAttenceStatus(AttenceStatus.EARLYandLATER);
+						}else {
+							attence.setAttenceStatus(AttenceStatus.EARLY);
+						}
 						attence.setWorkoutTime(date);
 						attenceService.save(attence);
 						response.setMsg("签退成功,您今天提早下班了哦");

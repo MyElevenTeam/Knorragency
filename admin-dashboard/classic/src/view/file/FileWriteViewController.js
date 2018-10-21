@@ -61,6 +61,7 @@ Ext.define('Admin.view.file.FileWriteViewController', {
     },
     /*发送*/
     onSendFormButton:function(btn){
+    	var me = this;
         var panel    = btn.up('panel');
         var form = panel.down('form');
         var record = Ext.create('Admin.model.file.FileModel');
@@ -77,11 +78,13 @@ Ext.define('Admin.view.file.FileWriteViewController', {
               Ext.getCmp('write_attachmentName').hide();
               Ext.getCmp('write_attachmentDelete').hide();
               Ext.getCmp('write_attachmentUpload').show();
+              me.redirectTo('fileSendPanel', true);
          });
         // var store=Ext.data.StoreManager.lookup('sendGridStroe').reload();
     },
     /*保存*/
     onEditFormButton:function(btn){
+        var me = this;
         var panel    = btn.up('panel');
         var form = panel.down('form');
         var record = Ext.create('Admin.model.file.FileModel');
@@ -98,9 +101,8 @@ Ext.define('Admin.view.file.FileWriteViewController', {
             Ext.getCmp('write_attachmentName').hide();
             Ext.getCmp('write_attachmentDelete').hide();
             Ext.getCmp('write_attachmentUpload').show();
+            me.redirectTo('fileEditPanel', true);
         });
-
-        //var store=Ext.data.StoreManager.lookup('editGridStroe').reload();
     },
     /*清空*/
     onDeleteFormButton:function(btn){
