@@ -431,7 +431,7 @@ public class AttenceController {
     public @ResponseBody ExtAjaxResponse start(@RequestParam(name="id") Long appealId,@RequestParam(name="appealreason") String appealreason,HttpSession session) {
     	try {
     		String userId = SessionUtil.getUserName(session);
-    		
+    		Employee employee=employeeService.EmployeeName(userId);
     		Attence attence=attenceService.findById(appealId).get();
     		if(attence!=null) {
     			attence.setAppealreason(appealreason);
@@ -442,6 +442,7 @@ public class AttenceController {
     		variables.put("deptLeader", "financeManager");
     		variables.put("hr", "hrManager");
     		variables.put("applyUserId", userId);
+    		variables.put("to",employee.getEmail());
     		attenceService.startWorkflow(userId,appealId, variables);
     		return new ExtAjaxResponse(true,"操作成功!");
 	    } catch (Exception e) {

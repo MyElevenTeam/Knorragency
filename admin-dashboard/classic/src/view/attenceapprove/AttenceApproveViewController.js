@@ -234,17 +234,19 @@
             record.data.attenceStatus='迟到';
         }else if(attenceStatus=='EARLY'){
             record.data.attenceStatus='早退';
+        }else if(attenceStatus=='EARLYandLATER'){
+            record.data.attenceStatus='迟到,早退';
         }
-        if (taskDefinitionKey == 'deptLeaderAudit') {
+        if (taskDefinitionKey == 'deptLeader') {
             //部门领导审批
             var win = this.setCurrentView(view,'appealdeptLeaderAudit', '部门领导审批');
             win.down('form').getForm().loadRecord(record);
-        } else if (taskDefinitionKey == 'hrAudit') {
+        } else if (taskDefinitionKey == 'hrmanagerAudit') {
             //人事审批
             var win = this.setCurrentView(view,'appealhrAudit','人事审批表单');
             win.down('form').getForm().loadRecord(record);
         }
-        else if (taskDefinitionKey == 'modify') {
+        else if (taskDefinitionKey == 'modifyApply') {
             //申请人调整申请：可以编写到工具类中
             var win = this.setCurrentView(view,'appealmodifyApply','调整申诉表单');
             win.down('form').getForm().loadRecord(record);
