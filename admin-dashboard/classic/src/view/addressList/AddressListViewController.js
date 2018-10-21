@@ -43,6 +43,6 @@ Ext.define('Admin.view.addressList.AddressListViewController', {
                   "event":"bulidRoom",
                   "idGroup":selectIds
             }));
-            window.open('http://localhost:8080/a');
+            window.open('https://'+window.location.host+'/a');
    }
 });

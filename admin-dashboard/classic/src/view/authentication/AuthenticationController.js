@@ -24,12 +24,10 @@ Ext.define('Admin.view.authentication.AuthenticationController', {
 	            if(json.success){
                     me.redirectTo('dashboard', true);
                     Ext.getCmp('loginUserName').setText(json.map.userName);
-<<<<<<< HEAD
+
                     //通过全局变量传递用户id
                     video_userId=json.map.userId;  
-=======
                     Ext.getCmp('Login_SessionUserName').setValue(json.map.userName);
->>>>>>> branch 'master' of https://github.com/MyElevenTeam/Knorragency.git
 		        }else{
 		        	Ext.Msg.alert('登录失败', json.msg);
 		        }
@@ -38,7 +36,7 @@ Ext.define('Admin.view.authentication.AuthenticationController', {
           //websocket初始化
         websocket = null;
         if('WebSocket' in window){ 
-              websocket = new WebSocket("ws://localhost:8080/websocket/"+video_userId);
+              websocket = new WebSocket("wss://localhost:8080/websocket/"+video_userId);
         }else{
             Ext.Msg.alert('Not support websocket');
         }
@@ -57,7 +55,7 @@ Ext.define('Admin.view.authentication.AuthenticationController', {
                             "idGroup":json.idGroup
                           }
                          sessionStorage.setItem("orderPage_ids", JSON.stringify(ids));
-                         window.open('http://localhost:8080/a');
+                         window.open('https://'+window.location.host+'/a');
                     }
                 }, this);
              }

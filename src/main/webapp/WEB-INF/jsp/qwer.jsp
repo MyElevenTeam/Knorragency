@@ -8,36 +8,40 @@
 <link rel="stylesheet" href="./../css/videoCss.css" type="text/css" />
 <script src="https://cdn.bootcss.com/jquery/1.10.2/jquery.min.js"></script>
 <script>
+console.log("begin");
     $(document).ready(function(){
     	// 用户ID
-        var userId; 
+    	/* var otherPageData=JSON.parse(sessionStorage.getItem("orderPage_ids"));
+        var userId=otherPageData.userId; */ 
+        var userId = window.location.href.split('#')[1];
+        var proIds=[1,2,3,4];
     	//peerConnection数组
         var pcArray=new Array();
     	//可能加入的用户数组
-        var proIds;
+      //  var proIds=otherPageData.idGroup;
+        sessionStorage.clear();
         //索引前面的id
         var preIds;
        // 与信令服务器的WebSocket连接i
-        var socket = new WebSocket("wss://"+window.location.host+"/websocket/"+userId);
+        var socket = new WebSocket("wss://"+window.location.host+"/otherPage/"+userId);
         //监听窗口关闭事件，当窗口关闭时，主动去关闭websocket连接，防止连接还没断开就关闭窗口，server端会抛异常。
         window.onbeforeunload = function(){
              socket.close();
         }
         
-        
       //socket发起群聊
-        $("#bulidRoom").click(function(){
+        $("#joinRoom").click(function(){
         	//隐藏组件
         	$("#hideModel").hide();
         	//进入全屏
-        	var de = document.documentElement;
+        	/* var de = document.documentElement;
             if (de.requestFullscreen) {
                 de.requestFullscreen();
             } else if (de.mozRequestFullScreen) {
                 de.mozRequestFullScreen();
             } else if (de.webkitRequestFullScreen) {
                 de.webkitRequestFullScreen();
-            } 
+            }  */
             
       	      // 获取本地音频和视频流
   	          navigator.webkitGetUserMedia({
@@ -52,7 +56,7 @@
   	        	//创建连接对象	
   	              for(var i=0;i<proIds.length;i++){
   	                  var tmp=proIds[i];
-  	                  if(tmp==userId) continue;
+  	                  if(tmp==userId) continue;   
   	                  pcArray[tmp]=new webkitRTCPeerConnection(null); 
   	                  pcArray[tmp].addStream(stream);
   	                  (function(index){
@@ -75,19 +79,21 @@
 	        	                 $(".localVideo").attr('id','localVideo'+$(".romveVideo").length);      
 			               };
   	                  })(tmp) 
-  	             } 
+  	             }
+  	        	
+  	            //排队，等待连接
+  	              socket.send(JSON.stringify({
+  	                    "event" :"joinQueue",
+  	                    "userId":userId,
+  	                    "group":null,
+  	                    "data":null
+  	              }));
+  	            
   	          }, function(error){
   	              //处理媒体流创建失败错误
   	              console.log('getUserMedia error: ' + error);
   	          });
       	      
-  	         //排队，等待连接
-              socket.send(JSON.stringify({
-                    "event" :"joinQueue",
-                    "userId":userId,
-                    "group":null,
-                    "data":null
-              }));
         });
         
       
@@ -97,7 +103,7 @@
         		 preIds=json.group;
         		 //发送offer
         		 for(var i=0;i<preIds.length;i++){
-             		var tmp=preIds[i];
+             		var tmp=preIds[i];	
             			(function(index){
 	                		 pcArray[parseInt(index)].createOffer(function(desc){   
 	                	        	pcArray[parseInt(index)].setLocalDescription(desc);
