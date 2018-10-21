@@ -24,7 +24,10 @@ Ext.define('Admin.view.authentication.AuthenticationController', {
 	            if(json.success){
                     me.redirectTo('dashboard', true);
                     Ext.getCmp('loginUserName').setText(json.map.userName);
+<<<<<<< HEAD
 
+=======
+>>>>>>> branch 'master' of https://github.com/MyElevenTeam/Knorragency.git
                     //通过全局变量传递用户id
                     video_userId=json.map.userId;  
                     Ext.getCmp('Login_SessionUserName').setValue(json.map.userName);

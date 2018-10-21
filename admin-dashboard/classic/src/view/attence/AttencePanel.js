@@ -106,6 +106,8 @@ Ext.define('Admin.view.attence.AttencePanel', {
                             return '<span style="color:red;">迟到</span>';
                         }else if (val =='EARLY') {
                             return '<span style="color:red;">早退</span>';
+                        }else if (val =='EARLYandLATER') {
+                            return '<span style="color:red;">迟到,早退</span>';
                         }
                         return val;
                     }

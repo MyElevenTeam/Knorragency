@@ -29,6 +29,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.example.demo.common.controller.ExtAjaxResponse;
 import com.example.demo.common.controller.ExtjsPageRequest;
 import com.example.demo.common.entity.ProcessDefinitionDTO;
+import com.example.demo.log.config.SystemControllerLog;
 
 @RestController
 @RequestMapping("/process-definition")
@@ -36,7 +37,9 @@ public class ProcessDefinitionController {
 	
 	@Autowired
     private RepositoryService repositoryService;
+	
     //1.流程定义列表
+	@SystemControllerLog(description="流程定义列表")
     @GetMapping
     public @ResponseBody Page<ProcessDefinitionDTO> findAll(ExtjsPageRequest pageRequest) {
        //1.查询所有已部署的流程定义
@@ -63,6 +66,7 @@ public class ProcessDefinitionController {
      * 
      * @return AJAXResultMessage  ajax的响应内容封装对象
      */
+	@SystemControllerLog(description="上传并部署流程资源")
     @PostMapping
     public @ResponseBody ExtAjaxResponse deploy(@RequestParam(value = "file", required = true) MultipartFile file) {
         // 获取上传的文件名
@@ -97,6 +101,7 @@ public class ProcessDefinitionController {
 	     * @param processDefinitionId 流程定义ID
 	     * @param resourceName        资源名称
 	     */
+	    @SystemControllerLog(description="读取流程资源")
 	    @RequestMapping(value = "/resource")
 	    public void readResource(@RequestParam("pdid") String processDefinitionId, @RequestParam("resourceName") String resourceName, HttpServletResponse response)
 	            throws Exception {
@@ -118,6 +123,7 @@ public class ProcessDefinitionController {
 	     * @param processDefinitionId 流程定义ID
 	     * @param resourceName        资源名称
 	     */
+	    @SystemControllerLog(description="删除流程定义")
 	    @DeleteMapping
 	    public  @ResponseBody ExtAjaxResponse deleteProcessDefinition(@RequestBody String deploymentId) {
 	    	try {
