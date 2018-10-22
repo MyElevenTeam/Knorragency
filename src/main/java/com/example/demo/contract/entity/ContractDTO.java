@@ -29,6 +29,8 @@ public class ContractDTO {
 	
 	private Date endTime;             //失效时间
 	
+	private Date day;
+	
 	private String contractType;     //合同类型
 	
 	private double total;           //金额
@@ -103,6 +105,11 @@ public class ContractDTO {
 	@JsonFormat(pattern="yyyy/MM/dd HH:mm:ss",timezone="GMT+8")
 	public Date getEndTime() {
 		return endTime;
+	}
+	
+	@JsonFormat(pattern="yyyy/MM/dd HH:mm:ss",timezone="GMT+8")
+	public Date getDay() {
+		return day;
 	}
 
 	public String getContractType() {
@@ -200,6 +207,11 @@ public class ContractDTO {
 
 	public void setEndTime(Date endTime) {
 		this.endTime = endTime;
+	}
+	
+	
+	public void setDay(Date day) {
+		this.day = day;
 	}
 
 	public void setContractType(String contractType) {

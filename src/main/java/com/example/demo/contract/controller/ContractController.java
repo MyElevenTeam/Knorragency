@@ -305,6 +305,28 @@ public class ContractController {
     }
 	
 	/**
+	 * 取消流程
+	 * @param leaveId	请假信息Id
+	 * @param session	通过会话获取登录用户(请假人)
+	 * @return
+	 */
+//	@SystemControllerLog(description="取消合同审批流程")
+//	@RequestMapping(value = "/cancel")
+//    public @ResponseBody ExtAjaxResponse cancel(@RequestParam(name="id") Long id,HttpSession session) {
+//    	try {
+//    		Contract contract=contractService.findById(id).get();
+//    		String processInstanceId=contract.getProcessInstanceId();
+//    		contract.setProcessStatus(ProcessStatus.CANCEL);
+//    		runtimeService.suspendProcessInstanceById(processInstanceId);//挂起流程
+//    		runtimeService.deleteProcessInstance(processInstanceId,"删除原因");
+//    		return new ExtAjaxResponse(true,"操作成功!");
+//	    } catch (Exception e) {
+//	    	e.printStackTrace();
+//	        return new ExtAjaxResponse(false,"操作失败!");
+//	    }
+//    }
+	
+	/**
 	 * 查询待处理流程任务
 	 * @param pageable	分页对象
 	 * @param session	通过会话获取登录用户(请假人)

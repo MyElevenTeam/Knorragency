@@ -23,12 +23,6 @@ Ext.define('Admin.view.attenceapprove.task.AppealConfirm', {
         hidden: true,
         readOnly: true
     },{
-    	xtype: 'textfield',
-		name: 'taskId',
-		fieldLabel: '任务ID',
-        hidden: true,
-        readOnly: true
-	},{
         xtype: 'textfield',
         fieldLabel: '申诉人',
         readOnly: true,
@@ -65,12 +59,12 @@ Ext.define('Admin.view.attenceapprove.task.AppealConfirm', {
         anchor: '100%'
     },{
         xtype: 'textareafield',
-        name: 'depreason',
+        name: 'deptLeaderBackReason',
         fieldLabel: '部门经理审批意见',
         readOnly: true 
     },{
         xtype: 'textareafield',
-        name: 'hrreason',
+        name: 'hrBackReason',
         fieldLabel: '人事文员审批意见',
         readOnly: true
         

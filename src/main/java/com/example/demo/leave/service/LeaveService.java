@@ -125,14 +125,13 @@ public class LeaveService implements ILeaveService {
 	            if(leaveOptional!=null&&leaveOptional.isPresent()){
 	            	Leave leave=leaveOptional.get();
 	            	LeaveDTO leaveDTO = new LeaveDTO();
-	            	
-	            	leaveDTO.setDepreason(depreason);
-	            	leaveDTO.setHrreason(hrreason);
-	            	leave.setDepReason(depreason);
-	            	leave.setHrReason(hrreason);
-	            	
 	            	BeanUtils.copyProperties(leave, leaveDTO);
 	            	BeanUtils.copyProperties(workflow, leaveDTO);
+	            	leaveDTO.setDepreason(depreason);
+	            	leaveDTO.setHrreason(hrreason);
+	            	leaveDTO.setProcessInstanceId(leave.getProcessInstanceId());
+	            	leave.setDepReason(depreason);
+	            	leave.setHrReason(hrreason);
 	            	results.add(leaveDTO);
 	            }
 	        }

@@ -1,5 +1,7 @@
 package com.example.demo.log.service;
 
+import java.util.List;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -18,5 +20,7 @@ public interface ILogService {
 	public Log findOne(Long id);
 	
 	public Page<LogDTO> findAll(Specification<Log> spec, Pageable pageable);
+	
+	public List<LogDTO> findAllLog(Specification<Log> spec);
 
 }

@@ -72,13 +72,13 @@ Ext.define('Admin.view.attenceapprove.task.AppealModifyApply', {
         anchor: '100%'
     },{
         xtype: 'textareafield',
-        name: 'depreason',
+        name: 'deptLeaderBackReason',
         fieldLabel: '部门经理审批意见',
         emptyText: '部门经理还未审批',
         readOnly: true
     },{
         xtype: 'textareafield',
-        name: 'hrreason',
+        name: 'hrBackReason',
         fieldLabel: '人事文员审批意见',
         emptyText: '人事文员还未审批',
         readOnly: true

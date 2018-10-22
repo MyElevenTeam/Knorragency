@@ -80,6 +80,7 @@ public class ContractService implements IContractService {
 		for (Contract entity : list.getContent()) {
 			ContractDTO dto = new ContractDTO();
 			BeanUtils.copyProperties(entity, dto);
+			dto.setDay(entity.getStartTime());
 			if(entity.getEmployee()!=null) {
 				dto.setEmployeeName(entity.getEmployee().getEmployeeName());
 				if(entity.getEmployee().getLocalStore()!=null) {
@@ -233,15 +234,14 @@ public class ContractService implements IContractService {
 	            if(contractOptional!=null&&contractOptional.isPresent()){
 	            	Contract contract=contractOptional.get();
 	            	ContractDTO contractDTO = new ContractDTO();
-	            	
+	            	BeanUtils.copyProperties(contract, contractDTO);
+	            	BeanUtils.copyProperties(workflow, contractDTO);
 	            	contractDTO.setDepreason(depreason);
 	            	contractDTO.setManreason(manreason);
 	            	contractDTO.setEmployeeName(contract.getEmployee().getEmployeeName());
+	            	contractDTO.setProcessInstanceId(contract.getProcessInstanceId());
 	            	contract.setDepreason(depreason);
 	            	contract.setManreason(manreason);
-	            	
-	            	BeanUtils.copyProperties(contract, contractDTO);
-	            	BeanUtils.copyProperties(workflow, contractDTO);
 	            	results.add(contractDTO);
 	            }
 	        }

@@ -188,11 +188,22 @@
 		}];
         this.complete(url,variables,form);
     },
-    //流程跟踪
-    onClickGraphTraceButton : function(btn) {
-        alert("on Click Add Button!");
+     //流程跟踪
+    onClickGraphTraceButton : function(view, recIndex, cellIndex, item, e, record) {
+        var diagramResourceUrl = 'process-trace?processInstanceId=' + record.get('processInstanceId');
+        var win = new Ext.window.Window({
+            title: '流程跟踪',
+            width : 860,
+            height : 500,
+            layout: 'fit',
+            items:[new Ext.Panel({         
+               resizeTabs :true,
+               autoScroll : true,
+               html:'<iframe scrolling="auto" frameborder="0" width="100%" height="100%" src='+diagramResourceUrl+'></iframe>'
+           })]
+        });
+        win.show();
     },
-
     selectChange:function(){
         var val=this.lookReference('ss').getValue();
         alert(val);
@@ -237,7 +248,7 @@
         }else if(attenceStatus=='EARLYandLATER'){
             record.data.attenceStatus='迟到,早退';
         }
-        if (taskDefinitionKey == 'deptLeader') {
+        if (taskDefinitionKey == 'deptLeaderAudit') {
             //部门领导审批
             var win = this.setCurrentView(view,'appealdeptLeaderAudit', '部门领导审批');
             win.down('form').getForm().loadRecord(record);
@@ -251,7 +262,7 @@
             var win = this.setCurrentView(view,'appealmodifyApply','调整申诉表单');
             win.down('form').getForm().loadRecord(record);
         }
-        else if (taskDefinitionKey == 'confirm') {
+        else if (taskDefinitionKey == 'appealConfirm') {
             //申请人调整申请：可以编写到工具类中
             var win = this.setCurrentView(view,'appealConfirm','申诉结果确认');
             win.down('form').getForm().loadRecord(record);
@@ -295,6 +306,10 @@
         var values = form.getValues();
         var url = 'attence/complete/' + values.taskId;
         var variables = [{
+            key: 'reApply',
+            value: values.reApply,//获取表单选择的value
+            type: 'B'
+        },{
             key: 'appealreason',
             value: values.appealreason,//获取表单选择的value
             type: 'S'

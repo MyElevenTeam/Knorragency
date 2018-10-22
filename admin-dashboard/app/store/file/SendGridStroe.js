@@ -18,6 +18,7 @@ Ext.define('Admin.store.file.SendGridStroe', {
 		simpleSortMode: true	//简单排序模式
 	},
 	autoLoad: 'true',
+	groupField: 'sendDay',
     autoSync:true,
     remoteSort:true,
     pageSize:20,

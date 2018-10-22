@@ -130,8 +130,8 @@
                                     return 'x-hidden';
                                 }
                                 return 'x-fa fa-ban';
-                            },
-                            handler: 'cancelLeaveProcess'
+                            }/*,
+                            handler: 'cancelLeaveProcess'*/
                         },
                         {
                             xtype: 'button',iconCls: 'x-fa fa-file-text-o',tooltip: '查看审批结果',

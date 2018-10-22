@@ -96,8 +96,8 @@
 				,{header: 'processDefinitionId'	,dataIndex: 'processDefinitionId',width: 80,sortable: true,hidden:true}
 				,{header: 'suspended'  		,dataIndex: 'suspended',width: 80,sortable: true,hidden:true}
 				,{header: 'version'  		,dataIndex: 'version',width: 60,sortable: true,hidden:true}
-				,{header: '部门经理意见' ,dataIndex: 'depreason',hidden:true,width: 60,sortable: true}
-				,{header: '人事部经理意见' ,dataIndex: 'hrreason',hidden:true,width: 60,sortable: true}
+				,{header: '部门经理意见' ,dataIndex: 'deptLeaderBackReason',hidden:true,width: 60,sortable: true}
+				,{header: '人事部经理意见' ,dataIndex: 'hrBackReason',hidden:true,width: 60,sortable: true}
 			],
 			dockedItems: [{
 			    xtype: 'pagingtoolbar',

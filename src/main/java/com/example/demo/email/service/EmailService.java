@@ -60,6 +60,7 @@ public class EmailService implements IEmailService {
 		for (Email entity : list.getContent()) {
 			EmailDTO dto = new EmailDTO();
 			BeanUtils.copyProperties(entity, dto);
+			dto.setSendDay(entity.getSendTime());
 			if(entity.getEmployee()!=null) {
 				dto.setEmployeeName(entity.getEmployee().getEmployeeName());
 				

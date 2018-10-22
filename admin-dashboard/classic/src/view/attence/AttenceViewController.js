@@ -145,9 +145,38 @@ Ext.define('Admin.view.attence.AttenceViewController', {
         }
       });
     },
+    /*Cancel Leave Process*/  
+    cancelLeaveProcess:function(grid, rowIndex, colIndex){
+       var record = grid.getStore().getAt(rowIndex);
+       Ext.Ajax.request({ 
+        url : '/leave/cancel', 
+        method : 'post', 
+        params : {
+          id :record.get("id")
+        }, 
+        success: function(response, options) {
+          var json = Ext.util.JSON.decode(response.responseText);
+          if(json.success){
+            Ext.Msg.alert('操作成功', json.msg, function() {
+            grid.getStore().reload();
+          });
+          }else{
+            Ext.Msg.alert('操作失败', json.msg);
+          }
+        }
+      });
+    },
     /*查看审批结果*/
     LookLeave:function(grid,rowIndex, colIndex){
        var record = grid.getStore().getAt(rowIndex);
+       var leaveType=record.get('leaveType');
+       if(leaveType=='A'){
+            record.data.leaveType='带薪假期';
+        }else if(leaveType=='B'){
+            record.data.leaveType='无薪假期';
+        }else if(leaveType=='C'){
+            record.data.leaveType='病假';
+        }
        var win=grid.up('window').up('panel').up('container').add(Ext.widget('lookLeaveWindow')).show();
        win.down('form').getForm().loadRecord(record);
     },
@@ -201,6 +230,16 @@ Ext.define('Admin.view.attence.AttenceViewController', {
     /*查看申诉结果*/
     LookAppeal:function(grid,rowIndex, colIndex){
        var record = grid.getStore().getAt(rowIndex);
+       var attenceStatus=record.get('attenceStatus');
+        if(attenceStatus=='LEAVE'){
+            record.data.attenceStatus='请假';
+        }else if(attenceStatus=='LATER'){
+            record.data.attenceStatus='迟到';
+        }else if(attenceStatus=='EARLY'){
+            record.data.attenceStatus='早退';
+        }else if(attenceStatus=='NORMAL'){
+            record.data.attenceStatus='正常';
+        }
        var win = grid.up('panel').up('container').add(Ext.widget('lookAppealWindow'));
        win.show();
        win.down('form').getForm().loadRecord(record);

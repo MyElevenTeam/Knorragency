@@ -6,6 +6,7 @@ import java.util.Map;
 
 import javax.servlet.http.HttpSession;
 
+import org.activiti.engine.RuntimeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -44,6 +45,9 @@ public class LeaveController
 	
 	@Autowired
 	private IEmployeeService employeeService;
+	
+	@Autowired
+	private RuntimeService runtimeService;
 	
 	@SystemControllerLog(description="填写请假单")
 	@PostMapping
@@ -147,6 +151,28 @@ public class LeaveController
 	        return new ExtAjaxResponse(false,"操作失败!");
 	    }
     }
+	
+	/**
+	 * 取消流程
+	 * @param leaveId	请假信息Id
+	 * @param session	通过会话获取登录用户(请假人)
+	 * @return
+	 */
+//	@SystemControllerLog(description="取消合同审批流程")
+//	@RequestMapping(value = "/cancel")
+//    public @ResponseBody ExtAjaxResponse cancel(@RequestParam(name="id") Long id,HttpSession session) {
+//    	try {
+//    		Leave leave=leaveService.findOne(id);
+//    		String processInstanceId=leave.getProcessInstanceId();
+//    		leave.setProcessStatus(ProcessStatus.CANCEL);
+//    		runtimeService.suspendProcessInstanceById(processInstanceId);//挂起流程
+//    		runtimeService.deleteProcessInstance(processInstanceId,"删除原因");
+//    		return new ExtAjaxResponse(true,"操作成功!");
+//	    } catch (Exception e) {
+//	    	e.printStackTrace();
+//	        return new ExtAjaxResponse(false,"操作失败!");
+//	    }
+//    }
 	
 	/**
 	 * 查询待处理流程任务

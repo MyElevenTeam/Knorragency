@@ -50,7 +50,8 @@ public class LogConfig {
 	
 	private static final ThreadLocal<Log> logThreadLocal = new NamedThreadLocal<Log>("ThreadLocal log");
 	
-	@Pointcut("execution(* com.example.demo.*.controller.*.*(..)) and !execution(* com.example.demo.log.controller.*.*(..))")
+	@Pointcut("execution(* com.example.demo.*.controller.*.*(..)) and !execution(* com.example.demo.log.controller.*.*(..))"+
+	"and !execution(* get*(..)) and !execution(* find*(..)) and !execution(* com.example.demo.activiti.controller.*.*(..)")
 	public void excudeService(){}
 		
 	/**
@@ -127,7 +128,7 @@ public class LogConfig {
         log.setMapToParams(params);
         log.setOperateDate(operateDate);
         log.setTime(endTime-beginTime);
-        //logService.save(log);
+        logService.save(log);
        
     }
     
@@ -142,7 +143,7 @@ public class LogConfig {
 		if(log != null){
 			log.setType("error");
 			log.setException(e.toString());
-			//logService.save(log);			
+			logService.save(log);			
 		}
     }
 

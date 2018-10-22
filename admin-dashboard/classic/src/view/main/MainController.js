@@ -185,7 +185,7 @@ Ext.define('Admin.view.main.MainController', {
                     Ext.Msg.alert('提示', json.msg);
                     Ext.getCmp('work').hide();
                     Ext.getCmp('out').show();
-                    Ext.data.StoreManager.lookup('attenceGridStroe').reload();
+                    //Ext.data.StoreManager.lookup('attenceGridStroe').reload();
                 }else{
                     Ext.Msg.alert('提示', json.msg);
                     Ext.data.StoreManager.lookup('attenceGridStroe').reload();

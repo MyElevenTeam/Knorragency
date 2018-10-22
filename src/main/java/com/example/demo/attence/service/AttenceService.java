@@ -181,15 +181,15 @@ public class AttenceService implements IAttenceService {
 	            if(attenceOptional!=null&&attenceOptional.isPresent()){
 	            	Attence attence=attenceOptional.get();
 	            	AttenceDTO attenceDTO = new AttenceDTO();
-	            	
-	            	attenceDTO.setDepreason(depreason);
-	            	attenceDTO.setHrreason(hrreason);
+	            	BeanUtils.copyProperties(attence, attenceDTO);
+	            	BeanUtils.copyProperties(workflow, attenceDTO);
+	            	attenceDTO.setDeptLeaderBackReason(depreason);
+	            	attenceDTO.setHrBackReason(hrreason);
 	            	attenceDTO.setEmployeeName(attence.getEmployee().getEmployeeName());
+	            	attenceDTO.setProcessInstanceId(attence.getProcessInstanceId());
 	            	attence.setDeptLeaderBackReason(depreason);
 	            	attence.setHrBackReason(hrreason);
 	            	
-	            	BeanUtils.copyProperties(attence, attenceDTO);
-	            	BeanUtils.copyProperties(workflow, attenceDTO);
 	            	results.add(attenceDTO);
 	            }
 	        }

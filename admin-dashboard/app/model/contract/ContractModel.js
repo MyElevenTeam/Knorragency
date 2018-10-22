@@ -11,6 +11,7 @@ requires: [
 		{type: 'string',name: 'employeeName'},
 		{type: 'date', name: 'startTime', dateFormat:'Y/m/d H:i:s'},
 		{type: 'date', name: 'endTime', dateFormat:'Y/m/d H:i:s'},
+		{type: 'date', name: 'day', dateFormat:'Y/m/d H:i:s'},
 		{type: 'string',name: 'contractType'},
 		{type: 'float',name: 'total'},
 		{type: 'string',name: 'storeName'},

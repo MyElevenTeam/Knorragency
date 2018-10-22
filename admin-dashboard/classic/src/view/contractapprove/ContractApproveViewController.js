@@ -55,6 +55,22 @@
         }
         
     },
+    //流程跟踪
+    onClickGraphTraceButton : function(view, recIndex, cellIndex, item, e, record) {
+        var diagramResourceUrl = 'process-trace?processInstanceId=' + record.get('processInstanceId');
+        var win = new Ext.window.Window({
+            title: '流程跟踪',
+            width : 860,
+            height : 500,
+            layout: 'fit',
+            items:[new Ext.Panel({         
+               resizeTabs :true,
+               autoScroll : true,
+               html:'<iframe scrolling="auto" frameborder="0" width="100%" height="100%" src='+diagramResourceUrl+'></iframe>'
+           })]
+        });
+        win.show();
+    },
     //3.封装审批表单数据,并以Ajax提交到后台完成任务的流程变量封装对象中。
 	complete: function(url, variables,form){
 		// 转换JSON为字符串
