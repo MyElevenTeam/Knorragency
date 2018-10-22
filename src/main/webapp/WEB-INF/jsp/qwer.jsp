@@ -20,6 +20,7 @@ console.log("begin");
     	/* console.log(proIds);  */
        /*  var userId = window.location.href.split('#')[1];
         var proIds=[1,2]; */
+        sessionStorage.clear();
     	//peerConnection数组
         var pcArray=new Array();
 
