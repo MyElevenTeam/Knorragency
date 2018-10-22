@@ -6,20 +6,23 @@
 <meta charset="UTF-8">
 <title>Insert title here</title>
 <link rel="stylesheet" href="./../css/videoCss.css" type="text/css" />
-<script src="https://cdn.bootcss.com/jquery/1.10.2/jquery.min.js"></script>
+<script src="./../js/jquery.min.js"></script>
 <script>
 console.log("begin");
     $(document).ready(function(){
+    	/* $("body").append(""); */
     	// 用户ID
-    	/* var otherPageData=JSON.parse(sessionStorage.getItem("orderPage_ids"));
-        var userId=otherPageData.userId; */ 
-        var userId = window.location.href.split('#')[1];
-        var proIds=[1,2,3,4];
+    	var otherPageData=JSON.parse(sessionStorage.getItem("orderPage_ids")); 
+        var userId=otherPageData.userId;
+        /* console.log(userId);  */
+    	//可能加入的用户数组
+    	var proIds=otherPageData.idGroup;
+    	/* console.log(proIds);  */
+       /*  var userId = window.location.href.split('#')[1];
+        var proIds=[1,2]; */
     	//peerConnection数组
         var pcArray=new Array();
-    	//可能加入的用户数组
-      //  var proIds=otherPageData.idGroup;
-        sessionStorage.clear();
+
         //索引前面的id
         var preIds;
        // 与信令服务器的WebSocket连接i
@@ -31,17 +34,18 @@ console.log("begin");
         
       //socket发起群聊
         $("#joinRoom").click(function(){
+        	/* alert("测试一下就知道了"); */
         	//隐藏组件
         	$("#hideModel").hide();
         	//进入全屏
-        	/* var de = document.documentElement;
+        	var de = document.documentElement;
             if (de.requestFullscreen) {
                 de.requestFullscreen();
             } else if (de.mozRequestFullScreen) {
                 de.mozRequestFullScreen();
             } else if (de.webkitRequestFullScreen) {
                 de.webkitRequestFullScreen();
-            }  */
+            }
             
       	      // 获取本地音频和视频流
   	          navigator.webkitGetUserMedia({
@@ -143,9 +147,11 @@ console.log("begin");
     });
 </script>
 </head>
-<body>
+<body >
+   <img src='./../picture/bg.gif' id='bg'>
    <div id="hideModel">
-	    <button id="joinRoom">加入群聊</button>
+	    <!-- <button id="joinRoom">加入群聊</button> -->
+	    <img id="joinRoom" src='./../picture/button.png' >
    </div>
 </body>
 </html>

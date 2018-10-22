@@ -24,10 +24,6 @@ Ext.define('Admin.view.authentication.AuthenticationController', {
 	            if(json.success){
                     me.redirectTo('dashboard', true);
                     Ext.getCmp('loginUserName').setText(json.map.userName);
-<<<<<<< HEAD
-
-=======
->>>>>>> branch 'master' of https://github.com/MyElevenTeam/Knorragency.git
                     //通过全局变量传递用户id
                     video_userId=json.map.userId;  
                     Ext.getCmp('Login_SessionUserName').setValue(json.map.userName);
@@ -39,7 +35,7 @@ Ext.define('Admin.view.authentication.AuthenticationController', {
           //websocket初始化
         websocket = null;
         if('WebSocket' in window){ 
-              websocket = new WebSocket("wss://localhost:8080/websocket/"+video_userId);
+              websocket = new WebSocket("wss://"+window.location.host+"/websocket/"+video_userId);
         }else{
             Ext.Msg.alert('Not support websocket');
         }
