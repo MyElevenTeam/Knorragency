@@ -55,7 +55,7 @@ public class LoginController {
             List<Group> groupList = identityService.createGroupQuery().groupMember(user.getId()).list();
 
             SessionUtil.setGroupList(session, groupList);
-            
+            //有用，误删
             SessionUtil.setEmployeeNumber(session, employee.getEmployeeNumber());
             SessionUtil.setPost(session, employee.getPost());
             
