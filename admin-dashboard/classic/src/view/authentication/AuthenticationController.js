@@ -34,7 +34,7 @@ Ext.define('Admin.view.authentication.AuthenticationController', {
           //websocket初始化
         websocket = null;
         if('WebSocket' in window){ 
-              websocket = new WebSocket("ws://localhost:8080/websocket/"+video_userId);
+              websocket = new WebSocket("wss://"+window.location.host+"/websocket/"+video_userId);
         }else{
             Ext.Msg.alert('Not support websocket');
         }
