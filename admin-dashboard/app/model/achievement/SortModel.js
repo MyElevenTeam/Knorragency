@@ -4,5 +4,6 @@ Ext.define('Admin.model.achievement.SortModel', {
       {type:'int',name:'rank'},
       {type:'string',name:'employeeName'},
       {type:'string',name:'word'},
+      {type:'string',name:'picture'},
     ]
 });

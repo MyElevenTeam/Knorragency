@@ -34,12 +34,16 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ResourceUtils;
 
+import com.example.demo.achievement.entity.AchievementDTO;
+import com.example.demo.achievement.service.AchievementService;
+import com.example.demo.achievement.service.IAchievementService;
 import com.example.demo.attence.entity.Attence;
 import com.example.demo.attence.entity.AttenceQueryDTO;
 import com.example.demo.attence.service.AttenceService;
 import com.example.demo.attence.utils.AttenceUtil;
 import com.example.demo.contract.entity.Contract;
 import com.example.demo.contract.entity.ContractDTO;
+import com.example.demo.contract.repository.ContractRepository;
 import com.example.demo.contract.service.IContractService;
 import com.example.demo.employee.domain.Employee;
 import com.example.demo.employee.service.IEmployeeService;
@@ -49,7 +53,8 @@ import com.example.demo.store.service.IStoreService;
 @RunWith(SpringRunner.class)
 @SpringBootTest
 public class ContractServiceTest {
-	
+	@Autowired
+	private ContractRepository contractRepository;
 	@Autowired
 	private IContractService contractService;
 	
@@ -61,6 +66,9 @@ public class ContractServiceTest {
 	
 	@Autowired
 	private AttenceService attenceService;
+	
+	@Autowired
+	private IAchievementService achievementService;
 	
 	@Test
 	public void readWord() throws IOException, ParseException, XmlException, OpenXML4JException {
@@ -262,7 +270,13 @@ public class ContractServiceTest {
 
 	}
 	
-	
+	@Test
+	public void timeTest() {
+		List<AchievementDTO> list=achievementService.getSumByStoreNameAndMonth("常平分店","十月");
+		for(AchievementDTO tmp:list)
+			System.out.println(tmp);
+		
+	}
 	
 	
 

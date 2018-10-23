@@ -26,4 +26,5 @@ public interface ContractRepository extends PagingAndSortingRepository<Contract,
 	
 	@Query("select e from Contract c , Employee e where month(c.startTime) like month(?1) group by c.employee.localStore.storeName order by sum(c.total) desc")
 	public List<Object> getStoreNameByMonth(Date month);
+
 }

@@ -29,17 +29,10 @@ public class AddressListController {
 	@SystemControllerLog(description="查看通讯录")
 	public Page<EmployeeDTO> getAddressList(EmployeeQueryDTO employeeQueryDTO,
 			HttpSession session,ExtjsPageRequest pageable){
-		
-		String en=(String) session.getAttribute("employeeNumber");
-		String post=(String) session.getAttribute("post");
-		//判断session中employeeNumber和post是否都为空，是就返回null，不为空就执行
-		if(StringUtils.isNotBlank(en) && StringUtils.isNotBlank(post)) {
-			pageable.setLimit(10);
-			Page<EmployeeDTO> page;
-			page=addressListService.addressListFindAll(EmployeeQueryDTO.getWhereClause(employeeQueryDTO), pageable.getPageable(),session);
-			return page;
+		String number=(String) session.getAttribute("employeeNumber");
+		if(number!=null) {
+			return addressListService.addressListFindAll(EmployeeQueryDTO.getWhereClause(employeeQueryDTO), pageable.getPageable(), number);
 		}
 		return null;
-		
 	}
 }

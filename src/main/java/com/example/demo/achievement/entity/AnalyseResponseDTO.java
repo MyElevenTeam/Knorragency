@@ -5,7 +5,14 @@ public class AnalyseResponseDTO {
 	private double total;
 	private double rate;
 	private int peopleNum;
+	private String picture;
 	
+	public String getPicture() {
+		return picture;
+	}
+	public void setPicture(String picture) {
+		this.picture = picture;
+	}
 	public String getWinner() {
 		return winner;
 	}

@@ -15,10 +15,10 @@ Ext.define('Admin.view.achievement.AnalysePanel', {
           xtype: 'dataview',
           bind: '{anlyseDate}',
           itemTpl:
-           "<img src='resources/images/user-profile/1.png' alt='Profile Pic'  style='height:100px ;width:100px;border-radius:500px;position: absolute;left:33%;top: 25%;'>"+
-           "<img src='resources/images/icons/crown1.png' alt='Profile Pic'  style='height:120px ;width:200px;position: absolute;left:16%;top: -18%;'>"+
-           "<img src='resources/images/icons/crown2.png' alt='Profile Pic'  style='height:120px ;width:200px;position: absolute;left:16%;top: 26%;'>"+
-           "<tpl for='.'><h2 style='position: absolute;bottom:0px;text-align: center;left: 0;right: 0;color:#919191;'>"+"{winner}"+"</h2></tpl>",
+           "<img src='resources/images/user-profile/{picture}' alt='Profile Pic'  style='height:100px ;width:100px;border-radius:500px;position: absolute;left:33%;top: 25%;'>"+
+           "<img src='resources/images/icons/crown1.png' alt='Profile Pic'  style='height:120px ;width:200px;position: absolute;left:16%;top: -11%;'>"+
+           "<img src='resources/images/icons/crown2.png' alt='Profile Pic'  style='height:120px ;width:200px;position: absolute;left:16%;top: 30%;'>"+
+           "<tpl for='.'><h2 style='position: absolute;bottom:0px;text-align: center;left: 0;right: 0;color:#919191;'>销售冠军:"+"{winner}"+"</h2></tpl>",
            cls:'_boder',
            flex : 1
         },

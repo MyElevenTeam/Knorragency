@@ -107,5 +107,11 @@ public class Employee implements Serializable{
 	public void setQuotation(String quotation) {
 		this.quotation = quotation;
 	}
+	@Override
+	public String toString() {
+		return "Employee [password=" + password + ", id=" + id + ", employeeName=" + employeeName + ", localStore="
+				+ localStore + ", email=" + email + ", employeeNumber=" + employeeNumber + ", picture=" + picture
+				+ ", quotation=" + quotation + ", post=" + post + "]";
+	}
 	
 }

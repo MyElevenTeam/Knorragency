@@ -11,7 +11,6 @@ import com.example.demo.employee.domain.EmployeeDTO;
 
 public interface IAddressListService {
 	
-	public Page<EmployeeDTO> addressListFindAll(Specification<Employee> spec, 
-			Pageable pageable,HttpSession session);
+	public Page<EmployeeDTO> addressListFindAll(Specification<Employee> spec, Pageable pageable,String number);
 	
 }

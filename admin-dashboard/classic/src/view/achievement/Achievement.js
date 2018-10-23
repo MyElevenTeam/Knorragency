@@ -1,7 +1,7 @@
 Ext.define('Admin.view.achievement.Achievement', {
-    extend: 'Ext.container.Container',
+    extend: 'Ext.panel.Panel',
     xtype: 'achievement',
-
+	height: window.innerHeight,
     requires: [ 
         'Admin.view.achievement.AchievementViewModel',
         'Ext.layout.container.VBox',
@@ -26,13 +26,13 @@ Ext.define('Admin.view.achievement.Achievement', {
 
     items : [{
         xtype: 'analysePanel',
-        flex: 1,
+		height: window.innerHeight/3
     },{
        xtype: 'chartPanel',
-       margin: '0 0 10 0',
-       flex : 1
+	   height: window.innerHeight/3,
+       margin: '0 0 10 0'
     },{
         xtype: 'sortPanel',
-        flex: 1
+		height: window.innerHeight/3
     }]
 });
