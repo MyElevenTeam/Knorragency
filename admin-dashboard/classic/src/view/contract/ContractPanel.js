@@ -84,7 +84,7 @@ Ext.define('Admin.view.contract.ContractPanel', {
 			            allowBlank: false
 			        }
             	},
-                {xtype: 'gridcolumn', cls: 'content-column',width:100,dataIndex: 'hoseName',text: '房源名称',
+                {xtype: 'gridcolumn', cls: 'content-column',width:100,dataIndex: 'houseName',text: '房源名称',
                     editor: {
                         xtype: 'textfield',
                         allowBlank: false
@@ -150,10 +150,10 @@ Ext.define('Admin.view.contract.ContractPanel', {
                         {
                             xtype: 'button',iconCls: 'x-fa fa-star',tooltip: '发起审核',
                             getClass: function(v, meta, rec) {
-                                if (rec.get('processInstanceId')!="") {
-                                    return 'x-hidden';
+                                if (rec.get('processStatus')=='NEW'||rec.get('processStatus')=='CANCEL') {
+                                    return 'x-fa fa-star';
                                 }else{
-                                     return 'x-fa fa-star';
+                                    return 'x-hidden';
                                 }
                                 
                             },
@@ -168,8 +168,8 @@ Ext.define('Admin.view.contract.ContractPanel', {
                                     return 'x-fa fa-ban';
                                 }
 
-                            }/*,
-                            handler: 'cancelLeaveProcess'*/
+                            },
+                            handler: 'cancelLeaveProcess'
                         },
                         {
                             xtype: 'button',iconCls: 'x-fa fa-file-text-o',tooltip: '查看审批结果',
@@ -189,7 +189,12 @@ Ext.define('Admin.view.contract.ContractPanel', {
                         ui: 'header',
                         tooltip: '查找',
                         handler:'searchOpen'   
-                    },'-'
+                    },'-',{
+                        iconCls:'fa fa-refresh fa-5x',
+                        ui: 'header',
+                        tooltip: '刷新',
+                        handler:'refresh'   
+                    }
                     ,'->',{
                         xtype: 'button',
                         text:'添加合同信息',

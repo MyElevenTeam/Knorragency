@@ -7,7 +7,7 @@ requires: [
 		{type: 'int',name: 'id'},
 		{type: 'string',name: 'contractNumber'},
 		{type: 'string',name: 'customerName'},
-		{type: 'string',name: 'hoseName'},
+		{type: 'string',name: 'houseName'},
 		{type: 'string',name: 'employeeName'},
 		{type: 'date', name: 'startTime', dateFormat:'Y/m/d H:i:s'},
 		{type: 'date', name: 'endTime', dateFormat:'Y/m/d H:i:s'},

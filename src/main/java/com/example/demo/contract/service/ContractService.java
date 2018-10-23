@@ -148,7 +148,7 @@ public class ContractService implements IContractService {
 				    
 				    //获得房源名
 					String houseName=str.substring(16, 19);
-					c.setHoseName(houseName);
+					c.setHouseName(houseName);
 					
 					//获得金额
 					String stotal=str.substring(25, 30);

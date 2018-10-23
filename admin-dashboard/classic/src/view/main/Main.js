@@ -32,7 +32,7 @@ Ext.define('Admin.view.main.Main', {
                     xtype: 'component',
                     reference: 'senchaLogo',
                     cls: 'sencha-logo',
-                    html: '<div class="main-logo"><img src="resources/images/company-logo.png">Knorr Agency</div>',
+                    html: '<div class="main-logo" style="font-weight:bold;font-family:微软雅黑;"><img style="width:60px;height:50px;"src="resources/images/k.png">家乐房产中介</div>',
                     width: 250
                 },
                 {

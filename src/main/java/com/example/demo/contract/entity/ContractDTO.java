@@ -21,7 +21,7 @@ public class ContractDTO {
 	
 	private String customerName;       //客户姓名
 	
-	private String hoseName;          //房源名称
+	private String houseName;          //房源名称
 	
 	private String employeeName;      //房产经纪人姓名
 	
@@ -89,8 +89,8 @@ public class ContractDTO {
 		return customerName;
 	}
 
-	public String getHoseName() {
-		return hoseName;
+	public String getHouseName() {
+		return houseName;
 	}
 
 	public String getEmployeeName() {
@@ -193,8 +193,8 @@ public class ContractDTO {
 		this.customerName = customerName;
 	}
 
-	public void setHoseName(String hoseName) {
-		this.hoseName = hoseName;
+	public void setHouseName(String houseName) {
+		this.houseName = houseName;
 	}
 
 	public void setEmployeeName(String employeeName) {

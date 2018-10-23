@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example.demo.common.controller.ExtAjaxResponse;
 import com.example.demo.common.controller.SessionUtil;
-
+import com.example.demo.common.utils.MD5;
 import com.example.demo.log.config.SystemControllerLog;
 
 import com.example.demo.employee.domain.Employee;
@@ -43,7 +43,7 @@ public class LoginController {
 	@RequestMapping(value="/login")
 	public @ResponseBody ExtAjaxResponse logon(@RequestParam("userName") String userName, @RequestParam("password") String password, HttpSession session) {
 		Employee employee=employeeRepository.findByEmployeeNumber(userName);
-		if(employee==null || !employee.getPassword().equals(password)) {
+		if(employee==null || !employee.getPassword().equals(MD5.getMD5(password))) {
 			return new ExtAjaxResponse(false,"登录失败!帐号或者密码有误!请重新登录!");
 		}else {
 			// 查看用户是否存在

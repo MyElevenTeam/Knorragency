@@ -29,7 +29,7 @@ public class Contract implements Serializable{
 	
 	private String customerName;       //客户姓名
 	
-	private String hoseName;          //房源名称
+	private String houseName;          //房源名称
 	
 	private Employee employee;      //房产经纪人姓名
 	
@@ -66,8 +66,8 @@ public class Contract implements Serializable{
 		return customerName;
 	}
 
-	public String getHoseName() {
-		return hoseName;
+	public String getHouseName() {
+		return houseName;
 	}
 	
 	@ManyToOne(cascade=CascadeType.ALL)
@@ -130,8 +130,8 @@ public class Contract implements Serializable{
 		this.employee = employee;
 	}
 
-	public void setHoseName(String hoseName) {
-		this.hoseName = hoseName;
+	public void setHouseName(String houseName) {
+		this.houseName = houseName;
 	}
 
 	public void setStartTime(Date startTime) {

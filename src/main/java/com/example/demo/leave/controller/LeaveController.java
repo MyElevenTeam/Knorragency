@@ -141,7 +141,8 @@ public class LeaveController
     		String userId = SessionUtil.getUserName(session);
     		Employee employee=employeeService.EmployeeName(userId);
     		Map<String, Object> variables = new HashMap<String, Object>();
-    		variables.put("deptLeader", "financeManager");
+    		variables.put("deptLeader", "storeManager");
+    		variables.put("hr", "hr");
     		variables.put("applyUserId", userId);
     		variables.put("to",employee.getEmail());
     		leaveService.startWorkflow(userId,leaveId, variables);
@@ -158,21 +159,20 @@ public class LeaveController
 	 * @param session	通过会话获取登录用户(请假人)
 	 * @return
 	 */
-//	@SystemControllerLog(description="取消合同审批流程")
-//	@RequestMapping(value = "/cancel")
-//    public @ResponseBody ExtAjaxResponse cancel(@RequestParam(name="id") Long id,HttpSession session) {
-//    	try {
-//    		Leave leave=leaveService.findOne(id);
-//    		String processInstanceId=leave.getProcessInstanceId();
-//    		leave.setProcessStatus(ProcessStatus.CANCEL);
-//    		runtimeService.suspendProcessInstanceById(processInstanceId);//挂起流程
-//    		runtimeService.deleteProcessInstance(processInstanceId,"删除原因");
-//    		return new ExtAjaxResponse(true,"操作成功!");
-//	    } catch (Exception e) {
-//	    	e.printStackTrace();
-//	        return new ExtAjaxResponse(false,"操作失败!");
-//	    }
-//    }
+	@SystemControllerLog(description="取消合同审批流程")
+	@RequestMapping(value = "/cancel")
+    public @ResponseBody ExtAjaxResponse cancel(@RequestParam(name="id") Long id,HttpSession session) {
+    	try {
+    		Leave leave=leaveService.findOne(id);
+    		String processInstanceId=leave.getProcessInstanceId();
+    		leave.setProcessStatus(ProcessStatus.CANCEL);
+    		runtimeService.deleteProcessInstance(processInstanceId,"删除原因");
+    		return new ExtAjaxResponse(true,"操作成功!");
+	    } catch (Exception e) {
+	    	e.printStackTrace();
+	        return new ExtAjaxResponse(false,"操作失败!");
+	    }
+    }
 	
 	/**
 	 * 查询待处理流程任务

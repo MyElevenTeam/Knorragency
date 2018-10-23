@@ -23,7 +23,7 @@ Ext.define('Admin.view.authentication.AuthenticationController', {
             	var json = Ext.util.JSON.decode(response.responseText);
 	            if(json.success){
                     me.redirectTo('dashboard', true);
-                    Ext.getCmp('loginUserName').setText(json.map.userName);
+                    Ext.getCmp('loginUserName').setText('Hi,'+json.map.userName);
                     //通过全局变量传递用户id
                     video_userId=json.map.userId;
 		        }else{

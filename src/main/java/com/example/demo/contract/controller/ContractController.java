@@ -15,6 +15,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import org.activiti.engine.RuntimeService;
 import org.apache.poi.POIXMLTextExtractor;
 import org.apache.poi.hwpf.HWPFDocument;
 import org.apache.poi.hwpf.extractor.WordExtractor;
@@ -61,6 +62,9 @@ public class ContractController {
 	
 	@Autowired
 	private IEmployeeService employeeService;
+	
+	@Autowired
+	private RuntimeService runtimeService;
 	
 	/*----------------------------------------------系统业务--------------------------------------------*/
 	/*save*/
@@ -157,7 +161,8 @@ public class ContractController {
 		
 		String userId = SessionUtil.getUserName(session);  //通过session查找userId
 		if(userId!=null) {
-			contractQueryDTO.setEmployeeName(userId);
+			Employee employee=employeeService.EmployeeName(userId);
+			contractQueryDTO.setEmployeeName(employee.getEmployeeName());
 		}
 		return contractService.findAll(ContractQueryDTO.getWhereClause(contractQueryDTO), pageRequest.getPageable());
 		
@@ -218,7 +223,7 @@ public class ContractController {
 	    datas.put("contractNumber", contract.getContractNumber());
 	    datas.put("startTime", contract.getStartTime().toString());
 	    datas.put("endTime", contract.getEndTime().toString());
-	    datas.put("houseName", contract.getHoseName());
+	    datas.put("houseName", contract.getHouseName());
 	    datas.put("customerName", contract.getCustomerName());
 	    datas.put("employeeName", contract.getEmployee().getEmployeeName());
 	    datas.put("total", String.valueOf(contract.getTotal()));
@@ -292,8 +297,8 @@ public class ContractController {
     		String userId = SessionUtil.getUserName(session);
     		Employee employee=employeeService.EmployeeName(userId);
     		Map<String, Object> variables = new HashMap<String, Object>();
-    		variables.put("deptLeader", "financeManager");
-    		variables.put("manLeader", "hrManager");
+    		variables.put("deptLeader", "storeManager");
+    		variables.put("manLeader", "areaManager");
     		variables.put("applyUserId", userId);
     		variables.put("to",employee.getEmail());
     		contractService.startWorkflow(userId,contractId, variables);
@@ -310,21 +315,20 @@ public class ContractController {
 	 * @param session	通过会话获取登录用户(请假人)
 	 * @return
 	 */
-//	@SystemControllerLog(description="取消合同审批流程")
-//	@RequestMapping(value = "/cancel")
-//    public @ResponseBody ExtAjaxResponse cancel(@RequestParam(name="id") Long id,HttpSession session) {
-//    	try {
-//    		Contract contract=contractService.findById(id).get();
-//    		String processInstanceId=contract.getProcessInstanceId();
-//    		contract.setProcessStatus(ProcessStatus.CANCEL);
-//    		runtimeService.suspendProcessInstanceById(processInstanceId);//挂起流程
-//    		runtimeService.deleteProcessInstance(processInstanceId,"删除原因");
-//    		return new ExtAjaxResponse(true,"操作成功!");
-//	    } catch (Exception e) {
-//	    	e.printStackTrace();
-//	        return new ExtAjaxResponse(false,"操作失败!");
-//	    }
-//    }
+	@SystemControllerLog(description="取消合同审批流程")
+	@RequestMapping(value = "/cancel")
+    public @ResponseBody ExtAjaxResponse cancel(@RequestParam(name="id") Long id,HttpSession session) {
+    	try {
+    		Contract contract=contractService.findById(id).get();
+    		String processInstanceId=contract.getProcessInstanceId();
+    		contract.setProcessStatus(ProcessStatus.CANCEL);
+    		runtimeService.deleteProcessInstance(processInstanceId,"删除原因");
+    		return new ExtAjaxResponse(true,"操作成功!");
+	    } catch (Exception e) {
+	    	e.printStackTrace();
+	        return new ExtAjaxResponse(false,"操作失败!");
+	    }
+    }
 	
 	/**
 	 * 查询待处理流程任务

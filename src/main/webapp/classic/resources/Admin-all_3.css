@@ -4829,7 +4829,9 @@
 }
 /* C:/Users/Administrator/git/Knorragency/admin-dashboard/classic/src/view/contractapprove/task/DeptLeaderAudit.scss:1 */
 .dep .x-form-trigger-wrap {
-    border: none;
+    border-left-width: 0px;
+    border-top-width: 0px;
+    border-right-width: 0px;
 }
 /* C:/Users/Administrator/git/Knorragency/admin-dashboard/classic/src/view/dashboard/Dashboard.scss:2 */
 .dashboard-main-chart .x-panel-body-default {

@@ -144,6 +144,14 @@ Ext.define('Admin.view.contract.ContractViewController', {
       store.load({params:{start:0, limit:20, page:1}});
       win.close();
   },
+  /*刷新*/
+  refresh:function(btn){
+      var store = Ext.data.StoreManager.lookup('contractGridStroe');
+      Ext.apply(store.proxy.extraParams, {contractNumber:"",customerName:"",contractType:"",houseName:"",timeStart:"",timeEnd:""});
+      
+      store.load({params:{start:0, limit:20, page:1}});
+      //store.reload();
+  },
 
   /*************************************************合同审核******************************************************/
    /*Star Leave Process*/ 
