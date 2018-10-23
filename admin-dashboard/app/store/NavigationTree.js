@@ -45,10 +45,6 @@ Ext.define('Admin.store.NavigationTree', {
                     text: '我的客源管理',
                     viewType: 'woDeKeYuanGuanLi',
                     leaf: true,
-                }, {
-                    text: '房客匹配管理',
-                    viewType: 'fangKePiPeiGuanLi',
-                    leaf: true
                 }]
             },
             {
