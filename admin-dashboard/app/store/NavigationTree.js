@@ -146,6 +146,42 @@ Ext.define('Admin.store.NavigationTree', {
                 iconCls: 'x-fa fa-check',
                 viewType: 'login',
                 leaf: true
+           }, {
+               text: '房源管理',
+               selectable: false,
+               children: [{
+                   text: '出售管理',
+                   viewType: 'chuShouGuanLi',
+                   leaf: true
+               }, {
+                   text: '出租管理',
+                   viewType: 'chuZuGuanLi',
+                   leaf: true
+               }, {
+                    text: '房源定位',
+                    viewType: 'fangYuanDingWei',
+                    leaf: true
+               }]
+           }, {
+                text: '客源管理',
+                selectable: false,
+                children: [{
+                    text: '求购客户管理',
+                    viewType: 'qiuGouKeHuGuanLi',
+                    leaf: true,
+                }, {
+                    text: '求租客户管理',
+                    viewType: 'qiuZuKeHuGuanLi',
+                    leaf: true,
+                }, {
+                    text: '我的客源管理',
+                    viewType: 'woDeKeYuanGuanLi',
+                    leaf: true,
+                }, {
+                    text: '房客匹配管理',
+                    viewType: 'fangKePiPeiGuanLi',
+                    leaf: true
+                }]
            }
         ]
     }
