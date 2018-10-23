@@ -51,7 +51,7 @@ public class LogConfig {
 	private static final ThreadLocal<Log> logThreadLocal = new NamedThreadLocal<Log>("ThreadLocal log");
 	
 	@Pointcut("execution(* com.example.demo.*.controller.*.*(..)) and !execution(* com.example.demo.log.controller.*.*(..))"+
-	"and !execution(* get*(..)) and !execution(* find*(..)) and !execution(* com.example.demo.activiti.controller.*.*(..)")
+	"and !execution(* com.example.demo.house.repository.*.*(..)) and !execution(* com.example.demo.customer.repository.*.*(..))")
 	public void excudeService(){}
 		
 	/**
