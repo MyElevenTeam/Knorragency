@@ -18,6 +18,8 @@ public class EmailDTO {
 	
 	private Date sendTime;
 	
+	private Date sendDay;
+	
     private String employeeName;
 	
 	private EmailStatus emailStatus;
@@ -77,6 +79,15 @@ public class EmailDTO {
 
 	public void setSendTime(Date sendTime) {
 		this.sendTime = sendTime;
+	}
+	
+	@JsonFormat(pattern="yyyy/MM/dd HH:mm:ss",timezone="GMT+8")
+	public Date getSendDay() {
+		return sendDay;
+	}
+
+	public void setSendDay(Date sendDay) {
+		this.sendDay = sendDay;
 	}
 
 	public String getEmployeeName() {

@@ -23,6 +23,7 @@
             xtype:'gridpanel',
             bind: '{leaveLists}',
             cls:'leave',
+            id:'leave_gridPanel',
             //scrollable: false,
             autoScroll:true,
             selModel: {type: 'checkboxmodel'},
@@ -116,17 +117,18 @@
                         {
                             xtype: 'button',iconCls: 'x-fa fa-star',tooltip: '发起请假',
                             getClass: function(v, meta, rec) {
-                                if (rec.get('processInstanceId')!="") {
+                                if (rec.get('processStatus')=='NEW'||rec.get('processStatus')=='CANCEL') {
+                                    return 'x-fa fa-star';
+                                }else{
                                     return 'x-hidden';
                                 }
-                                return 'x-fa fa-star';
                             },
                             handler: 'starLeaveProcess'
                         },
                         {
                             xtype: 'button',iconCls: 'x-fa fa-ban',tooltip: '取消请假',
                             getClass: function(v, meta, rec) {
-                                if (rec.get('processInstanceId')=="") {
+                                if (rec.get('processInstanceId')==""||rec.get('processStatus')=='COMPLETE'||rec.get('processStatus')=='CANCEL') {
                                     return 'x-hidden';
                                 }
                                 return 'x-fa fa-ban';
@@ -151,7 +153,7 @@
                     xtype: 'datefield',
                     hideLabel: true,
                     format: 'Y/m/d H:i:s',
-                    reference:'searchDataFieldValue',
+                    reference:'searchLeaveDataFieldValue',
                     fieldLabel: 'From',
                     emptyText:'-----开始时间-----',
                     name: 'from_date'
@@ -159,7 +161,7 @@
                     xtype: 'datefield',
                     hideLabel: true,
                     format: 'Y/m/d H:i:s',
-                    reference:'searchDataFieldValue2',
+                    reference:'searchLeaveDataFieldValue2',
                     fieldLabel: 'To',
                     emptyText:'-----结束时间-----',
                     name: 'to_date'
@@ -168,7 +170,12 @@
                     iconCls:'fa fa-search fa-5x',
                     ui: 'header',
                     tooltip: '查找',
-                    handler:'searchAttence'   
+                    handler:'searchLeave'   
+                },'-',{
+                    iconCls:'fa fa-refresh fa-5x',
+                    ui: 'header',
+                    tooltip: '刷新',
+                    handler:'refreshLeave'   
                 },
                 '->',
                 {

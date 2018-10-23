@@ -61,6 +61,11 @@ Ext.define('Admin.view.attence.AttencePanel', {
                     ui: 'header',
                     tooltip: '查找',
                     handler:'searchAttence'   
+                },'-',{
+                    iconCls:'fa fa-refresh fa-5x',
+                    ui: 'header',
+                    tooltip: '刷新',
+                    handler:'refresh'   
                 },
                 '-',
                 {
@@ -141,22 +146,23 @@ Ext.define('Admin.view.attence.AttencePanel', {
                         {
                             xtype: 'button',iconCls: 'x-fa fa-hand-paper-o',tooltip: '发起申诉',
                             getClass: function(v, meta, rec) {
-                                if (rec.get('processInstanceId')!="") {
+                                if (rec.get('processStatus')=='NEW'||rec.get('processStatus')=='CANCEL') {
+                                    return 'x-fa fa-hand-paper-o';
+                                }else{
                                     return 'x-hidden';
                                 }
-                                return 'x-fa fa-hand-paper-o';
                             },
                             handler: 'openAppealWindow'
                         },
                         {
                             xtype: 'button',iconCls: 'x-fa fa-ban',tooltip: '取消申诉',
                             getClass: function(v, meta, rec) {
-                                if (rec.get('processInstanceId')==""||rec.get('processStatus')=='COMPLETE') {
+                                if (rec.get('processInstanceId')==""||rec.get('processStatus')=='COMPLETE'||rec.get('processStatus')=='CANCEL') {
                                     return 'x-hidden';
                                 }
                                 return 'x-fa fa-ban';
                             },
-                            handler: 'cancelLeaveProcess'
+                            handler: 'cancelAppealProcess'
                         },
                         {
                             xtype: 'button',iconCls: 'x-fa fa-file-text-o',tooltip: '查看申诉结果',

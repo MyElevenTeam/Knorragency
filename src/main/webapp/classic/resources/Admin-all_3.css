@@ -1,3 +1,18 @@
+/* C:/Users/Administrator/git/Knorragency/admin-dashboard/ext/classic/theme-neutral/sass/var/button/Button.scss:3069 */
+.x-keyboard-mode .x-btn-focus.x-btn-menu-active .x-btn-soft-purple-toolbar-small-tl,
+.x-keyboard-mode .x-btn-focus.x-btn-menu-active .x-btn-soft-purple-toolbar-small-bl,
+.x-keyboard-mode .x-btn-focus.x-btn-menu-active .x-btn-soft-purple-toolbar-small-tr,
+.x-keyboard-mode .x-btn-focus.x-btn-menu-active .x-btn-soft-purple-toolbar-small-br,
+.x-keyboard-mode .x-btn-focus.x-btn-menu-active .x-btn-soft-purple-toolbar-small-tc,
+.x-keyboard-mode .x-btn-focus.x-btn-menu-active .x-btn-soft-purple-toolbar-small-bc,
+.x-keyboard-mode .x-btn-focus.x-btn-pressed .x-btn-soft-purple-toolbar-small-tl,
+.x-keyboard-mode .x-btn-focus.x-btn-pressed .x-btn-soft-purple-toolbar-small-bl,
+.x-keyboard-mode .x-btn-focus.x-btn-pressed .x-btn-soft-purple-toolbar-small-tr,
+.x-keyboard-mode .x-btn-focus.x-btn-pressed .x-btn-soft-purple-toolbar-small-br,
+.x-keyboard-mode .x-btn-focus.x-btn-pressed .x-btn-soft-purple-toolbar-small-tc,
+.x-keyboard-mode .x-btn-focus.x-btn-pressed .x-btn-soft-purple-toolbar-small-bc {
+    background-image: url(images/btn/btn-soft-purple-toolbar-small-focus-pressed-corners.gif);
+}
 /* C:/Users/Administrator/git/Knorragency/admin-dashboard/ext/classic/theme-neutral/sass/var/button/Button.scss:3077 */
 .x-keyboard-mode .x-btn-focus.x-btn-menu-active .x-btn-soft-purple-toolbar-small-ml,
 .x-keyboard-mode .x-btn-focus.x-btn-menu-active .x-btn-soft-purple-toolbar-small-mr,
@@ -4312,6 +4327,10 @@
     color: white;
     font-size: 15px;
 }
+/* C:/Users/Administrator/git/Knorragency/admin-dashboard/classic/src/view/main/Main.scss:312 */
+.weather dt .city {
+    color: white;
+}
 /* C:/Users/Administrator/git/Knorragency/admin-dashboard/classic/src/Application.scss:39 */
 .x-menu-header {
     z-index: 0 !important;
@@ -4435,11 +4454,15 @@
 }
 /* C:/Users/Administrator/git/Knorragency/admin-dashboard/classic/src/view/attence/LookAppealWindow.scss:1 */
 .lookqppeal .x-form-trigger-wrap {
-    border: none;
+    border-left-width: 0px;
+    border-top-width: 0px;
+    border-right-width: 0px;
 }
 /* C:/Users/Administrator/git/Knorragency/admin-dashboard/classic/src/view/attence/LookLeaveWindow.scss:1 */
 .lookLeave .x-form-trigger-wrap {
-    border: none;
+    border-left-width: 0px;
+    border-top-width: 0px;
+    border-right-width: 0px;
 }
 /* C:/Users/Administrator/git/Knorragency/admin-dashboard/classic/src/view/attenceapprove/AttenceApprovePanel.scss:1 */
 .process-definition-grid {
@@ -4739,7 +4762,9 @@
 }
 /* C:/Users/Administrator/git/Knorragency/admin-dashboard/classic/src/view/contract/LookContractWindow.scss:1 */
 .lookcontract .x-form-trigger-wrap {
-    border: none;
+    border-left-width: 0px;
+    border-top-width: 0px;
+    border-right-width: 0px;
 }
 /* C:/Users/Administrator/git/Knorragency/admin-dashboard/classic/src/view/contractapprove/ContractApprovePanel.scss:1 */
 .process-definition-grid {
@@ -4804,7 +4829,9 @@
 }
 /* C:/Users/Administrator/git/Knorragency/admin-dashboard/classic/src/view/contractapprove/task/DeptLeaderAudit.scss:1 */
 .dep .x-form-trigger-wrap {
-    border: none;
+    border-left-width: 0px;
+    border-top-width: 0px;
+    border-right-width: 0px;
 }
 /* C:/Users/Administrator/git/Knorragency/admin-dashboard/classic/src/view/dashboard/Dashboard.scss:2 */
 .dashboard-main-chart .x-panel-body-default {

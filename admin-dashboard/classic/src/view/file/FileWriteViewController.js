@@ -80,7 +80,7 @@ Ext.define('Admin.view.file.FileWriteViewController', {
               Ext.getCmp('write_attachmentUpload').show();
               me.redirectTo('fileSendPanel', true);
          });
-        // var store=Ext.data.StoreManager.lookup('sendGridStroe').reload();
+        Ext.data.StoreManager.lookup('sendGridStroe').reload();
     },
     /*保存*/
     onEditFormButton:function(btn){
@@ -103,6 +103,7 @@ Ext.define('Admin.view.file.FileWriteViewController', {
             Ext.getCmp('write_attachmentUpload').show();
             me.redirectTo('fileEditPanel', true);
         });
+        Ext.data.StoreManager.lookup('editGridStroe').reload();
     },
     /*清空*/
     onDeleteFormButton:function(btn){

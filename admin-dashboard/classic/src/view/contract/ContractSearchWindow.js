@@ -67,12 +67,22 @@ Ext.define('Admin.view.contract.ContractSearchWindow', {
                     boxLabel: '合同类型',
                     reference: 'isContractType'
                 },{
-                    xtype: 'textfield',
-                    cls:'searchinput',
+                    xtype: 'combobox',
+                    name: 'contractType',
                     fieldLabel: '合同类型',
-                    name:'contractType',
-                    emptyText:'请输入合同类型',
-                    anchor: '0',
+                    cls:'searchinput',
+                    //vtype: 'email',
+                    store: Ext.create('Ext.data.Store', {
+                        fields: ['contractType'],
+                        data : [
+                            {"contractType":"出租合同"},
+                            {"contractType":"出售合同"}
+                        ]
+                    }),
+                    queryMode: 'local',
+                    displayField: 'contractType',
+                    valueField: 'contractType',
+                    emptyText:'--------请选择合同类型---------',
                     bind: {
                         disabled: '{!isContractType.checked}'
                     }

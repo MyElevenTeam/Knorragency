@@ -5,19 +5,23 @@ import org.activiti.engine.delegate.DelegateTask;
 import org.activiti.engine.delegate.TaskListener;
 import org.activiti.engine.runtime.ProcessInstance;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.example.demo.activiti.entity.ProcessStatus;
 import com.example.demo.attence.entity.Attence;
 import com.example.demo.attence.entity.AttenceStatus;
 import com.example.demo.attence.service.IAttenceService;
 
-public class AppealProcessorEndListener implements TaskListener{
-	
+@Component
+@Transactional
+public class ComfirEndProcessor implements TaskListener 
+{
 	private static final long serialVersionUID = -8360605214753688651L;
 
 	@Autowired
     private IAttenceService attenceService;
-
+	
     @Autowired
     private RuntimeService runtimeService;
     
@@ -30,5 +34,6 @@ public class AppealProcessorEndListener implements TaskListener{
         attence.setProcessStatus(ProcessStatus.COMPLETE);
         attence.setAttenceStatus(AttenceStatus.NORMAL);
         attenceService.save(attence);
+       
     }
 }

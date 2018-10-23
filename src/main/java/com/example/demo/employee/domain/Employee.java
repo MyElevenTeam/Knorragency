@@ -70,7 +70,7 @@ public class Employee implements Serializable{
 		this.localStore = localStore;
 	}
 	
-	@Column(nullable=false,unique=true)
+	//@Column(nullable=false,unique=true)
 	public String getEmail() {
 		return email;
 	}

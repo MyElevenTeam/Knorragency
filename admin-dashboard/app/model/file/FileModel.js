@@ -11,6 +11,7 @@ requires: [
 		{type: 'string',name: 'emailContent'},
 		{type: 'string',name: 'emailAttachment'},
 		{type: 'date', name: 'sendTime', dateFormat:'Y/m/d H:i:s'},
+		{type: 'date', name: 'sendDay', dateFormat:'Y/m/d H:i:s'},
 		{type: 'string',name: 'emailStatus'},
 		{type:'string',name:'readStatus'},
 		{type:'string',name:'inboxStatus'},

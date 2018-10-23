@@ -12,6 +12,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import org.activiti.engine.RuntimeService;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.usermodel.XSSFCellStyle;
@@ -56,11 +57,17 @@ public class AttenceController {
 	@Autowired
 	private IEmployeeService employeeService;
 	
+	@Autowired
+	private RuntimeService runtimeService;
+	
 	@SystemControllerLog(description="查看所有的考勤记录")
 	@RequestMapping("/getAllAttence")
 	//查看所有的考勤记录
-	public Page<AttenceDTO> getAllAttence(ExtjsPageRequest pageRequest) {
-		return attenceService.findAll(null,pageRequest.getPageable());
+	public Page<AttenceDTO> getAllAttence(HttpSession session,AttenceQueryDTO attenceQueryDTO,ExtjsPageRequest pageRequest) {
+		String userId = SessionUtil.getUserName(session);  //通过session查找userId
+		Employee employee=employeeService.EmployeeNumber(userId);
+		attenceQueryDTO.setStoreName(employee.getLocalStore().getStoreName());
+		return attenceService.findAll(AttenceQueryDTO.getWhereClause(attenceQueryDTO),pageRequest.getPageable());
 	}
 	
 	/*----------------------------------------------考勤业务--------------------------------------------*/
@@ -72,7 +79,8 @@ public class AttenceController {
 		Page<AttenceDTO> page;
 		String userId = SessionUtil.getUserName(session);  //通过session查找userId
 		if(userId!=null) {
-			attenceQueryDTO.setEmployeeName(userId);
+			Employee employee=employeeService.EmployeeNumber(userId);
+			attenceQueryDTO.setEmployeeName(employee.getEmployeeName());
 			page=attenceService.findAll(AttenceQueryDTO.getWhereClause(attenceQueryDTO), pageRequest.getPageable());
 		}else {
 			page = new PageImpl<AttenceDTO>(new ArrayList<AttenceDTO>(),pageRequest.getPageable(),0);
@@ -431,7 +439,7 @@ public class AttenceController {
     public @ResponseBody ExtAjaxResponse start(@RequestParam(name="id") Long appealId,@RequestParam(name="appealreason") String appealreason,HttpSession session) {
     	try {
     		String userId = SessionUtil.getUserName(session);
-    		Employee employee=employeeService.EmployeeName(userId);
+    		//Employee employee=employeeService.EmployeeName(userId);
     		Attence attence=attenceService.findById(appealId).get();
     		if(attence!=null) {
     			attence.setAppealreason(appealreason);
@@ -439,10 +447,9 @@ public class AttenceController {
     		}
     		
     		Map<String, Object> variables = new HashMap<String, Object>();
-    		variables.put("deptLeader", "financeManager");
-    		variables.put("hr", "hrManager");
+    		variables.put("deptLeader", "storeManager");
+    		variables.put("hr", "hr");
     		variables.put("applyUserId", userId);
-    		variables.put("to",employee.getEmail());
     		attenceService.startWorkflow(userId,appealId, variables);
     		return new ExtAjaxResponse(true,"操作成功!");
 	    } catch (Exception e) {
@@ -451,6 +458,26 @@ public class AttenceController {
 	    }
     }
 	
+	/**
+	 * 取消流程
+	 * @param leaveId	请假信息Id
+	 * @param session	通过会话获取登录用户(请假人)
+	 * @return
+	 */
+	@SystemControllerLog(description="取消合同审批流程")
+	@RequestMapping(value = "/cancel")
+    public @ResponseBody ExtAjaxResponse cancel(@RequestParam(name="id") Long id,HttpSession session) {
+    	try {
+    		Attence attence=attenceService.findById(id).get();
+    		String processInstanceId=attence.getProcessInstanceId();
+    		attence.setProcessStatus(ProcessStatus.CANCEL);
+    		runtimeService.deleteProcessInstance(processInstanceId,"删除原因");
+    		return new ExtAjaxResponse(true,"操作成功!");
+	    } catch (Exception e) {
+	    	e.printStackTrace();
+	        return new ExtAjaxResponse(false,"操作失败!");
+	    }
+    }
 	/**
 	 * 查询待处理流程任务
 	 * @param pageable	分页对象

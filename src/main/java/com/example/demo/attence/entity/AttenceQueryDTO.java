@@ -20,6 +20,8 @@ public class AttenceQueryDTO {
 	
 	private String location;
 	
+	private String storeName;
+	
 	@DateTimeFormat(pattern="yyyy/MM/dd HH:mm:ss") 
 	private Date workinTime;
 	
@@ -40,6 +42,14 @@ public class AttenceQueryDTO {
 
 	public void setLocation(String location) {
 		this.location = location;
+	}
+	
+	public String getStoreName() {
+		return storeName;
+	}
+
+	public void setStoreName(String storeName) {
+		this.storeName = storeName;
 	}
 
 	public Date getWorkinTime() {
@@ -69,6 +79,10 @@ public class AttenceQueryDTO {
 				if(StringUtils.isNoneBlank(attenceQueryDTO.getEmployeeName())) {
 					predicate.add(criteriaBuilder.like(root.get("employee").get("employeeName").as(String.class),
 							"%" + attenceQueryDTO.getEmployeeName() + "%"));
+				}
+				if(StringUtils.isNoneBlank(attenceQueryDTO.getStoreName())) {
+					predicate.add(criteriaBuilder.like(root.get("employee").get("localStore").get("storeName").as(String.class),
+							"%" + attenceQueryDTO.getStoreName() + "%"));
 				}
 				if(StringUtils.isNoneBlank(attenceQueryDTO.getLocation())) {
 					predicate.add(criteriaBuilder.like(root.get("location").as(String.class),

@@ -65,7 +65,7 @@ Ext.define('Admin.view.attenceapprove.task.AppealHrAudit', {
         anchor: '100%'
     },{
         xtype: 'textareafield',
-        name: 'depreason',
+        name: 'deptLeaderBackReason',
         fieldLabel: '部门经理审批意见',
         readOnly: true
     },{

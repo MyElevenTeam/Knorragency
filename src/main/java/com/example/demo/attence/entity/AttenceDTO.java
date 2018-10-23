@@ -51,9 +51,9 @@ public class AttenceDTO {
     
     private int version;
     
-    private String depreason;
+    private String deptLeaderBackReason;
     
-    private String hrreason;
+    private String hrBackReason;
 
 	public Long getId() {
 		return id;
@@ -134,13 +134,13 @@ public class AttenceDTO {
 	public int getVersion() {
 		return version;
 	}
-
-	public String getDepreason() {
-		return depreason;
+	
+	public String getDeptLeaderBackReason() {
+		return deptLeaderBackReason;
 	}
 
-	public String getHrreason() {
-		return hrreason;
+	public String getHrBackReason() {
+		return hrBackReason;
 	}
 
 	public void setId(Long id) {
@@ -219,12 +219,12 @@ public class AttenceDTO {
 		this.version = version;
 	}
 
-	public void setDepreason(String depreason) {
-		this.depreason = depreason;
+	public void setDeptLeaderBackReason(String deptLeaderBackReason) {
+		this.deptLeaderBackReason = deptLeaderBackReason;
 	}
 
-	public void setHrreason(String hrreason) {
-		this.hrreason = hrreason;
+	public void setHrBackReason(String hrBackReason) {
+		this.hrBackReason = hrBackReason;
 	}
-    
+	
 }

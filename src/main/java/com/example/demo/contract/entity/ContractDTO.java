@@ -21,13 +21,15 @@ public class ContractDTO {
 	
 	private String customerName;       //客户姓名
 	
-	private String hoseName;          //房源名称
+	private String houseName;          //房源名称
 	
 	private String employeeName;      //房产经纪人姓名
 	
 	private Date startTime;          //签约时间
 	
 	private Date endTime;             //失效时间
+	
+	private Date day;
 	
 	private String contractType;     //合同类型
 	
@@ -87,8 +89,8 @@ public class ContractDTO {
 		return customerName;
 	}
 
-	public String getHoseName() {
-		return hoseName;
+	public String getHouseName() {
+		return houseName;
 	}
 
 	public String getEmployeeName() {
@@ -103,6 +105,11 @@ public class ContractDTO {
 	@JsonFormat(pattern="yyyy/MM/dd HH:mm:ss",timezone="GMT+8")
 	public Date getEndTime() {
 		return endTime;
+	}
+	
+	@JsonFormat(pattern="yyyy/MM/dd HH:mm:ss",timezone="GMT+8")
+	public Date getDay() {
+		return day;
 	}
 
 	public String getContractType() {
@@ -186,8 +193,8 @@ public class ContractDTO {
 		this.customerName = customerName;
 	}
 
-	public void setHoseName(String hoseName) {
-		this.hoseName = hoseName;
+	public void setHouseName(String houseName) {
+		this.houseName = houseName;
 	}
 
 	public void setEmployeeName(String employeeName) {
@@ -200,6 +207,11 @@ public class ContractDTO {
 
 	public void setEndTime(Date endTime) {
 		this.endTime = endTime;
+	}
+	
+	
+	public void setDay(Date day) {
+		this.day = day;
 	}
 
 	public void setContractType(String contractType) {

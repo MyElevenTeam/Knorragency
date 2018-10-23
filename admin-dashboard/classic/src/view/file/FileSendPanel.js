@@ -6,7 +6,8 @@ Ext.define('Admin.view.file.FileSendPanel', {
         'Ext.grid.Panel',
         'Ext.toolbar.Paging',
         'Ext.form.field.ComboBox',
-        'Ext.grid.column.Date'
+        'Ext.grid.column.Date',
+        'Ext.grid.filters.Filters'
     ],
 
     controller: 'fileSendViewController',               //viewController:代码与视图分离。声明视图绑定的事件，可以多个视图共享。
@@ -52,9 +53,25 @@ Ext.define('Admin.view.file.FileSendPanel', {
                     this.up('panel').down('#file_sendPanelRemove').setDisabled(selections.length === 0);
                 }
             },
+            features: [{
+                ftype: 'grouping',
+                // enableGroupingMenu: true,
+                startCollapsed: true,
+                groupHeaderTpl: '{name}'+'  (共发送{rows.length}条)',
+            }],
+            plugins: {
+                gridfilters: true
+            },
             columns: [
                 {xtype: 'gridcolumn',width: 40,dataIndex: 'id',text: 'id',hidden:true},
-                {xtype: 'gridcolumn', cls: 'content-column',width:150,dataIndex: 'emailTo',text: '发件人'},
+                {xtype: 'gridcolumn', cls: 'content-column',width:150,dataIndex: 'emailTo',text: '发件人',
+                    filter: {
+                        type: 'string',
+                        itemDefaults: {
+                            emptyText: '请输入收件人姓名...'
+                        }
+                    }
+                },
                 {xtype: 'gridcolumn', cls: 'content-column',width:180,dataIndex: 'emailSubject',text: '主题'},
                 {xtype: 'gridcolumn', cls: 'content-column',width:180,dataIndex: 'emailContent',flex: 1,text: '内容'},
                 {xtype: 'gridcolumn', cls: 'content-column',width:80,dataIndex: 'emailAttachment',text: '<span class="x-fa fa-paperclip"></span>',
@@ -62,7 +79,10 @@ Ext.define('Admin.view.file.FileSendPanel', {
                         return value ? '<span class="x-fa fa-paperclip"></span>' : '';
                     }
                 },
-                {xtype: 'datecolumn',cls: 'content-column',width: 200,dataIndex: 'sendTime',text: '发送时间',formatter: 'date("Y/m/d H:i:s")'},
+                {xtype: 'datecolumn',cls: 'content-column',width: 200,dataIndex: 'sendTime',text: '发送时间',formatter: 'date("Y/m/d H:i:s")',
+                    filter: true
+                },
+                {xtype: 'datecolumn',cls: 'content-column',width: 180,dataIndex: 'sendDay',text: '时间',hidden:true,flex:1,formatter: 'date("Y/m/d")'},
                 {xtype: 'gridcolumn', cls: 'content-column',width:150,dataIndex: 'emailStatus',text: 'emailStatus',hidden:true},
                 {xtype: 'gridcolumn', cls: 'content-column',width:150,dataIndex: 'readStatus',text: 'readStatus',hidden:true},
                 {xtype: 'gridcolumn', cls: 'content-column',width:150,dataIndex: 'inboxStatus',text: 'inboxStatus',hidden:true},

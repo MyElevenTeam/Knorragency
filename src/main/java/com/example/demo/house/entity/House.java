@@ -61,4 +61,70 @@ public class House {
      * 私有
      */
     private boolean own;
+
+    private long userId;
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getHouseName() {
+        return houseName;
+    }
+
+    public void setHouseName(String houseName) {
+        this.houseName = houseName;
+    }
+
+    public String getHouseType() {
+        return houseType;
+    }
+
+    public void setHouseType(String houseType) {
+        this.houseType = houseType;
+    }
+
+    public double getHousePrice() {
+        return housePrice;
+    }
+
+    public void setHousePrice(double housePrice) {
+        this.housePrice = housePrice;
+    }
+
+    public double getHouseProportion() {
+        return houseProportion;
+    }
+
+    public void setHouseProportion(double houseProportion) {
+        this.houseProportion = houseProportion;
+    }
+
+    public String getHousePosition() {
+        return housePosition;
+    }
+
+    public void setHousePosition(String housePosition) {
+        this.housePosition = housePosition;
+    }
+
+    public boolean isOwn() {
+        return own;
+    }
+
+    public void setOwn(boolean own) {
+        this.own = own;
+    }
+
+    public long getUserId() {
+        return userId;
+    }
+
+    public void setUserId(long userId) {
+        this.userId = userId;
+    }
 }

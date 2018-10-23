@@ -32,7 +32,7 @@ Ext.define('Admin.view.main.Main', {
                     xtype: 'component',
                     reference: 'senchaLogo',
                     cls: 'sencha-logo',
-                    html: '<div class="main-logo"><img src="resources/images/company-logo.png">Knorr Agency</div>',
+                    html: '<div class="main-logo" style="font-size:16px;font-weight:bold;font-family:微软雅黑;position:absolute;top:-10%;"><img style="width:60px;height:50px;"src="resources/images/k.png">家乐房产中介</div>',
                     width: 250
                 },
                 {
@@ -41,6 +41,11 @@ Ext.define('Admin.view.main.Main', {
                     iconCls:'x-fa fa-navicon',
                     id: 'main-navigation-btn',
                     handler: 'onToggleNavigationSize'
+                },
+                {
+                    xtype: 'component',
+                    cls:'weather',
+                    html: "<div><iframe allowtransparency='true' frameborder='0' width='385' height='70' scrolling='no' src='http://tianqi.2345.com/plugin/widget/index.htm?s=1&z=1&t=0&v=0&d=3&bd=0&k=&f=&q=1&e=1&a=1&c=54511&w=385&h=96&align=center'></iframe></div>"
                 },
                 '->',
                 {

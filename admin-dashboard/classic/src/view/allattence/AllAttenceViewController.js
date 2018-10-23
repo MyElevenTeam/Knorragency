@@ -22,6 +22,12 @@ Ext.define('Admin.view.allattence.AllAttenceViewController', {
       store.load({params:{start:0, limit:20, page:1}});
       win.close();
     },
+    /*刷新*/
+    refresh:function(btn){
+        var store = Ext.data.StoreManager.lookup('allAttenceGridStroe');
+        Ext.apply(store.proxy.extraParams, {employeeName:"",storeName:"",timeStart:"",timeEnd:""});
+        store.load({params:{start:0, limit:20, page:1}});
+    },
 
     /*打开下载选择窗口*/
     openSelectWindow:function(btn){

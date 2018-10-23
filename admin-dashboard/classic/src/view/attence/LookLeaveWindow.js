@@ -36,37 +36,28 @@ Ext.define('Admin.view.attence.LookLeaveWindow', {
                 name: 'userId',
                 cls:'lookLeave',
                 fieldLabel: '申请人',
-                hidden: true,
+                //hidden: true,
                 readOnly: true
             },{
-                xtype: 'combobox',
-                name: 'leaveType',
+                xtype: 'textfield',
                 cls:'lookLeave',
+                name: 'leaveType',
                 fieldLabel: '请假类型',
-                store: Ext.create('Ext.data.Store', {
-                    fields: ['value', 'name'],
-                    data : [
-                        {"value":"A", "name":"带薪假期"},
-                        {"value":"B", "name":"无薪假期"},
-                        {"value":"C", "name":"病假"}
-                    ]
-                }),
-                queryMode: 'local',
-                displayField: 'name',
-                valueField: 'value',
-                allowBlank: false
+                readOnly: true
             },{
                 xtype: 'datefield',
                 fieldLabel: '请假开始时间',
                 cls:'lookLeave',
                 format: 'Y/m/d H:i:s', 
-                name: 'startTime'
+                name: 'startTime',
+                readOnly: true
             },{
                 xtype: 'datefield',
                 fieldLabel: '请假结束时间',
                 cls:'lookLeave',
                 format: 'Y/m/d H:i:s', 
-                name: 'endTime'
+                name: 'endTime',
+                readOnly: true
             },{
                 xtype : 'textareafield',
                 grow: true,

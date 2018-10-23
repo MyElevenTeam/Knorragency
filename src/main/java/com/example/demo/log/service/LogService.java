@@ -69,4 +69,22 @@ public class LogService implements ILogService {
 		return new PageImpl<LogDTO>(dtoLists, pageable, list.getTotalElements());
 	}
 
+	@Override
+	public List<LogDTO> findAllLog(Specification<Log> spec) {
+		List<LogDTO> dtoLists = new ArrayList<LogDTO>();
+		List<Log> logs=logRepository.findAll(spec);
+		for(Log entity:logs) {
+			LogDTO dto = new LogDTO();
+			BeanUtils.copyProperties(entity, dto);
+			if(entity.getEmployee()!=null) {
+				dto.setEmployeeName(entity.getEmployee().getEmployeeName());
+				if(entity.getEmployee().getLocalStore()!=null) {
+					dto.setStoreName(entity.getEmployee().getLocalStore().getStoreName());
+				}
+			}
+			dtoLists.add(dto);
+		}
+		return dtoLists;
+	}
+
 }

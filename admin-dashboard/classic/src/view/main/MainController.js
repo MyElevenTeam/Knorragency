@@ -186,6 +186,7 @@ Ext.define('Admin.view.main.MainController', {
                     Ext.getCmp('work').hide();
                     Ext.getCmp('out').show();
                     Ext.data.StoreManager.lookup('attenceGridStroe').reload();
+                    Ext.data.StoreManager.lookup('allAttenceGridStroe').reload();
                 }else{
                     Ext.Msg.alert('提示', json.msg);
                     Ext.data.StoreManager.lookup('attenceGridStroe').reload();
@@ -207,6 +208,7 @@ Ext.define('Admin.view.main.MainController', {
                     Ext.getCmp('work').show();
                     Ext.getCmp('out').hide();
                     Ext.data.StoreManager.lookup('attenceGridStroe').reload();
+                    Ext.data.StoreManager.lookup('allAttenceGridStroe').reload();
                 }else{
                     Ext.Msg.alert('提示', json.msg);
                     Ext.data.StoreManager.lookup('attenceGridStroe').reload();

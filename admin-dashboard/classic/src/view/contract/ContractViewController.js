@@ -15,13 +15,13 @@ Ext.define('Admin.view.contract.ContractViewController', {
             var record = Ext.create('Admin.model.contract.ContractModel');
             var values  =form.getValues();//获取form数据
             if(Ext.getCmp('contractType').getRawValue()=='--------请选择合同类型---------'){
-                Ext.Msg.alert('提示', '请选择合同类型');
+              Ext.Msg.alert('提示', '请选择合同类型');
             }else{
-                values.contractType=Ext.getCmp('contractType').getRawValue();
-                record.set(values);
-                record.save();
-                Ext.data.StoreManager.lookup('contractGridStroe').reload();
-                win.close();
+              values.contractType=Ext.getCmp('contractType').getRawValue();
+              record.set(values);
+              record.save();
+              Ext.data.StoreManager.lookup('contractGridStroe').reload();
+              win.close();
             }
         }else{
           Ext.Msg.alert('提示', '请填写正确的合同格式');
@@ -74,10 +74,7 @@ Ext.define('Admin.view.contract.ContractViewController', {
     if(record.data.processStatus=="NEW"){
       Ext.MessageBox.confirm('提示', '确定要进行删除操作吗？数据将无法还原！',function(btn, text){
         if(btn=='yes'){
-            var ids={
-                  "userId":parseInt(video_userId),
-                  "idGroup":selectIds
-            }
+           store.remove(record);
         }
       }, this);
     }else{
@@ -147,6 +144,14 @@ Ext.define('Admin.view.contract.ContractViewController', {
       store.load({params:{start:0, limit:20, page:1}});
       win.close();
   },
+  /*刷新*/
+  refresh:function(btn){
+      var store = Ext.data.StoreManager.lookup('contractGridStroe');
+      Ext.apply(store.proxy.extraParams, {contractNumber:"",customerName:"",contractType:"",houseName:"",timeStart:"",timeEnd:""});
+      
+      store.load({params:{start:0, limit:20, page:1}});
+      //store.reload();
+  },
 
   /*************************************************合同审核******************************************************/
    /*Star Leave Process*/ 
@@ -173,7 +178,24 @@ Ext.define('Admin.view.contract.ContractViewController', {
 
   /*Cancel Leave Process*/  
   cancelLeaveProcess:function(grid, rowIndex, colIndex){
-    Ext.Msg.alert("Title","Cancel Leave Process");
+     var record = grid.getStore().getAt(rowIndex);
+     Ext.Ajax.request({ 
+      url : '/contract/cancel', 
+      method : 'post', 
+      params : {
+        id :record.get("id")
+      }, 
+      success: function(response, options) {
+        var json = Ext.util.JSON.decode(response.responseText);
+        if(json.success){
+          Ext.Msg.alert('操作成功', json.msg, function() {
+          grid.getStore().reload();
+        });
+        }else{
+          Ext.Msg.alert('操作失败', json.msg);
+        }
+      }
+    });
   },
   /*查看审批结果*/
   LookContract:function(grid,rowIndex, colIndex){

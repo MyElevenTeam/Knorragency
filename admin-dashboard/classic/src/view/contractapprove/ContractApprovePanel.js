@@ -14,6 +14,7 @@ Ext.define('Admin.view.contractapprove.ContractApprovePanel', {
     {
         title: '合同审核',
         xtype: 'gridpanel',
+        id:'contractGridpanel',
         cls: 'process-definition-grid',
         layout:'fit',
         bind: '{contractApproveLists}',

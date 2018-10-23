@@ -16,7 +16,7 @@ Ext.define('Admin.view.contract.ContractPanel', {
     items: [
         {
             xtype: 'gridpanel',
-            id:'contactGridpanel',
+            reference:'contactGridpanel',
             title:'合同信息表',
             plugins: {
 		        /*rowexpander: {
@@ -48,7 +48,7 @@ Ext.define('Admin.view.contract.ContractPanel', {
             },
             features: [{
                 ftype: 'groupingsummary',
-                groupHeaderTpl: '{name}'+'销售情况'+'  ({rows.length}条记录{[values.rows.length > 1 ? "..." : ""]})',
+                groupHeaderTpl: '{name}'+'月份销售情况'+'  ({rows.length}条记录{[values.rows.length > 1 ? "..." : ""]})',
                 hideGroupedHeader: false,
                 startCollapsed: true,
                 // enableGroupingMenu: true
@@ -67,7 +67,7 @@ Ext.define('Admin.view.contract.ContractPanel', {
                             return '<span style="color:blue;">审批中...</span>';
                         } else if (val =='COMPLETE') {
                             return '<span style="color:orange;">完成审批</span>';
-                        }else{
+                        }else if(val =='CANCEL'){
                             return '<span style="color:red;">取消申请</span>';
                         }
                         return val;
@@ -84,7 +84,7 @@ Ext.define('Admin.view.contract.ContractPanel', {
 			            allowBlank: false
 			        }
             	},
-                {xtype: 'gridcolumn', cls: 'content-column',width:100,dataIndex: 'hoseName',text: '房源名称',
+                {xtype: 'gridcolumn', cls: 'content-column',width:100,dataIndex: 'houseName',text: '房源名称',
                     editor: {
                         xtype: 'textfield',
                         allowBlank: false
@@ -106,6 +106,7 @@ Ext.define('Admin.view.contract.ContractPanel', {
                         blankText:'请选择开始时间'
                     }
                 },
+                 {xtype: 'datecolumn',cls: 'content-column',width: 180,dataIndex: 'day',text: '月份',hidden:true,flex:1,formatter: 'date("m")'},
                 {xtype: 'datecolumn',cls: 'content-column',width: 180,dataIndex: 'endTime',text: '失效时间',flex:1,formatter: 'date("Y/m/d H:i:s")',
                     editor: {
                         xtype: 'datefield',
@@ -149,17 +150,19 @@ Ext.define('Admin.view.contract.ContractPanel', {
                         {
                             xtype: 'button',iconCls: 'x-fa fa-star',tooltip: '发起审核',
                             getClass: function(v, meta, rec) {
-                                if (rec.get('processInstanceId')!="") {
+                                if (rec.get('processStatus')=='NEW'||rec.get('processStatus')=='CANCEL') {
+                                    return 'x-fa fa-star';
+                                }else{
                                     return 'x-hidden';
                                 }
-                                return 'x-fa fa-star';
+                                
                             },
                             handler: 'starLeaveProcess'
                         },
                         {
                             xtype: 'button',iconCls: 'x-fa fa-ban',tooltip: '取消审核',
                             getClass: function(v, meta, rec) {
-                                if (rec.get('processInstanceId')==""||rec.get('processStatus')=='COMPLETE') {
+                                if (rec.get('processInstanceId')==""||rec.get('processStatus')=='COMPLETE'||rec.get('processStatus')=='CANCEL') {
                                     return 'x-hidden';
                                 }else{
                                     return 'x-fa fa-ban';
@@ -186,7 +189,12 @@ Ext.define('Admin.view.contract.ContractPanel', {
                         ui: 'header',
                         tooltip: '查找',
                         handler:'searchOpen'   
-                    },'-'
+                    },'-',{
+                        iconCls:'fa fa-refresh fa-5x',
+                        ui: 'header',
+                        tooltip: '刷新',
+                        handler:'refresh'   
+                    }
                     ,'->',{
                         xtype: 'button',
                         text:'添加合同信息',
