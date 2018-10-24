@@ -50,8 +50,7 @@ public class LogConfig {
 	
 	private static final ThreadLocal<Log> logThreadLocal = new NamedThreadLocal<Log>("ThreadLocal log");
 	
-	@Pointcut("execution(* com.example.demo.*.controller.*.*(..)) and !execution(* com.example.demo.log.controller.*.*(..))"+
-	"and !execution(* com.example.demo.house.repository.*.*(..)) and !execution(* com.example.demo.customer.repository.*.*(..))")
+	@Pointcut("execution(* com.example.demo.*.controller.*.*(..)) && !execution(* com.example.demo.log.controller.*.*(..))")
 	public void excudeService(){}
 		
 	/**
@@ -148,12 +147,13 @@ public class LogConfig {
     }
 
     public static String getControllerMethodDescription(JoinPoint joinPoint) {
-        MethodSignature signature = (MethodSignature) joinPoint.getSignature();
+    	MethodSignature signature = (MethodSignature) joinPoint.getSignature();
         Method method = signature.getMethod();
         SystemControllerLog controllerLog = method
                 .getAnnotation(SystemControllerLog.class);
         String discription = controllerLog.description();
         return discription;
+        
     }
 
 }
