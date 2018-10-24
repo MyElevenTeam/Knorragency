@@ -195,6 +195,29 @@ Ext.define('Admin.store.NavigationTree', {
                 viewType: 'processDefinition',
                 leaf: true
             },{
+               text: '行政管理',
+               iconCls:'x-fa  fa-ravelry',
+               selectable: false,
+               expanded: false,
+               children: [,{
+                    text: '门店管理',
+                    iconCls: 'x-fa fa-university',
+                    //rowCls: 'nav-tree-badge nav-tree-badge-new',
+                    viewType: 'stores',
+                    leaf: true
+                },{
+                    text: '员工管理',
+                    iconCls: 'x-fa fa-users',
+                    //rowCls: 'nav-tree-badge nav-tree-badge-new',
+                    viewType: 'employee',
+                    leaf: true
+                }]
+            },{
+                text: '个人信息管理',
+                iconCls: 'x-fa fa-user',
+                viewType: 'person',
+                leaf: true
+            },{
                 text: 'Login',
                 iconCls: 'x-fa fa-check',
                 viewType: 'login',

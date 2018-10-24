@@ -24,6 +24,7 @@ Ext.define('Admin.view.authentication.AuthenticationController', {
 	            if(json.success){
                     me.redirectTo('dashboard', true);
                     Ext.getCmp('loginUserName').setText('Hi,'+json.map.userName);
+                    Ext.getCmp('loginUserImage').getEl().dom.src = 'resources/images/user-profile/'+json.map.picture;
                     //通过全局变量传递用户id
                     video_userId=json.map.userId;
 		        }else{
