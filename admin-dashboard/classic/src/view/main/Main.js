@@ -41,16 +41,8 @@ Ext.define('Admin.view.main.Main', {
                     iconCls:'x-fa fa-navicon',
                     id: 'main-navigation-btn',
                     handler: 'onToggleNavigationSize'
-<<<<<<< HEAD
                 }, 
-=======
-                },
-                // {
-                //     xtype: 'component',
-                //     cls:'weather',
-                //     html: "<div><iframe allowtransparency='true' frameborder='0' width='385' height='70' scrolling='no' src='http://tianqi.2345.com/plugin/widget/index.htm?s=1&z=1&t=0&v=0&d=3&bd=0&k=&f=&q=1&e=1&a=1&c=54511&w=385&h=96&align=center'></iframe></div>"
-                // },
->>>>>>> branch 'master' of https://github.com/MyElevenTeam/Knorragency.git
+
                 '->',
                 {
                     /*x-fa fa-envelope fa-5x*/
