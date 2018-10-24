@@ -3,14 +3,14 @@
   <process id="appeal" name="申诉流程" isExecutable="true">
     <documentation>申诉流程演示</documentation>
     <startEvent id="startevent1" name="Start" activiti:initiator="applyUserId"></startEvent>
-    <userTask id="deptLeaderAudit" name="部门领导审批" activiti:candidateGroups="${deptLeader}"></userTask>
+    <userTask id="deptLeaderAudit" name="部门领导审批" activiti:assignee="${deptLeader}"></userTask>
     <exclusiveGateway id="exclusivegateway5" name="Exclusive Gateway"></exclusiveGateway>
     <userTask id="modifyApply" name="调整申请" activiti:assignee="${applyUserId}">
       <extensionElements>
         <activiti:taskListener event="complete" delegateExpression="${afterModifyApplyContentProcessor}"></activiti:taskListener>
       </extensionElements>
     </userTask>
-    <userTask id="hrmanagerAudit" name="人事审批" activiti:candidateGroups="${hr}"></userTask>
+    <userTask id="hrmanagerAudit" name="人事审批" activiti:assignee="${hr}"></userTask>
     <exclusiveGateway id="exclusivegateway6" name="Exclusive Gateway"></exclusiveGateway>
     <endEvent id="endevent1" name="End"></endEvent>
     <exclusiveGateway id="exclusivegateway7" name="Exclusive Gateway"></exclusiveGateway>

@@ -41,8 +41,7 @@ Ext.define('Admin.view.main.Main', {
                     iconCls:'x-fa fa-navicon',
                     id: 'main-navigation-btn',
                     handler: 'onToggleNavigationSize'
-                }, 
-
+                },
                 '->',
                 {
                     /*x-fa fa-envelope fa-5x*/

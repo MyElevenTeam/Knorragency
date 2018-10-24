@@ -89,7 +89,7 @@ Ext.define('Admin.view.leaveapprove.task.DeptLeaderAudit', {
         readOnly: true
     },{
 		xtype: 'radiogroup',
-		fieldLabel: '店长审批',
+		fieldLabel: '财务经理审批',
 		defaults: {
 			flex: 1
 		},

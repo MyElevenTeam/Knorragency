@@ -3,8 +3,8 @@
   <process id="contract" name="合同流程" isExecutable="true">
     <documentation>合同演示流程</documentation>
     <startEvent id="startevent1" name="Start"></startEvent>
-    <userTask id="deptLeaderAudit" name="店长审批" activiti:candidateGroups="${deptLeader}"></userTask>
-    <userTask id="managerAudit" name="经理审批" activiti:candidateGroups="${manLeader}"></userTask>
+    <userTask id="deptLeaderAudit" name="财务经理审批" activiti:assignee="${deptLeader}"></userTask>
+    <userTask id="managerAudit" name="经理审批" activiti:assignee="${manLeader}"></userTask>
     <endEvent id="endevent1" name="End"></endEvent>
     <exclusiveGateway id="exclusivegateway1" name="Exclusive Gateway"></exclusiveGateway>
     <sequenceFlow id="flow1" sourceRef="deptLeaderAudit" targetRef="exclusivegateway1"></sequenceFlow>
@@ -35,34 +35,9 @@
       </extensionElements>
     </userTask>
     <sequenceFlow id="flow12" sourceRef="confirm" targetRef="endevent1"></sequenceFlow>
-    <serviceTask id="mail" name="审核通过通知" activiti:type="mail">
-      <extensionElements>
-        <activiti:field name="to">
-          <activiti:expression><![CDATA[${to}]]></activiti:expression>
-        </activiti:field>
-        <activiti:field name="from">
-          <activiti:string><![CDATA[lig727124726@163.com]]></activiti:string>
-        </activiti:field>
-        <activiti:field name="subject">
-          <activiti:string><![CDATA[审核通过通知]]></activiti:string>
-        </activiti:field>
-        <activiti:field name="charset">
-          <activiti:string><![CDATA[utf-8]]></activiti:string>
-        </activiti:field>
-        <activiti:field name="html">
-          <activiti:expression><![CDATA[<html>
-<body>
-	<p>${name}您好,您的合同审核已通过审核，请到业务审核处进行签名确认。</p>
-</body>
-</hml>]]></activiti:expression>
-        </activiti:field>
-        <activiti:executionListener event="start" class="com.example.demo.contract.listener.SetMailInfo"></activiti:executionListener>
-      </extensionElements>
-    </serviceTask>
-    <sequenceFlow id="flow13" name="同意" sourceRef="exclusivegateway2" targetRef="mail">
+    <sequenceFlow id="flow13" name="同意" sourceRef="exclusivegateway2" targetRef="confirm">
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${manLeaderPass}]]></conditionExpression>
     </sequenceFlow>
-    <sequenceFlow id="flow14" sourceRef="mail" targetRef="confirm"></sequenceFlow>
   </process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_contract">
     <bpmndi:BPMNPlane bpmnElement="contract" id="BPMNPlane_contract">
@@ -91,10 +66,7 @@
         <omgdc:Bounds height="40.0" width="40.0" x="440.0" y="420.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="confirm" id="BPMNShape_confirm">
-        <omgdc:Bounds height="55.0" width="105.0" x="1017.0" y="413.0"></omgdc:Bounds>
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape bpmnElement="mail" id="BPMNShape_mail">
-        <omgdc:Bounds height="55.0" width="105.0" x="1017.0" y="170.0"></omgdc:Bounds>
+        <omgdc:Bounds height="55.0" width="105.0" x="895.0" y="170.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge bpmnElement="flow1" id="BPMNEdge_flow1">
         <omgdi:waypoint x="365.0" y="197.0"></omgdi:waypoint>
@@ -127,7 +99,7 @@
         <omgdi:waypoint x="779.0" y="327.0"></omgdi:waypoint>
         <omgdi:waypoint x="513.0" y="327.0"></omgdi:waypoint>
         <bpmndi:BPMNLabel>
-          <omgdc:Bounds height="14.0" width="36.0" x="681.0" y="299.0"></omgdc:Bounds>
+          <omgdc:Bounds height="14.0" width="100.0" x="681.0" y="299.0"></omgdc:Bounds>
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow8" id="BPMNEdge_flow8">
@@ -151,19 +123,15 @@
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow12" id="BPMNEdge_flow12">
-        <omgdi:waypoint x="1017.0" y="440.0"></omgdi:waypoint>
-        <omgdi:waypoint x="965.0" y="440.0"></omgdi:waypoint>
+        <omgdi:waypoint x="947.0" y="225.0"></omgdi:waypoint>
+        <omgdi:waypoint x="947.0" y="423.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow13" id="BPMNEdge_flow13">
         <omgdi:waypoint x="800.0" y="197.0"></omgdi:waypoint>
-        <omgdi:waypoint x="1017.0" y="197.0"></omgdi:waypoint>
+        <omgdi:waypoint x="895.0" y="197.0"></omgdi:waypoint>
         <bpmndi:BPMNLabel>
-          <omgdc:Bounds height="14.0" width="24.0" x="819.0" y="177.0"></omgdc:Bounds>
+          <omgdc:Bounds height="14.0" width="100.0" x="819.0" y="180.0"></omgdc:Bounds>
         </bpmndi:BPMNLabel>
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge bpmnElement="flow14" id="BPMNEdge_flow14">
-        <omgdi:waypoint x="1069.0" y="225.0"></omgdi:waypoint>
-        <omgdi:waypoint x="1069.0" y="413.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>

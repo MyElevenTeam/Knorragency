@@ -79,7 +79,7 @@ Ext.define('Admin.view.contractapprove.ContractApprovePanel', {
             ,{header: '申请人' ,dataIndex: 'userId',width: 120,sortable: true}
             ,{xtype: 'gridcolumn', cls: 'content-column',width:150,dataIndex: 'contractNumber',text: '合同编号'}
             ,{xtype: 'gridcolumn', cls: 'content-column',width:100,dataIndex: 'customerName',text: '客户姓名',hidden:true}
-            ,{xtype: 'gridcolumn', cls: 'content-column',width:100,dataIndex: 'hoseName',text: '房源名称',hidden:true}
+            ,{xtype: 'gridcolumn', cls: 'content-column',width:100,dataIndex: 'houseName',text: '房源名称',hidden:true}
             ,{xtype: 'gridcolumn', cls: 'content-column',width:120,dataIndex: 'employeeName',text: '房产经纪人姓名'}
             ,{xtype: 'datecolumn',cls: 'content-column',width: 150,dataIndex: 'startTime',text: '签约时间',flex:1,formatter: 'date("Y/m/d H:i:s")',hidden:true}
             ,{xtype: 'datecolumn',cls: 'content-column',width: 150,dataIndex: 'endTime',text: '失效时间',flex:1,formatter: 'date("Y/m/d H:i:s")',hidden:true}

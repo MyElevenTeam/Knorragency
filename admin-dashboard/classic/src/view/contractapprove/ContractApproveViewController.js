@@ -38,7 +38,7 @@
 
         if (taskDefinitionKey == 'deptLeaderAudit') {
             //店长审批
-            var win = this.setCurrentView(view,taskDefinitionKey, '店长审批');
+            var win = this.setCurrentView(view,taskDefinitionKey, '财务经理审批');
             win.down('form').getForm().loadRecord(record);
         } else if (taskDefinitionKey == 'managerAudit') {
         	//经理审批

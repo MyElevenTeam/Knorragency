@@ -37,7 +37,7 @@ Ext.define('Admin.view.contract.ContractAddWindow', {
         }, {
             xtype: 'textfield',
             fieldLabel: '房源名称',
-            name:'hoseName',
+            name:'houseName',
             allowBlank: false,
             emptyText:'请填写房源名称',
             blankText:'请填写房源名称'

@@ -1,5 +1,6 @@
 package com.example.demo.employee.service;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -21,8 +22,14 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.example.demo.attence.entity.Attence;
+import com.example.demo.attence.repository.AttenceRepository;
 import com.example.demo.common.utils.ListPageUtil;
 import com.example.demo.common.utils.MD5;
+import com.example.demo.contract.entity.Contract;
+import com.example.demo.contract.repository.ContractRepository;
+import com.example.demo.email.entity.Email;
+import com.example.demo.email.repository.EmailRepository;
 import com.example.demo.employee.domain.Employee;
 import com.example.demo.employee.domain.EmployeeDTO;
 import com.example.demo.employee.repository.EmployeeRepository;
@@ -45,6 +52,15 @@ public class EmployeeService implements IEmployeeService {
 	
 	@Autowired
 	private IdentityService identityService;
+	
+	@Autowired
+	private ContractRepository contractRepository;
+	
+	@Autowired
+	private AttenceRepository attenceRepository;
+	
+	@Autowired
+	private EmailRepository emailRepository;
 	
 	@Override
 	public Employee save(Employee entity) {
@@ -72,7 +88,7 @@ public class EmployeeService implements IEmployeeService {
 	
 	//删除一行记录（删除一个employee）
 	@Override
-	public ExtAjaxResponse deleteById(Long id) {
+	public ExtAjaxResponse deleteById(Long id,HttpSession session) {
 		try {
 			if(id!=null) {
 				Employee employee=employeeRepository.findById(id).get();
@@ -81,6 +97,30 @@ public class EmployeeService implements IEmployeeService {
 				/*-----------------修改工作流的操作---------------*/
 				identityService.deleteMembership(employee.getEmployeeNumber(), employee.getPost());
 				identityService.deleteUser(employee.getEmployeeNumber());
+				/*-----------------end---------------*/
+				/*-----------------删除关联的表-----------------*/
+				List<Attence> attenceList=attenceRepository.findByEmployee(employee);
+				for(Attence attence:attenceList) {
+					attenceRepository.delete(attence);
+				}
+				List<Contract> contractList=contractRepository.findByEmployee(employee);
+				for(Contract contract:contractList) {
+					contractRepository.delete(contract);
+				}
+				List<Email> emailList=emailRepository.findByEmployee(employee);
+				for(Email email:emailList) {
+					emailRepository.delete(email);
+				}
+				/*-----------------end---------------*/
+				/*-----------------删除图片----------------*/
+				String oldFileName=employee.getPicture();
+				if(!"default.jpg".equals(oldFileName)) {
+					File deletePicture=new File(session.getServletContext().getRealPath("/resources/images/user-profile/")+oldFileName);
+					//判断图片是否存在
+					if(deletePicture.exists()) {
+						deletePicture.delete();
+					}
+				}
 				/*-----------------end---------------*/
 				employeeRepository.delete(employee);
 			}
@@ -299,6 +339,11 @@ public class EmployeeService implements IEmployeeService {
 	@Override
 	public Employee EmployeeName(String employeeName) {
 		return employeeRepository.findByEmployeeName(employeeName);
+	}
+
+	@Override
+	public Employee findByStoreNameandPost(String storeName, String post) {
+		return employeeRepository.findByStoreNameandPost(storeName, post);
 	}
 
 }

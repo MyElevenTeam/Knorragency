@@ -141,10 +141,15 @@ public class LeaveController
     		String userId = SessionUtil.getUserName(session);
     		Employee employee=employeeService.EmployeeName(userId);
     		Map<String, Object> variables = new HashMap<String, Object>();
-    		variables.put("deptLeader", "storeManager");
-    		variables.put("hr", "hr");
+    		
+    		Employee deptLeader=employeeService.findByStoreNameandPost(employee.getLocalStore().getStoreName(), "经理");
+    		variables.put("deptLeader", deptLeader.getEmployeeNumber());
+    		
+    		Employee hr=employeeService.findByStoreNameandPost(employee.getLocalStore().getStoreName(), "人事经理");
+    		variables.put("hr", hr.getEmployeeNumber());
+    		
     		variables.put("applyUserId", userId);
-    		variables.put("to",employee.getEmail());
+    		
     		leaveService.startWorkflow(userId,leaveId, variables);
     		return new ExtAjaxResponse(true,"操作成功!");
 	    } catch (Exception e) {
