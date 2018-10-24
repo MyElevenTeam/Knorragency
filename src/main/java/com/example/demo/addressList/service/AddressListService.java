@@ -27,33 +27,6 @@ public class AddressListService implements IAddressListService{
 	EmployeeRepository employeeRepository;
 
 	public Page<EmployeeDTO> addressListFindAll(Specification<Employee> spec, Pageable pageable,String number){
-		/*// TODO Auto-generated method stub
-		List<EmployeeDTO> results=null;
-		List<Employee> employees = null;
-		List<Employee> pageList=null;
-		ListPageUtil<Employee> listPageUtil=null;//分页工具List
-		employees=employeeRepository.findAll(spec);
-		Employee employee=employeeRepository.findByEmployeeNumber((String) session.getAttribute("employeeNumber"));
-		employees.remove(employee);
-		listPageUtil = new ListPageUtil<Employee>(employees
-				,pageable.getPageNumber()+1, pageable.getPageSize());
-		pageList=listPageUtil.getPagedList();
-		if(null!=pageList) {
-			results=new ArrayList<EmployeeDTO>();
-			for(Employee entity : pageList) {
-				
-				EmployeeDTO employeeDTO=new EmployeeDTO();
-				//注意，因为BeanUtils.copyProperties是让source把target里面相同的属性名的属性覆盖掉
-				//即便source里相同属性名中有null，这里先让entity.getLocalStore()覆盖是因为
-				//entity.getLocalStore()与entity中主键都叫id
-				if(entity.getLocalStore()!=null) {
-					BeanUtils.copyProperties(entity.getLocalStore(), employeeDTO);
-				}
-				BeanUtils.copyProperties(entity, employeeDTO);
-				results.add(employeeDTO);
-			}
-		}
-		return new PageImpl<EmployeeDTO>(results, pageable, employees.size());*/
 		Page<Employee> list=employeeRepository.findAll(spec,pageable);
 		List<EmployeeDTO> dtoList=new ArrayList<EmployeeDTO>();
 		for(Employee entity:list.getContent()) {
