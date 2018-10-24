@@ -24,10 +24,15 @@ Ext.define('Admin.view.addressList.AddressListPanel', {
             },
             columns: [
                 {xtype: 'gridcolumn',width: 40,dataIndex: 'id',text: '#',hidden:true},
-                {xtype: 'gridcolumn', cls: 'content-column',dataIndex: 'employeeName',text: 'Name',flex: 1},
-                {xtype: 'gridcolumn',cls: 'content-column',dataIndex: 'employeeNumber',text: 'Number',flex: 1},
-                {xtype: 'gridcolumn',cls: 'content-column',dataIndex: 'storeName',text: 'Area',flex: 1},
-                {xtype: 'gridcolumn',cls: 'content-column',dataIndex: 'post',text: 'post',flex: 1},
+                {xtype: 'gridcolumn',width: 75,dataIndex: 'picture',text: '照片',
+                    renderer: function(value) {
+                        return "<img src='./../resources/images/user-profile/" + value + "' alt='Profile Pic' height='40px' width='40px'>";
+                    }
+                },
+                {xtype: 'gridcolumn', cls: 'content-column',dataIndex: 'employeeName',text: '姓名',flex: 1},
+                {xtype: 'gridcolumn',cls: 'content-column',dataIndex: 'employeeNumber',text: '工号',flex: 1},
+                {xtype: 'gridcolumn',cls: 'content-column',dataIndex: 'storeName',text: '店名',flex: 1},
+                {xtype: 'gridcolumn',cls: 'content-column',dataIndex: 'post',text: '职位',flex: 1},
                 {xtype: 'gridcolumn',cls: 'content-column',dataIndex: 'email',text: 'email',flex: 1},
                 {xtype: 'actioncolumn',cls: 'content-column', width: 120,dataIndex: 'bool',text: 'Actions',tooltip: 'edit ',
                     items: [

@@ -9,7 +9,8 @@ requires: [
 		{type: 'string',name: 'employeeNumber'},
 		{type: 'string', name: 'storeName'},
 		{type: 'string', name: 'post'},
-		{type: 'string',name: 'email'}
+		{type: 'string',name: 'email'},
+		{type:'string',name:'picture'}
 	],
 	proxy: {
 		type: 'rest',
