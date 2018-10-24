@@ -8,7 +8,7 @@ Ext.define('Admin.view.addressList.AddressListViewController', {
 		
 		var store =	btn.up('gridpanel').getStore();
 		//var store = Ext.getCmp('userGridPanel').getStore();// Ext.getCmp(）需要在OrderPanel设置id属性
-		Ext.apply(store.proxy.extraParams, {employeeName:"",storeName:"",employeeNumber:"",post:""});
+		Ext.apply(store.proxy.extraParams, {status:"",employeeName:"",storeName:"",employeeNumber:"",post:""});
 		
 		if(searchField==='employeeName'){
 			Ext.apply(store.proxy.extraParams, {employeeName:searchValue});

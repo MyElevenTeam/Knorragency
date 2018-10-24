@@ -50,14 +50,22 @@ Ext.define('Admin.view.authentication.AuthenticationController', {
 	                }
 	            });
 	            websocket.send(JSON.stringify({
-                  "event":"hello",
+                  "event":"status",
+                  "status":"在线",
                   "statusId":video_userId
                 }));
 	        }
 	        websocket.onmessage = function(event){
 	            var json = JSON.parse(event.data);
 	            if(json.event=="status"){
-
+	            	if(Ext.getCmp("address_panel")){
+	                     var store=Ext.getCmp("address_panel").getStore();
+	                     var index = store.find("id",json.statusId);
+	                     if(index!=-1){
+	                     	var record = store.getAt(index);
+	                     	record.set("status","在线");
+	                     }                   
+	                 }
 	            }else if(json.event=="notice"){
 	                if(Ext.getCmp("notice_panel")){
 	                     Ext.getCmp("notice_panel").getStore().load();
@@ -86,6 +94,11 @@ Ext.define('Admin.view.authentication.AuthenticationController', {
 	                    userId:video_userId
 	                }
 	            });
+	            websocket.send(JSON.stringify({
+                  "event":"status",
+                  "status":"离线",
+                  "statusId":video_userId
+                }));
 	            websocket.close();
 	        } 
 	     }     

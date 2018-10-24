@@ -11,7 +11,7 @@ Ext.define('Admin.view.addressList.AddressListPanel', {
     layout: 'fit',
     items: [{
             xtype: 'gridpanel',
-            id:'addressListPanel',
+            id:'address_panel',
             cls: 'user-grid',
             title: 'AddressList Results',
             //routeId: 'user',
