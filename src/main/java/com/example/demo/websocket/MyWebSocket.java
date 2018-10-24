@@ -14,6 +14,7 @@ import javax.websocket.server.ServerEndpoint;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.example.demo.notice.entity.Notice;
 import com.example.demo.notice.service.INoticeService;
 import com.example.demo.websocket.entity.RequestDTO;
 import com.google.gson.Gson;
@@ -31,11 +32,6 @@ public class MyWebSocket {
     private Session session;
 
     private String id;
-    
-    @Autowired
-    INoticeService noticeService;
-    
-  
     
     
 	/**
@@ -69,6 +65,7 @@ public class MyWebSocket {
     public void onMessage(String message, Session session) {
     	System.out.println("来自客户端的消息:" + message);
     	 RequestDTO msg=new Gson().fromJson(message,RequestDTO.class);
+   
          //转发建立房间请求
          if(msg.getEvent().equals("bulidRoom")){
  	        for(String idTmp:msg.getIdGroup()) {

@@ -19,4 +19,5 @@ public interface EmployeeRepository extends PagingAndSortingRepository<Employee,
 	
 	@Query("from Employee e where e.employeeName = ?1")
 	public Employee findByEmployeeName(String employeeName);
+	
 }

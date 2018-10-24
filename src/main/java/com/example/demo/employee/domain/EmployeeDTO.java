@@ -13,14 +13,22 @@ public class EmployeeDTO {
 	private String storeArea;
 	private String post;
 	private String quotation;
+	private String status;
 	/*public String getPassword() {
 		return password;
 	}
 	public void setPassword(String password) {
 		this.password = password;
 	}*/
+	
 	public Long getId() {
 		return id;
+	}
+	public String getStatus() {
+		return status;
+	}
+	public void setStatus(String status) {
+		this.status = status;
 	}
 	public void setId(Long id) {
 		this.id = id;
