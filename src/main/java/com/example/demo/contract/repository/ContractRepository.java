@@ -9,6 +9,7 @@ import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.stereotype.Repository;
 
 import com.example.demo.contract.entity.Contract;
+import com.example.demo.employee.domain.Employee;
 
 @Repository
 public interface ContractRepository extends PagingAndSortingRepository<Contract, Long>,JpaSpecificationExecutor<Contract>{
@@ -26,5 +27,8 @@ public interface ContractRepository extends PagingAndSortingRepository<Contract,
 	
 	@Query("select e from Contract c , Employee e where month(c.startTime) like month(?1) group by c.employee.localStore.storeName order by sum(c.total) desc")
 	public List<Object> getStoreNameByMonth(Date month);
+	
+	@Query("from Contract c where c.employee = ?1")
+	public List<Contract> findByEmployee(Employee employee);
 
 }
