@@ -138,7 +138,7 @@ public class EmployeeService implements IEmployeeService {
 		List<Employee> pageList=null;
 		ListPageUtil<Employee> listPageUtil=null;//分页工具List
 		
-		//判断是admin还是manager，admin就查找所有，manager就查找当前store及旗下所有store的员工
+		//判断是admin还是人事经理，admin就查找所有，人事经理就查找当前store及旗下所有store的员工
 		if(session.getAttribute("post").equals("admin")) {
 			employees=employeeRepository.findAll(spec);
 			Employee employee=employeeRepository.findByEmployeeNumber((String) session.getAttribute("employeeNumber"));
@@ -196,7 +196,7 @@ public class EmployeeService implements IEmployeeService {
 		//employees.getTotalElements()是查询得到的结果的总数量，切记，这里踩过坑
 		return new PageImpl<EmployeeDTO>(results, pageable, employees.size());
 	}
-	//通过递归查找当前manager的门店及其旗下所有门店
+	//通过递归查找当前人事经理的门店及其旗下所有门店
 	private List<Store> diguiFindStoreNameList(List<Store> storeList, Store localStore) {
 		if(localStore!=null) {
 			storeList.add(localStore);

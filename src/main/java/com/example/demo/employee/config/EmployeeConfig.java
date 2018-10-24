@@ -15,10 +15,8 @@ public class EmployeeConfig implements HandlerInterceptor{
 	 Object handler) throws Exception { 
 		 String en=(String) request.getSession().getAttribute("employeeNumber");
 		 String post=(String) request.getSession().getAttribute("post");
-		 System.out.println(en);
-		 System.out.println(post);
 		 if(StringUtils.isNotBlank(post) && StringUtils.isNotBlank(en)) {
-			 if(post.equals("manager") || post.equals("admin")) return true;
+			 if(post.contains("人事经理") || post.equals("admin")) return true;
 			 else return false;
 		 }else
 		 return false; 
