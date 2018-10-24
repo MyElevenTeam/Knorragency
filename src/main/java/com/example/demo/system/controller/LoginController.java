@@ -43,6 +43,7 @@ public class LoginController {
 	@RequestMapping(value="/login")
 	public @ResponseBody ExtAjaxResponse logon(@RequestParam("userName") String userName, @RequestParam("password") String password, HttpSession session) {
 		Employee employee=employeeRepository.findByEmployeeNumber(userName);
+	
 		if(employee==null || !employee.getPassword().equals(MD5.getMD5(password))) {
 			return new ExtAjaxResponse(false,"登录失败!帐号或者密码有误!请重新登录!");
 		}else {
@@ -69,6 +70,7 @@ public class LoginController {
             
             Map<String,String> map=new HashMap<String, String>();
             map.put("userName", userName);
+            map.put("picture", employee.getPicture());
             map.put("msg", "登录成功!");
             map.put("userId",employee.getId().toString());
             //map.put("loginUserImage", "imgUrl");
