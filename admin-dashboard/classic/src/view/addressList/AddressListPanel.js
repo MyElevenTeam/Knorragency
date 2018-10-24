@@ -11,6 +11,7 @@ Ext.define('Admin.view.addressList.AddressListPanel', {
     layout: 'fit',
     items: [{
             xtype: 'gridpanel',
+            id:'addressListPanel',
             cls: 'user-grid',
             title: 'AddressList Results',
             //routeId: 'user',
@@ -30,15 +31,11 @@ Ext.define('Admin.view.addressList.AddressListPanel', {
                     }
                 },
                 {xtype: 'gridcolumn', cls: 'content-column',dataIndex: 'employeeName',text: '姓名',flex: 1},
+                {xtype: 'gridcolumn',cls: 'content-column',dataIndex: 'status',text: '状态',flex: 1},
                 {xtype: 'gridcolumn',cls: 'content-column',dataIndex: 'employeeNumber',text: '工号',flex: 1},
                 {xtype: 'gridcolumn',cls: 'content-column',dataIndex: 'storeName',text: '店名',flex: 1},
                 {xtype: 'gridcolumn',cls: 'content-column',dataIndex: 'post',text: '职位',flex: 1},
                 {xtype: 'gridcolumn',cls: 'content-column',dataIndex: 'email',text: 'email',flex: 1},
-                {xtype: 'actioncolumn',cls: 'content-column', width: 120,dataIndex: 'bool',text: 'Actions',tooltip: 'edit ',
-                    items: [
-                        {xtype: 'button', iconCls: 'x-fa fa-pencil' ,handler: 'onEditButton'}
-                    ]
-                }
             ],
             tbar: [{
 	            xtype: 'combobox',
@@ -65,11 +62,15 @@ Ext.define('Admin.view.addressList.AddressListPanel', {
             	xtype:'textfield',
             	reference:'searchFieldValue',
             	name:'orderPanelSearchField'
-		    }, '-',{
+		    },'-',{
 		        text: '搜索',
 		        iconCls: 'fa fa-search',
 		        handler: 'quickSearch'
-		    },'->',{
+		    },'-',{
+                text: '在线',
+                iconCls: 'fa fa-search',
+                handler: 'statusSearch'
+            },'->',{
 		        text: '视频会议',
                 itemId:'videoMeeting',
 		        tooltip: 'Add a new row',

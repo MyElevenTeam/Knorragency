@@ -9,6 +9,7 @@ import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.stereotype.Repository;
 
 import com.example.demo.attence.entity.Attence;
+import com.example.demo.employee.domain.Employee;
 
 @Repository
 public interface AttenceRepository extends PagingAndSortingRepository<Attence, Long>,JpaSpecificationExecutor<Attence>{
@@ -18,4 +19,7 @@ public interface AttenceRepository extends PagingAndSortingRepository<Attence, L
 	
 	@Query("from Attence a where month(a.workinTime) like month(?1) and a.employee.employeeName like ?2")
 	public List<Attence> findByMonth(Date month,String employeeName);
+	
+	@Query("from Attence a where a.employee = ?1")
+	public List<Attence> findByEmployee(Employee employee);
 }

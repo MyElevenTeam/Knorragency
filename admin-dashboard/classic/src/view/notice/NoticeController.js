@@ -14,6 +14,7 @@ Ext.define('Admin.view.notice.NoticeController', {
                   "data":values['message']
           }));
 		 var record = Ext.create('Admin.model.notice.NoticeModel');
+		 console.log
          record.set(values);
          record.save();
          Ext.getCmp("notice_panel").getStore().load(); 

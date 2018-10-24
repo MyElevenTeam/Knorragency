@@ -24,7 +24,7 @@ public interface IEmployeeService {
 	public void deleteAll(Long[] ids);
 	public ExtAjaxResponse saveEmployee(EmployeeDTO employeeDTO);
 	public ExtAjaxResponse updateById(Long id,EmployeeDTO employeeDTO);
-	public ExtAjaxResponse deleteById(Long id);
+	public ExtAjaxResponse deleteById(Long id,HttpSession session);
 	public boolean checkPassword(String employeeNumber, String password);
 	public Employee EmployeeNumber(String employeeNumber);
 	public Employee EmployeeName(String employeeName);

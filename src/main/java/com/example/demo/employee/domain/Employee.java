@@ -35,7 +35,7 @@ public class Employee implements Serializable{
 	private String quotation;
 	//权限id
 	private String post="user1";
-	
+	private String status="离线";
 	@Id
 	@GeneratedValue(strategy=GenerationType.IDENTITY)
 	public Long getId() {
@@ -106,6 +106,13 @@ public class Employee implements Serializable{
 	}
 	public void setQuotation(String quotation) {
 		this.quotation = quotation;
+	}
+	
+	public String getStatus() {
+		return status;
+	}
+	public void setStatus(String status) {
+		this.status = status;
 	}
 	@Override
 	public String toString() {

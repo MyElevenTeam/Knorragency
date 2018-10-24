@@ -92,9 +92,9 @@ public class EmployeeController {
 	//删除一个employee数据，通过id
 	@SystemControllerLog(description="删除员工信息")
 	@DeleteMapping(value="{id}")
-	public ExtAjaxResponse deleteById(@PathVariable("id") Long id) 
+	public ExtAjaxResponse deleteById(@PathVariable("id") Long id,HttpSession session) 
 	{
-		return employeeService.deleteById(id);
+		return employeeService.deleteById(id,session);
 	}
 	
 	//插入一条employee数据

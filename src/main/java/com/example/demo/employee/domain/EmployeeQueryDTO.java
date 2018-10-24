@@ -26,7 +26,14 @@ public class EmployeeQueryDTO {
 	private String storeArea;
 	private String employeeNumber;
 	private String post;
+	private String status;
 	
+	public String getStatus() {
+		return status;
+	}
+	public void setStatus(String status) {
+		this.status = status;
+	}
 	public String getEmployeeName() {
 		return employeeName;
 	}
@@ -81,7 +88,10 @@ public class EmployeeQueryDTO {
 					predicate.add(criteriaBuilder.like(root.get("employeeName").as(String.class),
 							"%"+employeeQueryDTO.getEmployeeName()+"%"));
 				}
-				
+				if (StringUtils.isNotBlank(employeeQueryDTO.getStatus())) {
+					predicate.add(criteriaBuilder.like(root.get("status").as(String.class),
+							"%"+employeeQueryDTO.getStatus()+"%"));
+				}
 				if (StringUtils.isNotBlank(employeeQueryDTO.getEmployeeNumber())) {
 					predicate.add(criteriaBuilder.like(root.get("employeeNumber").as(String.class),
 							"%"+employeeQueryDTO.getEmployeeNumber()+"%"));
