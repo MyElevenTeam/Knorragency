@@ -65,7 +65,7 @@ public class MyWebSocket {
     public void onMessage(String message, Session session) {
     	System.out.println("来自客户端的消息:" + message);
     	 RequestDTO msg=new Gson().fromJson(message,RequestDTO.class);
-   
+
          //转发建立房间请求
          if(msg.getEvent().equals("bulidRoom")){
  	        for(String idTmp:msg.getIdGroup()) {

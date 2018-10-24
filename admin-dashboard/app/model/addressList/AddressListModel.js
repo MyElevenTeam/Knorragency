@@ -10,6 +10,7 @@ requires: [
 		{type: 'string', name: 'storeName'},
 		{type: 'string', name: 'post'},
 		{type: 'string',name: 'email'},
+		{type: 'string',name: 'status'},
 		{type:'string',name:'picture'}
 	],
 	proxy: {
