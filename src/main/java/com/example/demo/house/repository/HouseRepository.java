@@ -19,6 +19,7 @@ package com.example.demo.house.repository;
 
 import com.example.demo.house.entity.House;
 
+import com.example.demo.log.config.SystemControllerLog;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -31,18 +32,27 @@ import java.util.List;
 @CrossOrigin(origins = "http://localhost:1841")
 @RepositoryRestResource()
 public interface HouseRepository extends JpaRepository<House, Long> {
+    @SystemControllerLog(description = "查找房源")
     List<House> findByOwn(@Param("own") boolean own);
+
+    @SystemControllerLog(description = "查找房源")
     List<House> findByUserId(@Param("userId") long userId);
+
+    @SystemControllerLog(description = "查找房源")
     Page<House> findByHouseNameLikeAndHousePositionLikeAndHouseTypeAndOwn(
             @Param("houseName") String houseName,
             @Param("housePosition") String housePosition,
             @Param("houseType") String houseType,
             @Param("own") boolean own,
-            Pageable pageable);
+            Pageable pageable
+    );
+
+    @SystemControllerLog(description = "查找房源")
     Page<House> findByHouseNameLikeAndHousePositionLikeAndHouseTypeAndUserId(
             @Param("houseName") String houseName,
             @Param("housePosition") String housePosition,
             @Param("houseType") String houseType,
             @Param("userId") long userId,
-            Pageable pageable);
+            Pageable pageable
+    );
 }

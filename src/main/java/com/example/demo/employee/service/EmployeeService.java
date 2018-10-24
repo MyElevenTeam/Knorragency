@@ -22,6 +22,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.example.demo.common.utils.ListPageUtil;
+import com.example.demo.common.utils.MD5;
 import com.example.demo.employee.domain.Employee;
 import com.example.demo.employee.domain.EmployeeDTO;
 import com.example.demo.employee.repository.EmployeeRepository;
@@ -206,6 +207,7 @@ public class EmployeeService implements IEmployeeService {
 					employeeNumber=entity.getStoreNumber()+id.toString().substring(id.toString().length()-6);
 				}
 				employee.setEmployeeNumber(employeeNumber);
+				employee.setPassword(MD5.getMD5("123456"));
 				//employee.setEmail(employeeNumber+"@knorr.com");
 				
 				//这里要先把entity添加到employee里的localStore，再把employee添加到entity里的List里

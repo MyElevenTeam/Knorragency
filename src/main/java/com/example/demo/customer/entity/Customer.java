@@ -45,7 +45,7 @@ public class Customer {
     /**
      * 区域
      */
-    private String customerArea;
+    private String customerPosition;
 
     /**
      * 要价
@@ -61,4 +61,70 @@ public class Customer {
      * 私有
      */
     private boolean own;
+
+    private long userId;
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getCustomerName() {
+        return customerName;
+    }
+
+    public void setCustomerName(String customerName) {
+        this.customerName = customerName;
+    }
+
+    public String getCustomerType() {
+        return customerType;
+    }
+
+    public void setCustomerType(String customerType) {
+        this.customerType = customerType;
+    }
+
+    public String getCustomerPosition() {
+        return customerPosition;
+    }
+
+    public void setCustomerPosition(String customerPosition) {
+        this.customerPosition = customerPosition;
+    }
+
+    public double getCustomerPrice() {
+        return customerPrice;
+    }
+
+    public void setCustomerPrice(double customerPrice) {
+        this.customerPrice = customerPrice;
+    }
+
+    public double getCustomerProportion() {
+        return customerProportion;
+    }
+
+    public void setCustomerProportion(double customerProportion) {
+        this.customerProportion = customerProportion;
+    }
+
+    public boolean isOwn() {
+        return own;
+    }
+
+    public void setOwn(boolean own) {
+        this.own = own;
+    }
+
+    public long getUserId() {
+        return userId;
+    }
+
+    public void setUserId(long userId) {
+        this.userId = userId;
+    }
 }

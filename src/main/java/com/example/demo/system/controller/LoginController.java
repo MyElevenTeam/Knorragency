@@ -70,6 +70,7 @@ public class LoginController {
             
             Map<String,String> map=new HashMap<String, String>();
             map.put("userName", userName);
+            map.put("picture", employee.getPicture());
             map.put("msg", "登录成功!");
             map.put("userId",employee.getId().toString());
             //map.put("loginUserImage", "imgUrl");

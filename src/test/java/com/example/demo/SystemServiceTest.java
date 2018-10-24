@@ -75,6 +75,7 @@ public class SystemServiceTest {
     	e1.setPassword(MD5.getMD5("admin"));
     	e1.setLocalStore(fatherStore);
     	e1.setPost("admin");
+    	e1.setPicture("default.jpg");
 		
 		User user1 = identityService.newUser("admin");
 		user1.setPassword(MD5.getMD5("admin"));
@@ -88,6 +89,7 @@ public class SystemServiceTest {
 		e2.setPassword(MD5.getMD5("WangJun"));
 		e2.setLocalStore(fatherStore);
 		e2.setPost("总经理");
+		e2.setPicture("default.jpg");
 		
 		User user2 = identityService.newUser("WangJun");
 		user2.setPassword(MD5.getMD5("WangJun"));
@@ -101,6 +103,7 @@ public class SystemServiceTest {
 		e3.setPassword(MD5.getMD5("GuLi"));
 		e3.setLocalStore(fatherStore);
 		e3.setPost("人事经理");
+		e3.setPicture("default.jpg");
 		
 		User user3 = identityService.newUser("GuLi");
 		user3.setPassword(MD5.getMD5("GuLi"));
@@ -114,6 +117,7 @@ public class SystemServiceTest {
 		e4.setPassword(MD5.getMD5("LiSi"));
 		e4.setLocalStore(fatherStore);
 		e4.setPost("房产经纪人");
+		e4.setPicture("default.jpg");
 		
 		User user4 = identityService.newUser("LiSi");
 		user4.setPassword(MD5.getMD5("LiSi"));
@@ -144,6 +148,7 @@ public class SystemServiceTest {
 		e5.setPassword(MD5.getMD5("XuanMing"));
 		e5.setLocalStore(DGStore);
 		e5.setPost("分区经理");
+		e5.setPicture("default.jpg");
 		
 		User user5 = identityService.newUser("XuanMing");
 		user5.setPassword(MD5.getMD5("XuanMing"));
@@ -157,6 +162,7 @@ public class SystemServiceTest {
 		e6.setPassword(MD5.getMD5("LinGang"));
 		e6.setLocalStore(DGStore);
 		e6.setPost("分区人事经理");
+		e6.setPicture("default.jpg");
 		
 		User user6 = identityService.newUser("LinGang");
 		user6.setPassword(MD5.getMD5("LinGang"));
@@ -170,6 +176,7 @@ public class SystemServiceTest {
 		e7.setPassword(MD5.getMD5("ZhangSan"));
 		e7.setLocalStore(DGStore);
 		e7.setPost("房产经纪人");
+		e7.setPicture("default.jpg");
 		
 		User user7 = identityService.newUser("ZhangSan");
 		user7.setPassword(MD5.getMD5("ZhangSan"));
@@ -197,6 +204,7 @@ public class SystemServiceTest {
 		e8.setPassword(MD5.getMD5("LiJun"));
 		e8.setLocalStore(DGStore1);
 		e8.setPost("店长");
+		e8.setPicture("default.jpg");
 		
 		User user8 = identityService.newUser("LiJun");
 		user8.setPassword(MD5.getMD5("LiJun"));
@@ -210,6 +218,7 @@ public class SystemServiceTest {
 		e9.setPassword(MD5.getMD5("LinXiao"));
 		e9.setLocalStore(DGStore1);
 		e9.setPost("人事专员");
+		e9.setPicture("default.jpg");
 		
 		User user9 = identityService.newUser("LinXiao");
 		user9.setPassword(MD5.getMD5("LinXiao"));
@@ -223,6 +232,7 @@ public class SystemServiceTest {
 		e10.setPassword(MD5.getMD5("WangWu"));
 		e10.setLocalStore(DGStore1);
 		e10.setPost("房产经纪人");
+		e10.setPicture("default.jpg");
 		
 		User user10 = identityService.newUser("WangWu");
 		user10.setPassword(MD5.getMD5("WangWu"));
@@ -250,6 +260,7 @@ public class SystemServiceTest {
 		e11.setPassword(MD5.getMD5("LiYa"));
 		e11.setLocalStore(DGStore2);
 		e11.setPost("店长");
+		e11.setPicture("default.jpg");
 		
 		User user11 = identityService.newUser("LiYa");
 		user11.setPassword(MD5.getMD5("LiYa"));
@@ -263,6 +274,7 @@ public class SystemServiceTest {
 		e12.setPassword(MD5.getMD5("LinTian"));
 		e12.setLocalStore(DGStore2);
 		e12.setPost("人事专员");
+		e12.setPicture("default.jpg");
 		
 		User user12 = identityService.newUser("LinTian");
 		user12.setPassword(MD5.getMD5("LinTian"));
@@ -276,6 +288,7 @@ public class SystemServiceTest {
 		e13.setPassword(MD5.getMD5("WuLu"));
 		e13.setLocalStore(DGStore2);
 		e13.setPost("房产经纪人");
+		e13.setPicture("default.jpg");
 		
 		User user13 = identityService.newUser("WuLu");
 		user13.setPassword(MD5.getMD5("WuLu"));
@@ -303,6 +316,7 @@ public class SystemServiceTest {
 		e14.setPassword(MD5.getMD5("LiNan"));
 		e14.setLocalStore(DGStore3);
 		e14.setPost("店长");
+		e14.setPicture("default.jpg");
 		
 		User user14 = identityService.newUser("LiNan");
 		user14.setPassword(MD5.getMD5("LiNan"));
@@ -316,6 +330,7 @@ public class SystemServiceTest {
 		e15.setPassword(MD5.getMD5("LinJie"));
 		e15.setLocalStore(DGStore3);
 		e15.setPost("人事专员");
+		e15.setPicture("default.jpg");
 		
 		User user15 = identityService.newUser("LinJie");
 		user15.setPassword(MD5.getMD5("LinJie"));
@@ -329,6 +344,7 @@ public class SystemServiceTest {
 		e16.setPassword(MD5.getMD5("WuTian"));
 		e16.setLocalStore(DGStore3);
 		e16.setPost("房产经纪人");
+		e16.setPicture("default.jpg");
 		
 		User user16 = identityService.newUser("WuTian");
 		user16.setPassword(MD5.getMD5("WuTian"));
@@ -356,6 +372,7 @@ public class SystemServiceTest {
 		e17.setPassword(MD5.getMD5("LiMing"));
 		e17.setLocalStore(GZStore);
 		e17.setPost("分区经理");
+		e17.setPicture("default.jpg");
 		
 		User user17 = identityService.newUser("LiMing");
 		user17.setPassword(MD5.getMD5("LiMing"));
@@ -369,6 +386,7 @@ public class SystemServiceTest {
 		e18.setPassword(MD5.getMD5("LinLi"));
 		e18.setLocalStore(GZStore);
 		e18.setPost("分区人事经理");
+		e18.setPicture("default.jpg");
 		
 		User user18 = identityService.newUser("LinLi");
 		user18.setPassword(MD5.getMD5("LinLi"));
@@ -382,6 +400,7 @@ public class SystemServiceTest {
 		e19.setPassword(MD5.getMD5("WangSan"));
 		e19.setLocalStore(GZStore);
 		e19.setPost("房产经纪人");
+		e19.setPicture("default.jpg");
 		
 		User user19 = identityService.newUser("WangSan");
 		user19.setPassword(MD5.getMD5("WangSan"));
@@ -408,6 +427,7 @@ public class SystemServiceTest {
 		e20.setPassword(MD5.getMD5("ZhangNan"));
 		e20.setLocalStore(GZStore1);
 		e20.setPost("店长");
+		e20.setPicture("default.jpg");
 		
 		User user20 = identityService.newUser("ZhangNan");
 		user20.setPassword(MD5.getMD5("ZhangNan"));
@@ -421,6 +441,7 @@ public class SystemServiceTest {
 		e21.setPassword(MD5.getMD5("LinYiJie"));
 		e21.setLocalStore(GZStore1);
 		e21.setPost("人事专员");
+		e21.setPicture("default.jpg");
 		
 		User user21 = identityService.newUser("LinYiJie");
 		user21.setPassword(MD5.getMD5("LinYiJie"));
@@ -434,6 +455,7 @@ public class SystemServiceTest {
 		e22.setPassword(MD5.getMD5("WuYiTian"));
 		e22.setLocalStore(GZStore1);
 		e22.setPost("房产经纪人");
+		e22.setPicture("default.jpg");
 		
 		User user22 = identityService.newUser("WuYiTian");
 		user22.setPassword(MD5.getMD5("WuYiTian"));
@@ -461,6 +483,7 @@ public class SystemServiceTest {
 		e23.setPassword(MD5.getMD5("ZhangXiaoNan"));
 		e23.setLocalStore(GZStore2);
 		e23.setPost("店长");
+		e23.setPicture("default.jpg");
 		
 		User user23 = identityService.newUser("ZhangXiaoNan");
 		user23.setPassword(MD5.getMD5("ZhangXiaoNan"));
@@ -474,6 +497,7 @@ public class SystemServiceTest {
 		e24.setPassword(MD5.getMD5("LinXiaoJie"));
 		e24.setLocalStore(GZStore2);
 		e24.setPost("人事专员");
+		e24.setPicture("default.jpg");
 		
 		User user24 = identityService.newUser("LinXiaoJie");
 		user24.setPassword(MD5.getMD5("LinXiaoJie"));
@@ -487,6 +511,7 @@ public class SystemServiceTest {
 		e25.setPassword(MD5.getMD5("WuXiaoTian"));
 		e25.setLocalStore(GZStore2);
 		e25.setPost("房产经纪人");
+		e25.setPicture("default.jpg");
 		
 		User user25 = identityService.newUser("WuXiaoTian");
 		user25.setPassword(MD5.getMD5("WuXiaoTian"));
@@ -515,6 +540,7 @@ public class SystemServiceTest {
 		e26.setPassword(MD5.getMD5("LiuXiaoNan"));
 		e26.setLocalStore(GZStore3);
 		e26.setPost("店长");
+		e26.setPicture("default.jpg");
 		
 		User user26 = identityService.newUser("LiuXiaoNan");
 		user26.setPassword(MD5.getMD5("LiuXiaoNan"));
@@ -528,6 +554,7 @@ public class SystemServiceTest {
 		e27.setPassword(MD5.getMD5("LiuXiaoJie"));
 		e27.setLocalStore(GZStore3);
 		e27.setPost("人事专员");
+		e27.setPicture("default.jpg");
 		
 		User user27 = identityService.newUser("LiuXiaoJie");
 		user27.setPassword(MD5.getMD5("LiuXiaoJie"));
@@ -541,6 +568,7 @@ public class SystemServiceTest {
 		e28.setPassword(MD5.getMD5("WuXiaoXiao"));
 		e28.setLocalStore(GZStore3);
 		e28.setPost("房产经纪人");
+		e28.setPicture("default.jpg");
 		
 		User user28 = identityService.newUser("WuXiaoXiao");
 		user28.setPassword(MD5.getMD5("WuXiaoXiao"));
@@ -567,6 +595,7 @@ public class SystemServiceTest {
 		e29.setPassword(MD5.getMD5("LiMingMing"));
 		e29.setLocalStore(SZStore);
 		e29.setPost("分区经理");
+		e29.setPicture("default.jpg");
 		
 		User user29 = identityService.newUser("LiMingMing");
 		user29.setPassword(MD5.getMD5("LiMingMing"));
@@ -580,6 +609,7 @@ public class SystemServiceTest {
 		e30.setPassword(MD5.getMD5("LinLiLi"));
 		e30.setLocalStore(SZStore);
 		e30.setPost("分区人事经理");
+		e30.setPicture("default.jpg");
 		
 		User user30 = identityService.newUser("LinLiLi");
 		user30.setPassword(MD5.getMD5("LinLiLi"));
@@ -593,6 +623,7 @@ public class SystemServiceTest {
 		e31.setPassword(MD5.getMD5("WangSanSan"));
 		e31.setLocalStore(SZStore);
 		e31.setPost("房产经纪人");
+		e31.setPicture("default.jpg");
 		
 		User user31 = identityService.newUser("WangSanSan");
 		user31.setPassword(MD5.getMD5("WangSanSan"));
@@ -619,6 +650,7 @@ public class SystemServiceTest {
 		e32.setPassword(MD5.getMD5("LiuNanNan"));
 		e32.setLocalStore(SZStore1);
 		e32.setPost("店长");
+		e32.setPicture("default.jpg");
 		
 		User user32 = identityService.newUser("LiuNanNan");
 		user32.setPassword(MD5.getMD5("LiuNanNan"));
@@ -632,6 +664,7 @@ public class SystemServiceTest {
 		e33.setPassword(MD5.getMD5("LiuJieJie"));
 		e33.setLocalStore(SZStore1);
 		e33.setPost("人事专员");
+		e33.setPicture("default.jpg");
 		
 		User user33 = identityService.newUser("LiuJieJie");
 		user33.setPassword(MD5.getMD5("LiuJieJie"));
@@ -645,6 +678,7 @@ public class SystemServiceTest {
 		e34.setPassword(MD5.getMD5("WuGang"));
 		e34.setLocalStore(SZStore1);
 		e34.setPost("房产经纪人");
+		e34.setPicture("default.jpg");
 		
 		User user34 = identityService.newUser("WuGang");
 		user34.setPassword(MD5.getMD5("WuGang"));
@@ -671,6 +705,7 @@ public class SystemServiceTest {
 		e35.setPassword(MD5.getMD5("ZhangNanNan"));
 		e35.setLocalStore(SZStore2);
 		e35.setPost("店长");
+		e35.setPicture("default.jpg");
 		
 		User user36 = identityService.newUser("ZhangNanNan");
 		user36.setPassword(MD5.getMD5("ZhangNanNan"));
@@ -684,6 +719,7 @@ public class SystemServiceTest {
 		e37.setPassword(MD5.getMD5("CaiYi"));
 		e37.setLocalStore(SZStore2);
 		e37.setPost("人事专员");
+		e37.setPicture("default.jpg");
 		
 		User user37 = identityService.newUser("CaiYi");
 		user37.setPassword(MD5.getMD5("CaiYi"));
@@ -697,6 +733,7 @@ public class SystemServiceTest {
 		e38.setPassword(MD5.getMD5("CaiGang"));
 		e38.setLocalStore(SZStore2);
 		e38.setPost("房产经纪人");
+		e38.setPicture("default.jpg");
 		
 		User user38 = identityService.newUser("CaiGang");
 		user38.setPassword(MD5.getMD5("CaiGang"));
@@ -723,6 +760,7 @@ public class SystemServiceTest {
 		e39.setPassword(MD5.getMD5("YiTian"));
 		e39.setLocalStore(SZStore3);
 		e39.setPost("店长");
+		e39.setPicture("default.jpg");
 		
 		User user39 = identityService.newUser("YiTian");
 		user39.setPassword(MD5.getMD5("YiTian"));
@@ -736,6 +774,7 @@ public class SystemServiceTest {
 		e40.setPassword(MD5.getMD5("YiLai"));
 		e40.setLocalStore(SZStore3);
 		e40.setPost("人事专员");
+		e40.setPicture("default.jpg");
 		
 		User user41 = identityService.newUser("YiLai");
 		user41.setPassword(MD5.getMD5("YiLai"));
@@ -749,6 +788,7 @@ public class SystemServiceTest {
 		e42.setPassword(MD5.getMD5("YiGang"));
 		e42.setLocalStore(SZStore3);
 		e42.setPost("房产经纪人");
+		e42.setPicture("default.jpg");
 		
 		User user42 = identityService.newUser("YiGang");
 		user42.setPassword(MD5.getMD5("YiGang"));
