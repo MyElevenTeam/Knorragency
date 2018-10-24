@@ -297,10 +297,14 @@ public class ContractController {
     		String userId = SessionUtil.getUserName(session);
     		Employee employee=employeeService.EmployeeName(userId);
     		Map<String, Object> variables = new HashMap<String, Object>();
-    		variables.put("deptLeader", "storeManager");
-    		variables.put("manLeader", "areaManager");
+    		
+    		Employee deptLeader=employeeService.findByStoreNameandPost(employee.getLocalStore().getStoreName(), "财务经理");
+    		variables.put("deptLeader", deptLeader.getEmployeeNumber());
+    		
+    		Employee manLeader=employeeService.findByStoreNameandPost(employee.getLocalStore().getStoreName(), "经理");
+    		variables.put("manLeader", manLeader.getEmployeeNumber());
+    		
     		variables.put("applyUserId", userId);
-    		variables.put("to",employee.getEmail());
     		contractService.startWorkflow(userId,contractId, variables);
     		return new ExtAjaxResponse(true,"操作成功!");
 	    } catch (Exception e) {

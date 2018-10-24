@@ -6,7 +6,7 @@
 
         ,{type: 'string' ,name: 'contractNumber'}
         ,{type: 'string' ,name: 'customerName'}
-        ,{type: 'string' ,name: 'hoseName'}
+        ,{type: 'string' ,name: 'houseName'}
         ,{type: 'string' ,name: 'employeeName'}
         ,{type: 'date' ,name: 'startTime'}
         ,{type: 'date' ,name: 'endTime'}

@@ -33,28 +33,16 @@ public class SystemServiceTest {
 		identityService.saveGroup(admin);
 		
 		Group generalManager =identityService.newGroup("generalManager"); 
-		generalManager.setName("总经理");
+		generalManager.setName("经理");
 		identityService.saveGroup(generalManager);
 		
 		Group hrManager =identityService.newGroup("hrManager"); 
 		hrManager.setName("人事经理");
 		identityService.saveGroup(hrManager);
 		
-		Group areaManager =identityService.newGroup("areaManager"); 
-		areaManager.setName("分区经理");
-		identityService.saveGroup(areaManager);
-		
-		Group areahrManager =identityService.newGroup("areahrManager"); 
-		areahrManager.setName("分区人事经理");
-		identityService.saveGroup(areahrManager);
-		
-		Group storeManager =identityService.newGroup("storeManager"); 
-		storeManager.setName("店长");
-		identityService.saveGroup(storeManager);
-		
-		Group hr =identityService.newGroup("hr"); 
-		hr.setName("人事专员");
-		identityService.saveGroup(hr);
+		Group financeManager =identityService.newGroup("financeManager"); 
+		financeManager.setName("财务经理");
+		identityService.saveGroup(financeManager);
 		
 		Group employee =identityService.newGroup("employee"); 
 		employee.setName("房产经纪人");
@@ -87,7 +75,7 @@ public class SystemServiceTest {
 		e2.setEmployeeNumber("WangJun");
 		e2.setPassword(MD5.getMD5("WangJun"));
 		e2.setLocalStore(fatherStore);
-		e2.setPost("总经理");
+		e2.setPost("经理");
 		
 		User user2 = identityService.newUser("WangJun");
 		user2.setPassword(MD5.getMD5("WangJun"));
@@ -107,6 +95,19 @@ public class SystemServiceTest {
 		identityService.saveUser(user3);
 		identityService.createMembership("GuLi", "hrManager");
 		
+		//财务经理
+		Employee e43=new Employee();
+		e43.setEmployeeName("JaYi");
+		e43.setEmployeeNumber("JaYi");
+		e43.setPassword(MD5.getMD5("JaYi"));
+		e43.setLocalStore(fatherStore);
+		e43.setPost("财务经理");
+		
+		User user43 = identityService.newUser("JaYi");
+		user43.setPassword(MD5.getMD5("JaYi"));
+		identityService.saveUser(user43);
+		identityService.createMembership("JaYi", "financeManager");
+		
 		//房产经纪人
 		Employee e4=new Employee();
 		e4.setEmployeeName("LiSi");
@@ -124,11 +125,13 @@ public class SystemServiceTest {
     	fatherStore.getEmployeeList().add(e2);
     	fatherStore.getEmployeeList().add(e3);
     	fatherStore.getEmployeeList().add(e4);
+    	fatherStore.getEmployeeList().add(e43);
     	
     	e1.setLocalStore(fatherStore);
     	e2.setLocalStore(fatherStore);
     	e3.setLocalStore(fatherStore);
     	e4.setLocalStore(fatherStore);
+    	e43.setLocalStore(fatherStore);
 		
     	
     	
@@ -143,12 +146,12 @@ public class SystemServiceTest {
 		e5.setEmployeeNumber("XuanMing");
 		e5.setPassword(MD5.getMD5("XuanMing"));
 		e5.setLocalStore(DGStore);
-		e5.setPost("分区经理");
+		e5.setPost("经理");
 		
 		User user5 = identityService.newUser("XuanMing");
 		user5.setPassword(MD5.getMD5("XuanMing"));
 		identityService.saveUser(user5);
-		identityService.createMembership("XuanMing", "areaManager");
+		identityService.createMembership("XuanMing", "generalManager");
 		
 		//分区人事经理
 		Employee e6=new Employee();
@@ -156,12 +159,25 @@ public class SystemServiceTest {
 		e6.setEmployeeNumber("LinGang");
 		e6.setPassword(MD5.getMD5("LinGang"));
 		e6.setLocalStore(DGStore);
-		e6.setPost("分区人事经理");
+		e6.setPost("人事经理");
 		
 		User user6 = identityService.newUser("LinGang");
 		user6.setPassword(MD5.getMD5("LinGang"));
 		identityService.saveUser(user6);
-		identityService.createMembership("LinGang", "areahrManager");
+		identityService.createMembership("LinGang", "hrManager");
+		
+		//分区财务经理
+		Employee e44=new Employee();
+		e44.setEmployeeName("JiaEr");
+		e44.setEmployeeNumber("JiaEr");
+		e44.setPassword(MD5.getMD5("JiaEr"));
+		e44.setLocalStore(DGStore);
+		e44.setPost("财务经理");
+		
+		User user44 = identityService.newUser("JiaEr");
+		user44.setPassword(MD5.getMD5("JiaEr"));
+		identityService.saveUser(user44);
+		identityService.createMembership("JiaEr", "financeManager");
 		
 		//房产经纪人
 		Employee e7=new Employee();
@@ -178,10 +194,12 @@ public class SystemServiceTest {
 		
 		DGStore.getEmployeeList().add(e5);
 		DGStore.getEmployeeList().add(e6);
+		DGStore.getEmployeeList().add(e44);
 		DGStore.getEmployeeList().add(e7);
     	
     	e5.setLocalStore(DGStore);
     	e6.setLocalStore(DGStore);
+    	e44.setLocalStore(DGStore);
     	e7.setLocalStore(DGStore);
 
     	
@@ -196,12 +214,12 @@ public class SystemServiceTest {
 		e8.setEmployeeNumber("LiJun");
 		e8.setPassword(MD5.getMD5("LiJun"));
 		e8.setLocalStore(DGStore1);
-		e8.setPost("店长");
+		e8.setPost("经理");
 		
 		User user8 = identityService.newUser("LiJun");
 		user8.setPassword(MD5.getMD5("LiJun"));
 		identityService.saveUser(user8);
-		identityService.createMembership("LiJun", "storeManager");
+		identityService.createMembership("LiJun", "generalManager");
 		
 		//人事专员
 		Employee e9=new Employee();
@@ -209,12 +227,25 @@ public class SystemServiceTest {
 		e9.setEmployeeNumber("LinXiao");
 		e9.setPassword(MD5.getMD5("LinXiao"));
 		e9.setLocalStore(DGStore1);
-		e9.setPost("人事专员");
+		e9.setPost("人事经理");
 		
 		User user9 = identityService.newUser("LinXiao");
 		user9.setPassword(MD5.getMD5("LinXiao"));
 		identityService.saveUser(user9);
-		identityService.createMembership("LinXiao", "hr");
+		identityService.createMembership("LinXiao", "hrManager");
+		
+		//分区财务经理
+		Employee e45=new Employee();
+		e45.setEmployeeName("JiaSan");
+		e45.setEmployeeNumber("JiaSan");
+		e45.setPassword(MD5.getMD5("JiaSan"));
+		e45.setLocalStore(DGStore1);
+		e45.setPost("财务经理");
+		
+		User user45 = identityService.newUser("JiaSan");
+		user45.setPassword(MD5.getMD5("JiaSan"));
+		identityService.saveUser(user45);
+		identityService.createMembership("JiaSan", "financeManager");
 		
 		//房产经纪人
 		Employee e10=new Employee();
@@ -232,10 +263,12 @@ public class SystemServiceTest {
 		DGStore1.getEmployeeList().add(e8);
 		DGStore1.getEmployeeList().add(e9);
 		DGStore1.getEmployeeList().add(e10);
+		DGStore1.getEmployeeList().add(e45);
     	
     	e8.setLocalStore(DGStore1);
     	e9.setLocalStore(DGStore1);
     	e10.setLocalStore(DGStore1);
+    	e45.setLocalStore(DGStore1);
     	
     	
     	Store DGStore2=new Store();
@@ -249,12 +282,12 @@ public class SystemServiceTest {
 		e11.setEmployeeNumber("LiYa");
 		e11.setPassword(MD5.getMD5("LiYa"));
 		e11.setLocalStore(DGStore2);
-		e11.setPost("店长");
+		e11.setPost("经理");
 		
 		User user11 = identityService.newUser("LiYa");
 		user11.setPassword(MD5.getMD5("LiYa"));
 		identityService.saveUser(user11);
-		identityService.createMembership("LiYa", "storeManager");
+		identityService.createMembership("LiYa", "generalManager");
 		
 		//人事专员
 		Employee e12=new Employee();
@@ -262,13 +295,26 @@ public class SystemServiceTest {
 		e12.setEmployeeNumber("LinTian");
 		e12.setPassword(MD5.getMD5("LinTian"));
 		e12.setLocalStore(DGStore2);
-		e12.setPost("人事专员");
+		e12.setPost("人事经理");
 		
 		User user12 = identityService.newUser("LinTian");
 		user12.setPassword(MD5.getMD5("LinTian"));
 		identityService.saveUser(user12);
-		identityService.createMembership("LinTian", "hr");
+		identityService.createMembership("LinTian", "hrManager");
 		
+		//分区财务经理
+		Employee e46=new Employee();
+		e46.setEmployeeName("JiaSi");
+		e46.setEmployeeNumber("JiaSi");
+		e46.setPassword(MD5.getMD5("JiaSi"));
+		e46.setLocalStore(DGStore2);
+		e46.setPost("财务经理");
+		
+		User user46 = identityService.newUser("JiaSi");
+		user46.setPassword(MD5.getMD5("JiaSi"));
+		identityService.saveUser(user46);
+		identityService.createMembership("JiaSi", "financeManager");
+				
 		//房产经纪人
 		Employee e13=new Employee();
 		e13.setEmployeeName("WuLu");
@@ -285,10 +331,12 @@ public class SystemServiceTest {
 		DGStore2.getEmployeeList().add(e11);
 		DGStore2.getEmployeeList().add(e12);
 		DGStore2.getEmployeeList().add(e13);
+		DGStore2.getEmployeeList().add(e46);
     	
 		e11.setLocalStore(DGStore2);
     	e12.setLocalStore(DGStore2);
     	e13.setLocalStore(DGStore2);
+    	e46.setLocalStore(DGStore2);
     	
     	
     	Store DGStore3=new Store();
@@ -302,12 +350,12 @@ public class SystemServiceTest {
 		e14.setEmployeeNumber("LiNan");
 		e14.setPassword(MD5.getMD5("LiNan"));
 		e14.setLocalStore(DGStore3);
-		e14.setPost("店长");
+		e14.setPost("经理");
 		
 		User user14 = identityService.newUser("LiNan");
 		user14.setPassword(MD5.getMD5("LiNan"));
 		identityService.saveUser(user14);
-		identityService.createMembership("LiNan", "storeManager");
+		identityService.createMembership("LiNan", "generalManager");
 		
 		//人事专员
 		Employee e15=new Employee();
@@ -315,12 +363,25 @@ public class SystemServiceTest {
 		e15.setEmployeeNumber("LinJie");
 		e15.setPassword(MD5.getMD5("LinJie"));
 		e15.setLocalStore(DGStore3);
-		e15.setPost("人事专员");
+		e15.setPost("人事经理");
 		
 		User user15 = identityService.newUser("LinJie");
 		user15.setPassword(MD5.getMD5("LinJie"));
 		identityService.saveUser(user15);
-		identityService.createMembership("LinJie", "hr");
+		identityService.createMembership("LinJie", "hrManager");
+		
+		//分区财务经理
+		Employee e47=new Employee();
+		e47.setEmployeeName("JiaQi");
+		e47.setEmployeeNumber("JiaQi");
+		e47.setPassword(MD5.getMD5("JiaQi"));
+		e47.setLocalStore(DGStore3);
+		e47.setPost("财务经理");
+		
+		User user47 = identityService.newUser("JiaQi");
+		user47.setPassword(MD5.getMD5("JiaQi"));
+		identityService.saveUser(user47);
+		identityService.createMembership("JiaQi", "financeManager");
 		
 		//房产经纪人
 		Employee e16=new Employee();
@@ -338,10 +399,12 @@ public class SystemServiceTest {
 		DGStore3.getEmployeeList().add(e14);
 		DGStore3.getEmployeeList().add(e15);
 		DGStore3.getEmployeeList().add(e16);
+		DGStore3.getEmployeeList().add(e47);
     	
 		e14.setLocalStore(DGStore3);
     	e15.setLocalStore(DGStore3);
     	e16.setLocalStore(DGStore3);
+    	e47.setLocalStore(DGStore3);
     	
     	
     	Store GZStore=new Store();
@@ -355,12 +418,12 @@ public class SystemServiceTest {
 		e17.setEmployeeNumber("LiMing");
 		e17.setPassword(MD5.getMD5("LiMing"));
 		e17.setLocalStore(GZStore);
-		e17.setPost("分区经理");
+		e17.setPost("经理");
 		
 		User user17 = identityService.newUser("LiMing");
 		user17.setPassword(MD5.getMD5("LiMing"));
 		identityService.saveUser(user17);
-		identityService.createMembership("LiMing", "areaManager");
+		identityService.createMembership("LiMing", "generalManager");
 		
 		//分区人事经理
 		Employee e18=new Employee();
@@ -368,12 +431,25 @@ public class SystemServiceTest {
 		e18.setEmployeeNumber("LinLi");
 		e18.setPassword(MD5.getMD5("LinLi"));
 		e18.setLocalStore(GZStore);
-		e18.setPost("分区人事经理");
+		e18.setPost("人事经理");
 		
 		User user18 = identityService.newUser("LinLi");
 		user18.setPassword(MD5.getMD5("LinLi"));
 		identityService.saveUser(user18);
-		identityService.createMembership("LinLi", "areahrManager");
+		identityService.createMembership("LinLi", "hrManager");
+		
+		//分区财务经理
+		Employee e48=new Employee();
+		e48.setEmployeeName("JiaBai");
+		e48.setEmployeeNumber("JiaBai");
+		e48.setPassword(MD5.getMD5("JiaBai"));
+		e48.setLocalStore(GZStore);
+		e48.setPost("财务经理");
+		
+		User user48 = identityService.newUser("JiaBai");
+		user48.setPassword(MD5.getMD5("JiaBai"));
+		identityService.saveUser(user48);
+		identityService.createMembership("JiaBai", "financeManager");
 		
 		//房产经纪人
 		Employee e19=new Employee();
@@ -391,10 +467,12 @@ public class SystemServiceTest {
 		GZStore.getEmployeeList().add(e17);
 		GZStore.getEmployeeList().add(e18);
 		GZStore.getEmployeeList().add(e19);
+		GZStore.getEmployeeList().add(e48);
     	
     	e17.setLocalStore(GZStore);
     	e18.setLocalStore(GZStore);
     	e19.setLocalStore(GZStore);
+    	e48.setLocalStore(GZStore);
     	
     	Store GZStore1=new Store();
     	GZStore1.setStoreArea("广东省广州市");
@@ -407,12 +485,12 @@ public class SystemServiceTest {
 		e20.setEmployeeNumber("ZhangNan");
 		e20.setPassword(MD5.getMD5("ZhangNan"));
 		e20.setLocalStore(GZStore1);
-		e20.setPost("店长");
+		e20.setPost("经理");
 		
 		User user20 = identityService.newUser("ZhangNan");
 		user20.setPassword(MD5.getMD5("ZhangNan"));
 		identityService.saveUser(user20);
-		identityService.createMembership("ZhangNan", "storeManager");
+		identityService.createMembership("ZhangNan", "generalManager");
 		
 		//人事专员
 		Employee e21=new Employee();
@@ -420,12 +498,25 @@ public class SystemServiceTest {
 		e21.setEmployeeNumber("LinYiJie");
 		e21.setPassword(MD5.getMD5("LinYiJie"));
 		e21.setLocalStore(GZStore1);
-		e21.setPost("人事专员");
+		e21.setPost("人事经理");
 		
 		User user21 = identityService.newUser("LinYiJie");
 		user21.setPassword(MD5.getMD5("LinYiJie"));
 		identityService.saveUser(user21);
-		identityService.createMembership("LinYiJie", "hr");
+		identityService.createMembership("LinYiJie", "hrManager");
+		
+		//分区财务经理
+		Employee e49=new Employee();
+		e49.setEmployeeName("JiaJiu");
+		e49.setEmployeeNumber("JiaJiu");
+		e49.setPassword(MD5.getMD5("JiaJiu"));
+		e49.setLocalStore(GZStore1);
+		e49.setPost("财务经理");
+		
+		User user49 = identityService.newUser("JiaJiu");
+		user49.setPassword(MD5.getMD5("JiaJiu"));
+		identityService.saveUser(user49);
+		identityService.createMembership("JiaJiu", "financeManager");
 		
 		//房产经纪人
 		Employee e22=new Employee();
@@ -443,10 +534,12 @@ public class SystemServiceTest {
 		GZStore1.getEmployeeList().add(e20);
 		GZStore1.getEmployeeList().add(e21);
 		GZStore1.getEmployeeList().add(e22);
+		GZStore1.getEmployeeList().add(e49);
     	
 		e20.setLocalStore(GZStore1);
     	e21.setLocalStore(GZStore1);
     	e22.setLocalStore(GZStore1);
+    	e49.setLocalStore(GZStore1);
     	
     	
     	Store GZStore2=new Store();
@@ -460,12 +553,12 @@ public class SystemServiceTest {
 		e23.setEmployeeNumber("ZhangXiaoNan");
 		e23.setPassword(MD5.getMD5("ZhangXiaoNan"));
 		e23.setLocalStore(GZStore2);
-		e23.setPost("店长");
+		e23.setPost("经理");
 		
 		User user23 = identityService.newUser("ZhangXiaoNan");
 		user23.setPassword(MD5.getMD5("ZhangXiaoNan"));
 		identityService.saveUser(user23);
-		identityService.createMembership("ZhangXiaoNan", "storeManager");
+		identityService.createMembership("ZhangXiaoNan", "generalManager");
 		
 		//人事专员
 		Employee e24=new Employee();
@@ -473,12 +566,25 @@ public class SystemServiceTest {
 		e24.setEmployeeNumber("LinXiaoJie");
 		e24.setPassword(MD5.getMD5("LinXiaoJie"));
 		e24.setLocalStore(GZStore2);
-		e24.setPost("人事专员");
+		e24.setPost("人事经理");
 		
 		User user24 = identityService.newUser("LinXiaoJie");
 		user24.setPassword(MD5.getMD5("LinXiaoJie"));
 		identityService.saveUser(user24);
-		identityService.createMembership("LinXiaoJie", "hr");
+		identityService.createMembership("LinXiaoJie", "hrManager");
+		
+		//分区财务经理
+		Employee e50=new Employee();
+		e50.setEmployeeName("JiaShi");
+		e50.setEmployeeNumber("JiaShi");
+		e50.setPassword(MD5.getMD5("JiaShi"));
+		e50.setLocalStore(GZStore2);
+		e50.setPost("财务经理");
+		
+		User user50 = identityService.newUser("JiaShi");
+		user50.setPassword(MD5.getMD5("JiaShi"));
+		identityService.saveUser(user50);
+		identityService.createMembership("JiaShi", "financeManager");
 		
 		//房产经纪人
 		Employee e25=new Employee();
@@ -496,10 +602,12 @@ public class SystemServiceTest {
 		GZStore2.getEmployeeList().add(e23);
 		GZStore2.getEmployeeList().add(e24);
 		GZStore2.getEmployeeList().add(e25);
+		GZStore2.getEmployeeList().add(e50);
     	
 		e23.setLocalStore(GZStore2);
     	e24.setLocalStore(GZStore2);
     	e25.setLocalStore(GZStore2);
+    	e50.setLocalStore(GZStore2);
     	
     	
     	Store GZStore3=new Store();
@@ -514,12 +622,12 @@ public class SystemServiceTest {
 		e26.setEmployeeNumber("LiuXiaoNan");
 		e26.setPassword(MD5.getMD5("LiuXiaoNan"));
 		e26.setLocalStore(GZStore3);
-		e26.setPost("店长");
+		e26.setPost("经理");
 		
 		User user26 = identityService.newUser("LiuXiaoNan");
 		user26.setPassword(MD5.getMD5("LiuXiaoNan"));
 		identityService.saveUser(user26);
-		identityService.createMembership("LiuXiaoNan", "storeManager");
+		identityService.createMembership("LiuXiaoNan", "generalManager");
 		
 		//人事专员
 		Employee e27=new Employee();
@@ -527,12 +635,25 @@ public class SystemServiceTest {
 		e27.setEmployeeNumber("LiuXiaoJie");
 		e27.setPassword(MD5.getMD5("LiuXiaoJie"));
 		e27.setLocalStore(GZStore3);
-		e27.setPost("人事专员");
+		e27.setPost("人事经理");
 		
 		User user27 = identityService.newUser("LiuXiaoJie");
 		user27.setPassword(MD5.getMD5("LiuXiaoJie"));
 		identityService.saveUser(user27);
-		identityService.createMembership("LiuXiaoJie", "hr");
+		identityService.createMembership("LiuXiaoJie", "hrManager");
+		
+		//分区财务经理
+		Employee e51=new Employee();
+		e51.setEmployeeName("LeYi");
+		e51.setEmployeeNumber("LeYi");
+		e51.setPassword(MD5.getMD5("LeYi"));
+		e51.setLocalStore(GZStore3);
+		e51.setPost("财务经理");
+		
+		User user51 = identityService.newUser("LeYi");
+		user51.setPassword(MD5.getMD5("LeYi"));
+		identityService.saveUser(user51);
+		identityService.createMembership("LeYi", "financeManager");
 		
 		//房产经纪人
 		Employee e28=new Employee();
@@ -550,10 +671,12 @@ public class SystemServiceTest {
 		GZStore3.getEmployeeList().add(e26);
 		GZStore3.getEmployeeList().add(e27);
 		GZStore3.getEmployeeList().add(e28);
+		GZStore3.getEmployeeList().add(e51);
     	
 		e26.setLocalStore(GZStore3);
     	e27.setLocalStore(GZStore3);
     	e28.setLocalStore(GZStore3);
+    	e51.setLocalStore(GZStore3);
     	
     	Store SZStore=new Store();
     	SZStore.setStoreArea("广东省深圳市");
@@ -566,12 +689,12 @@ public class SystemServiceTest {
 		e29.setEmployeeNumber("LiMingMing");
 		e29.setPassword(MD5.getMD5("LiMingMing"));
 		e29.setLocalStore(SZStore);
-		e29.setPost("分区经理");
+		e29.setPost("经理");
 		
 		User user29 = identityService.newUser("LiMingMing");
 		user29.setPassword(MD5.getMD5("LiMingMing"));
 		identityService.saveUser(user29);
-		identityService.createMembership("LiMingMing", "areaManager");
+		identityService.createMembership("LiMingMing", "generalManager");
 		
 		//分区人事经理
 		Employee e30=new Employee();
@@ -579,12 +702,25 @@ public class SystemServiceTest {
 		e30.setEmployeeNumber("LinLiLi");
 		e30.setPassword(MD5.getMD5("LinLiLi"));
 		e30.setLocalStore(SZStore);
-		e30.setPost("分区人事经理");
+		e30.setPost("人事经理");
 		
 		User user30 = identityService.newUser("LinLiLi");
 		user30.setPassword(MD5.getMD5("LinLiLi"));
 		identityService.saveUser(user30);
-		identityService.createMembership("LinLiLi", "areahrManager");
+		identityService.createMembership("LinLiLi", "hrManager");
+		
+		//分区财务经理
+		Employee e52=new Employee();
+		e52.setEmployeeName("LeEr");
+		e52.setEmployeeNumber("LeEr");
+		e52.setPassword(MD5.getMD5("LeEr"));
+		e52.setLocalStore(SZStore);
+		e52.setPost("财务经理");
+		
+		User user52 = identityService.newUser("LeEr");
+		user52.setPassword(MD5.getMD5("LeEr"));
+		identityService.saveUser(user52);
+		identityService.createMembership("LeEr", "financeManager");
 		
 		//房产经纪人
 		Employee e31=new Employee();
@@ -602,10 +738,12 @@ public class SystemServiceTest {
 		SZStore.getEmployeeList().add(e29);
 		SZStore.getEmployeeList().add(e30);
 		SZStore.getEmployeeList().add(e31);
+		SZStore.getEmployeeList().add(e52);
     	
     	e29.setLocalStore(SZStore);
     	e30.setLocalStore(SZStore);
     	e31.setLocalStore(SZStore);
+    	e52.setLocalStore(SZStore);
     	
     	Store SZStore1=new Store();
     	SZStore1.setStoreArea("广东省深圳市");
@@ -618,12 +756,12 @@ public class SystemServiceTest {
 		e32.setEmployeeNumber("LiuNanNan");
 		e32.setPassword(MD5.getMD5("LiuNanNan"));
 		e32.setLocalStore(SZStore1);
-		e32.setPost("店长");
+		e32.setPost("经理");
 		
 		User user32 = identityService.newUser("LiuNanNan");
 		user32.setPassword(MD5.getMD5("LiuNanNan"));
 		identityService.saveUser(user32);
-		identityService.createMembership("LiuNanNan", "storeManager");
+		identityService.createMembership("LiuNanNan", "generalManager");
 		
 		//人事专员
 		Employee e33=new Employee();
@@ -631,12 +769,25 @@ public class SystemServiceTest {
 		e33.setEmployeeNumber("LiuJieJie");
 		e33.setPassword(MD5.getMD5("LiuJieJie"));
 		e33.setLocalStore(SZStore1);
-		e33.setPost("人事专员");
+		e33.setPost("人事经理");
 		
 		User user33 = identityService.newUser("LiuJieJie");
 		user33.setPassword(MD5.getMD5("LiuJieJie"));
 		identityService.saveUser(user33);
-		identityService.createMembership("LiuJieJie", "hr");
+		identityService.createMembership("LiuJieJie", "hrManager");
+		
+		//分区财务经理
+		Employee e53=new Employee();
+		e53.setEmployeeName("LeSan");
+		e53.setEmployeeNumber("LeSan");
+		e53.setPassword(MD5.getMD5("LeSan"));
+		e53.setLocalStore(SZStore1);
+		e53.setPost("财务经理");
+		
+		User user53 = identityService.newUser("LeSan");
+		user53.setPassword(MD5.getMD5("LeSan"));
+		identityService.saveUser(user53);
+		identityService.createMembership("LeSan", "financeManager");
 		
 		//房产经纪人
 		Employee e34=new Employee();
@@ -654,10 +805,12 @@ public class SystemServiceTest {
 		SZStore1.getEmployeeList().add(e32);
 		SZStore1.getEmployeeList().add(e33);
 		SZStore1.getEmployeeList().add(e34);
+		SZStore1.getEmployeeList().add(e53);
     	
 		e32.setLocalStore(SZStore1);
     	e33.setLocalStore(SZStore1);
     	e34.setLocalStore(SZStore1);
+    	e53.setLocalStore(SZStore1);
     	
     	Store SZStore2=new Store();
     	SZStore2.setStoreArea("广东省深圳市");
@@ -670,12 +823,12 @@ public class SystemServiceTest {
 		e35.setEmployeeNumber("ZhangNanNan");
 		e35.setPassword(MD5.getMD5("ZhangNanNan"));
 		e35.setLocalStore(SZStore2);
-		e35.setPost("店长");
+		e35.setPost("经理");
 		
 		User user36 = identityService.newUser("ZhangNanNan");
 		user36.setPassword(MD5.getMD5("ZhangNanNan"));
 		identityService.saveUser(user36);
-		identityService.createMembership("ZhangNanNan", "storeManager");
+		identityService.createMembership("ZhangNanNan", "generalManager");
 		
 		//人事专员
 		Employee e37=new Employee();
@@ -683,12 +836,25 @@ public class SystemServiceTest {
 		e37.setEmployeeNumber("CaiYi");
 		e37.setPassword(MD5.getMD5("CaiYi"));
 		e37.setLocalStore(SZStore2);
-		e37.setPost("人事专员");
+		e37.setPost("人事经理");
 		
 		User user37 = identityService.newUser("CaiYi");
 		user37.setPassword(MD5.getMD5("CaiYi"));
 		identityService.saveUser(user37);
-		identityService.createMembership("CaiYi", "hr");
+		identityService.createMembership("CaiYi", "hrManager");
+		
+		//分区财务经理
+		Employee e54=new Employee();
+		e54.setEmployeeName("LeSi");
+		e54.setEmployeeNumber("LeSi");
+		e54.setPassword(MD5.getMD5("LeSi"));
+		e54.setLocalStore(SZStore2);
+		e54.setPost("财务经理");
+		
+		User user54 = identityService.newUser("LeSi");
+		user54.setPassword(MD5.getMD5("LeSi"));
+		identityService.saveUser(user54);
+		identityService.createMembership("LeSi", "financeManager");
 		
 		//房产经纪人
 		Employee e38=new Employee();
@@ -706,10 +872,12 @@ public class SystemServiceTest {
 		SZStore2.getEmployeeList().add(e35);
 		SZStore2.getEmployeeList().add(e37);
 		SZStore2.getEmployeeList().add(e38);
+		SZStore2.getEmployeeList().add(e54);
     	
 		e35.setLocalStore(SZStore2);
     	e37.setLocalStore(SZStore2);
     	e38.setLocalStore(SZStore2);
+    	e54.setLocalStore(SZStore2);
     	
     	Store SZStore3=new Store();
     	SZStore3.setStoreArea("广东省深圳市");
@@ -722,12 +890,12 @@ public class SystemServiceTest {
 		e39.setEmployeeNumber("YiTian");
 		e39.setPassword(MD5.getMD5("YiTian"));
 		e39.setLocalStore(SZStore3);
-		e39.setPost("店长");
+		e39.setPost("经理");
 		
 		User user39 = identityService.newUser("YiTian");
 		user39.setPassword(MD5.getMD5("YiTian"));
 		identityService.saveUser(user39);
-		identityService.createMembership("YiTian", "storeManager");
+		identityService.createMembership("YiTian", "generalManager");
 		
 		//人事专员
 		Employee e40=new Employee();
@@ -735,12 +903,25 @@ public class SystemServiceTest {
 		e40.setEmployeeNumber("YiLai");
 		e40.setPassword(MD5.getMD5("YiLai"));
 		e40.setLocalStore(SZStore3);
-		e40.setPost("人事专员");
+		e40.setPost("人事经理");
 		
 		User user41 = identityService.newUser("YiLai");
 		user41.setPassword(MD5.getMD5("YiLai"));
 		identityService.saveUser(user41);
-		identityService.createMembership("YiLai", "hr");
+		identityService.createMembership("YiLai", "hrManager");
+		
+		//分区财务经理
+		Employee e55=new Employee();
+		e55.setEmployeeName("LeWu");
+		e55.setEmployeeNumber("LeWu");
+		e55.setPassword(MD5.getMD5("LeWu"));
+		e55.setLocalStore(SZStore3);
+		e55.setPost("财务经理");
+		
+		User user55 = identityService.newUser("LeWu");
+		user55.setPassword(MD5.getMD5("LeWu"));
+		identityService.saveUser(user55);
+		identityService.createMembership("LeWu", "financeManager");
 		
 		//房产经纪人
 		Employee e42=new Employee();
@@ -758,10 +939,12 @@ public class SystemServiceTest {
 		SZStore3.getEmployeeList().add(e39);
 		SZStore3.getEmployeeList().add(e40);
 		SZStore3.getEmployeeList().add(e42);
+		SZStore3.getEmployeeList().add(e55);
     	
 		e39.setLocalStore(SZStore3);
     	e40.setLocalStore(SZStore3);
     	e42.setLocalStore(SZStore3);
+    	e55.setLocalStore(SZStore3);
     	
     	fatherStore.getStoreList().add(DGStore);
     	fatherStore.getStoreList().add(GZStore);

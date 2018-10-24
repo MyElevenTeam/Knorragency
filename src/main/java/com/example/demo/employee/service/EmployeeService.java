@@ -301,4 +301,9 @@ public class EmployeeService implements IEmployeeService {
 		return employeeRepository.findByEmployeeName(employeeName);
 	}
 
+	@Override
+	public Employee findByStoreNameandPost(String storeName, String post) {
+		return employeeRepository.findByStoreNameandPost(storeName, post);
+	}
+
 }

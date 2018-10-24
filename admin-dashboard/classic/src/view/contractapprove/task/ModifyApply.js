@@ -89,8 +89,8 @@ Ext.define('Admin.view.contractapprove.task.ModifyApply', {
         xtype: 'textareafield',
         //id:'depreasonModify',
         name: 'depreason',//修改
-        fieldLabel: '店长审批意见',
-        emptyText: '店长还未审批',
+        fieldLabel: '财务经理审批意见',
+        emptyText: '财务经理还未审批',
         readOnly: true 
         /*listeners:{
         	change:function(){

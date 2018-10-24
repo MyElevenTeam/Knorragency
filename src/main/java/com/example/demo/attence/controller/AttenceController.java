@@ -439,7 +439,7 @@ public class AttenceController {
     public @ResponseBody ExtAjaxResponse start(@RequestParam(name="id") Long appealId,@RequestParam(name="appealreason") String appealreason,HttpSession session) {
     	try {
     		String userId = SessionUtil.getUserName(session);
-    		//Employee employee=employeeService.EmployeeName(userId);
+    		Employee employee=employeeService.EmployeeName(userId);
     		Attence attence=attenceService.findById(appealId).get();
     		if(attence!=null) {
     			attence.setAppealreason(appealreason);
@@ -447,8 +447,12 @@ public class AttenceController {
     		}
     		
     		Map<String, Object> variables = new HashMap<String, Object>();
-    		variables.put("deptLeader", "storeManager");
-    		variables.put("hr", "hr");
+    		Employee deptLeader=employeeService.findByStoreNameandPost(employee.getLocalStore().getStoreName(), "经理");
+    		variables.put("deptLeader", deptLeader.getEmployeeNumber());
+    		
+    		Employee hr=employeeService.findByStoreNameandPost(employee.getLocalStore().getStoreName(), "人事经理");
+    		variables.put("hr", hr.getEmployeeNumber());
+    		
     		variables.put("applyUserId", userId);
     		attenceService.startWorkflow(userId,appealId, variables);
     		return new ExtAjaxResponse(true,"操作成功!");

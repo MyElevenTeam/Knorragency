@@ -28,4 +28,5 @@ public interface IEmployeeService {
 	public boolean checkPassword(String employeeNumber, String password);
 	public Employee EmployeeNumber(String employeeNumber);
 	public Employee EmployeeName(String employeeName);
+	public Employee findByStoreNameandPost(String storeName,String post);
 }

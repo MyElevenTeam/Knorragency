@@ -84,7 +84,7 @@ Ext.define('Admin.view.contractapprove.task.Confirm', {
     },{
         xtype: 'textareafield',
         name: 'depreason',
-        fieldLabel: '店长审批意见',
+        fieldLabel: '财务经理审批意见',
         readOnly: true
     },{
         xtype: 'textareafield',

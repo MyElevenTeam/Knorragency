@@ -81,6 +81,7 @@ public class ContractService implements IContractService {
 			ContractDTO dto = new ContractDTO();
 			BeanUtils.copyProperties(entity, dto);
 			dto.setDay(entity.getStartTime());
+			dto.setHouseName(entity.getHouseName());
 			if(entity.getEmployee()!=null) {
 				dto.setEmployeeName(entity.getEmployee().getEmployeeName());
 				if(entity.getEmployee().getLocalStore()!=null) {
