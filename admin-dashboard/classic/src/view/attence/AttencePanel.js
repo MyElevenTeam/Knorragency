@@ -146,7 +146,7 @@ Ext.define('Admin.view.attence.AttencePanel', {
                         {
                             xtype: 'button',iconCls: 'x-fa fa-hand-paper-o',tooltip: '发起申诉',
                             getClass: function(v, meta, rec) {
-                                if (rec.get('processStatus')=='NEW'||rec.get('processStatus')=='CANCEL') {
+                                if (rec.get('processStatus')=='NEW'||rec.get('processStatus')=='CANCEL'||rec.get('processStatus')=='LEAVE') {
                                     return 'x-fa fa-hand-paper-o';
                                 }else{
                                     return 'x-hidden';

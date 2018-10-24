@@ -46,7 +46,7 @@ Ext.define('Admin.view.contractapprove.task.Confirm', {
     },{
         xtype: 'textfield',
         cls:'dep',
-        name: 'hoseName',
+        name: 'houseName',
         fieldLabel: '房源名称',
         readOnly: true
     },{

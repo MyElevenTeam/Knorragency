@@ -40,7 +40,7 @@ Ext.define('Admin.view.contract.LookContractWindow', {
             },{
                 xtype: 'textfield',
                 cls:'lookcontract',
-                name: 'hoseName',
+                name: 'houseName',
                 fieldLabel: '房源名称',
                 readOnly: true
             },{
