@@ -10,7 +10,7 @@ Ext.define('Admin.view.authentication.Login', {
         'Ext.button.Button'
     ],
 
-    title: 'Let\'s Log In',
+    title: '欢迎登陆家乐房产中介系统',
     defaultFocus: 'authdialog', // Focus the Auth Form to force field focus as well
 
     items: [

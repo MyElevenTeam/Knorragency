@@ -46,20 +46,31 @@ Ext.define('Admin.store.NavigationTree', {
                     viewType: 'woDeKeYuanGuanLi',
                     leaf: true,
                 }]
+            },{
+                text: '个人信息管理',
+                iconCls: 'x-fa fa-user',
+                viewType: 'person',
+                leaf: true
+            },{
+               text: '行政管理',
+               iconCls:'x-fa  fa-ravelry',
+               selectable: false,
+               expanded: false,
+               children: [,{
+                    text: '门店管理',
+                    iconCls: 'x-fa fa-university',
+                    //rowCls: 'nav-tree-badge nav-tree-badge-new',
+                    viewType: 'stores',
+                    leaf: true
+                },{
+                    text: '员工管理',
+                    iconCls: 'x-fa fa-users',
+                    //rowCls: 'nav-tree-badge nav-tree-badge-new',
+                    viewType: 'employee',
+                    leaf: true
+                }]
             },
             {
-                text: 'Dashboard',
-                iconCls: 'x-fa fa-desktop',
-                viewType: 'admindashboard',
-                routeId: 'dashboard', // routeId defaults to viewType
-                leaf: true
-            },{
-                text: '模板',
-                iconCls: 'x-fa fa-address-card',
-                //rowCls: 'nav-tree-badge nav-tree-badge-new',
-                viewType: 'user',
-                leaf: true
-            },{
                 text: '业务管理模块',
                 iconCls: 'x-fa fa-briefcase',
                 expanded: false,
@@ -193,29 +204,6 @@ Ext.define('Admin.store.NavigationTree', {
                 iconCls: 'x-fa fa-file-picture-o',
                 //rowCls: 'nav-tree-badge nav-tree-badge-new',
                 viewType: 'processDefinition',
-                leaf: true
-            },{
-               text: '行政管理',
-               iconCls:'x-fa  fa-ravelry',
-               selectable: false,
-               expanded: false,
-               children: [,{
-                    text: '门店管理',
-                    iconCls: 'x-fa fa-university',
-                    //rowCls: 'nav-tree-badge nav-tree-badge-new',
-                    viewType: 'stores',
-                    leaf: true
-                },{
-                    text: '员工管理',
-                    iconCls: 'x-fa fa-users',
-                    //rowCls: 'nav-tree-badge nav-tree-badge-new',
-                    viewType: 'employee',
-                    leaf: true
-                }]
-            },{
-                text: '个人信息管理',
-                iconCls: 'x-fa fa-user',
-                viewType: 'person',
                 leaf: true
             },{
                 text: 'Login',
