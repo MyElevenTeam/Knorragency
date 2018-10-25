@@ -30,13 +30,16 @@ public class AddressListService implements IAddressListService{
 		Page<Employee> list=employeeRepository.findAll(spec,pageable);
 		List<EmployeeDTO> dtoList=new ArrayList<EmployeeDTO>();
 		for(Employee entity:list.getContent()) {
-			if(entity.getEmployeeNumber().equals(number)) continue;
-			EmployeeDTO dto=new EmployeeDTO();
-			if(entity.getLocalStore()!=null) {
-			    BeanUtils.copyProperties(entity.getLocalStore(), dto);
+			if(!entity.getEmployeeNumber().equals(number)) {
+				System.out.println(entity);
+	
+			   EmployeeDTO dto=new EmployeeDTO();
+			   if(entity.getLocalStore()!=null) {
+				   BeanUtils.copyProperties(entity.getLocalStore(), dto);
+			   }
+			   BeanUtils.copyProperties(entity,dto);
+			   dtoList.add(dto);
 			}
-			BeanUtils.copyProperties(entity,dto);
-			dtoList.add(dto);
 		}
 		return new PageImpl<EmployeeDTO>(dtoList, pageable, list.getTotalElements()-1);
 	

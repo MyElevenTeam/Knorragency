@@ -26,7 +26,7 @@ Ext.define('Admin.view.achievement.AnalysePanel', {
            xtype: 'dataview',
            bind: '{anlyseDate}',
            itemTpl:
-           "<br><br><br><br><br><div style='color:#919191;text-align:center;line-height:0.8em'><p style='font-size:4em'>￥{total}</p><br><br><br>"+
+           "<br><br><br><br><br><div style='color:#919191;text-align:center;line-height:0.8em'><p style='font-size:4em'>￥{total}万</p><br><br><br>"+
            "<p style='color:#919191;font-size:2em'>销售总额</p></div>",
            cls:'_boder',
            flex : 1              

@@ -19,14 +19,17 @@ Ext.define('Admin.view.addressList.AddressListViewController', {
 		}else if(searchField==='post'){
 			Ext.apply(store.proxy.extraParams, {post:searchValue});
 		}
-		store.load({params:{start:0, limit:20, page:1}});
+		/*store.load({params:{start:0, limit:20, page:1}});*/
+		store.load();
 	},
   //在线查询
   statusSearch:function(btn){ 
     var store = btn.up('gridpanel').getStore();
     //var store = Ext.getCmp('userGridPanel').getStore();// Ext.getCmp(）需要在OrderPanel设置id属性
+    Ext.apply(store.proxy.extraParams, {status:"",employeeName:"",storeName:"",employeeNumber:"",post:""});
     Ext.apply(store.proxy.extraParams, {status:"在线"});
-    store.load({params:{start:0, limit:20, page:1}});
+    //store.load({params:{start:0, limit:20, page:1}});
+    store.load();
   },
 	//发起视频会议	
 	sponsorVidwoMeeting:function(btn, rowIndex, colIndex){

@@ -80,7 +80,7 @@ Ext.define('Admin.view.achievement.ChartPanel', {
                     model:'Admin.model.achievement.StoreModel',
                     proxy: {
                         type: 'rest',
-                        url: '/achievements/findAllStore',
+                        url: '/achievement/findAllStore',
                         reader:{
                             type:'json',
                             rootProperty:'content',//对应后台返回的结果集名称
