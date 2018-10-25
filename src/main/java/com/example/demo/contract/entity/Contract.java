@@ -170,4 +170,11 @@ public class Contract implements Serializable{
 		this.manreason = manreason;
 	}
 
+	@Override
+	public String toString() {
+		return "Contract [id=" + id + ", contractNumber=" + contractNumber + ", customerName=" + customerName
+				+ ", houseName=" + houseName + ", employee=" + employee + ", startTime=" + startTime + ", endTime="
+				+ endTime + ", contractType=" + contractType + ", total=" + total + "]";
+	}
+	
 }

@@ -129,6 +129,9 @@ public class ContractService implements IContractService {
 		Contract c=new Contract();
 		try {
 	        String[] lines = buffer.split("\\r?\\n");
+	        for (int i = 0; i < lines.length; i++) {
+				System.out.println(i+lines[i]);
+			}
 	        
 	        for (int i = 0; i < lines.length; i++) {
 	        	String str=lines[i];
@@ -142,21 +145,21 @@ public class ContractService implements IContractService {
 	        	
 	        	if(i==2) {  
 	        		//获得签约时间
-					String startTime=str.substring(3, 12);
+					String startTime=str.substring(3, 13);
 					SimpleDateFormat ssdf = new SimpleDateFormat("yyyy/MM/dd");
 				    Date sutilDate = ssdf.parse(startTime);
 				    c.setStartTime(sutilDate);
 				    
 				    //获得房源名
-					String houseName=str.substring(16, 19);
+					String houseName=str.substring(17, 21);
 					c.setHouseName(houseName);
 					
 					//获得金额
-					String stotal=str.substring(25, 30);
+					String stotal=str.substring(27, 30);
 					Double total=Double.valueOf(stotal);
 					c.setTotal(total);
-					
-					//获得失效时间
+//					
+//					//获得失效时间
 					String endTime=str.substring(36);
 					SimpleDateFormat esdf = new SimpleDateFormat("yyyy/MM/dd");
 				    Date eutilDate = esdf.parse(endTime);

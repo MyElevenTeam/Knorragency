@@ -184,11 +184,12 @@ public class ContractController {
     			buffer = doc.getText();
     			doc.close();
     			Contract c=contractService.readWord(buffer);
-    			System.out.println(c.toString());
     			if(c!=null) {
+    				System.out.println("yes");
     				c.setProcessStatus(ProcessStatus.NEW);
     				contractService.save(c);
     			}
+    			
     		} else if (fileName.endsWith("docx")) {
     			InputStream is = file.getInputStream();
                 XWPFDocument docx = new XWPFDocument(is);
