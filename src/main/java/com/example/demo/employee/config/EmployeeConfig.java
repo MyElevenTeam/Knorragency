@@ -19,7 +19,7 @@ public class EmployeeConfig implements HandlerInterceptor{
 			 if(post.contains("人事经理") || post.equals("admin")) return true;
 			 else return false;
 		 }else
-		 return false; 
+		 return false;
 	 } 
 	 @Override 
 	 public void postHandle(HttpServletRequest request, HttpServletResponse response, 
