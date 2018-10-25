@@ -80,7 +80,7 @@ Ext.define('Admin.view.achievement.ChartPanel', {
                     model:'Admin.model.achievement.StoreModel',
                     proxy: {
                         type: 'rest',
-                        url: '/store/findAllStore',
+                        url: '/achievement/findAllStore',
                         reader:{
                             type:'json',
                             rootProperty:'content',//对应后台返回的结果集名称
@@ -98,7 +98,7 @@ Ext.define('Admin.view.achievement.ChartPanel', {
                 queryMode: 'local',
                 triggerAction: 'all',
                 emptyText: 'Select a state...',
-                width: 135,
+                width: 240,
                 listeners:{
                     render: function(combo) {
                         combo.getStore().on("load", function(s, r, o) { 

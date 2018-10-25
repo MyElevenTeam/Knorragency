@@ -27,6 +27,14 @@ Ext.define('Admin.view.authentication.AuthenticationController', {
                     Ext.getCmp('loginUserImage').getEl().dom.src = 'resources/images/user-profile/'+json.map.picture;
                     //通过全局变量传递用户id
                     video_userId=json.map.userId;
+                    Ext.Ajax.request({ 
+    	                url : '/addressList/upStatus',
+    	                async:false, 
+    	                method : 'post', 
+    	                params : { 
+    	                    userId:video_userId
+    	                }
+    	            });
 		        }else{
 		        	Ext.Msg.alert('登录失败', json.msg);
 		        }
@@ -40,15 +48,7 @@ Ext.define('Admin.view.authentication.AuthenticationController', {
 	        }else{
 	            Ext.Msg.alert('Not support websocket');
 	        }
-	        websocket.onopen = function(event){
-	            Ext.Ajax.request({ 
-	                url : '/addressList/upStatus',
-	                async:false, 
-	                method : 'post', 
-	                params : { 
-	                    userId:video_userId
-	                }
-	            });
+	        websocket.onopen = function(event){ 
 	            websocket.send(JSON.stringify({
                   "event":"status",
                   "status":"在线",
@@ -59,13 +59,29 @@ Ext.define('Admin.view.authentication.AuthenticationController', {
 	            var json = JSON.parse(event.data);
 	            if(json.event=="status"){
 	            	if(Ext.getCmp("address_panel")){
-	                     var store=Ext.getCmp("address_panel").getStore();
-	                     var index = store.find("id",json.statusId);
-	                     if(index!=-1){
-	                     	var record = store.getAt(index);
-	                     	record.set("status","在线");
-	                     }                   
+	                     Ext.getCmp("address_panel").getStore().load();
 	                 }
+	            	/*if(Ext.getCmp("address_panel")){
+	            		if(json.status=="在线"){
+		                     var store=Ext.getCmp("address_panel").getStore();
+		                     var index = store.find("id",json.statusId);
+		                     if(index!=-1){
+		                     	var record = store.getAt(index);
+		                     	record.set("status","在线");
+		                     }else{
+		                    	 store.load();
+		                     } 
+	            		}else{
+	            			var store=Ext.getCmp("address_panel").getStore();
+		                     var index = store.find("id",json.statusId);
+		                     if(index!=-1){
+		                     	var record = store.getAt(index);
+		                     	record.set("status","离线");
+		                     }else{
+		                    	 store.load();
+		                     } 
+	            		}
+	                 }*/
 	            }else if(json.event=="notice"){
 	                if(Ext.getCmp("notice_panel")){
 	                     Ext.getCmp("notice_panel").getStore().load();

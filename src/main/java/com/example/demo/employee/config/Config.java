@@ -14,12 +14,17 @@ public class Config extends WebMvcConfigurerAdapter{
 	private EmployeeConfig2 employeeConfig2;
 	@Autowired
 	private StoreConfig storeConfig;
+	@Autowired
+	private AttenceConfig attenceConfig;
 	
 	@Override
 	public void addInterceptors(InterceptorRegistry registry) {
-		//registry.addInterceptor(employeeConfig2).addPathPatterns("/**");
-		registry.addInterceptor(storeConfig).addPathPatterns("/store/**");
+		/*registry.addInterceptor(employeeConfig2).addPathPatterns("/**")
+			.excludePathPatterns("/index.html")
+			.excludePathPatterns("/login");*/
+		registry.addInterceptor(storeConfig).addPathPatterns("/store/**").excludePathPatterns("/store/getStoreName2");
 		registry.addInterceptor(employeeConfig).addPathPatterns("/employee/**");
+		registry.addInterceptor(attenceConfig).addPathPatterns("/attence/getAllAttence");
 	}
 
 }

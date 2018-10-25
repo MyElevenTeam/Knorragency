@@ -46,6 +46,13 @@ public class AchievementController {
 		}
         return  achievementService.getSumByStoreNameAndMonth(requestDTO.getArea(),requestDTO.getMonth());	
 	}
+	
+	@SystemControllerLog(description="findAllStore")
+	@GetMapping("/findAllStore")
+	public List<StoreName> findAllStore() {
+		return storeService.findAllStoreName();
+	}
+	
 	@SystemControllerLog(description="数据分析")
 	@GetMapping("/analyse")
 	public List<AnalyseResponseDTO> dataAnalyse(RequestDTO requestDTO) {

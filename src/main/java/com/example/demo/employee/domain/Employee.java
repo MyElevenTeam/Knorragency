@@ -25,17 +25,17 @@ public class Employee implements Serializable{
 	private static final long serialVersionUID = 1L;
 	
 	
-	private String password="123456";
+	private String password;
 	private Long id;
 	private String employeeName;
 	private Store localStore;
 	private String email;
 	private String employeeNumber;
-	private String picture="";
+	private String picture;
 	private String quotation;
 	//权限id
-	private String post="user1";
-	private String status="离线";
+	private String post;
+	private String status;
 	@Id
 	@GeneratedValue(strategy=GenerationType.IDENTITY)
 	public Long getId() {

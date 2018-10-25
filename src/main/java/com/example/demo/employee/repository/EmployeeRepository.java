@@ -22,4 +22,6 @@ public interface EmployeeRepository extends PagingAndSortingRepository<Employee,
 
 	@Query("from Employee e where e.localStore.storeName = ?1 and e.post = ?2")
 	public Employee findByStoreNameandPost(String storeName,String post);
+
+
 }
