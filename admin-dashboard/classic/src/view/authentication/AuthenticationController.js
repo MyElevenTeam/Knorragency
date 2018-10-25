@@ -22,7 +22,7 @@ Ext.define('Admin.view.authentication.AuthenticationController', {
             success: function(response, options) {
             	var json = Ext.util.JSON.decode(response.responseText);
 	            if(json.success){
-                    me.redirectTo('dashboard', true);
+                    me.redirectTo('achievement', true);
                     Ext.getCmp('loginUserName').setText('Hi,'+json.map.userName);
                     Ext.getCmp('loginUserImage').getEl().dom.src = 'resources/images/user-profile/'+json.map.picture;
                     //通过全局变量传递用户id
